@@ -1,0 +1,5 @@
+                              ORG/E000H
+E000 30 AA      LDA #AAH    ; LOAD IMMEDIATE VALUE IN REGISTER AE002 31 C0 00   STA C000HE005 36         NOTA        ; NOT LOGIC ON REG AE006 31 C0 00   STA C000HE009 32 E0 00   JMP E000HE00C 33 C3      ANDA #C3H   ; REGISTER A AND LOGICAL WITH IMMEDIATE E00E 32 12 34   JMP 1234HE011 30 BC      LDA #BCHE013 33 A4      ANDA #A4H                              ORG/E050H
+E050 30 12      LDA #12HE052 33 34      ANDA #34HE054 36         NOTAE055 32 E1 00   JMP E100HE058 32 12 34   JMP 1234H		;; testE05B 32 45 67   JMP 4567H		                              ORG/FFFEH    ; RESET vector          
+FFFE E0         DB E0HFFFF 00         DB 00HAssembly complete
+Number of errors = 0
