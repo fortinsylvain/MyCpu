@@ -1,0 +1,682 @@
+; -----------------------------------------------------------------
+; Homebrew CPU micro code
+; Author: Sylvain Fortin
+; Date : 1 december 2023
+; Documentation : Will be converted into 2 binary file to be 
+;                 programmed into 2864 to control the 74LSxx based 
+;                 cpu.
+; External RAM required to support the microcode
+; 0000H - 17FFH Total RAM space
+; 0000H - 00FFH Stack
+; 0100H - 17EF  Free for application
+; 17F0H SP		Stack Pointer 8 bit
+; 17F1H temp SP1
+; 17F2H temp	SP2
+; 17FAH bit<0>	Equal
+; 17FBH bit<0>	Carry
+; 17FCH A		Register
+; 17FEH IPH		Instruction Pointer MSB
+; 17FFH IPL		Instruction Pointer LSB
+; -----------------------------------------------------------------
+ORG/0000H               ; 0000H   RESET
+00H>R0                  ; DUMMY INSTRUCTION
+00H>R0                  ; STACK POINTER INIT
+17H>AH                  ; STACK START : 0000H
+F0H>AL                  ; STACK MAX   : 00FFH
+R0>DATA
+FFH>AH                  ; GET [FFFE] MSB START VECTEUR
+FEH>AL
+DATA>R0
+1FH>AH                  ; MSB START VECTEUR STORED IN IPH
+FEH>AL
+R0>DATA
+FFH>AH                  ; GET [FFFF] LSB START VECTEUR
+FFH>AL
+DATA>R1
+1FH>AH                  ; LSB START VECTEUR STORED IN IPL
+FFH>AL
+R1>DATA 
+01H>UH                  ; GO EXECUTE OP. POINTED BY IP
+00H>UL
+JUMP                    ; ***************************************************
+ORG/0080H               ; 0100H GET POINTED OP CODE AND EXECUTE
+1FH>AH                  ; READ IPH
+FEH>AL
+DATA>R0
+FFH>AL                  ; READ IPL
+DATA>R1                          
+R0>AH                   ; WRITE IPH:IPL IN AH:AL
+R1>AL
+DATA>R3                 ; READ OP CODE
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+01H>R4                  ;  IP+1>IP | ADD. RETURN
+0DH>R5                  ;  IP>ADD  |
+JUMP                    ;          | JMP TO ROUTINE
+R3>UH                   ; BUILD UADD. AND EXECUTE OP CODE
+00H>UL
+JUMP                    ; ***************************************************
+ORG/0100H               ; 0200H TAKE NEXT OP. AND EXECUTE
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+02H>R4                  ;  IP+1>IP | ADD. RETURN
+05H>R5                  ;  IP>ADD  |
+JUMP                    ;          | JMP TO ROUTINE
+DATA>R3                 ; READ OP. CODE
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+01H>R4                  ;  IP+1>IP | ADD. RETURN
+0DH>R5                  ;  IP>ADD  |
+JUMP                    ;          | JMP TO ROUTINE
+JUMP                    ; ***************************************************
+ORG/1580H               ; OP.2B JNEQ xxxx   JUMP IF E=0
+1FH>AH                  ; LIS BIT E ET MET DANS ENTREE A DE L'ALU.
+FAH>AL
+DATA>R0
+R0-0>A
+2BH>UH                  ; ADDRESSE DU SAUT DANS LE UPROG. SI E=0
+0CH>UL
+JUMP A=0
+3CH>UH                  ; ON PASSE SI ON A EGALITE  E=1    | ADD. ROUTINE
+00H>UL                  ;                          IP+1>IP |
+02H>R4                  ;                                  | ADD. RETOUR
+00H>R5                  ;                                  | PROCHAIN OP.
+JUMP                   
+DATA>R2                 ; ARRIVE E=0  ALORS ON PREND L'ADDRESSE  MSB ADD.
+3BH>UH                  ;          | ADD. ROUTINE
+00H>UL                  ;  IP+1>IP |
+2BH>R4                  ;  IP>ADD  | ADD. RETOUR
+12H>R5                  ;          |
+JUMP
+DATA>R3                 ; PREND LSB ADD. DU SAUT
+1FH>AH                  ; MET MSB ADD. DE SAUT DANS IPH
+FEH>AL
+R2>DATA
+FFH>AL                  ; MET LSB ADD. DE SAUT DANS IPL
+R3>DATA
+01H>UH                  ; EXECUTE OP. POINTEE ( SAUT DU A L'INEGALITE )
+00H>UL
+JUMP                    ; ***************************************************
+ORG/1600H               ; OP.2C JEQ xxxx   JUMP IF E=1
+1FH>AH                  ; LIS BIT E ET MET DANS ENTREE A DE L'ALU.
+FAH>AL
+DATA>R0
+R0-0>A
+2CH>UH                  ; ADDRESSE DU SAUT DANS LE UPROG. SI E=0
+16H>UL
+JUMP A=0
+DATA>R2                 ; ICI ON A E=1 ALORS ON PREND L'ADDRESSE  MSB ADD.
+3BH>UH                  ;          | ADD. ROUTINE
+00H>UL                  ;  IP+1>IP |
+2CH>R4                  ;  IP>ADD  | ADD. RETOUR
+0DH>R5                  ;          |
+JUMP
+DATA>R3                 ; PREND LSB ADD. DU SAUT
+1FH>AH                  ; MET MSB ADD. DE SAUT DANS IPH
+FEH>AL
+R2>DATA
+FFH>AL                  ; MET LSB ADD. DE SAUT DANS IPL
+R3>DATA
+01H>UH                  ; EXECUTE OP. POINTEE ( SAUT DU A L'EGALITE )
+00H>UL
+JUMP
+3CH>UH                  ; POINT ARRIVE SI INEGALITE E=0     | ADD. ROUTINE
+00H>UL                  ;                           IP+1>IP |
+02H>R4                  ;                                   | ADD. RETOUR
+00H>R5                  ;                                   | PROCHAIN OP.
+JUMP                    ; ***************************************************
+ORG/1680H               ; OP.2D CMPA xx   COMPARE A WITH IMMEDIATE VALUE 
+DATA>R0                 ; LIS DATA        E=1 WHEN EQUAL
+1FH>AH                  ; LIS REG. A
+FCH>AL
+DATA>R1
+R0-0>A
+XNOR R1-0
+R0-1>A
+XNOR R1-1
+R0-2>A
+XNOR R1-2
+R0-3>A
+XNOR R1-3
+R0-4>A
+XNOR R1-4
+R0-5>A
+XNOR R1-5
+R0-6>A
+XNOR R1-6
+R0-7>A
+XNOR R1-7
+Q>R0
+R0-0>A
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q7>A
+A>Q0
+Q>R0
+1FH>AH
+FAH>AL
+R0>DATA
+02H>UH                  ;  PROCHAIN OP.
+00H>UL
+JUMP                    ; ***************************************************
+ORG/1700H               ; OP.2E ADCA xx     ACCA+M+C>ACCA     C UPDATED
+DATA>R0                 ; READ IMMEDIATE VALUE
+1FH>AH                  ; READ REGISTER A
+FCH>AL
+DATA>R1
+1FH>AH                  ; READ CARRY IN
+FBH>AL
+DATA>R2
+3FH>UH                  ;           | ADD. ROUTINE
+00H>UL                  ; R0+R1>R0  |
+2FH>R6                  ; Cout>R2-0 | ADD. RETOUR
+0AH>R7                  ;           |
+JUMP                    ;           |
+1FH>AH                  ; MET SOMME DANS REG. A
+FCH>AL
+R0>DATA
+FBH>AL                  ; MET Cout DANS REG C (Carry)
+R2>DATA
+02H>UH                  ;  PROCHAIN OP.
+00H>UL
+JUMP                    ; ***************************************************
+ORG/1780H               ; OP.2F ADDA xx      ACCA+M>ACCA     C UPDATED
+DATA>R0                 ; LIS DONNE HEXA.
+1FH>AH                  ; LIS REG A
+FCH>AL
+DATA>R1
+00H>R2                  ; MET Cin=0
+3FH>UH                  ;           | ADD. ROUTINE
+00H>UL                  ; R0+R1>R0  |
+2FH>R6                  ; Cout>R2-0 | ADD. RETOUR
+0AH>R7                  ;           |
+JUMP                    ;           |
+1FH>AH                  ; MET SOMME DANS REG. A
+FCH>AL
+R0>DATA
+FBH>AL                  ; MET Cout DANS REG C (Carry)
+R2>DATA
+02H>UH                  ;  PROCHAIN OP.
+00H>UL
+JUMP                    ; ***************************************************
+ORG/1800H               ; OP.30 LDA xx  LOAD IMMEDIATE VALUE IN REGISTER A
+DATA>R0                 ; READ HEX VALUE TO LOAD
+1FH>AH                  ; PUT VALUE AT REGISTER A ADDRESS
+FCH>AL
+R0>DATA
+02H>UH                  ;  NEXT OP.
+00H>UL
+JUMP                    ; ***************************************************
+ORG/1880H               ; OP.31 STA xxxx STORE REG.A TO ADDRESSE
+DATA>R2                 ; PREND MSB ADD. DE STOCKAGE DE A
+3BH>UH                  ;          | ADD. ROUTINE
+00H>UL                  ;  IP+1>IP |
+31H>R4                  ;  IP>ADD  | ADD. RETOUR
+06H>R5                  ;          |
+JUMP
+DATA>R3                 ; PREND LSB ADD. DE STOCKAGE DE A
+1FH>AH                  ; LIS LE REGISTRE A
+FCH>AL
+DATA>R0
+R2>AH                   ; MET L'ADDRESSE DE DESTINATION SUR BUS ADDRESSE
+R3>AL
+R0>DATA                 ; STOCKE REGISTRE A A L'ADDRESSE POINTEE
+02H>UH                  ; PROCHAIN OP.
+00H>UL                  ;
+JUMP                    ; ***************************************************
+ORG/1900H               ; OP.32 JMP xxxx JUMP INCONDITIONAL TO ADDRESS
+DATA>R2                 ; TALE MSB ADDRESS 
+3BH>UH                  ;          | ADD. ROUTINE
+00H>UL                  ;  IP+1>IP |
+32H>R4                  ;  IP>ADD  | ADD. RETURN
+06H>R5                  ;          |
+JUMP
+DATA>R3                 ; PREND LSB ADD. DE SAUT INCONDITIONNEL
+1FH>AH                  ; MET MSB ADD. DE SAUT DANS IPH
+FEH>AL
+R2>DATA
+FFH>AL                  ; MET LSB ADD. DE SAUT DANS IPL
+R3>DATA
+01H>UH                  ; EXECUTE OP. POINTEE
+00H>UL
+JUMP                    ; **************************************************
+ORG/1980H               ; OP.33 ANDA xx   REGISTER A AND LOGICAL WITH IMMEDIATE 
+DATA>R0                 ; TAKE IMMEDIATE BYTE AND STORE IN R0
+1FH>AH
+FCH>AL
+DATA>R1                 ; READ A REGISTER AND STORE IN R1
+R0-0>A					; DO BITWISE AND BBETWEEN R0 AND R1
+AND R1-0				; BUILD RESULT IN Q
+R0-1>A
+AND R1-1
+R0-2>A
+AND R1-2
+R0-3>A
+AND R1-3
+R0-4>A
+AND R1-4
+R0-5>A
+AND R1-5
+R0-6>A
+AND R1-6
+R0-7>A
+AND R1-7
+Q>R0					; MOVE Q TO R0
+R0>DATA                 ; STORE R0 INTO REGISTER A
+02H>UH                  ; NEXT OP.
+00H>UL
+JUMP                    ; ***************************************************
+ORG/1A00H               ; OP.34 ORA xx   LOGICAL OR BETWEEN REG A AND BYTE
+DATA>R0                 ; IMMEDIATE BYTE STORED INTO R0
+1FH>AH
+FCH>AL
+DATA>R1                 ; REG A STORED TO R1
+R0-0>A					; BITWISE OR, RESULT STORED IN Q
+OR R1-0
+R0-1>A
+OR R1-1
+R0-2>A
+OR R1-2
+R0-3>A
+OR R1-3
+R0-4>A
+OR R1-4
+R0-5>A
+OR R1-5
+R0-6>A
+OR R1-6
+R0-7>A
+OR R1-7
+Q>R0					; MOVE Q TO R0
+R0>DATA                 ; STORE RESULT IN REG A
+02H>UH                  ; NEXT OP.
+00H>UL
+JUMP                    ; ***************************************************
+ORG/1A80H               ; OP.35 EXORA xx   EXCLUSIVE OR BETWWEN A AND VALUE
+DATA>R0                 ; PREND DONNE
+1FH>AH
+FCH>AL
+DATA>R1                 ; PREND DONNE
+R0-0>A
+XOR R1-0
+R0-1>A
+XOR R1-1
+R0-2>A
+XOR R1-2
+R0-3>A
+XOR R1-3
+R0-4>A
+XOR R1-4
+R0-5>A
+XOR R1-5
+R0-6>A
+XOR R1-6
+R0-7>A
+XOR R1-7
+Q>R0
+R0>DATA                 ; MET LE RESULTAT DANS REG. A
+02H>UH                  ; PROCHAIN OP.
+00H>UL
+JUMP                    ; ***************************************************
+ORG/1B00H               ; OP.36 NOTA   NOT LOGIQUE ON REGISTER A
+1FH>AH
+FCH>AL
+DATA>R0                 ; LIS REG. A
+R0-0>A
+NOT A-0
+R0-1>A
+NOT A-1
+R0-2>A
+NOT A-2
+R0-3>A
+NOT A-3
+R0-4>A
+NOT A-4
+R0-5>A
+NOT A-5
+R0-6>A
+NOT A-6
+R0-7>A
+NOT A-7
+Q>R0
+R0>DATA                 ; MET LE RESULTAT DANS REG. A
+01H>UH                  ; PREND OPERATION POINTEE ET EXECUTE
+00H>UL
+JUMP                    ; ***************************************************
+ORG/1B80H               ; OP.37 INCA  INCREMENTATION DU REGISTRE A
+1FH>AH                  ;             AVEC MISE A JOUR DU BIT C (CARRY)
+FCH>AL
+DATA>R0                 ; LIS REG. A
+37H>R6                  ;
+08H>R7                  ;   R0+1>R0
+3EH>UH                  ;  Cout>R1-7
+00H>UL
+JUMP
+1FH>AH                  ; RESULTAT DANS REG. A
+FCH>AL
+R0>DATA
+R1-7>A                  ; PREND RETENUE
+A>Q0
+Q>R0
+1FH>AH                  ; ADD REG. C (carry)
+FBH>AL
+R0>DATA                 ; MET DANS BIT DE RETENUE Co
+01H>UH                  ; EXECUTE OP. POINTEE
+00H>UL
+JUMP                    ; ******************************************************
+ORG/1D80H               ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.                 *
+1FH>AH                  ;        READ IPL  * (RETURN  R4:MSB ADD. R5:LSB ADD.) *
+FFH>AL                  ;        PUT IN R0 *************************************
+DATA>R0                 ; INCREMENT (COUT R1-7) R0+1>R0
+R0-0>A
+A>Q0                    ; COMPUTE THE CARRYs
+AND R0-1
+Q1>A-0
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q>R1                    ; SAVE COUT IN R1-7
+Q6>A
+XOR R0-7
+Q5>A
+XOR R0-6
+Q4>A
+XOR R0-5
+Q3>A
+XOR R0-4
+Q2>A
+XOR R0-3
+Q1>A
+XOR R0-2
+Q0>A
+XOR R0-1
+R0-0>A
+NOT A-0
+Q>R0                    ; SAVE RESULT IN R0
+1FH>AH                  ; SAVE INCREMENT RESULT IN IPL
+FFH>AL
+R0>DATA
+FEH>AL                  ; READ IPH
+DATA>R0
+R1-7>A                  ; ADD 1 to IPH IF THERE IS A CARRY R0 + (R1-7) > R
+3BH>UH
+50H>UL           
+JMP A=0                 ; IF Cin=0 THEN SAVE TIME BY JUMPING
+R0-0>A                  ; IF NOT WE INCREMENT R0 CONTAINING IPH
+A>Q0                    ; COMPUTE CARRY BETWEEN BITS
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R3-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q6>A
+XOR R0-7
+Q5>A
+XOR R0-6
+Q4>A
+XOR R0-5
+Q3>A
+XOR R0-4
+Q2>A
+XOR R0-3
+Q1>A
+XOR R0-2
+Q0>A
+XOR R0-1
+R0-0>A
+NOT A-0
+Q>R0                    ; INCREMENT RESULT IN R0
+1FH>AH                  ; SAVE NEW IPH VALUE
+FEH>AL            
+R0>DATA
+1FH>AH                  ; READ IPH
+FEH>AL
+DATA>R0
+FFH>AL                  ; READ IPL
+DATA>R1
+R0>AH                   ; PUT IP ON ADRESS BUS
+R1>AL
+R4>UH                   ; RETURN TO CALLING ROUTINE
+R5>UL
+JUMP                    ; *************************************************
+ORG/1E00H               ; 3C00H  INCREMENT IP
+1FH>AH                  ;        READ IPL  (RETURN  R4:MSB ADD. R5:LSB ADD.)
+FFH>AL
+DATA>R0
+3EH>UH                  ; ADDRESSE ROUTINE D'INCREMENTATION
+00H>UL
+3CH>R6                  ; ADDRESSE DE RETOUR PT.RET.
+08H>R7
+JUMP
+1FH>AH                  ; PT.RET.  MET LE RESULTAT DANS IPL
+FFH>AL
+R0>DATA
+FEH>AL                  ; LIS IPH
+DATA>R0
+3DH>UH                  ; ADD ROUTINE AJOUTE LA RETENUE
+00H>UL
+3CH>R6                  ; ADDRESSE DE RETOUR   RET.RET.
+12H>R7
+JUMP                    ; APPEL DE LA ROUTINE
+1FH>AH                  ; SAUVE RESULTAT AJOUT DE RETENUE
+FEH>AL
+R0>DATA                 ; RET.RET.
+R4>UH                   ; ADDRESSE DE RETOUR
+R5>UL
+JUMP                    ; ***************************************************
+ORG/1E80H               ; 3D00H  ADD CARRY   R0 + (R1-7) >R0
+R1-7>A                  ;        RETURN R6:MSB R7:LSB    Cout > R1-7
+3DH>UH
+28H>UL
+JMP A=0                 ; SI Cin=0 ALORS ON SAUTE A LA FIN POUR REVENIR
+R0-0>A                  ; ON INCREMENTE R0
+A>Q0                    ; CALCULONS LES RETENUES
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q>R1                    ; SAUVE COUT DANS R1-7
+Q6>A
+XOR R0-7
+Q5>A
+XOR R0-6
+Q4>A
+XOR R0-5
+Q3>A
+XOR R0-4
+Q2>A
+XOR R0-3
+Q1>A
+XOR R0-2
+Q0>A
+XOR R0-1
+R0-0>A
+NOT A-0
+Q>R0                    ; SAUVE LE RESULTAT DANS R0
+R6>UH                   ; ADDRESSE DE RETOUR MSB
+R7>UL                   ;                    LSB
+JUMP                    ; FIN DE L'INCREMENTATION
+00H>R1                  ; ARRIVE  SI ON A PAS D'INCREMENTATION Cout=0
+R6>UH
+R7>UL
+JUMP                    ; ***************************************************
+ORG/1F00H               ; 3E00H  INCREMENT (COUT R1-7)  R0+1>R0
+R0-0>A                  ;                  RETURN R6:MSB R7:LSB
+A>Q0                    ; COMPUTE CARRY
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q>R1                    ; SAUVE COUT DANS R1-7
+Q6>A
+XOR R0-7
+Q5>A
+XOR R0-6
+Q4>A
+XOR R0-5
+Q3>A
+XOR R0-4
+Q2>A
+XOR R0-3
+Q1>A
+XOR R0-2
+Q0>A
+XOR R0-1
+R0-0>A
+NOT A-0
+Q>R0                    ; SAUVE LE RESULTAT DANS R0
+R6>UH                   ; ADDRESSE DE RETOUR MSB
+R7>UL                   ;                    LSB
+JUMP                    ; ***************************************************
+ORG/1F80H               ; 3F00H  ADDITION (CIN ET COUT > R2-0 R0+R1>R0)
+R0-0>A                  ; R0 OR R1 > R3 ON 8 BITS (RETURN R6:MSB R7:LSB)
+OR R1-0
+R0-1>A
+OR R1-1
+R0-2>A
+OR R1-2
+R0-3>A
+OR R1-3
+R0-4>A
+OR R1-4
+R0-5>A
+OR R1-5
+R0-6>A
+OR R1-6
+R0-7>A
+OR R1-7
+Q>R3
+R0-0>A                  ; R0 ET R1 > R4
+AND R1-0
+R0-1>A
+AND R1-1
+R0-2>A
+AND R1-2
+R0-3>A
+AND R1-3
+R0-4>A
+AND R1-4
+R0-5>A
+AND R1-5
+R0-6>A
+AND R1-6
+R0-7>A
+AND R1-7
+Q>R4
+R2-0>A                  ; PROCESS CARRY ( CIN=R2-0 )
+AND R3-0
+Q0>A
+OR R4-0
+Q0>A
+AND R3-1
+Q1>A
+OR R4-1
+Q1>A
+AND R3-2
+Q2>A
+OR R4-2
+Q2>A
+AND R3-3
+Q3>A
+OR R4-3
+Q3>A
+AND R3-4
+Q4>A
+OR R4-4
+Q4>A
+AND R3-5
+Q5>A
+OR R4-5
+Q5>A
+AND R3-6
+Q6>A
+OR R4-6
+Q6>A
+AND R3-7
+Q7>A
+OR R4-7
+Q>R5
+R2-0>A                  ; R0 XOR R1 XOR COUTn
+XOR R0-0
+Q0>A
+XOR R1-0
+R5-0>A
+XOR R0-1
+Q1>A
+XOR R1-1
+R5-1>A
+XOR R0-2
+Q2>A
+XOR R1-2
+R5-2>A
+XOR R0-3
+Q3>A
+XOR R1-3
+R5-3>A
+XOR R0-4
+Q4>A
+XOR R1-4
+R5-4>A
+XOR R0-5
+Q5>A
+XOR R1-5
+R5-5>A
+XOR R0-6
+Q6>A
+XOR R1-6
+R5-6>A
+XOR R0-7
+Q7>A
+XOR R1-7
+Q>R0                    ; SAVE FINAL RESUT IN R0
+R5-7>A
+A>Q0
+Q>R2                    ; SAVE CARRY
+R6>UH                   ; ADDRESS RETURN MSB
+R7>UL                   ;                LSB
+JUMP                    ; ***************************************************
