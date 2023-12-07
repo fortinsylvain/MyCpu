@@ -12,7 +12,7 @@ I build this CPU using 74LS circuit  with some EEPROM. My goal was to try to mak
  17FEH IPH		Instruction Pointer MSB
  17FFH IPL		Instruction Pointer LSB
 
-I started documenting this project when i saw all the other machines documented in this link:
+
 
 Bloc Diagram of the architecture
 ![](BlocDiagram.jpg)
@@ -23,4 +23,9 @@ Picure of the final build connected to the Logic Analyzer
 Single step debug session from the start became too painfull so i connected a logic analyzer to get better history on program exection. Using symbol assignment it is possible to do some micro code dissassembly.
 ![](Ucode Logic Analyzer Debug.jpg)
 
+I started documenting this project when i saw all the other wonderfull machines documented in this link: Homebuilt CPUs WebRing
+Definitely check out other awesome homebrew CPU builds on Warren's https://www.homebrewcpuring.org
 
+Join the ring?
+To join the Homebuilt CPUs ring, drop Warren a line (mail is obfuscated, you have to change [at] to @), mentioning your page's URL. He'll then add it to the list. You will need to copy this code fragment into your page (or reference it.)
+Note: The ring is chartered for projects that include a home-built CPU. It can emulate a commercial part, that′s OK. But actually using that commercial CPU doesn′t rate. Likewise, the project must have been at least partially built: pure paper designs don′t rate either. It can be built using any technology you like, from relays to FPGAs.
