@@ -19,3 +19,8 @@ Bloc Diagram of the architecture
 
 Picure of the final build connected to the Logic Analyzer
 ![](uct_picture1.jpg)
+
+Single step debug session from the start became too painfull so i connected a logic analyzer to get better history on program exection. Using symbol assignment it is possible to do some micro code dissassembly.
+![](Ucode Logic Analyzer Debug.jpg)
+
+
