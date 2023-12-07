@@ -27,6 +27,9 @@ The hand written schematic
 The cpu board layout view
 ![](cpuBoardLayout.jpg)
 
+The ROM decoding table encode the different combination how the data can travel between the components. This ROM expand the number of lines we can control with the EEPROM microcode saving the number of bits required. This architecture work using 16 bits micro-instructions. The chip IC20 and IC21 are 74S188 256 Open Collector PROM (really are one time programmable). Several chip were lost before finding the correct table values.
+![](decoderRomTable.jpg)
+
 The io board schematic. A RAM, EEPROM to store the application program with some LEDs.
 ![](ioSchematic.jpg)
 
