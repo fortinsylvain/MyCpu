@@ -18,4 +18,4 @@ Bloc Diagram of the architecture
 ![](BlocDiagram.jpg)
 
 Picure of the final build connected to the Logic Analyzer
-![](uct photo.jpg)
+![](uct_picture1.jpg)
