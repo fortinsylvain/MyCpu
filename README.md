@@ -21,7 +21,7 @@ Here is the bloc diagram of this relatively simple architecture
 Picure of the final wire wrap assembly connected to the Logic Analyzer
 ![](uct_picture1.jpg)
 
-Single step debug session from the start usinig only a couple of led for uode address and main bus byte display became too painfull. I finally purchased on ebay a good priced Agilent 1670G Logic Analyzer and connected it to MyCpu to get better history on program exection to ease debug. Using symbol assignment it is possible to do some rudimentary micro code dissassembly.
+Single clock step debug session starting from reset using only a couple of led to inspect ucode address and main bus byte display became too painfull. I finally purchased on ebay a good priced Agilent 1670G Logic Analyzer and connected it to MyCpu to get better history on program exection to ease debug. Using symbol assignment it is possible to do some rudimentary micro code dissassembly.
 ![](Ucode Logic Analyzer Debug.jpg)
 
 I started documenting this project when i saw all the other wonderfull machines documented in this link: Homebuilt CPUs WebRing
