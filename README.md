@@ -1,7 +1,7 @@
 I build this CPU using 74LS circuit with some EEPROM. My goal was to try to make my own cpu using only a one bit ALU. I already know from the start that the machine would be quite slow compare to existing standard but at least i can see if i can make it work.  All the microcode to control the machine is stored in 2 binary file to be programmed into 2864. A micro assembler program was developed to help generate the micro instructions. Some external RAM is required to support the microcode. Here the RAM address mapping to implement the storage need:
 
 * 0000H - 17FFH Total RAM space
-* -----------------------------
+  -----------------------------
 * 0000H - 00FFH  Stack
 * 0100H - 17EF   Free for application
 * 17F0H SP		   Stack Pointer 8 bit
