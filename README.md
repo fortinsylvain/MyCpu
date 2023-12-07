@@ -13,3 +13,7 @@ I build this CPU using 74LS circuit  with some EEPROM. My goal was to try to mak
  17FFH IPL		Instruction Pointer LSB
 
 I started documenting this project when i saw all the other machines documented in this link:
+
+Bloc Diagram of the architecture
+![](BlocDiagram.jpg)
+
