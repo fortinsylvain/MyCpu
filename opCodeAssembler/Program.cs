@@ -310,9 +310,9 @@ namespace Assembler
                                 }
 
                                 // End of the line
-                                string sEndOfLine = "\n\r";
+                                string sEndOfLine = "\r\n";
                                 Console.Write(sEndOfLine);
-                                lstFile.Write("\r");
+                                lstFile.Write(sEndOfLine);
 
                                 // Store in EEPROM number of bytes and update line number accordingly
                                 for (int i = 0; i < dataList[iIndexTable].NbByte + 1; i++)

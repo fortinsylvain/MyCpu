@@ -457,9 +457,9 @@ namespace UCT_Assembler
                                 }
 
                                 // End of the line
-                                string sEndOfLine = "\n\r";
+                                string sEndOfLine = "\r\n";
                                 Console.Write(sEndOfLine);
-                                lstFile.Write("\r");
+                                lstFile.Write(sEndOfLine);
 
 
                                 aEepromMsb[iLine] = (int)(BS * 16 + CS);
