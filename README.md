@@ -17,3 +17,5 @@ I started documenting this project when i saw all the other machines documented 
 Bloc Diagram of the architecture
 ![](BlocDiagram.jpg)
 
+Picure of the final build connected to the Logic Analyzer
+![](uct photo.jpg)
