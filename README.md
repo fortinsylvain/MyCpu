@@ -2,22 +2,20 @@ I build this CPU using 74LS circuit with some EEPROM. My goal was to try to make
 
 * 0000H - 17FFH Total RAM space
 * 0000H - 00FFH Stack
- 0100H - 17EF  Free for application
- 17F0H SP		Stack Pointer 8 bit
- 17F1H temp SP1
- 17F2H temp	SP2
- 17FAH bit<0>	Equal
- 17FBH bit<0>	Carry
- 17FCH A		Register
- 17FEH IPH		Instruction Pointer MSB
- 17FFH IPL		Instruction Pointer LSB
+* 0100H - 17EF  Free for application
+* 17F0H SP		Stack Pointer 8 bit
+* 17F1H temp SP1
+* 17F2H temp	SP2
+* 17FAH bit<0>	Equal
+* 17FBH bit<0>	Carry
+* 17FCH A		Register
+* 17FEH IPH		Instruction Pointer MSB
+* 17FFH IPL		Instruction Pointer LSB
 
-
-
-Bloc Diagram of the architecture
+Here is the bloc diagram of this relatively simple architecture
 ![](BlocDiagram.jpg)
 
-Picure of the final build connected to the Logic Analyzer
+Picure of the final wire wrap assembly connected to the Logic Analyzer
 ![](uct_picture1.jpg)
 
 Single step debug session from the start became too painfull so i connected a logic analyzer to get better history on program exection. Using symbol assignment it is possible to do some micro code dissassembly.
