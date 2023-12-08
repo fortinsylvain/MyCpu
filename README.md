@@ -1,4 +1,7 @@
-I build this CPU using 74LS circuit with some EEPROM. My goal was to try to make my own cpu using only a one bit ALU. I already know from the start that the machine would be quite slow compare to existing standard but at least i can see if i can make it work.  All the microcode to control the machine is stored in 2 binary file to be programmed into 2864. A micro assembler program was developed to help generate the micro instructions. Some external RAM is required to support the microcode. Here the RAM address mapping to implement the storage need:
+I build at home this CPU using 74LS circuit with some EEPROM.
+![](cpuPicture1.jpg)
+
+ My goal was to try to make my own cpu using only a one bit ALU. I already know from the start that the machine would be quite slow compare to existing standard but at least i can see if i can make it work.  All the microcode to control the machine is stored in 2 binary file to be programmed into 2864. A micro assembler program was developed to help generate the micro instructions. Some external RAM is required to support the microcode. Here the RAM address mapping to implement the storage need:
 
 0000H - 17FFH Total RAM space
 -----------------------------
@@ -18,9 +21,6 @@ Register A, Stack Pointer, Status flag and Instruction Pointer are stored in RAM
 Here is the top level diagram of this relatively simple architecture.
 ![](topDiagram.jpg)
 
-Picure of the final wire wrap assembly connected to the Logic Analyzer
-![](cpuPicture1.jpg)
-
 The hand written schematic
 ![](cpuSchematic.jpg)
 
@@ -34,6 +34,10 @@ The io board schematic. A RAM, EEPROM to store the application program with some
 ![](ioSchematic.jpg)
 
 Single clock step debug session starting from reset using only a couple of led to inspect ucode address and main bus byte display became too painfull. I finally purchased on ebay a good priced Agilent 1670G Logic Analyzer and connected it to MyCpu to get better history on program exection to ease debug. Using symbol assignment it is possible to do some rudimentary micro code dissassembly.
+Picure of the final wire wrap assembly connected to the Logic Analyzer
+![](cpuPicture1.jpg)
+
+A view on the analyzer of some ucode dissassembly.
 ![](ucodeLogicAnalyzerDebug.jpg)
 
 I started documenting this project when i saw all the other wonderfull machines documented in this link: Homebuilt CPUs WebRing
