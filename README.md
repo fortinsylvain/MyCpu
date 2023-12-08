@@ -35,7 +35,7 @@ The io board schematic. A RAM, EEPROM to store the application program with some
 
 Single clock step debug session starting from reset using only a couple of led to inspect ucode address and main bus byte display became too painfull. I finally purchased on ebay a good priced Agilent 1670G Logic Analyzer and connected it to MyCpu to get better history on program exection to ease debug. Using symbol assignment it is possible to do some rudimentary micro code dissassembly.
 Picure of the final wire wrap assembly connected to the Logic Analyzer
-![](cpuPicture1.jpg)
+![](cpuPicture2.jpg)
 
 A view on the analyzer of some ucode dissassembly.
 ![](ucodeLogicAnalyzerDebug.jpg)
