@@ -15,35 +15,6 @@ namespace Assembler
     class Program
     {
 
-        static void GetRegisterNumber(string sRegisterNumber, ref int iRegisterNumber, ref int iErrorNumber)
-        {
-            // Convert string to integer
-            if (!int.TryParse(sRegisterNumber, out iRegisterNumber) || iRegisterNumber < 0 || iRegisterNumber > 7)
-            {
-                Console.WriteLine();
-                // Add logic for printing to a file or console (similar to PRINT statements in BASIC)
-                Console.WriteLine("**** ERROR ON REGISTER NUMBER (0-7) ****");
-                iErrorNumber++;
-                iRegisterNumber = 0;
-            }
-
-            // Continue with the logic after the IF statement
-            // ...
-        }
-
-        static void GetBitNumber(string sBitNumber, ref int iBitNumber, ref int iErrorNumber)
-        {
-            // Convert string to integer
-            if (!int.TryParse(sBitNumber, out iBitNumber) || iBitNumber < 0 || iBitNumber > 7)
-            {
-                Console.WriteLine();
-                // Add logic for printing to a file or console (similar to PRINT statements in BASIC)
-                Console.WriteLine("**** ERREUR ON BIT NUMBER (0-7) ****");
-                iErrorNumber++;
-                iBitNumber = 0;
-            }
-        }
-
         // Function to check if a string is a valid hexadecimal value
         static bool IsHex(string hexValue)
         {
@@ -83,21 +54,34 @@ namespace Assembler
         static void Main(string[] args)
         {
             Console.WriteLine("Homebrew assembler start");
-            int iAddressEepromBegin = 0xE000;
-            string repositoryPath = "C:\\Sylvain\\UCT\\Assembler\\";    // Fixed path for now
-            string fileName = "diag.src"; // Replace with your desired file name
+            string repositoryPath = "";
+            string fileName = "";
+            
+            if (args.Length != 1)   // No argument
+            {
+                repositoryPath = "C:\\Sylvain\\MyCPU\\opCodeAssembler\\";    // Fixed path for now
+                fileName = "diag.asm"; // Replace with your desired file name
+            }
+            else
+            {                       // With argument
+                string currentPath = Directory.GetCurrentDirectory();
+            }
+
             string baseFileName = Path.GetFileNameWithoutExtension(fileName);
             string fileExtension = Path.GetExtension(fileName);
             string fullPath = Path.Combine(repositoryPath, fileName);
+
+            int iAddressEepromBegin = 0xE000;
 
             // Reserve space for one 2864 EEPROM
             // we have 12 bit address (A12-A0)
             const int iEpromSize = 8192;
             int[] aEeprom = new int[iEpromSize];
-            
+
             int iErrorNumber = 0;
             int iLine = 0;
-            int iTotalAssembledFieldWidth = 12;
+            int iTotalAssembledFieldWidth = 12; // number of character allowed to print assembled bytes.
+            int iAssembledMnemonicPosition = 4 + iTotalAssembledFieldWidth; // 4 correspond to number of characters for the address
 
             //string[] TBL = new string[28];
             List<InstrTable> dataList = new List<InstrTable>();
@@ -117,36 +101,65 @@ namespace Assembler
                                                                                                                 // OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND BYTE
                                                                                                                 // OP.35 EXORA #**H   EXCLUSIVE OR BETWWEN A AND VALUE
                                                                                                                 // OP.37 INCA INCREMENT REGISTRE A
-
-            string sRegisterNumber;
-            int iRegisterNumber = 0;
-            string sNibble;
-            int iNibble = 0;
-            string sBitNumber;
-            int iBitNumber = 0;
+            
+            int iFirstCharacterIndex;
             int iPosComment;
-
-            // Code Machine
-            int BS = 0;    // MSB 7:4
-            int CS = 0;    // MSB 3:0
-            int DS = 0;    // LSB 7:4
-            int ES = 0;    // LSB 3:0
+            string sNibble;
             int iMsq = 0;
             int iLsq = 0;
             int[] iOpData = new int[5]; // Creates an array of 5 integers
-            
+
+
+            // First pass to gather symbol table
             using (StreamReader inputFile = File.OpenText(fullPath))
             using (StreamWriter lstFile = File.CreateText(Path.Combine(repositoryPath, baseFileName + ".lst")))
-            //using (StreamWriter msbFile = File.CreateText(Path.Combine(repositoryPath, baseFileName + ".msb")))
-            //using (StreamWriter lsbFile = File.CreateText(Path.Combine(repositoryPath, baseFileName + ".lsb")))
             {
                 string sLine = "";
                 while (!inputFile.EndOfStream)
                 {
                     sLine = inputFile.ReadLine();
+
+                    //iFirstCharacterIndex = FindColonCharacter(sLine);
+                    //iPosComment = sLine.IndexOf(';');   // Locate where the comment begin
+
+                    //if (iFirstCharacterIndex == -1)    // Empty line ?
+                    //{
+                    //    Console.WriteLine("");
+                    //    lstFile.WriteLine("");
+                    //}
+                }
+            }
+
+            // Second pass to gather instructions
+            iLine = 0;
+            using (StreamReader inputFile = File.OpenText(fullPath))
+            using (StreamWriter lstFile = File.CreateText(Path.Combine(repositoryPath, baseFileName + ".lst")))
+            {
+                string sLine = "";
+                while (!inputFile.EndOfStream)
+                {
+                    sLine = inputFile.ReadLine();
+                    iFirstCharacterIndex = FindFirstNonSpaceCharacter(sLine);
                     iPosComment = sLine.IndexOf(';');   // Locate where the comment begin
 
-                    if (sLine.Substring(0, 1) != ";")   // Process the line only if it does not begin with comment 
+                    if (iFirstCharacterIndex == -1)    // Empty line ?
+                    {
+                        Console.WriteLine("");
+                        lstFile.WriteLine("");
+                    }
+                    else if (sLine.Substring(0, 1) == ";")  // Begin with ";"
+                    {
+                        Console.WriteLine(sLine);
+                        lstFile.WriteLine(sLine);
+                    }
+                    else if (iFirstCharacterIndex == iPosComment)   // Only a comment line
+                    {
+                        Console.Write(new string(' ', iAssembledMnemonicPosition));
+                        lstFile.Write(new string(' ', iAssembledMnemonicPosition));
+                        Console.WriteLine(sLine);
+                        lstFile.WriteLine(sLine);
+                    }
+                    else // Process line
                     {
                         // Find in table the ucode
                         bool bFound = false;
@@ -165,7 +178,7 @@ namespace Assembler
 
                                 if (cCode != '*')   // Compare only if not and an asterix
                                 {
-                                    if (cCode != sLine[iCharPointer])
+                                    if (cCode != sLine[iCharPointer + iFirstCharacterIndex])
                                     {
                                         bIdentical = false;
                                     }
@@ -189,39 +202,17 @@ namespace Assembler
                             int iOffset = 0;
                             if (iIndexTable == 0)   // ORG
                             {
-                                iLine = int.Parse(sLine.Substring(4, 4), System.Globalization.NumberStyles.HexNumber);
-                                //Console.Write(new string(' ', 7));
-                                //Console.Write(sLine.Substring(4, 6).PadRight(8));
-                                Console.Write(new string(' ', 30));
-                                Console.Write(sLine.Substring(0, 9));
+                                iLine = int.Parse(sLine.Substring(iFirstCharacterIndex + 4, 4), System.Globalization.NumberStyles.HexNumber);
+                                
+                                Console.Write(new string(' ', iAssembledMnemonicPosition));
+                                lstFile.Write(new string(' ', iAssembledMnemonicPosition));
 
-                                // Write to output files
-                                //lstFile.Write(new string(' ', 7));
-                                //lstFile.Write(sLine.Substring(4, 6).PadRight(8));
-                                //lstFile.Write(new string(' ', 15));
-                                lstFile.Write(new string(' ', 30));
-                                lstFile.Write(sLine.Substring(0, 9));
-
-                                if (iPosComment > 0)
-                                {
-                                    Console.Write(new string(' ', 4)); // TAB(4)
-                                    lstFile.Write(new string(' ', 4));
-
-                                    string sOrgCommentSubstring = sLine.Substring(iPosComment, Math.Min(49, sLine.Length - iPosComment));
-                                    Console.Write(sOrgCommentSubstring);
-                                    lstFile.Write(sOrgCommentSubstring);
-                                }
-                                else
-                                {
-                                    //Console.WriteLine();
-                                }
-                                Console.WriteLine("");
-                                lstFile.WriteLine("");
-
+                                Console.WriteLine(sLine);
+                                lstFile.WriteLine(sLine);
                             }
                             if (iIndexTable == 1)   // DB
                             {
-                                iOffset = dataList[iIndexTable].Offset;
+                                iOffset = dataList[iIndexTable].Offset + iFirstCharacterIndex;
                                 sNibble = sLine.Substring(iOffset, 1);
                                 getNibble(sNibble, ref iMsq, ref iErrorNumber);
                                 sNibble = sLine.Substring(iOffset + 1, 1);
@@ -230,7 +221,7 @@ namespace Assembler
                             }
                             else    // Mnemonic to assemble
                             {
-                                switch (dataList[iIndexTable].NbByte)   // How may byte follow
+                                switch (dataList[iIndexTable].NbByte)   // How many byte follow
                                 {
 
                                     case 0:     // No byte following, we only have the opcode
@@ -238,7 +229,7 @@ namespace Assembler
                                         break;
                                     case 1:     // One byte after opcode
                                         iOpData[0] = dataList[iIndexTable].OpCode;
-                                        iOffset = dataList[iIndexTable].Offset;
+                                        iOffset = dataList[iIndexTable].Offset + iFirstCharacterIndex;
                                         sNibble = sLine.Substring(iOffset, 1);
                                         getNibble(sNibble, ref iMsq, ref iErrorNumber);
                                         sNibble = sLine.Substring(iOffset + 1, 1);
@@ -247,7 +238,7 @@ namespace Assembler
                                         break;
                                     case 2:     // Two bytes after opcode
                                         iOpData[0] = dataList[iIndexTable].OpCode;
-                                        iOffset = dataList[iIndexTable].Offset;
+                                        iOffset = dataList[iIndexTable].Offset + iFirstCharacterIndex;
                                         sNibble = sLine.Substring(iOffset, 1);
                                         getNibble(sNibble, ref iMsq, ref iErrorNumber);
                                         sNibble = sLine.Substring(iOffset + 1, 1);
@@ -287,32 +278,9 @@ namespace Assembler
                                 Console.Write(sAllignedAssembledCode);
                                 lstFile.Write(sAllignedAssembledCode);
 
-                                // Mnemonic
-                                string sMnemonic = "";
-                                if (iPosComment == -1)   // No comment found
-                                {
-                                    sMnemonic = sLine.Substring(0, sLine.Length);
-                                }
-                                else
-                                {
-                                    sMnemonic = sLine.Substring(0, 12);
-                                }
-                                
-                                Console.Write(sMnemonic);
-                                lstFile.Write(sMnemonic);
-
-                                // Comments
-                                if (iPosComment > 0)
-                                {
-                                    string sCommentSubstring = sLine.Substring(iPosComment, sLine.Length - iPosComment);
-                                    Console.Write(sCommentSubstring);
-                                    lstFile.Write(sCommentSubstring);
-                                }
-
-                                // End of the line
-                                string sEndOfLine = "\r\n";
-                                Console.Write(sEndOfLine);
-                                lstFile.Write(sEndOfLine);
+                                // Full line with end of line
+                                Console.WriteLine(sLine);
+                                lstFile.WriteLine(sLine);
 
                                 // Store in EEPROM number of bytes and update line number accordingly
                                 for (int i = 0; i < dataList[iIndexTable].NbByte + 1; i++)
@@ -365,6 +333,37 @@ namespace Assembler
 
         }
 
+        static int FindFirstNonSpaceCharacter(string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] != ' ')
+                {
+                    return i;
+                }
+            }
+
+            // Return -1 if no non-space character is found
+            return -1;
+        }
+
+        static int FindColonCharacter(string input) // Find colon character not in comment area
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] != ';')    // Begin of comment area then
+                {
+                    return -1;          // Return we did not found the colon character
+                }
+                else if (input[i] == ':')
+                {
+                    return i;           // Found a colon character, return position
+                }
+            }
+
+            // Return -1 if colon character not found
+            return -1;
+        }
 
     }
 }
