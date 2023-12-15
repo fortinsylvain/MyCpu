@@ -75,7 +75,7 @@ namespace UCT_Assembler
         {
             Console.WriteLine("Homebrew micro assembler start");
 
-            string repositoryPath = "C:\\Sylvain\\UCT\\UctMicroAssembler\\";    // Fixed path for now
+            string repositoryPath = "C:\\Sylvain\\MyCPU\\uCodeAssembler\\";    // Fixed path for now
             string fileName = "urom.src"; // Replace with your desired file name
             string baseFileName = Path.GetFileNameWithoutExtension(fileName);
             string fileExtension = Path.GetExtension(fileName);
@@ -114,10 +114,10 @@ namespace UCT_Assembler
             TBL[18] = "R*>DATA";
             TBL[19] = "Q>R*";
             TBL[20] = "**H>AL";
-            TBL[21] = "JMP SW1";
-            TBL[22] = "JMP SW2";
-            TBL[23] = "JMP A=0";
-            TBL[24] = "JUMP";
+            TBL[21] = "JMP_SW1";
+            TBL[22] = "JMP_SW2";
+            TBL[23] = "JMP_A=0";
+            TBL[24] = "JMP";
             TBL[25] = "ORG/****H";
             TBL[26] = "Q*>A";
             TBL[27] = "**H>AH";
@@ -164,7 +164,11 @@ namespace UCT_Assembler
 
                                 if (cCode != '*')   // Compare only if not and an asterix
                                 {
-                                    if (cCode != sLine[iCharPointer])
+                                    if (iCharPointer > (sLine.Length - 1))
+                                    {
+                                        bIdentical = false;
+                                    }
+                                    else if (cCode != sLine[iCharPointer])
                                     {
                                         bIdentical = false;
                                     }

@@ -54,22 +54,26 @@ namespace Assembler
         static void Main(string[] args)
         {
             Console.WriteLine("Homebrew assembler start");
-            string repositoryPath = "";
-            string fileName = "";
-            
+            string sCurrentPath = "";
+            string sRepositoryPath = "";
+            string sFileName = "";
+
+            sFileName = args[0];
             if (args.Length != 1)   // No argument
             {
-                repositoryPath = "C:\\Sylvain\\MyCPU\\opCodeAssembler\\";    // Fixed path for now
-                fileName = "diag.asm"; // Replace with your desired file name
+                sRepositoryPath = "C:\\Sylvain\\MyCPU\\opCodeAssembler\\examples";    // Fixed path for now
+                sFileName = "fibonacy.asm"; // Replace with your desired file name
             }
             else
             {                       // With argument
-                string currentPath = Directory.GetCurrentDirectory();
+               sCurrentPath = Directory.GetCurrentDirectory();
+               sRepositoryPath = Path.Combine(sCurrentPath, "../../examples");           // Move up two level and go to examples
+               
             }
 
-            string baseFileName = Path.GetFileNameWithoutExtension(fileName);
-            string fileExtension = Path.GetExtension(fileName);
-            string fullPath = Path.Combine(repositoryPath, fileName);
+            string baseFileName = Path.GetFileNameWithoutExtension(sFileName);
+            string fileExtension = Path.GetExtension(sFileName);
+            string fullPath = Path.Combine(sRepositoryPath, sFileName);
 
             int iAddressEepromBegin = 0xE000;
 
@@ -85,13 +89,20 @@ namespace Assembler
 
             //string[] TBL = new string[28];
             List<InstrTable> dataList = new List<InstrTable>();
-            dataList.Add(new InstrTable { StringValue = "ORG/****H", OpCode = 0,    NbByte = 0, Offset = 0 });
-            dataList.Add(new InstrTable { StringValue = "DB **H",    OpCode = 0,    NbByte = 0, Offset = 3 });
-            dataList.Add(new InstrTable { StringValue = "LDA #**H",  OpCode = 0x30, NbByte = 1, Offset = 5 });  // LDA #**H     LOAD IMMEDIATE VALUE IN REGISTER A
-            dataList.Add(new InstrTable { StringValue = "STA ****H", OpCode = 0x31, NbByte = 2, Offset = 4 });  // STA ****H    STORE REG.A TO ADDRESSE
-            dataList.Add(new InstrTable { StringValue = "JMP ****H", OpCode = 0x32, NbByte = 2, Offset = 4 });  // JMP ****H    JUMP INCONDITIONAL TO ADDRESS
-            dataList.Add(new InstrTable { StringValue = "ANDA #**H", OpCode = 0x33, NbByte = 1, Offset = 6 });  // ANDA #**H    REGISTER A AND LOGICAL WITH IMMEDIATE 
-            dataList.Add(new InstrTable { StringValue = "NOTA",      OpCode = 0x36, NbByte = 0, Offset = 0 });  // NOT LOGIC ON REG A
+            dataList.Add(new InstrTable { StringValue = "ORG/****H",  OpCode = 0,    NbByte = 0, Offset = 0 });
+            dataList.Add(new InstrTable { StringValue = "DB **H",     OpCode = 0,    NbByte = 0, Offset = 3 });
+            dataList.Add(new InstrTable { StringValue = "STOP",       OpCode = 0x08, NbByte = 0, Offset = 0 });  // STOP         STOP EXECUTING
+            dataList.Add(new InstrTable { StringValue = "ADDA ****H", OpCode = 0x29, NbByte = 2, Offset = 5 });  // ADDA ****H   ADD BYTE FROM ADDRESS INTO REG A Carry update
+            dataList.Add(new InstrTable { StringValue = "LDA ****H",  OpCode = 0x2A, NbByte = 2, Offset = 4 });  // LDA ****H    LOAD BYTE FROM ADDRESS INTO REG A
+            dataList.Add(new InstrTable { StringValue = "JNE ****H",  OpCode = 0x2B, NbByte = 2, Offset = 4 });  // JNE ****H    JUMP IF NOT EQUAL (E=0)
+            dataList.Add(new InstrTable { StringValue = "JEQ ****H",  OpCode = 0x2C, NbByte = 2, Offset = 4 });  // JEQ ****H    JUMP IF EQUAL (E=1)
+            dataList.Add(new InstrTable { StringValue = "CMPA #**H",  OpCode = 0x2D, NbByte = 1, Offset = 6 });  // CMPA #**H    COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
+            dataList.Add(new InstrTable { StringValue = "ADDA #**H",  OpCode = 0x2F, NbByte = 1, Offset = 6 });  // ADDA #**H    ADD IMMEDIATE BYTE VALUE TO REGISTER A
+            dataList.Add(new InstrTable { StringValue = "LDA #**H",   OpCode = 0x30, NbByte = 1, Offset = 5 });  // LDA #**H     LOAD IMMEDIATE VALUE IN REGISTER A
+            dataList.Add(new InstrTable { StringValue = "STA ****H",  OpCode = 0x31, NbByte = 2, Offset = 4 });  // STA ****H    STORE REG.A TO ADDRESSE
+            dataList.Add(new InstrTable { StringValue = "JMP ****H",  OpCode = 0x32, NbByte = 2, Offset = 4 });  // JMP ****H    JUMP INCONDITIONAL TO ADDRESS
+            dataList.Add(new InstrTable { StringValue = "ANDA #**H",  OpCode = 0x33, NbByte = 1, Offset = 6 });  // ANDA #**H    REGISTER A AND LOGICAL WITH IMMEDIATE 
+            dataList.Add(new InstrTable { StringValue = "NOTA",       OpCode = 0x36, NbByte = 0, Offset = 0 });  // NOT LOGIC ON REG A
                                                                                                                 // OP.2B JNEQ ****JUMP IF E = 0
                                                                                                                 // OP.2C JEQ ****JUMP IF E = 1
                                                                                                                 // OP.2D CMPA** COMPARE A WITH IMMEDIATE VALUE
@@ -112,7 +123,7 @@ namespace Assembler
 
             // First pass to gather symbol table
             using (StreamReader inputFile = File.OpenText(fullPath))
-            using (StreamWriter lstFile = File.CreateText(Path.Combine(repositoryPath, baseFileName + ".lst")))
+            using (StreamWriter lstFile = File.CreateText(Path.Combine(sRepositoryPath, baseFileName + ".lst")))
             {
                 string sLine = "";
                 while (!inputFile.EndOfStream)
@@ -133,7 +144,7 @@ namespace Assembler
             // Second pass to gather instructions
             iLine = 0;
             using (StreamReader inputFile = File.OpenText(fullPath))
-            using (StreamWriter lstFile = File.CreateText(Path.Combine(repositoryPath, baseFileName + ".lst")))
+            using (StreamWriter lstFile = File.CreateText(Path.Combine(sRepositoryPath, baseFileName + ".lst")))
             {
                 string sLine = "";
                 while (!inputFile.EndOfStream)
@@ -170,15 +181,17 @@ namespace Assembler
                             int iCodeLength = data.StringValue.Length;
                             int iCharPointer = 0;
                             bool bIdentical = true;
-
+                            
                             while ((iCharPointer < iCodeLength) && bIdentical)
                             {
-                                //char cCode = TBL[iIndexTable][iCharPointer];
                                 char cCode = data.StringValue[iCharPointer];
-
                                 if (cCode != '*')   // Compare only if not and an asterix
-                                {
-                                    if (cCode != sLine[iCharPointer + iFirstCharacterIndex])
+                                { 
+                                    if(iCharPointer > (sLine.Length - iFirstCharacterIndex - 1))
+                                    { 
+                                        bIdentical = false; 
+                                    }
+                                    else if (cCode != sLine[iCharPointer + iFirstCharacterIndex])
                                     {
                                         bIdentical = false;
                                     }
@@ -315,7 +328,7 @@ namespace Assembler
                 Console.WriteLine(sTemp);
                 lstFile.WriteLine(sTemp);
 
-                string sName_msb = Path.Combine(repositoryPath, baseFileName + ".bin");
+                string sName_msb = Path.Combine(sRepositoryPath, baseFileName + ".bin");
                 using (BinaryWriter msbFile = new BinaryWriter(new FileStream(sName_msb, FileMode.Create)))
                 {
                     foreach (byte value in aEeprom)

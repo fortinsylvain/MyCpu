@@ -1,0 +1,335 @@
+; -----------------------------------------------------------------
+; Homebrew CPU micro code
+; Author: Sylvain Fortin
+; Date : 15 december 2023
+; Documentation : diag.asm is used to test the assembler
+;                 instructions of MyCPU.
+; Memory map of the computer
+; 0000H - 17FFH Total RAM space
+; 0000H - 00FFH Stack
+; 0100H - 17EF  Free for application
+; 17F0H         SP Stack Pointer 8 bit
+; 17F1H temp SP1
+; 17F2H temp SP2
+; 17FAH bit<0>	Equal
+; 17FBH bit<0>	Carry
+; 17FCH A Register
+; 17FEH IPH	Instruction Pointer MSB
+; 17FFH IPL Instruction Pointer LSB
+; C000H           LED port
+; E000H - F000H   EEPROM 2864 for program storage
+; -----------------------------------------------------------------
+                                     ; 
+                         ORG/E000H   ; EEPROM Start
+
+E000 30 00               LDA #00H    ; Clear LED
+E002 36                  NOTA
+E003 31 C0 00            STA C000H   ; Output to LED port
+
+                         ; --------------------------------------------------------------------
+                         ; OP.08 STOP
+                         ; STOP EXECUTING
+                         ; Cannot test here it will stop execution...
+                         ; --------------------------------------------------------------------
+                         ;LDA #08H
+                         ;NOTA
+                         ;STA C000H   ; Output to LED port
+                         ;STOP
+
+                         ; --------------------------------------------------------------------
+                         ; OP.29 ADDA ****H  
+                         ; ADD A WITH BYTE AT ADDRESS, C UPDATE
+                         ; --------------------------------------------------------------------
+                         ;LDA #29H
+                         ;NOTA
+                         ;STA C000H   ; Output to LED port
+
+                         ; --------------------------------------------------------------------
+                         ; OP.2A LDA ****H  
+                         ; LOAD A WITH BYTE AT ADDRESS Test LDA #**H instruction 
+                         ; --------------------------------------------------------------------
+E006 30 2A               LDA #2AH
+E008 36                  NOTA
+E009 31 C0 00            STA C000H   ; Output to LED port
+E00C 30 AA               LDA #AAH    ; Load immediate in register A
+E00E 2D AA               CMPA #AAH
+E010 2B F8 00            JNE F800H
+E013 30 01               LDA #01H
+E015 2D 01               CMPA #01H
+E017 2B F8 00            JNE F800H
+E01A 30 02               LDA #02H
+E01C 2D 02               CMPA #02H
+E01E 2B F8 00            JNE F800H
+E021 30 04               LDA #04H
+E023 2D 04               CMPA #04H
+E025 2B F8 00            JNE F800H
+E028 30 08               LDA #08H
+E02A 2D 08               CMPA #08H
+E02C 2B F8 00            JNE F800H
+E02F 30 10               LDA #10H
+E031 2D 10               CMPA #10H
+E033 2B F8 00            JNE F800H
+E036 30 20               LDA #20H
+E038 2D 20               CMPA #20H
+E03A 2B F8 00            JNE F800H
+E03D 30 40               LDA #40H
+E03F 2D 40               CMPA #40H
+E041 2B F8 00            JNE F800H
+E044 30 80               LDA #80H
+E046 2D 80               CMPA #80H
+E048 2B F8 00            JNE F800H
+E04B 30 55               LDA #55H
+E04D 2D 55               CMPA #55H
+E04F 2B F8 00            JNE F800H
+E052 30 FF               LDA #FFH
+E054 2D FF               CMPA #FFH
+E056 2B F8 00            JNE F800H
+                         ; --------------------------------------------------------------------
+                         ; OP.2B JNEQ ****H  
+                         ; JUMP IF E=0
+                         ; --------------------------------------------------------------------
+                         ;LDA #2BH
+                         ;NOTA
+                         ;STA C000H   ; Output to LED port
+
+                         ; --------------------------------------------------------------------
+                         ; OP.2C JEQ ****H
+                         ; JUMP IF E=1
+                         ; --------------------------------------------------------------------
+                         ;LDA #2CH
+                         ;NOTA
+                         ;STA C000H   ; Output to LED port
+
+                         ; --------------------------------------------------------------------
+                         ; OP.2D CMPA #**H
+                         ; COMPARE A WITH IMMEDIATE VALUE 
+                         ; --------------------------------------------------------------------
+                         ;LDA #2DH
+                         ;NOTA
+                         ;STA C000H   ; Output to LED port
+
+                         ; --------------------------------------------------------------------
+                         ; OP.2E ADCA #**H
+                         ; ACCA+M+C>ACCA     C UPDATED
+                         ; --------------------------------------------------------------------
+                         ;LDA #2EH
+                         ;NOTA
+                         ;STA C000H   ; Output to LED port
+
+                         ; --------------------------------------------------------------------
+                         ; OP.2F ADDA #**H
+                         ; ACCA+M>ACCA     C UPDATED
+                         ; --------------------------------------------------------------------
+E059 30 2F               LDA #2FH
+E05B 36                  NOTA
+E05C 31 C0 00            STA C000H   ; Output to LED port
+E05F 30 23               LDA #23H
+E061 2F 45               ADDA #45H
+E063 2D 68               CMPA #68H
+E065 2B F8 00            JNE F800H
+E068 2A 17 FB            LDA 17FBH   ; Read Carry bit <0>
+E06B 2D 00               CMPA #00H   ; Expecting C=0
+E06D 2B F8 00            JNE F800H
+E070 30 8A               LDA #8AH
+E072 2F BD               ADDA #BDH
+E074 2D 47               CMPA #47H   
+E076 2B F8 00            JNE F800H
+                         ;LDA 17FBH   ; Read Carry bit <0>   BUG: Appear to miss the Carry !!!!
+                         ;CMPA #01H   ; Expecting C=1
+                         ;JNE F800H
+                         ;LDA #01H
+                         ;ADDA #02H
+                         ;CMPA #03H
+                         ;JNE F800H
+                         ;LDA 17FBH   ; Read Carry bit <0>
+                         ;CMPA #00H   ; Expecting C=0
+                         ;JNE F800H
+                         ;LDA #FFH
+                         ;ADDA #FFH
+                         ;CMPA #FEH
+                         ;JNE F800H
+                         ;LDA 17FBH   ; Read Carry bit <0>
+                         ;CMPA #01H   ; Expecting C=1
+                         ;JNE F800H
+                         ; --------------------------------------------------------------------
+                         ; OP.30 LDA #**H  
+                         ; LOAD IMMEDIATE VALUE IN REGISTER A
+                         ; --------------------------------------------------------------------
+E079 30 30               LDA #30H
+E07B 36                  NOTA
+E07C 31 C0 00            STA C000H   ; Output to LED port
+E07F 30 00               LDA #00H
+E081 2D 00               CMPA #00H
+E083 2B F8 00            JNE F800H
+E086 30 01               LDA #01H
+E088 2D 01               CMPA #01H
+E08A 2B F8 00            JNE F800H
+E08D 30 02               LDA #02H
+E08F 2D 02               CMPA #02H
+E091 2B F8 00            JNE F800H
+E094 30 04               LDA #04H
+E096 2D 04               CMPA #04H
+E098 2B F8 00            JNE F800H
+E09B 30 08               LDA #08H
+E09D 2D 08               CMPA #08H
+E09F 2B F8 00            JNE F800H
+E0A2 30 10               LDA #10H
+E0A4 2D 10               CMPA #10H
+E0A6 2B F8 00            JNE F800H
+E0A9 30 20               LDA #20H
+E0AB 2D 20               CMPA #20H
+E0AD 2B F8 00            JNE F800H
+E0B0 30 40               LDA #40H
+E0B2 2D 40               CMPA #40H
+E0B4 2B F8 00            JNE F800H
+E0B7 30 80               LDA #80H
+E0B9 2D 80               CMPA #80H
+E0BB 2B F8 00            JNE F800H
+E0BE 30 55               LDA #55H
+E0C0 2D 55               CMPA #55H
+E0C2 2B F8 00            JNE F800H
+E0C5 30 AA               LDA #AAH
+E0C7 2D AA               CMPA #AAH
+E0C9 2B F8 00            JNE F800H
+E0CC 30 FF               LDA #FFH
+E0CE 2D FF               CMPA #FFH
+E0D0 2B F8 00            JNE F800H
+                         ; --------------------------------------------------------------------
+                         ; OP.31 STA ****H 
+                         ; STORE REG.A TO ADDRESSE
+                         ; --------------------------------------------------------------------
+E0D3 30 31               LDA #31H
+E0D5 36                  NOTA
+E0D6 31 C0 00            STA C000H   ; Output to LED port
+E0D9 30 12               LDA #12H    ; Write to RAM
+E0DB 31 00 00            STA 0000H
+E0DE 30 23               LDA #23H
+E0E0 31 00 01            STA 0001H
+E0E3 30 34               LDA #34H
+E0E5 31 00 02            STA 0002H
+E0E8 30 45               LDA #45H
+E0EA 31 00 04            STA 0004H
+E0ED 30 56               LDA #56H
+E0EF 31 00 08            STA 0008H
+E0F2 30 67               LDA #67H
+E0F4 31 00 10            STA 0010H
+E0F7 30 78               LDA #78H
+E0F9 31 00 20            STA 0020H
+E0FC 30 89               LDA #89H
+E0FE 31 00 40            STA 0040H
+E101 30 AB               LDA #ABH
+E103 31 00 80            STA 0080H
+E106 30 BC               LDA #BCH
+E108 31 01 00            STA 0100H
+E10B 30 CD               LDA #CDH
+E10D 31 02 00            STA 0200H
+E110 30 DE               LDA #DEH
+E112 31 04 00            STA 0400H
+E115 30 22               LDA #22H
+E117 31 08 00            STA 0800H
+E11A 30 33               LDA #33H
+E11C 31 10 00            STA 1000H
+E11F 30 44               LDA #44H
+E121 31 17 00            STA 1700H
+E124 2A 00 00            LDA 0000H   ; Read from RAM and compare
+E127 2D 12               CMPA #12H
+E129 2B F8 00            JNE F800H
+E12C 2A 00 01            LDA 0001H
+E12F 2D 23               CMPA #23H
+E131 2B F8 00            JNE F800H
+E134 2A 00 02            LDA 0002H
+E137 2D 34               CMPA #34H
+E139 2B F8 00            JNE F800H
+E13C 2A 00 04            LDA 0004H
+E13F 2D 45               CMPA #45H
+E141 2B F8 00            JNE F800H
+E144 2A 00 08            LDA 0008H
+E147 2D 56               CMPA #56H
+E149 2B F8 00            JNE F800H
+E14C 2A 00 10            LDA 0010H
+E14F 2D 67               CMPA #67H
+E151 2B F8 00            JNE F800H
+E154 2A 00 20            LDA 0020H
+E157 2D 78               CMPA #78H
+E159 2B F8 00            JNE F800H
+E15C 2A 00 40            LDA 0040H
+E15F 2D 89               CMPA #89H
+E161 2B F8 00            JNE F800H
+E164 2A 00 80            LDA 0080H
+E167 2D AB               CMPA #ABH
+E169 2B F8 00            JNE F800H
+E16C 2A 01 00            LDA 0100H
+E16F 2D BC               CMPA #BCH
+E171 2B F8 00            JNE F800H
+E174 2A 02 00            LDA 0200H
+E177 2D CD               CMPA #CDH
+E179 2B F8 00            JNE F800H
+E17C 2A 04 00            LDA 0400H
+E17F 2D DE               CMPA #DEH
+E181 2B F8 00            JNE F800H
+E184 2A 08 00            LDA 0800H
+E187 2D 22               CMPA #22H
+E189 2B F8 00            JNE F800H
+E18C 2A 10 00            LDA 1000H
+E18F 2D 33               CMPA #33H
+E191 2B F8 00            JNE F800H
+E194 2A 17 00            LDA 1700H
+E197 2D 44               CMPA #44H
+E199 2B F8 00            JNE F800H
+                         ; --------------------------------------------------------------------
+                         ; OP.32 JMP ****H 
+                         ; JUMP INCONDITIONAL TO ADDRESS
+                         ; --------------------------------------------------------------------
+                         ;LDA #32H
+                         ;NOTA
+                         ;STA C000H   ; Output to LED port
+
+                         ; --------------------------------------------------------------------
+                         ; OP.33 ANDA #**H  REGISTER A AND LOGICAL IMMEDIATE 
+                         ; --------------------------------------------------------------------
+E19C 30 33               LDA #33H
+E19E 36                  NOTA
+E19F 31 C0 00            STA C000H   ; Output to LED port
+E1A2 30 FF               LDA #FFH
+E1A4 33 52               ANDA #52H
+E1A6 2D 52               CMPA #52H
+E1A8 2B F8 00            JNE F800H
+E1AB 30 E7               LDA #E7H
+E1AD 33 3C               ANDA #3CH
+E1AF 2D 24               CMPA #24H
+E1B1 2B F8 00            JNE F800H
+E1B4 30 00               LDA #00H
+E1B6 33 00               ANDA #00H
+E1B8 2D 00               CMPA #00H
+E1BA 2B F8 00            JNE F800H
+E1BD 30 FF               LDA #FFH
+E1BF 33 FF               ANDA #FFH
+E1C1 2D FF               CMPA #FFH
+E1C3 2B F8 00            JNE F800H
+E1C6 30 FF               LDA #FFH
+E1C8 33 55               ANDA #55H
+E1CA 2D 55               CMPA #55H
+E1CC 2B F8 00            JNE F800H
+E1CF 30 FF               LDA #FFH
+E1D1 33 00               ANDA #00H
+E1D3 2D 00               CMPA #00H
+E1D5 2B F8 00            JNE F800H
+                         ; --------------------------------------------------------------------
+                         ;LDA #12H    ; Deliberate failure
+                         ;CMPA #34H
+                         ;JNE F800H
+                         ; --------------------------------------------------------------------
+E1D8 32 E0 00            JMP E000H   ; Run test in infinite loop
+
+                         ORG/F800H   ; Diagnostic Error routine   
+F800 08                  STOP        ; Stop execution
+                         ;JMP F800H   ; Infinite Loop on error
+
+                                     ; Set the Reset vector
+                         ORG/FFFEH   
+FFFE E0                  DB E0H      ; MSB Reset Vector
+FFFF 00                  DB 00H      ; LSB Reset Vector
+
+
+Assembly complete
+Number of errors = 0
