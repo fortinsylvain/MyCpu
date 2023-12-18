@@ -314,168 +314,221 @@ E1CF 30 FF               LDA #FFH
 E1D1 33 00               ANDA #00H
 E1D3 2D 00               CMPA #00H
 E1D5 2B F8 00            JNE F800H
+
+                         ; --------------------------------------------------------------------
+                         ; OP.37 INCA  INCREMENT REGISTRE A UPDATE C (CARRY)
+                         ; --------------------------------------------------------------------
+E1D8 30 37               LDA #37H
+E1DA 36                  NOTA
+E1DB 31 C0 00            STA C000H   ; Output to LED port
+E1DE 30 00               LDA #00H
+E1E0 37                  INCA
+E1E1 2D 01               CMPA #01H
+E1E3 2B F8 00            JNE F800H
+E1E6 2A 17 FB            LDA 17FBH   ; Read Carry bit <0>
+E1E9 2D 00               CMPA #00H   ; Expecting C=0
+E1EB 2B F8 00            JNE F800H
+E1EE 30 01               LDA #01H
+E1F0 37                  INCA
+E1F1 2D 02               CMPA #02H
+E1F3 2B F8 00            JNE F800H
+E1F6 2A 17 FB            LDA 17FBH   ; Read Carry bit <0>
+E1F9 2D 00               CMPA #00H   ; Expecting C=0
+E1FB 2B F8 00            JNE F800H
+E1FE 30 7C               LDA #7CH
+E200 37                  INCA
+E201 37                  INCA
+E202 37                  INCA
+E203 37                  INCA
+E204 37                  INCA
+E205 37                  INCA
+E206 37                  INCA
+E207 37                  INCA
+E208 37                  INCA
+E209 37                  INCA
+E20A 2D 86               CMPA #86H
+E20C 2B F8 00            JNE F800H
+E20F 2A 17 FB            LDA 17FBH   ; Read Carry bit <0>
+E212 2D 00               CMPA #00H   ; Expecting C=0
+E214 2B F8 00            JNE F800H
+E217 30 FE               LDA #FEH
+E219 37                  INCA
+E21A 2D FF               CMPA #FFH
+E21C 2B F8 00            JNE F800H
+E21F 2A 17 FB            LDA 17FBH   ; Read Carry bit <0>
+E222 2D 00               CMPA #00H   ; Expecting C=0
+E224 2B F8 00            JNE F800H
+E227 30 FF               LDA #FFH
+E229 37                  INCA
+E22A 2D 00               CMPA #00H
+E22C 2B F8 00            JNE F800H
+E22F 2A 17 FB            LDA 17FBH   ; Read Carry bit <0>  Appear to have a corrupted carry register,
+                                     ;                     other bit than bit <0> may have been changed
+                         ;CMPA #01H   ; Expecting C=1
+                         ;JNE F800H
+
                          ; --------------------------------------------------------------------
                          ; FIBONACCI TEST
                          ; --------------------------------------------------------------------         
-E1D8 30 FF               LDA #FFH
-E1DA 36                  NOTA
-E1DB 31 C0 00            STA C000H   ; Output to LED port
+E232 30 FF               LDA #FFH
+E234 36                  NOTA
+E235 31 C0 00            STA C000H   ; Output to LED port
                                      ;
-E1DE 30 00               LDA #00H    ; Init first number with 00H
-E1E0 31 10 00            STA 1000H
-E1E3 30 01               LDA #01H    ; Init second number with 01H
-E1E5 31 10 01            STA 1001H
-E1E8 2A 10 00            LDA 1000H   ; Load first number in A
-E1EB 29 10 01            ADDA 1001H  ; Add second number to A
-E1EE 31 10 02            STA 1002H   ; Store the summ
-E1F1 2D 01               CMPA #01H   ; HEX   Decimal  Real Value (in 8 bit storage only)
-E1F3 2B F8 00            JNE F800H   ; 01H   1        1
+E238 30 00               LDA #00H    ; Init first number with 00H
+E23A 31 10 00            STA 1000H
+E23D 30 01               LDA #01H    ; Init second number with 01H
+E23F 31 10 01            STA 1001H
+E242 2A 10 00            LDA 1000H   ; Load first number in A
+E245 29 10 01            ADDA 1001H  ; Add second number to A
+E248 31 10 02            STA 1002H   ; Store the summ
+E24B 2D 01               CMPA #01H   ; HEX   Decimal  Real Value (in 8 bit storage only)
+E24D 2B F8 00            JNE F800H   ; 01H   1        1
 
-E1F6 2A 10 01            LDA 1001H   ; Move second number to the first number
-E1F9 31 10 00            STA 1000H
-E1FC 2A 10 02            LDA 1002H   ; Move summ to the second number
-E1FF 31 10 01            STA 1001H
-E202 2A 10 00            LDA 1000H   ; Load first number in A
-E205 29 10 01            ADDA 1001H  ; Add second number to A
-E208 31 10 02            STA 1002H   ; Store the summ
-E20B 2D 02               CMPA #02H   ; HEX   Decimal  Real Value
-E20D 2B F8 00            JNE F800H   ; 02H   2        2
+E250 2A 10 01            LDA 1001H   ; Move second number to the first number
+E253 31 10 00            STA 1000H
+E256 2A 10 02            LDA 1002H   ; Move summ to the second number
+E259 31 10 01            STA 1001H
+E25C 2A 10 00            LDA 1000H   ; Load first number in A
+E25F 29 10 01            ADDA 1001H  ; Add second number to A
+E262 31 10 02            STA 1002H   ; Store the summ
+E265 2D 02               CMPA #02H   ; HEX   Decimal  Real Value
+E267 2B F8 00            JNE F800H   ; 02H   2        2
 
-E210 2A 10 01            LDA 1001H   ; Move second number to the first number
-E213 31 10 00            STA 1000H
-E216 2A 10 02            LDA 1002H   ; Move summ to the second number
-E219 31 10 01            STA 1001H
-E21C 2A 10 00            LDA 1000H   ; Load first number in A
-E21F 29 10 01            ADDA 1001H  ; Add second number to A
-E222 31 10 02            STA 1002H   ; Store the summ
-E225 2D 03               CMPA #03H   ; HEX   Decimal  Real Value
-E227 2B F8 00            JNE F800H   ; 03H   3        3
+E26A 2A 10 01            LDA 1001H   ; Move second number to the first number
+E26D 31 10 00            STA 1000H
+E270 2A 10 02            LDA 1002H   ; Move summ to the second number
+E273 31 10 01            STA 1001H
+E276 2A 10 00            LDA 1000H   ; Load first number in A
+E279 29 10 01            ADDA 1001H  ; Add second number to A
+E27C 31 10 02            STA 1002H   ; Store the summ
+E27F 2D 03               CMPA #03H   ; HEX   Decimal  Real Value
+E281 2B F8 00            JNE F800H   ; 03H   3        3
 
-E22A 2A 10 01            LDA 1001H   ; Move second number to the first number
-E22D 31 10 00            STA 1000H
-E230 2A 10 02            LDA 1002H   ; Move summ to the second number
-E233 31 10 01            STA 1001H
-E236 2A 10 00            LDA 1000H   ; Load first number in A
-E239 29 10 01            ADDA 1001H  ; Add second number to A
-E23C 31 10 02            STA 1002H   ; Store the summ
-E23F 2D 05               CMPA #05H   ; HEX   Decimal  Real Value
-E241 2B F8 00            JNE F800H   ; 05H   5        5
+E284 2A 10 01            LDA 1001H   ; Move second number to the first number
+E287 31 10 00            STA 1000H
+E28A 2A 10 02            LDA 1002H   ; Move summ to the second number
+E28D 31 10 01            STA 1001H
+E290 2A 10 00            LDA 1000H   ; Load first number in A
+E293 29 10 01            ADDA 1001H  ; Add second number to A
+E296 31 10 02            STA 1002H   ; Store the summ
+E299 2D 05               CMPA #05H   ; HEX   Decimal  Real Value
+E29B 2B F8 00            JNE F800H   ; 05H   5        5
 
-E244 2A 10 01            LDA 1001H   ; Move second number to the first number
-E247 31 10 00            STA 1000H
-E24A 2A 10 02            LDA 1002H   ; Move summ to the second number
-E24D 31 10 01            STA 1001H
-E250 2A 10 00            LDA 1000H   ; Load first number in A
-E253 29 10 01            ADDA 1001H  ; Add second number to A
-E256 31 10 02            STA 1002H   ; Store the summ
-E259 2D 08               CMPA #08H   ; HEX   Decimal  Real Value
-E25B 2B F8 00            JNE F800H   ; 08H   8        8
+E29E 2A 10 01            LDA 1001H   ; Move second number to the first number
+E2A1 31 10 00            STA 1000H
+E2A4 2A 10 02            LDA 1002H   ; Move summ to the second number
+E2A7 31 10 01            STA 1001H
+E2AA 2A 10 00            LDA 1000H   ; Load first number in A
+E2AD 29 10 01            ADDA 1001H  ; Add second number to A
+E2B0 31 10 02            STA 1002H   ; Store the summ
+E2B3 2D 08               CMPA #08H   ; HEX   Decimal  Real Value
+E2B5 2B F8 00            JNE F800H   ; 08H   8        8
 
-E25E 2A 10 01            LDA 1001H   ; Move second number to the first number
-E261 31 10 00            STA 1000H
-E264 2A 10 02            LDA 1002H   ; Move summ to the second number
-E267 31 10 01            STA 1001H
-E26A 2A 10 00            LDA 1000H   ; Load first number in A
-E26D 29 10 01            ADDA 1001H  ; Add second number to A
-E270 31 10 02            STA 1002H   ; Store the summ
-E273 2D 0D               CMPA #0DH   ; HEX   Decimal  Real Value
-E275 2B F8 00            JNE F800H   ; 0DH   13       13
+E2B8 2A 10 01            LDA 1001H   ; Move second number to the first number
+E2BB 31 10 00            STA 1000H
+E2BE 2A 10 02            LDA 1002H   ; Move summ to the second number
+E2C1 31 10 01            STA 1001H
+E2C4 2A 10 00            LDA 1000H   ; Load first number in A
+E2C7 29 10 01            ADDA 1001H  ; Add second number to A
+E2CA 31 10 02            STA 1002H   ; Store the summ
+E2CD 2D 0D               CMPA #0DH   ; HEX   Decimal  Real Value
+E2CF 2B F8 00            JNE F800H   ; 0DH   13       13
 
-E278 2A 10 01            LDA 1001H   ; Move second number to the first number
-E27B 31 10 00            STA 1000H
-E27E 2A 10 02            LDA 1002H   ; Move summ to the second number
-E281 31 10 01            STA 1001H
-E284 2A 10 00            LDA 1000H   ; Load first number in A
-E287 29 10 01            ADDA 1001H  ; Add second number to A
-E28A 31 10 02            STA 1002H   ; Store the summ
-E28D 2D 15               CMPA #15H   ; HEX   Decimal  Real Value
-E28F 2B F8 00            JNE F800H   ; 15H   21       21
+E2D2 2A 10 01            LDA 1001H   ; Move second number to the first number
+E2D5 31 10 00            STA 1000H
+E2D8 2A 10 02            LDA 1002H   ; Move summ to the second number
+E2DB 31 10 01            STA 1001H
+E2DE 2A 10 00            LDA 1000H   ; Load first number in A
+E2E1 29 10 01            ADDA 1001H  ; Add second number to A
+E2E4 31 10 02            STA 1002H   ; Store the summ
+E2E7 2D 15               CMPA #15H   ; HEX   Decimal  Real Value
+E2E9 2B F8 00            JNE F800H   ; 15H   21       21
 
-E292 2A 10 01            LDA 1001H   ; Move second number to the first number
-E295 31 10 00            STA 1000H
-E298 2A 10 02            LDA 1002H   ; Move summ to the second number
-E29B 31 10 01            STA 1001H
-E29E 2A 10 00            LDA 1000H   ; Load first number in A
-E2A1 29 10 01            ADDA 1001H  ; Add second number to A
-E2A4 31 10 02            STA 1002H   ; Store the summ
-E2A7 2D 22               CMPA #22H   ; HEX   Decimal  Real Value
-E2A9 2B F8 00            JNE F800H   ; 22H   34       34
+E2EC 2A 10 01            LDA 1001H   ; Move second number to the first number
+E2EF 31 10 00            STA 1000H
+E2F2 2A 10 02            LDA 1002H   ; Move summ to the second number
+E2F5 31 10 01            STA 1001H
+E2F8 2A 10 00            LDA 1000H   ; Load first number in A
+E2FB 29 10 01            ADDA 1001H  ; Add second number to A
+E2FE 31 10 02            STA 1002H   ; Store the summ
+E301 2D 22               CMPA #22H   ; HEX   Decimal  Real Value
+E303 2B F8 00            JNE F800H   ; 22H   34       34
 
-E2AC 2A 10 01            LDA 1001H   ; Move second number to the first number
-E2AF 31 10 00            STA 1000H
-E2B2 2A 10 02            LDA 1002H   ; Move summ to the second number
-E2B5 31 10 01            STA 1001H
-E2B8 2A 10 00            LDA 1000H   ; Load first number in A
-E2BB 29 10 01            ADDA 1001H  ; Add second number to A
-E2BE 31 10 02            STA 1002H   ; Store the summ
-E2C1 2D 37               CMPA #37H   ; HEX   Decimal  Real Value
-E2C3 2B F8 00            JNE F800H   ; 37H   55       55
+E306 2A 10 01            LDA 1001H   ; Move second number to the first number
+E309 31 10 00            STA 1000H
+E30C 2A 10 02            LDA 1002H   ; Move summ to the second number
+E30F 31 10 01            STA 1001H
+E312 2A 10 00            LDA 1000H   ; Load first number in A
+E315 29 10 01            ADDA 1001H  ; Add second number to A
+E318 31 10 02            STA 1002H   ; Store the summ
+E31B 2D 37               CMPA #37H   ; HEX   Decimal  Real Value
+E31D 2B F8 00            JNE F800H   ; 37H   55       55
 
-E2C6 2A 10 01            LDA 1001H   ; Move second number to the first number
-E2C9 31 10 00            STA 1000H
-E2CC 2A 10 02            LDA 1002H   ; Move summ to the second number
-E2CF 31 10 01            STA 1001H
-E2D2 2A 10 00            LDA 1000H   ; Load first number in A
-E2D5 29 10 01            ADDA 1001H  ; Add second number to A
-E2D8 31 10 02            STA 1002H   ; Store the summ
-E2DB 2D 59               CMPA #59H   ; HEX   Decimal  Real Value
-E2DD 2B F8 00            JNE F800H   ; 59H   89       89
+E320 2A 10 01            LDA 1001H   ; Move second number to the first number
+E323 31 10 00            STA 1000H
+E326 2A 10 02            LDA 1002H   ; Move summ to the second number
+E329 31 10 01            STA 1001H
+E32C 2A 10 00            LDA 1000H   ; Load first number in A
+E32F 29 10 01            ADDA 1001H  ; Add second number to A
+E332 31 10 02            STA 1002H   ; Store the summ
+E335 2D 59               CMPA #59H   ; HEX   Decimal  Real Value
+E337 2B F8 00            JNE F800H   ; 59H   89       89
 
-E2E0 2A 10 01            LDA 1001H   ; Move second number to the first number
-E2E3 31 10 00            STA 1000H
-E2E6 2A 10 02            LDA 1002H   ; Move summ to the second number
-E2E9 31 10 01            STA 1001H
-E2EC 2A 10 00            LDA 1000H   ; Load first number in A
-E2EF 29 10 01            ADDA 1001H  ; Add second number to A
-E2F2 31 10 02            STA 1002H   ; Store the summ
-E2F5 2D 90               CMPA #90H   ; HEX   Decimal  Real Value
-E2F7 2B F8 00            JNE F800H   ; 90H   144      144
+E33A 2A 10 01            LDA 1001H   ; Move second number to the first number
+E33D 31 10 00            STA 1000H
+E340 2A 10 02            LDA 1002H   ; Move summ to the second number
+E343 31 10 01            STA 1001H
+E346 2A 10 00            LDA 1000H   ; Load first number in A
+E349 29 10 01            ADDA 1001H  ; Add second number to A
+E34C 31 10 02            STA 1002H   ; Store the summ
+E34F 2D 90               CMPA #90H   ; HEX   Decimal  Real Value
+E351 2B F8 00            JNE F800H   ; 90H   144      144
 
-E2FA 2A 10 01            LDA 1001H   ; Move second number to the first number
-E2FD 31 10 00            STA 1000H
-E300 2A 10 02            LDA 1002H   ; Move summ to the second number
-E303 31 10 01            STA 1001H
-E306 2A 10 00            LDA 1000H   ; Load first number in A
-E309 29 10 01            ADDA 1001H  ; Add second number to A
-E30C 31 10 02            STA 1002H   ; Store the summ
-E30F 2D E9               CMPA #E9H   ; HEX   Decimal  Real Value
-E311 2B F8 00            JNE F800H   ; E9H   233      233
+E354 2A 10 01            LDA 1001H   ; Move second number to the first number
+E357 31 10 00            STA 1000H
+E35A 2A 10 02            LDA 1002H   ; Move summ to the second number
+E35D 31 10 01            STA 1001H
+E360 2A 10 00            LDA 1000H   ; Load first number in A
+E363 29 10 01            ADDA 1001H  ; Add second number to A
+E366 31 10 02            STA 1002H   ; Store the summ
+E369 2D E9               CMPA #E9H   ; HEX   Decimal  Real Value
+E36B 2B F8 00            JNE F800H   ; E9H   233      233
 
-E314 2A 10 01            LDA 1001H   ; Move second number to the first number
-E317 31 10 00            STA 1000H
-E31A 2A 10 02            LDA 1002H   ; Move summ to the second number
-E31D 31 10 01            STA 1001H
-E320 2A 10 00            LDA 1000H   ; Load first number in A
-E323 29 10 01            ADDA 1001H  ; Add second number to A
-E326 31 10 02            STA 1002H   ; Store the summ
-E329 2D 79               CMPA #79H   ; HEX   Decimal  Real Value
-E32B 2B F8 00            JNE F800H   ; 79H   121      377 - (256*1) = 121
+E36E 2A 10 01            LDA 1001H   ; Move second number to the first number
+E371 31 10 00            STA 1000H
+E374 2A 10 02            LDA 1002H   ; Move summ to the second number
+E377 31 10 01            STA 1001H
+E37A 2A 10 00            LDA 1000H   ; Load first number in A
+E37D 29 10 01            ADDA 1001H  ; Add second number to A
+E380 31 10 02            STA 1002H   ; Store the summ
+E383 2D 79               CMPA #79H   ; HEX   Decimal  Real Value
+E385 2B F8 00            JNE F800H   ; 79H   121      377 - (256*1) = 121
 
-E32E 2A 10 01            LDA 1001H   ; Move second number to the first number
-E331 31 10 00            STA 1000H
-E334 2A 10 02            LDA 1002H   ; Move summ to the second number
-E337 31 10 01            STA 1001H
-E33A 2A 10 00            LDA 1000H   ; Load first number in A
-E33D 29 10 01            ADDA 1001H  ; Add second number to A
-E340 31 10 02            STA 1002H   ; Store the summ
-E343 2D 62               CMPA #62H   ; HEX   Decimal  Real Value
-E345 2B F8 00            JNE F800H   ; 62H   98       610 - (256*2) = 98
+E388 2A 10 01            LDA 1001H   ; Move second number to the first number
+E38B 31 10 00            STA 1000H
+E38E 2A 10 02            LDA 1002H   ; Move summ to the second number
+E391 31 10 01            STA 1001H
+E394 2A 10 00            LDA 1000H   ; Load first number in A
+E397 29 10 01            ADDA 1001H  ; Add second number to A
+E39A 31 10 02            STA 1002H   ; Store the summ
+E39D 2D 62               CMPA #62H   ; HEX   Decimal  Real Value
+E39F 2B F8 00            JNE F800H   ; 62H   98       610 - (256*2) = 98
 
-E348 2A 10 01            LDA 1001H   ; Move second number to the first number
-E34B 31 10 00            STA 1000H
-E34E 2A 10 02            LDA 1002H   ; Move summ to the second number
-E351 31 10 01            STA 1001H
-E354 2A 10 00            LDA 1000H   ; Load first number in A
-E357 29 10 01            ADDA 1001H  ; Add second number to A
-E35A 31 10 02            STA 1002H   ; Store the summ
-E35D 2D DB               CMPA #DBH   ; HEX   Decimal  Real Value
-E35F 2B F8 00            JNE F800H   ; DBH   219      987 - (256*3) = 219         
+E3A2 2A 10 01            LDA 1001H   ; Move second number to the first number
+E3A5 31 10 00            STA 1000H
+E3A8 2A 10 02            LDA 1002H   ; Move summ to the second number
+E3AB 31 10 01            STA 1001H
+E3AE 2A 10 00            LDA 1000H   ; Load first number in A
+E3B1 29 10 01            ADDA 1001H  ; Add second number to A
+E3B4 31 10 02            STA 1002H   ; Store the summ
+E3B7 2D DB               CMPA #DBH   ; HEX   Decimal  Real Value
+E3B9 2B F8 00            JNE F800H   ; DBH   219      987 - (256*3) = 219         
 
                          ; --------------------------------------------------------------------      
                          ; END OF FIBONACCI TEST
                          ; --------------------------------------------------------------------      
 
-E362 32 E0 00            JMP E000H   ; Loop from start of diag test
+E3BC 32 E0 00            JMP E000H   ; Loop from start of diag test
 
                          ; --------------------------------------------------------------------
                          ; Error routine

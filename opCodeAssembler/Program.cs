@@ -1,4 +1,16 @@
-﻿using System;
+﻿// Homebrew MyCPU assembler program
+// Author: Sylvain Fortin
+// Date: 17 december 2023
+// Documentation: This is an assembler program converting mnemonic for the MyCPU into OP code
+//                that can be executed by the micro-program. The source file having an extension .asm 
+//                is passed in argument in the command line.
+//                Two output files are created:
+//                - filename.lst is an ascii file of the listing containing the address, op code, operand
+//                with the comments.
+//                - filename.bin contain the binary data to be programmed on the EEPROM.
+//                The EEPROM programmer i am using is model TL866II Plus from XGecu.
+
+using System;
 using System.IO;
 using System.Collections.Generic;
 
@@ -106,7 +118,7 @@ namespace Assembler
                                                                                                                  // OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND BYTE
                                                                                                                  // OP.35 EXORA #**H   EXCLUSIVE OR BETWWEN A AND VALUE
             dataList.Add(new InstrTable { StringValue = "NOTA",       OpCode = 0x36, NbByte = 0, Offset = 0 });  // NOT LOGIC ON REG A
-                                                                                                                 // OP.37 INCA INCREMENT REGISTRE A
+            dataList.Add(new InstrTable { StringValue = "INCA",       OpCode = 0x37, NbByte = 0, Offset = 0 });  // OP.37 INCA   INCREMENT REGISTER A, UPDATE CARRY
 
             int iFirstCharacterIndex;
             int iPosComment;

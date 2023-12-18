@@ -409,25 +409,25 @@ R0>DATA                 ; MET LE RESULTAT DANS REG. A
 01H>UH                  ; PREND OPERATION POINTEE ET EXECUTE
 00H>UL
 JMP                     ; ***************************************************
-ORG/1B80H               ; OP.37 INCA  INCREMENTATION DU REGISTRE A
-1FH>AH                  ;             AVEC MISE A JOUR DU BIT C (CARRY)
+ORG/1B80H               ; OP.37 INCA  INCREMENT REGISTRE A
+1FH>AH                  ;             UPDATE C (CARRY)
 FCH>AL
-DATA>R0                 ; LIS REG. A
+DATA>R0                 ; READ REG. A
 37H>R6                  ;
 08H>R7                  ;   R0+1>R0
 3EH>UH                  ;  Cout>R1-7
 00H>UL
 JMP
-1FH>AH                  ; RESULTAT DANS REG. A
+1FH>AH                  ; RESUL RETURNED IN REG. A
 FCH>AL
 R0>DATA
-R1-7>A                  ; PREND RETENUE
+R1-7>A                  ; GET CARRY
 A>Q0
 Q>R0
 1FH>AH                  ; ADD REG. C (carry)
 FBH>AL
-R0>DATA                 ; MET DANS BIT DE RETENUE Co
-01H>UH                  ; EXECUTE OP. POINTEE
+R0>DATA                 ; Put CARRY BIT Co
+01H>UH                  ; EXECUTE POINTED OP.
 00H>UL
 JMP                     ; ******************************************************
 ORG/1D80H               ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.                 *

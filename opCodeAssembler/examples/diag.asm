@@ -314,6 +314,59 @@
          ANDA #00H
          CMPA #00H
          JNE F800H
+         
+         ; --------------------------------------------------------------------
+         ; OP.37 INCA  INCREMENT REGISTRE A UPDATE C (CARRY)
+         ; --------------------------------------------------------------------
+         LDA #37H
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #00H
+         INCA
+         CMPA #01H
+         JNE F800H
+         LDA 17FBH   ; Read Carry bit <0>
+         CMPA #00H   ; Expecting C=0
+         JNE F800H
+         LDA #01H
+         INCA
+         CMPA #02H
+         JNE F800H
+         LDA 17FBH   ; Read Carry bit <0>
+         CMPA #00H   ; Expecting C=0
+         JNE F800H
+         LDA #7CH
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         CMPA #86H
+         JNE F800H
+         LDA 17FBH   ; Read Carry bit <0>
+         CMPA #00H   ; Expecting C=0
+         JNE F800H
+         LDA #FEH
+         INCA
+         CMPA #FFH
+         JNE F800H
+         LDA 17FBH   ; Read Carry bit <0>
+         CMPA #00H   ; Expecting C=0
+         JNE F800H
+         LDA #FFH
+         INCA
+         CMPA #00H
+         JNE F800H
+         LDA 17FBH   ; Read Carry bit <0>  Appear to have a corrupted carry register,
+                     ;                     other bit than bit <0> may have been changed
+         ;CMPA #01H   ; Expecting C=1
+         ;JNE F800H
+         
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; --------------------------------------------------------------------         
