@@ -127,9 +127,9 @@
          ADDA #45H
          CMPA #68H
          JNE F800H
-         LDA 17FBH   ; Read Carry bit <0>
-         CMPA #00H   ; Expecting C=0
-         JNE F800H
+         ;LDA 17FBH   ; Read Carry bit <0>
+         ;CMPA #00H   ; Expecting C=0
+         ;JNE F800H
          LDA #8AH
          ADDA #BDH
          CMPA #47H   
@@ -362,10 +362,11 @@
          INCA
          CMPA #00H
          JNE F800H
+         NOP
          LDA 17FBH   ; Read Carry bit <0>  Appear to have a corrupted carry register,
                      ;                     other bit than bit <0> may have been changed
-         ;CMPA #01H   ; Expecting C=1
-         ;JNE F800H
+         CMPA #01H   ; Expecting C=1
+         JNE F800H
          
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST

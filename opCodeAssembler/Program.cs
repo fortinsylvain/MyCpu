@@ -104,6 +104,7 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "ORG/****H",  OpCode = 0,    NbByte = 0, Offset = 0 });  // 
             dataList.Add(new InstrTable { StringValue = "DB **H",     OpCode = 0,    NbByte = 0, Offset = 3 });  // Define Byte in EEPROM Memory
             dataList.Add(new InstrTable { StringValue = "STOP",       OpCode = 0x08, NbByte = 0, Offset = 0 });  // STOP         STOP EXECUTING
+            dataList.Add(new InstrTable { StringValue = "NOP",        OpCode = 0x09, NbByte = 0, Offset = 0 });  // NOP          NO OPERATION
             dataList.Add(new InstrTable { StringValue = "ADDA ****H", OpCode = 0x29, NbByte = 2, Offset = 5 });  // ADDA ****H   ADD BYTE FROM ADDRESS INTO REG A Carry update
             dataList.Add(new InstrTable { StringValue = "LDA ****H",  OpCode = 0x2A, NbByte = 2, Offset = 4 });  // LDA ****H    LOAD BYTE FROM ADDRESS INTO REG A
             dataList.Add(new InstrTable { StringValue = "JNE ****H",  OpCode = 0x2B, NbByte = 2, Offset = 4 });  // JNE ****H    JUMP IF NOT EQUAL (E=0)
