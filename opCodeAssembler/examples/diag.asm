@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
-; Homebrew CPU micro code
+; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin
-; Date : 15 december 2023
+; Date : 17 december 2023
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
@@ -315,19 +315,180 @@
          CMPA #00H
          JNE F800H
          ; --------------------------------------------------------------------
-         ;LDA #12H    ; Deliberate failure
-         ;CMPA #34H
-         ;JNE F800H
-         ; --------------------------------------------------------------------
-         JMP E000H   ; Run test in infinite loop
+         ; FIBONACCI TEST
+         ; --------------------------------------------------------------------         
+         LDA #FFH
+         NOTA
+         STA C000H   ; Output to LED port
+                     ;
+         LDA #00H    ; Init first number with 00H
+         STA 1000H
+         LDA #01H    ; Init second number with 01H
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #01H   ; HEX   Decimal  Real Value (in 8 bit storage only)
+         JNE F800H   ; 01H   1        1
+         
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #02H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 02H   2        2
+         
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #03H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 03H   3        3
+         
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #05H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 05H   5        5
+         
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #08H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 08H   8        8
 
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #0DH   ; HEX   Decimal  Real Value
+         JNE F800H   ; 0DH   13       13
+
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #15H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 15H   21       21
+
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #22H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 22H   34       34
+
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #37H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 37H   55       55
+
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #59H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 59H   89       89
+
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #90H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 90H   144      144
+
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #E9H   ; HEX   Decimal  Real Value
+         JNE F800H   ; E9H   233      233
+
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #79H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 79H   121      377 - (256*1) = 121
+
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #62H   ; HEX   Decimal  Real Value
+         JNE F800H   ; 62H   98       610 - (256*2) = 98
+
+         LDA 1001H   ; Move second number to the first number
+         STA 1000H
+         LDA 1002H   ; Move summ to the second number
+         STA 1001H
+         LDA 1000H   ; Load first number in A
+         ADDA 1001H  ; Add second number to A
+         STA 1002H   ; Store the summ
+         CMPA #DBH   ; HEX   Decimal  Real Value
+         JNE F800H   ; DBH   219      987 - (256*3) = 219         
+
+         ; --------------------------------------------------------------------      
+         ; END OF FIBONACCI TEST
+         ; --------------------------------------------------------------------      
+         
+         JMP E000H   ; Loop from start of diag test
+         
+         ; --------------------------------------------------------------------
+         ; Error routine
+         ; --------------------------------------------------------------------
          ORG/F800H   ; Diagnostic Error routine   
          STOP        ; Stop execution
          ;JMP F800H   ; Infinite Loop on error
          
-                     ; Set the Reset vector
-         ORG/FFFEH   
+         ; --------------------------------------------------------------------
+         ; Reset Vector
+         ; --------------------------------------------------------------------
+         ORG/FFFEH   ; Set the Reset vector
          DB E0H      ; MSB Reset Vector
          DB 00H      ; LSB Reset Vector
 
-
+         

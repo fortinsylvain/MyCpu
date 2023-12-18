@@ -89,30 +89,25 @@ namespace Assembler
 
             //string[] TBL = new string[28];
             List<InstrTable> dataList = new List<InstrTable>();
-            dataList.Add(new InstrTable { StringValue = "ORG/****H",  OpCode = 0,    NbByte = 0, Offset = 0 });
-            dataList.Add(new InstrTable { StringValue = "DB **H",     OpCode = 0,    NbByte = 0, Offset = 3 });
+            dataList.Add(new InstrTable { StringValue = "ORG/****H",  OpCode = 0,    NbByte = 0, Offset = 0 });  // 
+            dataList.Add(new InstrTable { StringValue = "DB **H",     OpCode = 0,    NbByte = 0, Offset = 3 });  // Define Byte in EEPROM Memory
             dataList.Add(new InstrTable { StringValue = "STOP",       OpCode = 0x08, NbByte = 0, Offset = 0 });  // STOP         STOP EXECUTING
             dataList.Add(new InstrTable { StringValue = "ADDA ****H", OpCode = 0x29, NbByte = 2, Offset = 5 });  // ADDA ****H   ADD BYTE FROM ADDRESS INTO REG A Carry update
             dataList.Add(new InstrTable { StringValue = "LDA ****H",  OpCode = 0x2A, NbByte = 2, Offset = 4 });  // LDA ****H    LOAD BYTE FROM ADDRESS INTO REG A
             dataList.Add(new InstrTable { StringValue = "JNE ****H",  OpCode = 0x2B, NbByte = 2, Offset = 4 });  // JNE ****H    JUMP IF NOT EQUAL (E=0)
             dataList.Add(new InstrTable { StringValue = "JEQ ****H",  OpCode = 0x2C, NbByte = 2, Offset = 4 });  // JEQ ****H    JUMP IF EQUAL (E=1)
             dataList.Add(new InstrTable { StringValue = "CMPA #**H",  OpCode = 0x2D, NbByte = 1, Offset = 6 });  // CMPA #**H    COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
-            dataList.Add(new InstrTable { StringValue = "ADDA #**H",  OpCode = 0x2F, NbByte = 1, Offset = 6 });  // ADDA #**H    ADD IMMEDIATE BYTE VALUE TO REGISTER A
+                                                                                                                 // OP.2E ADCA** ACCA+M + C > ACCA     C UPDATED
+            dataList.Add(new InstrTable { StringValue = "ADDA #**H",  OpCode = 0x2F, NbByte = 1, Offset = 6 });  // ADDA #**H    ADD IMMEDIATE BYTE VALUE TO REGISTER A  C UPDATED
             dataList.Add(new InstrTable { StringValue = "LDA #**H",   OpCode = 0x30, NbByte = 1, Offset = 5 });  // LDA #**H     LOAD IMMEDIATE VALUE IN REGISTER A
             dataList.Add(new InstrTable { StringValue = "STA ****H",  OpCode = 0x31, NbByte = 2, Offset = 4 });  // STA ****H    STORE REG.A TO ADDRESSE
             dataList.Add(new InstrTable { StringValue = "JMP ****H",  OpCode = 0x32, NbByte = 2, Offset = 4 });  // JMP ****H    JUMP INCONDITIONAL TO ADDRESS
             dataList.Add(new InstrTable { StringValue = "ANDA #**H",  OpCode = 0x33, NbByte = 1, Offset = 6 });  // ANDA #**H    REGISTER A AND LOGICAL WITH IMMEDIATE 
+                                                                                                                 // OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND BYTE
+                                                                                                                 // OP.35 EXORA #**H   EXCLUSIVE OR BETWWEN A AND VALUE
             dataList.Add(new InstrTable { StringValue = "NOTA",       OpCode = 0x36, NbByte = 0, Offset = 0 });  // NOT LOGIC ON REG A
-                                                                                                                // OP.2B JNEQ ****JUMP IF E = 0
-                                                                                                                // OP.2C JEQ ****JUMP IF E = 1
-                                                                                                                // OP.2D CMPA** COMPARE A WITH IMMEDIATE VALUE
-                                                                                                                // OP.2E ADCA** ACCA+M + C > ACCA     C UPDATED
-                                                                                                                // OP.2F ADDA** ACCA+M > ACCA     C UPDATED
-                                                                                                                
-                                                                                                                // OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND BYTE
-                                                                                                                // OP.35 EXORA #**H   EXCLUSIVE OR BETWWEN A AND VALUE
-                                                                                                                // OP.37 INCA INCREMENT REGISTRE A
-            
+                                                                                                                 // OP.37 INCA INCREMENT REGISTRE A
+
             int iFirstCharacterIndex;
             int iPosComment;
             string sNibble;
