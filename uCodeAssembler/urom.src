@@ -72,6 +72,10 @@ ORG/0400H               ; OP.08 STOP   STOP MICROPROGRAM EXECUTION
 08H>UH
 02H>UL
 JMP                     ; ***************************************************
+ORG/0480H               ; OP.09 NOP    NO OPERATION
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
 ORG/1480H               ; OP.29 ADDA ****H  ADD A WITH BYTE AT ADDRESS, C UPDATE
 DATA>R2                 ; READ MSB ADDRESS
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
@@ -97,7 +101,7 @@ FCH>AL
 R0>DATA
 FBH>AL                  ; PUT Cout IN REG C (Carry)
 R2>DATA
-02H>UH                  ;  PROCHAIN OP.
+02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
 ORG/1500H               ; OP.2A LDA ****H  LOAD A WITH BYTE AT ADDRESS
@@ -114,7 +118,7 @@ DATA>R0                 ; READ POINTED BYTE
 1FH>AH                  ; PUT IN REGISTER A
 FCH>AL
 R0>DATA
-02H>UH                  ;  PROCHAIN OP.
+02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
 ORG/1580H               ; OP.2B JNEQ ****H  JUMP IF E=0
@@ -222,7 +226,7 @@ Q>R0
 1FH>AH
 FAH>AL
 R0>DATA
-02H>UH                  ;  PROCHAIN OP.
+02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
 ORG/1700H               ; OP.2E ADCA #**H   ACCA+M+C>ACCA     C UPDATED
@@ -243,7 +247,7 @@ FCH>AL
 R0>DATA
 FBH>AL                  ; MET Cout DANS REG C (Carry)
 R2>DATA
-02H>UH                  ; PROCHAIN OP.
+02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
 ORG/1780H               ; OP.2F ADDA #**H   ACCA+M>ACCA     C UPDATED
@@ -287,7 +291,7 @@ DATA>R0
 R2>AH                   ; MET L'ADDRESSE DE DESTINATION SUR BUS ADDRESSE
 R3>AL
 R0>DATA                 ; STOCKE REGISTRE A A L'ADDRESSE POINTEE
-02H>UH                  ; PROCHAIN OP.
+02H>UH                  ; NEXT OP.
 00H>UL                  ;
 JMP                     ; ***************************************************
 ORG/1900H               ; OP.32 JMP ****H JUMP INCONDITIONAL TO ADDRESS
@@ -381,7 +385,7 @@ R0-7>A
 XOR R1-7
 Q>R0
 R0>DATA                 ; MET LE RESULTAT DANS REG. A
-02H>UH                  ; PROCHAIN OP.
+02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
 ORG/1B00H               ; OP.36 NOTA   NOT LOGIQUE ON REGISTER A
@@ -409,25 +413,25 @@ R0>DATA                 ; MET LE RESULTAT DANS REG. A
 01H>UH                  ; PREND OPERATION POINTEE ET EXECUTE
 00H>UL
 JMP                     ; ***************************************************
-ORG/1B80H               ; OP.37 INCA  INCREMENT REGISTRE A
-1FH>AH                  ;             UPDATE C (CARRY)
+ORG/1B80H               ; OP.37 INCA  INCREMENTATION DU REGISTRE A
+1FH>AH                  ;             AVEC MISE A JOUR DU BIT C (CARRY)
 FCH>AL
-DATA>R0                 ; READ REG. A
+DATA>R0                 ; LIS REG. A
 37H>R6                  ;
 08H>R7                  ;   R0+1>R0
 3EH>UH                  ;  Cout>R1-7
 00H>UL
 JMP
-1FH>AH                  ; RESUL RETURNED IN REG. A
+1FH>AH                  ; RESULTAT DANS REG. A
 FCH>AL
 R0>DATA
-R1-7>A                  ; GET CARRY
+R1-7>A                  ; PREND RETENUE
 A>Q0
 Q>R0
 1FH>AH                  ; ADD REG. C (carry)
 FBH>AL
-R0>DATA                 ; Put CARRY BIT Co
-01H>UH                  ; EXECUTE POINTED OP.
+R0>DATA                 ; MET DANS BIT DE RETENUE Co
+01H>UH                  ; EXECUTE OP. POINTEE
 00H>UL
 JMP                     ; ******************************************************
 ORG/1D80H               ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.                 *

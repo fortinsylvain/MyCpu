@@ -52,6 +52,10 @@
 0800       3008               08H>UH
 0801       3802               02H>UL
 0802       C800               JMP          ; ***************************************************
+                              ORG/0480H    ; OP.09 NOP    NO OPERATION
+0900       3002               02H>UH       ; NEXT OP.
+0901       3800               00H>UL
+0902       C800               JMP          ; ***************************************************
                               ORG/1480H    ; OP.29 ADDA ****H  ADD A WITH BYTE AT ADDRESS, C
 2900       2200               DATA>R2      ; READ MSB ADDRESS
 2901       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
@@ -77,7 +81,7 @@
 2915       5800               R0>DATA
 2916       68FB               FBH>AL       ; PUT Cout IN REG C (Carry)
 2917       5A00               R2>DATA
-2918       3002               02H>UH       ;  PROCHAIN OP.
+2918       3002               02H>UH       ; NEXT OP.
 2919       3800               00H>UL
 291A       C800               JMP          ; ***************************************************
                               ORG/1500H    ; OP.2A LDA ****H  LOAD A WITH BYTE AT ADDRESS
@@ -94,7 +98,7 @@
 2A0A       781F               1FH>AH       ; PUT IN REGISTER A
 2A0B       68FC               FCH>AL
 2A0C       5800               R0>DATA
-2A0D       3002               02H>UH       ;  PROCHAIN OP.
+2A0D       3002               02H>UH       ; NEXT OP.
 2A0E       3800               00H>UL
 2A0F       C800               JMP          ; ***************************************************
                               ORG/1580H    ; OP.2B JNEQ ****H  JUMP IF E=0
@@ -202,7 +206,7 @@
 2D26       781F               1FH>AH
 2D27       68FA               FAH>AL
 2D28       5800               R0>DATA
-2D29       3002               02H>UH       ;  PROCHAIN OP.
+2D29       3002               02H>UH       ; NEXT OP.
 2D2A       3800               00H>UL
 2D2B       C800               JMP          ; ***************************************************
                               ORG/1700H    ; OP.2E ADCA #**H   ACCA+M+C>ACCA     C UPDATED
@@ -223,7 +227,7 @@
 2E0E       5800               R0>DATA
 2E0F       68FB               FBH>AL       ; MET Cout DANS REG C (Carry)
 2E10       5A00               R2>DATA
-2E11       3002               02H>UH       ; PROCHAIN OP.
+2E11       3002               02H>UH       ; NEXT OP.
 2E12       3800               00H>UL
 2E13       C800               JMP          ; ***************************************************
                               ORG/1780H    ; OP.2F ADDA #**H   ACCA+M>ACCA     C UPDATED
@@ -267,7 +271,7 @@
 310A       1200               R2>AH        ; MET L'ADDRESSE DE DESTINATION SUR BUS ADDRESSE
 310B       1B00               R3>AL
 310C       5800               R0>DATA      ; STOCKE REGISTRE A A L'ADDRESSE POINTEE
-310D       3002               02H>UH       ; PROCHAIN OP.
+310D       3002               02H>UH       ; NEXT OP.
 310E       3800               00H>UL       ;
 310F       C800               JMP          ; ***************************************************
                               ORG/1900H    ; OP.32 JMP ****H JUMP INCONDITIONAL TO ADDRESS
@@ -361,7 +365,7 @@
 3513       4117               XOR R1-7
 3514       6000               Q>R0
 3515       5800               R0>DATA      ; MET LE RESULTAT DANS REG. A
-3516       3002               02H>UH       ; PROCHAIN OP.
+3516       3002               02H>UH       ; NEXT OP.
 3517       3800               00H>UL
 3518       C800               JMP          ; ***************************************************
                               ORG/1B00H    ; OP.36 NOTA   NOT LOGIQUE ON REGISTER A
