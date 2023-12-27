@@ -6,15 +6,15 @@ I built this CPU at home using 74LS circuit with some EEPROM.
 0000H - 17FFH Total RAM space
 -----------------------------
 * 0000H - 00FFH  Stack
-* 0100H - 17EF   Free for application
-* 17F0H SP		  Stack Pointer 8 bit
-* 17F1H temp SP1
-* 17F2H temp SP2
-* 17FAH bit<0>	  Equal
-* 17FBH bit<0>	  Carry
-* 17FCH A		  A Register
-* 17FEH IPH		  Instruction Pointer MSB
-* 17FFH IPL		  Instruction Pointer LSB
+* 0100H - 1FEF   Free for application
+* 1FF0H SP		  Stack Pointer 8 bit
+* 1FF1H temp SP1
+* 1FF2H temp SP2
+* 1FFAH bit<0>	  Equal Status
+* 1FFBH bit<0>	  Carry Status
+* 1FFCH A		  A Register
+* 1FFEH IPH		  Instruction Pointer MSB
+* 1FFFH IPL		  Instruction Pointer LSB
 
 Register A, Stack Pointer, Status flag and Instruction Pointer are stored in RAM. This is purely to save on chip count at the expense of a slower machine.
 
