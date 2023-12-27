@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace UCT_Assembler
 {
@@ -123,6 +124,8 @@ namespace UCT_Assembler
             TBL[27] = "**H>AH";
             int iTblNumberOfElement = 28;
 
+            int iFirstCharacterIndex;
+            int iPosComment;
 
             string sRegisterNumber;
             int iRegisterNumber = 0;
@@ -146,8 +149,20 @@ namespace UCT_Assembler
                 while (!inputFile.EndOfStream)
                 {
                     sLine = inputFile.ReadLine();
+                    iFirstCharacterIndex = FindFirstNonSpaceCharacter(sLine);
+                    iPosComment = sLine.IndexOf(';');   // Locate where the comment begin
 
-                    if (sLine.Substring(0, 1) != ";")   // Process the line only if it does not begin with comment 
+                    if (iFirstCharacterIndex == -1)    // Empty line ?
+                    {
+                        Console.WriteLine("");
+                        lstFile.WriteLine("");
+                    }
+                    else if (sLine.Substring(0, 1) == ";")  // Begin with ";"
+                    {
+                        Console.WriteLine(sLine);
+                        lstFile.WriteLine(sLine);
+                    }
+                    else if (sLine.Substring(0, 1) != ";")   // Process the line only if it does not begin with comment 
                     {
                         // Find in table the ucode
                         bool bFound = false;
@@ -516,11 +531,22 @@ namespace UCT_Assembler
             }
 
 
-            
-
-
         }
 
-        
+        static int FindFirstNonSpaceCharacter(string input)
+        {
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (input[i] != ' ')
+                {
+                    return i;
+                }
+            }
+
+            // Return -1 if no non-space character is found
+            return -1;
+        }
+
+
     }
 }

@@ -1,27 +1,27 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin
-; Date : 1 december 2023
+; Date : 26 december 2023
 ; Documentation : Will be converted into 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
 ; External RAM required to support the microcode
-; 0000H - 17FFH Total RAM space
-; 0000H - 00FFH Stack
-; 0100H - 17EF  Free for application
-; 17F0H SP		Stack Pointer 8 bit
-; 17F1H temp SP1
-; 17F2H temp	SP2
-; 17FAH bit<0>	Equal
-; 17FBH bit<0>	Carry
-; 17FCH A		Register
-; 17FEH IPH		Instruction Pointer MSB
-; 17FFH IPL		Instruction Pointer LSB
+; 0000H - 17FFH   Total RAM space
+; 0000H - 00FFH   Stack
+; 0100H - 17EF    Free for application
+; 1FF0H SP        Stack Pointer 8 bit
+; 1FF1H temp      SP1
+; 1FF2H temp      SP2
+; 1FFAH bit<0>    Equal Status bit
+; 1FFBH bit<0>    Carry Status bit
+; 1FFCH A         A Register
+; 1FFEH IPH       Instruction Pointer MSB
+; 1FFFH IPL       Instruction Pointer LSB
 ; -----------------------------------------------------------------
 ORG/0000H               ; 0000H   RESET
 00H>R0                  ; DUMMY INSTRUCTION
 00H>R0                  ; STACK POINTER INIT
-17H>AH                  ; STACK START : 0000H
+1FH>AH                  ; STACK START : 0000H
 F0H>AL                  ; STACK MAX   : 00FFH
 R0>DATA
 FFH>AH                  ; GET [FFFE] MSB START VECTEUR
@@ -121,7 +121,7 @@ R0>DATA
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
-ORG/1580H               ; OP.2B JNEQ ****H  JUMP IF E=0
+ORG/1580H               ; OP.2B JNEQ ****H  JUMP IF STATUS E (EQUAL) = 1
 1FH>AH                  ; LIS BIT E ET MET DANS ENTREE A DE L'ALU.
 FAH>AL
 DATA>R0
@@ -156,7 +156,7 @@ R3>DATA
 01H>UH                  ; EXECUTE OP. POINTEE ( SAUT DU A L'INEGALITE )
 00H>UL
 JMP                     ; ***************************************************
-ORG/1600H               ; OP.2C JEQ ****H  JUMP IF E=1
+ORG/1600H               ; OP.2C JEQ ****H  JUMP IF STATUS E (EQUAL) = 1
 1FH>AH                  ; LIS BIT E ET MET DANS ENTREE A DE L'ALU.
 FAH>AL
 DATA>R0
@@ -184,9 +184,9 @@ JMP
 02H>R4                  ;                                   | ADD. RETOUR
 00H>R5                  ;                                   | PROCHAIN OP.
 JMP                     ; ***************************************************
-ORG/1680H               ; OP.2D CMPA #**H COMPARE A WITH IMMEDIATE VALUE 
-DATA>R0                 ; LIS DATA        E=1 WHEN EQUAL
-1FH>AH                  ; LIS REG. A
+ORG/1680H               ; OP.2D CMPA #**H COMPARE A WITH IMMEDIATE VALUE, 
+DATA>R0                 ; LIS DATA        UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
+1FH>AH                  ; LIS REG. A      ELSE E = 0.
 FCH>AL
 DATA>R1
 R0-0>A
@@ -252,7 +252,7 @@ R2>DATA
 JMP                     ; ***************************************************
 ORG/1780H               ; OP.2F ADDA #**H   ACCA+M>ACCA     C UPDATED
 DATA>R0                 ; READ IMMEDIATE BYTE FOLLOWING OP CODE
-1FH>AH                  ; READ REG A
+1FH>AH                  ; READ REGISTER A
 FCH>AL
 DATA>R1
 00H>R2                  ; FORCED Cin=0

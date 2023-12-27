@@ -27,6 +27,50 @@
          STA C000H   ; Output to LED port
          
          ; --------------------------------------------------------------------
+         ; Test Carry Status bit integrity
+         ; --------------------------------------------------------------------
+         LDA #01H
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #00H
+         STA 17FBH   ; Write 0 to carry bit <0>
+         LDA 17FBH   ; Read Carry Status
+         CMPA #00H
+         JNE F800H
+         LDA #01H
+         STA 17FBH   ; Write 1 to carry bit <0>
+         LDA 17FBH   ; Read Carry Status
+         CMPA #01H
+         JNE F800H
+         LDA #00H
+         STA 17FBH   ; Write 0 to carry bit <0>
+         LDA 17FBH   ; Read Carry Status
+         CMPA #00H
+         JNE F800H
+         
+         ; --------------------------------------------------------------------
+         ; Test Equal Status bit integrity
+         ; --------------------------------------------------------------------
+         LDA #02H
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #00H
+         STA 17FAH   ; Write 0 to Equal Status bit <0>
+         LDA 17FAH   ; Read Equal Status
+         CMPA #00H
+         JNE F800H
+         LDA #01H
+         STA 17FAH   ; Write 1 to Equal Status bit <0>
+         LDA 17FAH   ; Read Equal Status
+         CMPA #01H
+         JNE F800H
+         LDA #00H
+         STA 17FAH   ; Write 0 to Equal Status bit <0>
+         LDA 17FAH   ; Read Equal Status
+         CMPA #00H
+         JNE F800H
+         
+         ; --------------------------------------------------------------------
          ; OP.08 STOP
          ; STOP EXECUTING
          ; Cannot test here it will stop execution...
