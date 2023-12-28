@@ -185,8 +185,8 @@
 2C19       2D00               00H>R5       ;                                   | PROCHAIN OP.
 2C1A       C800               JMP          ; ***************************************************
                               ORG/1680H    ; OP.2D CMPA #**H COMPARE A WITH IMMEDIATE VALUE,
-2D00       2000               DATA>R0      ; LIS DATA        UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
-2D01       781F               1FH>AH       ; LIS REG. A      ELSE E = 0.
+2D00       2000               DATA>R0      ; Read Data       UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
+2D01       781F               1FH>AH       ; Read Reg. A     ELSE E = 0.
 2D02       68FC               FCH>AL
 2D03       2100               DATA>R1
 2D04       5000               R0-0>A
@@ -221,14 +221,23 @@
 2D21       7006               Q6>A
 2D22       4027               AND R0-7
 2D23       7007               Q7>A
-2D24       4818               A>Q0
-2D25       6000               Q>R0
-2D26       781F               1FH>AH
-2D27       68FA               FAH>AL
-2D28       5800               R0>DATA
-2D29       3002               02H>UH       ; NEXT OP.
-2D2A       3800               00H>UL
-2D2B       C800               JMP          ; ***************************************************
+2D24       4818               A>Q0         ; Place Equal Status in bit position <0>
+2D25       2900               00H>R1       ; Put '0' in ALU input A
+2D26       5100               R1-0>A
+2D27       4819               A>Q1         ; Set Q<7:1> to 0
+2D28       481A               A>Q2         ; To have a clean Equal Status Byte
+2D29       481B               A>Q3
+2D2A       481C               A>Q4
+2D2B       481D               A>Q5
+2D2C       481E               A>Q6
+2D2D       481F               A>Q7
+2D2E       6000               Q>R0         ; Move Q byte in R0
+2D2F       781F               1FH>AH
+2D30       68FA               FAH>AL
+2D31       5800               R0>DATA
+2D32       3002               02H>UH       ; NEXT OP.
+2D33       3800               00H>UL
+2D34       C800               JMP          ; ***************************************************
                               ORG/1700H    ; OP.2E ADCA #**H   ACCA+M+C>ACCA     C UPDATED
 2E00       2000               DATA>R0      ; READ IMMEDIATE VALUE
 2E01       781F               1FH>AH       ; READ REGISTER A
@@ -413,27 +422,36 @@
 3615       3001               01H>UH       ; PREND OPERATION POINTEE ET EXECUTE
 3616       3800               00H>UL
 3617       C800               JMP          ; ***************************************************
-                              ORG/1B80H    ; OP.37 INCA  INCREMENTATION DU REGISTRE A
-3700       781F               1FH>AH       ;             AVEC MISE A JOUR DU BIT C (CARRY)
+                              ORG/1B80H    ; OP.37 INCA  INCREMENT REGISTER A
+3700       781F               1FH>AH       ;             UPDATE CARRY STATUS BIT C
 3701       68FC               FCH>AL
-3702       2000               DATA>R0      ; LIS REG. A
+3702       2000               DATA>R0      ; READ REG. A
 3703       2E37               37H>R6       ;
-3704       2F08               08H>R7       ;   R0+1>R0
-3705       303E               3EH>UH       ;  Cout>R1-7
+3704       2F08               08H>R7       ; R0+1>R0
+3705       303E               3EH>UH       ; Cout>R1-7
 3706       3800               00H>UL
 3707       C800               JMP
-3708       781F               1FH>AH       ; RESULTAT DANS REG. A
+3708       781F               1FH>AH       ; RESULT IN REG. A
 3709       68FC               FCH>AL
 370A       5800               R0>DATA
-370B       5107               R1-7>A       ; PREND RETENUE
-370C       4818               A>Q0
-370D       6000               Q>R0
-370E       781F               1FH>AH       ; ADD REG. C (carry)
-370F       68FB               FBH>AL
-3710       5800               R0>DATA      ; MET DANS BIT DE RETENUE Co
-3711       3001               01H>UH       ; EXECUTE OP. POINTEE
-3712       3800               00H>UL
-3713       C800               JMP          ; ******************************************************
+370B       5107               R1-7>A       ; TAKE CARRY BIT IN STORE IN ALU INPUT A
+370C       4818               A>Q0         ; Place Carry in bit position <0>
+370D       2900               00H>R1       ; Put '0' in ALU input A
+370E       5100               R1-0>A
+370F       4819               A>Q1         ; Set Q<7:1> to 0
+3710       481A               A>Q2         ; To have a clean Carry Status Byte
+3711       481B               A>Q3
+3712       481C               A>Q4
+3713       481D               A>Q5
+3714       481E               A>Q6
+3715       481F               A>Q7
+3716       6000               Q>R0         ; Move Q byte in R0
+3717       781F               1FH>AH       ; Store R0 in Carry Status RAM location
+3718       68FB               FBH>AL
+3719       5800               R0>DATA
+371A       3001               01H>UH       ; Go execute currently pointed OP.
+371B       3800               00H>UL
+371C       C800               JMP          ; ******************************************************
                               ORG/1D80H    ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.           
 3B00       781F               1FH>AH       ;        READ IPL  * (RETURN  R4:MSB ADD. R5:LSB ADD.) *
 3B01       68FF               FFH>AL       ;        PUT IN R0 *************************************

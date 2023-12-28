@@ -1,21 +1,21 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin
-; Date : 17 december 2023
+; Date : 28 december 2023
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
 ; 0000H - 17FFH Total RAM space
 ; 0000H - 00FFH Stack
 ; 0100H - 17EF  Free for application
-; 17F0H         SP Stack Pointer 8 bit
-; 17F1H temp SP1
-; 17F2H temp SP2
-; 17FAH bit<0>	Equal
-; 17FBH bit<0>	Carry
-; 17FCH A Register
-; 17FEH IPH	Instruction Pointer MSB
-; 17FFH IPL Instruction Pointer LSB
+; 1FF0H         SP Stack Pointer 8 bit
+; 1FF1H temp SP1
+; 1FF2H temp SP2
+; 1FFAH bit<0>	Equal
+; 1FFBH bit<0>	Carry
+; 1FFCH A Register
+; 1FFEH IPH	Instruction Pointer MSB
+; 1FFFH IPL Instruction Pointer LSB
 ; C000H           LED port
 ; E000H - F000H   EEPROM 2864 for program storage
 ; -----------------------------------------------------------------
@@ -33,18 +33,18 @@
          NOTA
          STA C000H   ; Output to LED port
          LDA #00H
-         STA 17FBH   ; Write 0 to carry bit <0>
-         LDA 17FBH   ; Read Carry Status
+         STA 1FFBH   ; Write 0 to carry bit <0>
+         LDA 1FFBH   ; Read Carry Status
          CMPA #00H
          JNE F800H
          LDA #01H
-         STA 17FBH   ; Write 1 to carry bit <0>
-         LDA 17FBH   ; Read Carry Status
+         STA 1FFBH   ; Write 1 to carry bit <0>
+         LDA 1FFBH   ; Read Carry Status
          CMPA #01H
          JNE F800H
          LDA #00H
-         STA 17FBH   ; Write 0 to carry bit <0>
-         LDA 17FBH   ; Read Carry Status
+         STA 1FFBH   ; Write 0 to carry bit <0>
+         LDA 1FFBH   ; Read Carry Status
          CMPA #00H
          JNE F800H
          
@@ -55,18 +55,18 @@
          NOTA
          STA C000H   ; Output to LED port
          LDA #00H
-         STA 17FAH   ; Write 0 to Equal Status bit <0>
-         LDA 17FAH   ; Read Equal Status
+         STA 1FFAH   ; Write 0 to Equal Status bit <0>
+         LDA 1FFAH   ; Read Equal Status
          CMPA #00H
          JNE F800H
          LDA #01H
-         STA 17FAH   ; Write 1 to Equal Status bit <0>
-         LDA 17FAH   ; Read Equal Status
+         STA 1FFAH   ; Write 1 to Equal Status bit <0>
+         LDA 1FFAH   ; Read Equal Status
          CMPA #01H
          JNE F800H
          LDA #00H
-         STA 17FAH   ; Write 0 to Equal Status bit <0>
-         LDA 17FAH   ; Read Equal Status
+         STA 1FFAH   ; Write 0 to Equal Status bit <0>
+         LDA 1FFAH   ; Read Equal Status
          CMPA #00H
          JNE F800H
          
@@ -171,30 +171,30 @@
          ADDA #45H
          CMPA #68H
          JNE F800H
-         ;LDA 17FBH   ; Read Carry bit <0>
-         ;CMPA #00H   ; Expecting C=0
-         ;JNE F800H
+         LDA 1FFBH   ; Read Carry bit <0>
+         CMPA #00H   ; Expecting C=0
+         JNE F800H
          LDA #8AH
          ADDA #BDH
          CMPA #47H   
          JNE F800H
-         ;LDA 17FBH   ; Read Carry bit <0>   BUG: Appear to miss the Carry !!!!
-         ;CMPA #01H   ; Expecting C=1
-         ;JNE F800H
-         ;LDA #01H
-         ;ADDA #02H
-         ;CMPA #03H
-         ;JNE F800H
-         ;LDA 17FBH   ; Read Carry bit <0>
-         ;CMPA #00H   ; Expecting C=0
-         ;JNE F800H
-         ;LDA #FFH
-         ;ADDA #FFH
-         ;CMPA #FEH
-         ;JNE F800H
-         ;LDA 17FBH   ; Read Carry bit <0>
-         ;CMPA #01H   ; Expecting C=1
-         ;JNE F800H
+         LDA 1FFBH   ; Read Carry bit <0>
+         CMPA #01H   ; Expecting C=1
+         JNE F800H
+         LDA #01H
+         ADDA #02H
+         CMPA #03H
+         JNE F800H
+         LDA 1FFBH   ; Read Carry bit <0>
+         CMPA #00H   ; Expecting C=0
+         JNE F800H
+         LDA #FFH
+         ADDA #FFH
+         CMPA #FEH
+         JNE F800H
+         LDA 1FFBH   ; Read Carry bit <0>
+         CMPA #01H   ; Expecting C=1
+         JNE F800H
          ; --------------------------------------------------------------------
          ; OP.30 LDA #**H  
          ; LOAD IMMEDIATE VALUE IN REGISTER A
@@ -369,14 +369,14 @@
          INCA
          CMPA #01H
          JNE F800H
-         LDA 17FBH   ; Read Carry bit <0>
+         LDA 1FFBH   ; Read Carry bit <0>
          CMPA #00H   ; Expecting C=0
          JNE F800H
          LDA #01H
          INCA
          CMPA #02H
          JNE F800H
-         LDA 17FBH   ; Read Carry bit <0>
+         LDA 1FFBH   ; Read Carry bit <0>
          CMPA #00H   ; Expecting C=0
          JNE F800H
          LDA #7CH
@@ -392,14 +392,14 @@
          INCA
          CMPA #86H
          JNE F800H
-         LDA 17FBH   ; Read Carry bit <0>
+         LDA 1FFBH   ; Read Carry bit <0>
          CMPA #00H   ; Expecting C=0
          JNE F800H
          LDA #FEH
          INCA
          CMPA #FFH
          JNE F800H
-         LDA 17FBH   ; Read Carry bit <0>
+         LDA 1FFBH   ; Read Carry bit <0>
          CMPA #00H   ; Expecting C=0
          JNE F800H
          LDA #FFH
@@ -407,7 +407,7 @@
          CMPA #00H
          JNE F800H
          NOP
-         LDA 17FBH   ; Read Carry bit <0>  Appear to have a corrupted carry register,
+         LDA 1FFBH   ; Read Carry bit <0>  Appear to have a corrupted carry register,
                      ;                     other bit than bit <0> may have been changed
          CMPA #01H   ; Expecting C=1
          JNE F800H
