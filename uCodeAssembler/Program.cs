@@ -169,6 +169,9 @@ namespace UCT_Assembler
                     }
                     else if (sLine.Substring(0, 1) == ";")  // Begin with ";"
                     {
+                        Console.Write(new string(' ', 30));
+                        lstFile.Write(new string(' ', 30));
+
                         Console.WriteLine(sLine);
                         lstFile.WriteLine(sLine);
                     }

@@ -1,23 +1,23 @@
-; -----------------------------------------------------------------
-; Homebrew CPU micro code
-; Author: Sylvain Fortin
-; Date : 26 december 2023
-; Documentation : Will be converted into 2 binary file to be 
-;                 programmed into 2864 to control the 74LSxx based 
-;                 cpu.
-; External RAM required to support the microcode
-; 0000H - 17FFH   Total RAM space
-; 0000H - 00FFH   Stack
-; 0100H - 17EF    Free for application
-; 1FF0H SP        Stack Pointer 8 bit
-; 1FF1H temp      SP1
-; 1FF2H temp      SP2
-; 1FFAH bit<0>    Equal Status bit
-; 1FFBH bit<0>    Carry Status bit
-; 1FFCH A         A Register
-; 1FFEH IPH       Instruction Pointer MSB
-; 1FFFH IPL       Instruction Pointer LSB
-; -----------------------------------------------------------------
+                              ; -----------------------------------------------------------------
+                              ; Homebrew CPU micro code
+                              ; Author: Sylvain Fortin
+                              ; Date : 26 december 2023
+                              ; Documentation : Will be converted into 2 binary file to be 
+                              ;                 programmed into 2864 to control the 74LSxx based 
+                              ;                 cpu.
+                              ; External RAM required to support the microcode
+                              ; 0000H - 17FFH   Total RAM space
+                              ; 0000H - 00FFH   Stack
+                              ; 0100H - 17EF    Free for application
+                              ; 1FF0H SP        Stack Pointer 8 bit
+                              ; 1FF1H temp      SP1
+                              ; 1FF2H temp      SP2
+                              ; 1FFAH bit<0>    Equal Status bit
+                              ; 1FFBH bit<0>    Carry Status bit
+                              ; 1FFCH A         A Register
+                              ; 1FFEH IPH       Instruction Pointer MSB
+                              ; 1FFFH IPL       Instruction Pointer LSB
+                              ; -----------------------------------------------------------------
                               ORG/0000H    ; 0000H   RESET
 0000       2800               00H>R0       ; DUMMY INSTRUCTION
 0001       2800               00H>R0       ; STACK POINTER INIT
@@ -68,6 +68,97 @@
 0208       2C01               01H>R4       ;  IP+1>IP | ADD. RETURN
 0209       2D0D               0DH>R5       ;  IP>ADD  | JMP TO ROUTINE
 020A       C800               JMP          ; ***************************************************
+                              ORG/0300H    ; OP.06 JSR    Jump to SubRoutine
+0600       2000               DATA>R0      ; Read MSB IP Destination
+0601       781F               1FH>AH       ; Store in TEMP SP1
+0602       68F1               F1H>AL       
+0603       5800               R0>DATA  
+0604       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
+0605       3800               00H>UL       ;          |
+0606       2C06               06H>R4       ;  IP+1>IP | ADD. RETURN
+0607       2D09               09H>R5       ;  IP>ADD  |
+0608       C800               JMP          ;          | JMP TO ROUTINE
+0609       2000               DATA>R0      ; Read LSB IP Destination
+060A       781F               1FH>AH       ; Store in TEMP SP2
+060B       68F2               F2H>AL
+060C       5800               R0>DATA
+060D       303C               3CH>UH       ;  IP+1>IP | ADDRESS OF ROUTINE TO INCREMENT IP
+060E       3800               00H>UL       ;          | Compute return address from routine
+060F       2C06               06H>R4       ;          | R4 R5 Add. Return for uProgram         
+0610       2D12               12H>R5
+0611       C800               JMP
+0612       781F               1FH>AH       ; Read STACK POINTER Register (SP) (8bit LSB) MSB=0H Always
+0613       68F0               F0H>AL
+0614       2000               DATA>R0
+0615       68FE               FEH>AL       ; Read IPH Return Adress
+0616       2100               DATA>R1
+0617       7800               00H>AH       ; Put in STACK
+0618       1800               R0>AL
+0619       5900               R1>DATA
+061A       781F               1FH>AH       ; Read SP Register
+061B       68F0               F0H>AL
+061C       2000               DATA>R0
+061D       303E               3EH>UH       ; Increment R0 containing SP value
+061E       3800               00H>UL       ; R0+1>R0  | ADD. Incrementation Routine
+061F       2E06               06H>R6       ;          | ADD. Return
+0620       2F22               22H>R7
+0621       C800               JMP
+0622       5800               R0>DATA      ; Put Result in SP Register
+0623       68FF               FFH>AL       ; Read IPL for subroutine return
+0624       2100               DATA>R1
+0625       7800               00H>AH       ; Put value of SP on address bus
+0626       1800               R0>AL        
+0627       5900               R1>DATA      ; Store IPL return on Stack
+0628       303E               3EH>UH       ; Increment R0 containing SP value
+0629       3800               00H>UL       ; R0+1>R0  | ADD. Incrementation Routine
+062A       2E06               06H>R6       ;          | ADD. Return
+062B       2F2D               2DH>R7
+062C       C800               JMP
+062D       781F               1FH>AH       ; Store new value in SP Register
+062E       68F0               F0H>AL
+062F       5800               R0>DATA
+0630       781F               1FH>AH       ; Read stored MSB address of routine to execute
+0631       68F1               F1H>AL
+0632       5800               R0>DATA      ; Appear to be corrupted!!! <<<---------------
+0633       68FE               FEH>AL       ; Write MSB address routine in IPH
+0634       5800               R0>DATA
+0635       781F               1FH>AH       ; Read stored LSB address of routine to execute
+0636       68F2               F2H>AL
+0637       5800               R0>DATA
+0638       68FF               FFH>AL       ; Write LSB address routine in IPL
+0639       5800               R0>DATA
+063A       3001               01H>UH       ; GO EXECUTE OP. POINTED BY IP
+063B       3800               00H>UL
+063C       C800               JMP          ; ***************************************************
+                              ORG/0380H    ; OP.07 RTS    ReTurn from Subroutine
+0700       781F               1FH>AH       ; Read Stack Pointer Register
+0701       68F0               F0H>AL
+0702       2000               DATA>R0
+0703       303A               3AH>UH       ;          | ADD. Routine R0-1>R0
+0704       3800               00H>UL       ; SP-1     |
+0705       2E07               07H>R6       ;          | ADD. return
+0706       2F08               08H>R7       ; Decrementing the Stack Pointer Register
+0707       C800               JMP
+0708       7800               00H>AH       ; Read from Stack return address IPL
+0709       1800               R0>AL
+070A       2100               DATA>R1
+070B       781F               1FH>AH       ; Store in IPL Register
+070C       68FF               FFH>AL
+070D       5900               R1>DATA
+070E       303A               3AH>UH       ;          | ADD. Routine R0-1>R0
+070F       3800               00H>UL       ; SP-1     |
+0710       2E07               07H>R6       ;          | ADD. return
+0711       2F13               13H>R7       ; Again decrementing the Stack Pointer Register
+0712       C800               JMP
+0713       7800               00H>AH       ; Read from Stack return address IPH
+0714       1800               R0>AL
+0715       2100               DATA>R1
+0716       781F               1FH>AH       ; Store in IPH Register
+0717       68FE               FEH>AL
+0718       5900               R1>DATA
+0719       3001               01H>UH       ; GO EXECUTE OP. POINTED BY IP
+071A       3800               00H>UL
+071B       C800               JMP          ; ***************************************************
                               ORG/0400H    ; OP.08 STOP   STOP MICROPROGRAM EXECUTION
 0800       3008               08H>UH
 0801       3802               02H>UL
@@ -434,21 +525,21 @@
 3708       781F               1FH>AH       ; RESULT IN REG. A
 3709       68FC               FCH>AL
 370A       5800               R0>DATA
-;R1-7>A                  ; Carry bit stored in ALU input A
-;A>Q0                    ; Place Carry in bit position <0>
-;00H>R1                  ; Put '0' in ALU input A
-;R1-0>A
-;A>Q1                    ; Set Q<7:1> to 0
-;A>Q2                    ; To have a clean Carry Status Byte
-;A>Q3
-;A>Q4
-;A>Q5
-;A>Q6
-;A>Q7
-;Q>R0                    ; Move Q byte in R0
-;1FH>AH                  ; Store R0 in Carry Status RAM location
-;FBH>AL
-;R0>DATA
+                              ;R1-7>A                  ; Carry bit stored in ALU input A
+                              ;A>Q0                    ; Place Carry in bit position <0>
+                              ;00H>R1                  ; Put '0' in ALU input A
+                              ;R1-0>A
+                              ;A>Q1                    ; Set Q<7:1> to 0
+                              ;A>Q2                    ; To have a clean Carry Status Byte
+                              ;A>Q3
+                              ;A>Q4
+                              ;A>Q5
+                              ;A>Q6
+                              ;A>Q7
+                              ;Q>R0                    ; Move Q byte in R0
+                              ;1FH>AH                  ; Store R0 in Carry Status RAM location
+                              ;FBH>AL
+                              ;R0>DATA
 370B       3001               01H>UH       ; Go execute currently pointed OP.
 370C       3800               00H>UL
 370D       C800               JMP          ; ******************************************************

@@ -68,6 +68,97 @@ DATA>R3                 ; READ OP. CODE
 01H>R4                  ;  IP+1>IP | ADD. RETURN
 0DH>R5                  ;  IP>ADD  | JMP TO ROUTINE
 JMP                     ; ***************************************************
+ORG/0300H               ; OP.06 JSR    Jump to SubRoutine
+DATA>R0                 ; Read MSB IP Destination
+1FH>AH                  ; Store in TEMP SP1
+F1H>AL                  
+R0>DATA  
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+06H>R4                  ;  IP+1>IP | ADD. RETURN
+09H>R5                  ;  IP>ADD  |
+JMP                     ;          | JMP TO ROUTINE
+DATA>R0                 ; Read LSB IP Destination
+1FH>AH                  ; Store in TEMP SP2
+F2H>AL
+R0>DATA
+3CH>UH                  ;  IP+1>IP | ADDRESS OF ROUTINE TO INCREMENT IP
+00H>UL                  ;          | Compute return address from routine
+06H>R4                  ;          | R4 R5 Add. Return for uProgram         
+12H>R5
+JMP
+1FH>AH                  ; Read STACK POINTER Register (SP) (8bit LSB) MSB=0H Always
+F0H>AL
+DATA>R0
+FEH>AL                  ; Read IPH Return Adress
+DATA>R1
+00H>AH                  ; Put in STACK
+R0>AL
+R1>DATA
+1FH>AH                  ; Read SP Register
+F0H>AL
+DATA>R0
+3EH>UH                  ; Increment R0 containing SP value
+00H>UL                  ; R0+1>R0  | ADD. Incrementation Routine
+06H>R6                  ;          | ADD. Return
+22H>R7
+JMP
+R0>DATA                 ; Put Result in SP Register
+FFH>AL                  ; Read IPL for subroutine return
+DATA>R1
+00H>AH                  ; Put value of SP on address bus
+R0>AL                   
+R1>DATA                 ; Store IPL return on Stack
+3EH>UH                  ; Increment R0 containing SP value
+00H>UL                  ; R0+1>R0  | ADD. Incrementation Routine
+06H>R6                  ;          | ADD. Return
+2DH>R7
+JMP
+1FH>AH                  ; Store new value in SP Register
+F0H>AL
+R0>DATA
+1FH>AH                  ; Read stored MSB address of routine to execute
+F1H>AL
+R0>DATA
+FEH>AL                  ; Write MSB address routine in IPH
+R0>DATA
+1FH>AH                  ; Read stored LSB address of routine to execute
+F2H>AL
+R0>DATA
+FFH>AL                  ; Write LSB address routine in IPL
+R0>DATA
+01H>UH                  ; GO EXECUTE OP. POINTED BY IP
+00H>UL
+JMP                     ; ***************************************************
+ORG/0380H               ; OP.07 RTS    ReTurn from Subroutine
+1FH>AH                  ; Read Stack Pointer Register
+F0H>AL
+DATA>R0
+3AH>UH                  ;          | ADD. Routine R0-1>R0
+00H>UL                  ; SP-1     |
+07H>R6                  ;          | ADD. return
+08H>R7                  ; Decrementing the Stack Pointer Register
+JMP
+00H>AH                  ; Read from Stack return address IPL
+R0>AL
+DATA>R1
+1FH>AH                  ; Store in IPL Register
+FFH>AL
+R1>DATA
+3AH>UH                  ;          | ADD. Routine R0-1>R0
+00H>UL                  ; SP-1     |
+07H>R6                  ;          | ADD. return
+13H>R7                  ; Again decrementing the Stack Pointer Register
+JMP
+00H>AH                  ; Read from Stack return address IPH
+R0>AL
+DATA>R1
+1FH>AH                  ; Store in IPH Register
+FEH>AL
+R1>DATA
+01H>UH                  ; GO EXECUTE OP. POINTED BY IP
+00H>UL
+JMP                     ; ***************************************************
 ORG/0400H               ; OP.08 STOP   STOP MICROPROGRAM EXECUTION
 08H>UH
 02H>UL

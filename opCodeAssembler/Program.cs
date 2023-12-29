@@ -106,6 +106,8 @@ namespace Assembler
             // Presently only hexadecimal values are supported, 8 and 16 bits only.
             dataList.Add(new InstrTable { StringValue = "ORG/****H",  OpCode = 0,    NbByte = 0, Offset = 0 });  // 
             dataList.Add(new InstrTable { StringValue = "DB **H",     OpCode = 0,    NbByte = 0, Offset = 3 });  // Define Byte in EEPROM Memory
+            dataList.Add(new InstrTable { StringValue = "JSR ****H",  OpCode = 0x06, NbByte = 2, Offset = 4 });  // JSR ****H    Jump to SubRoutine
+            dataList.Add(new InstrTable { StringValue = "RTS",        OpCode = 0x07, NbByte = 0, Offset = 0 });  // RTS          ReTurn from Subroutine
             dataList.Add(new InstrTable { StringValue = "STOP",       OpCode = 0x08, NbByte = 0, Offset = 0 });  // STOP         STOP EXECUTING
             dataList.Add(new InstrTable { StringValue = "NOP",        OpCode = 0x09, NbByte = 0, Offset = 0 });  // NOP          NO OPERATION
             dataList.Add(new InstrTable { StringValue = "ADDA ****H", OpCode = 0x29, NbByte = 2, Offset = 5 });  // ADDA ****H   ADD BYTE FROM ADDRESS INTO REG A Carry update
@@ -122,7 +124,8 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "ORA #**H",   OpCode = 0x34, NbByte = 1, Offset = 5 });  // ORA #**H     LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
             dataList.Add(new InstrTable { StringValue = "XORA #**H",  OpCode = 0x35, NbByte = 1, Offset = 6 });  // XORA #**H    EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
             dataList.Add(new InstrTable { StringValue = "NOTA",       OpCode = 0x36, NbByte = 0, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
-            dataList.Add(new InstrTable { StringValue = "INCA",       OpCode = 0x37, NbByte = 0, Offset = 0 });  // OP.37 INCA   INCREMENT REGISTER A, UPDATE CARRY
+            dataList.Add(new InstrTable { StringValue = "INCA",       OpCode = 0x37, NbByte = 0, Offset = 0 });  // OP.37 INCA   INCREMENT REGISTER A, NO UPDATE ON CARRY
+
 
             int iFirstCharacterIndex;
             int iPosComment;

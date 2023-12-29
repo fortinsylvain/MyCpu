@@ -67,6 +67,13 @@
          CMPA #00H
          JNE F800H
          ; --------------------------------------------------------------------
+         ; OP.06 JSR    Jump to SubRoutine
+         ; --------------------------------------------------------------------
+         LDA #06H
+         NOTA
+         STA C000H   ; Output to LED port
+         JSR F810H
+         ; --------------------------------------------------------------------
          ; OP.08 STOP
          ; STOP EXECUTING
          ; Cannot test here it will stop execution...
@@ -763,6 +770,13 @@
          ORG/F800H   ; Diagnostic Error routine   
          STOP        ; Stop execution
          ;JMP F800H   ; Infinite Loop on error
+         
+         ; --------------------------------------------------------------------
+         ; JSR and RTS Test subroutine
+         ; --------------------------------------------------------------------
+         ORG/F810H
+         LDA #55H
+         RTS
          
          ; --------------------------------------------------------------------
          ; Reset Vector
