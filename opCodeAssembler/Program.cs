@@ -1,6 +1,6 @@
 ﻿// Homebrew MyCPU assembler program
 // Author: Sylvain Fortin
-// Date: 17 december 2023
+// Date: 28 december 2023
 // Documentation: This is an assembler program converting mnemonic for the MyCPU into OP code
 //                that can be executed by the micro-program. The source file having an extension .asm 
 //                is passed in argument in the command line.
@@ -99,8 +99,11 @@ namespace Assembler
             int iTotalAssembledFieldWidth = 12; // number of character allowed to print assembled bytes.
             int iAssembledMnemonicPosition = 4 + iTotalAssembledFieldWidth; // 4 correspond to number of characters for the address
 
-            //string[] TBL = new string[28];
             List<InstrTable> dataList = new List<InstrTable>();
+            // OpCode : Byte value used to code each instruction
+            // NbByte : Number of bytes following the OP code byte
+            // Offset : Character position where the hex value start.
+            // Presently only hexadecimal values are supported, 8 and 16 bits only.
             dataList.Add(new InstrTable { StringValue = "ORG/****H",  OpCode = 0,    NbByte = 0, Offset = 0 });  // 
             dataList.Add(new InstrTable { StringValue = "DB **H",     OpCode = 0,    NbByte = 0, Offset = 3 });  // Define Byte in EEPROM Memory
             dataList.Add(new InstrTable { StringValue = "STOP",       OpCode = 0x08, NbByte = 0, Offset = 0 });  // STOP         STOP EXECUTING
@@ -110,15 +113,15 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "JNE ****H",  OpCode = 0x2B, NbByte = 2, Offset = 4 });  // JNE ****H    JUMP IF NOT EQUAL (E=0)
             dataList.Add(new InstrTable { StringValue = "JEQ ****H",  OpCode = 0x2C, NbByte = 2, Offset = 4 });  // JEQ ****H    JUMP IF EQUAL (E=1)
             dataList.Add(new InstrTable { StringValue = "CMPA #**H",  OpCode = 0x2D, NbByte = 1, Offset = 6 });  // CMPA #**H    COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
-                                                                                                                 // OP.2E ADCA** ACCA+M + C > ACCA     C UPDATED
+            dataList.Add(new InstrTable { StringValue = "ADCA #**H",  OpCode = 0x2E, NbByte = 1, Offset = 6 });  // ADCA #**H    REG A = REG A + IMMEDIATE BYTE + CARRY (C), Carry C Updated
             dataList.Add(new InstrTable { StringValue = "ADDA #**H",  OpCode = 0x2F, NbByte = 1, Offset = 6 });  // ADDA #**H    ADD IMMEDIATE BYTE VALUE TO REGISTER A  C UPDATED
             dataList.Add(new InstrTable { StringValue = "LDA #**H",   OpCode = 0x30, NbByte = 1, Offset = 5 });  // LDA #**H     LOAD IMMEDIATE VALUE IN REGISTER A
             dataList.Add(new InstrTable { StringValue = "STA ****H",  OpCode = 0x31, NbByte = 2, Offset = 4 });  // STA ****H    STORE REG.A TO ADDRESSE
             dataList.Add(new InstrTable { StringValue = "JMP ****H",  OpCode = 0x32, NbByte = 2, Offset = 4 });  // JMP ****H    JUMP INCONDITIONAL TO ADDRESS
-            dataList.Add(new InstrTable { StringValue = "ANDA #**H",  OpCode = 0x33, NbByte = 1, Offset = 6 });  // ANDA #**H    REGISTER A AND LOGICAL WITH IMMEDIATE 
-                                                                                                                 // OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND BYTE
-                                                                                                                 // OP.35 EXORA #**H   EXCLUSIVE OR BETWWEN A AND VALUE
-            dataList.Add(new InstrTable { StringValue = "NOTA",       OpCode = 0x36, NbByte = 0, Offset = 0 });  // NOT LOGIC ON REG A
+            dataList.Add(new InstrTable { StringValue = "ANDA #**H",  OpCode = 0x33, NbByte = 1, Offset = 6 });  // ANDA #**H    REGISTER A AND LOGICAL WITH IMMEDIATE BYTE
+            dataList.Add(new InstrTable { StringValue = "ORA #**H",   OpCode = 0x34, NbByte = 1, Offset = 5 });  // ORA #**H     LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
+            dataList.Add(new InstrTable { StringValue = "XORA #**H",  OpCode = 0x35, NbByte = 1, Offset = 6 });  // XORA #**H    EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
+            dataList.Add(new InstrTable { StringValue = "NOTA",       OpCode = 0x36, NbByte = 0, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
             dataList.Add(new InstrTable { StringValue = "INCA",       OpCode = 0x37, NbByte = 0, Offset = 0 });  // OP.37 INCA   INCREMENT REGISTER A, UPDATE CARRY
 
             int iFirstCharacterIndex;

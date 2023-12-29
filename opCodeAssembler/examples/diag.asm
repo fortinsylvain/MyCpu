@@ -21,11 +21,9 @@
 ; -----------------------------------------------------------------
                      ; 
          ORG/E000H   ; EEPROM Start
-         
          LDA #00H    ; Clear LED
          NOTA
          STA C000H   ; Output to LED port
-         
          ; --------------------------------------------------------------------
          ; Test Carry Status bit integrity
          ; --------------------------------------------------------------------
@@ -47,7 +45,6 @@
          LDA 1FFBH   ; Read Carry Status
          CMPA #00H
          JNE F800H
-         
          ; --------------------------------------------------------------------
          ; Test Equal Status bit integrity
          ; --------------------------------------------------------------------
@@ -69,7 +66,6 @@
          LDA 1FFAH   ; Read Equal Status
          CMPA #00H
          JNE F800H
-         
          ; --------------------------------------------------------------------
          ; OP.08 STOP
          ; STOP EXECUTING
@@ -81,7 +77,6 @@
          ;NOTA
          ;STA C000H   ; Output to LED port
          ;STOP
-         
          ; --------------------------------------------------------------------
          ; OP.29 ADDA ****H  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
@@ -98,7 +93,7 @@
          LDA 1FFBH   ; Read the Carry Status
          CMPA #00H   ; No carry expected then C should be '0'
          JNE F800H   ; Error if carry is set
-         
+
          LDA #ACH    ; Store another value in RAM
          STA 1056H   
          LDA #D9H
@@ -108,7 +103,6 @@
          LDA 1FFBH   ; Read the Carry Status
          CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE F800H   ; Error if different
-         
          ; --------------------------------------------------------------------
          ; OP.2A LDA ****H  
          ; LOAD A WITH BYTE AT ADDRESS Test LDA #**H instruction 
@@ -150,7 +144,7 @@
          CMPA #FFH
          JNE F800H
          ; --------------------------------------------------------------------
-         ; OP.2B JNEQ ****H  
+         ; OP.2B JNE ****H  
          ; JUMP IF E=0
          ; Only a partial validation because i do not have symbolic address
          ; processing in the assembler program.
@@ -161,31 +155,93 @@
          LDA #6DH    ; Load a value in A
          CMPA #6DH   ; Compare with the same value
          JNE F800H   ; Error if values are different
-         
+         LDA #10H
+         CMPA #10H
+         JNE F800H
+         LDA #01H
+         CMPA #01H
+         JNE F800H
          ; --------------------------------------------------------------------
          ; OP.2C JEQ ****H
          ; JUMP IF E=1
+         ; Partial validation
          ; --------------------------------------------------------------------
-         ;LDA #2CH
-         ;NOTA
-         ;STA C000H   ; Output to LED port
-         
+         LDA #2CH
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #7AH    ; Load a value in A
+         CMPA #28H   ; Compare with a different value
+         JEQ F800H   ; If appear identical then it's and error
+         LDA #FEH
+         CMPA #FFH
+         JEQ F800H
+         LDA #01H
+         CMPA #10H
+         JEQ F800H
          ; --------------------------------------------------------------------
          ; OP.2D CMPA #**H
-         ; COMPARE A WITH IMMEDIATE VALUE 
+         ; COMPARE A WITH IMMEDIATE VALUE    EQUAL STATUS BIT (E) UPDATED
          ; --------------------------------------------------------------------
-         ;LDA #2DH
-         ;NOTA
-         ;STA C000H   ; Output to LED port
-         
+         LDA #2DH
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #12H    ; Load a value in A
+         CMPA #12H   ; Compare with identical value
+         LDA 1FFAH   ; Inspect EQUAL STATUS 
+         CMPA #01H   ; Verify bit<0> E = '1' and all others bits <7:1> are '0'    
+         JNE F800H   ; If different then it's and error
+         LDA #AAH
+         CMPA #55H   ; Compare with a different value
+         LDA 1FFAH   ; Inspect EQUAL STATUS
+         CMPA #00H   ; Verify bit<0> E = '0' and all others bits <7:1> are '0'    
+         JNE F800H   ; If different then it's and error
          ; --------------------------------------------------------------------
          ; OP.2E ADCA #**H
-         ; ACCA+M+C>ACCA     C UPDATED
+         ; REG A = REG A + IMMEDIATE BYTE + CARRY (C)   
+         ; CARRY STATUS (C) IS UPDATED
          ; --------------------------------------------------------------------
-         ;LDA #2EH
-         ;NOTA
-         ;STA C000H   ; Output to LED port
+         LDA #2EH
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #00H    ; Clear CARRY (C)
+         STA 1FFBH      
+         LDA #45H
+         ADCA #5BH
+         CMPA #A0H   ; Verify summ
+         JNE F800H
+         LDA 1FFBH   ; Check carry
+         CMPA #00H   ; Should be clear
+         JNE F800H
          
+         LDA #01H    ; Set CARRY (C)
+         STA 1FFBH
+         LDA #56H
+         ADCA #6DH
+         CMPA #C4H   ; Verify summ
+         JNE F800H
+         LDA 1FFBH   ; Check carry
+         CMPA #00H   ; Should be clear
+         JNE F800H
+         
+         LDA #00H    ; Clear CARRY (C)
+         STA 1FFBH
+         LDA #7FH
+         ADCA #DEH
+         CMPA #5DH   ; Verify summ
+         JNE F800H
+         LDA 1FFBH   ; Check carry
+         CMPA #01H   ; Should be set
+         JNE F800H
+         
+         LDA #01H    ; Set CARRY (C)
+         STA 1FFBH
+         LDA #FFH
+         ADCA #FFH
+         CMPA #FFH   ; Verify summ
+         JNE F800H
+         LDA 1FFBH   ; Check carry
+         CMPA #01H   ; Should be set
+         JNE F800H
          ; --------------------------------------------------------------------
          ; OP.2F ADDA #**H
          ; ACCA+M>ACCA     C UPDATED
@@ -355,7 +411,7 @@
          ;STA C000H   ; Output to LED port
          
          ; --------------------------------------------------------------------
-         ; OP.33 ANDA #**H  REGISTER A AND LOGICAL IMMEDIATE 
+         ; OP.33 ANDA #**H  REGISTER A AND LOGICAL IMMEDIATE BYTE
          ; --------------------------------------------------------------------
          LDA #33H
          NOTA
@@ -384,9 +440,92 @@
          ANDA #00H
          CMPA #00H
          JNE F800H
-         
          ; --------------------------------------------------------------------
-         ; OP.37 INCA  INCREMENT REGISTRE A UPDATE C (CARRY)
+         ; OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
+         ; --------------------------------------------------------------------
+         LDA #34H
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #FFH
+         ORA #FFH
+         CMPA #FFH
+         JNE F800H
+         LDA #00H
+         ORA #00H
+         CMPA #00H
+         JNE F800H
+         LDA #25H
+         ORA #D3H
+         CMPA #F7H
+         JNE F800H
+         LDA #00H
+         ORA #FFH
+         CMPA #FFH
+         JNE F800H
+         LDA #FFH
+         ORA #00H
+         CMPA #FFH
+         JNE F800H
+         LDA #14H
+         ORA #C1H
+         CMPA #D5H
+         JNE F800H
+         LDA #AAH
+         ORA #55H
+         CMPA #FFH
+         JNE F800H
+         ; --------------------------------------------------------------------
+         ; OP.35 XORA #**H  EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
+         ; --------------------------------------------------------------------
+         LDA #35H
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #00H
+         XORA #00H
+         CMPA #00H
+         JNE F800H
+         LDA #00H
+         XORA #FFH
+         CMPA #FFH
+         JNE F800H
+         LDA #FFH
+         XORA #FFH
+         CMPA #00H
+         JNE F800H
+         LDA #FFH
+         XORA #55H
+         CMPA #AAH
+         JNE F800H
+         LDA #CEH
+         XORA #5AH
+         CMPA #94H
+         JNE F800H
+         ; --------------------------------------------------------------------
+         ; OP.36 NOTA  LOGIC NOT ON REG A
+         ; --------------------------------------------------------------------
+         LDA #36H
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #00H
+         NOTA
+         CMPA #FFH
+         JNE F800H
+         NOTA
+         CMPA #00H
+         JNE F800H
+         LDA #55H
+         NOTA
+         CMPA #AAH
+         JNE F800H
+         NOTA
+         CMPA #55H
+         JNE F800H
+         NOTA
+         CMPA #AAH
+         JNE F800H
+         ; --------------------------------------------------------------------
+         ; OP.37 INCA  A = A + 1  INCREMENT REGISTRE A
+         ; NO UPDATE ON C (CARRY)
          ; --------------------------------------------------------------------
          LDA #37H
          NOTA
@@ -395,15 +534,9 @@
          INCA
          CMPA #01H
          JNE F800H
-         LDA 1FFBH   ; Read Carry bit <0>
-         CMPA #00H   ; Expecting C=0
-         JNE F800H
          LDA #01H
          INCA
          CMPA #02H
-         JNE F800H
-         LDA 1FFBH   ; Read Carry bit <0>
-         CMPA #00H   ; Expecting C=0
          JNE F800H
          LDA #7CH
          INCA
@@ -418,26 +551,49 @@
          INCA
          CMPA #86H
          JNE F800H
-         LDA 1FFBH   ; Read Carry bit <0>
-         CMPA #00H   ; Expecting C=0
-         JNE F800H
          LDA #FEH
          INCA
          CMPA #FFH
-         JNE F800H
-         LDA 1FFBH   ; Read Carry bit <0>
-         CMPA #00H   ; Expecting C=0
          JNE F800H
          LDA #FFH
          INCA
          CMPA #00H
          JNE F800H
-         NOP
-         LDA 1FFBH   ; Read Carry bit <0>  Appear to have a corrupted carry register,
-                     ;                     other bit than bit <0> may have been changed
-         CMPA #01H   ; Expecting C=1
+         LDA #FFH
+         INCA
+         INCA
+         CMPA #01H
          JNE F800H
-         
+         INCA
+         INCA
+         INCA
+         INCA
+         CMPA #05H
+         JNE F800H
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         CMPA #0DH
+         JNE F800H
+         LDA #00H    ; Test Carry is not updated
+         STA 1FFBH   ; Clear Carry 
+         LDA #FFH
+         INCA
+         LDA 1FFBH   ; Read Carry bit <0>
+         CMPA #00H   ; Expecting C=0 and <7:1> = 0
+         JNE F800H
+         LDA #01H    ; Set Carry 
+         STA 1FFBH   
+         LDA #EBH
+         INCA
+         LDA 1FFBH   ; Read Carry bit <0>
+         CMPA #01H   ; Expecting C=1 and <7:1> = 0
+         JNE F800H
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; --------------------------------------------------------------------         

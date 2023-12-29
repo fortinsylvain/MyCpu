@@ -1,4 +1,14 @@
-﻿using System;
+﻿// Homebrew MyCPU microassembler program
+// Author: Sylvain Fortin
+// Date: 29 december 2023
+// Documentation: This is a microassembler to help develop the micro-program. The source file having an extension .src 
+//                is passed in argument in the command line.
+//                Three output files are created:
+//                - filename.lst is an ascii file of the listing with the comments.
+//                - urom_lsb.bin contain the LSB binary data to be programmed on the EEPROM
+//                - urom_msb.bin contain the MSB ...
+//                The EEPROM programmer i am using is model TL866II Plus from XGecu.
+using System;
 using System.IO;
 using System.Collections.Generic;
 
