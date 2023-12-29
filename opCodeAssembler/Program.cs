@@ -313,13 +313,10 @@ namespace Assembler
                             }
                         }
                         else
-                        {           // instruction not found
-                            string sLA = ((iLine & 0x7800) / 2048).ToString("X");
-                            string sLB = ((iLine & 0x0780) / 128).ToString("X");
-                            string sLC = ((iLine & 0x0070) / 16).ToString("X");
-                            string sLD = (iLine & 0x000F).ToString("X");
-                            Console.Write(sLA + sLB + sLC + sLD);       // No de ligne
-                            lstFile.WriteLine(sLA + sLB + sLC + sLD);
+                        {   // instruction not found
+                            string sLineNumber = iLine.ToString("X");   // Line number
+                            Console.Write(sLineNumber);
+                            lstFile.WriteLine(sLineNumber);
                             Console.WriteLine($"{new string(' ', 7)}****** ERROR SYNTAX CANT FIND MNEMONIC ****** {sLine.Substring(0, Math.Min(13, sLine.Length))}");
                             lstFile.WriteLine($"{new string(' ', 7)}****** ERROR SYNTAX CANT FIND MNEMONIC ****** {sLine.Substring(0, Math.Min(13, sLine.Length))}");
                             iErrorNumber++;

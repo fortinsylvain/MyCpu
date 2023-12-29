@@ -74,6 +74,8 @@
          ; OP.08 STOP
          ; STOP EXECUTING
          ; Cannot test here it will stop execution...
+         ; A diagnostic test failure is expected to call this instruction ending 
+         ; program exectution.
          ; --------------------------------------------------------------------
          ;LDA #08H
          ;NOTA
@@ -84,9 +86,28 @@
          ; OP.29 ADDA ****H  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
          ; --------------------------------------------------------------------
-         ;LDA #29H
-         ;NOTA
-         ;STA C000H   ; Output to LED port
+         LDA #29H
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #5FH    ; Store a value in RAM
+         STA 0123H   
+         LDA #63H
+         ADDA 0123H  ; Add to A the byte at address location
+         CMPA #C2H   ; Check the sum
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; No carry expected then C should be '0'
+         JNE F800H   ; Error if carry is set
+         
+         LDA #ACH    ; Store another value in RAM
+         STA 1056H   
+         LDA #D9H
+         ADDA 1056H  ; Add to A the byte at address location
+         CMPA #85H   ; Check the sum LSB
+         JNE F800H   ; Jump if result not as expected
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE F800H   ; Error if different
          
          ; --------------------------------------------------------------------
          ; OP.2A LDA ****H  
@@ -131,10 +152,15 @@
          ; --------------------------------------------------------------------
          ; OP.2B JNEQ ****H  
          ; JUMP IF E=0
+         ; Only a partial validation because i do not have symbolic address
+         ; processing in the assembler program.
          ; --------------------------------------------------------------------
-         ;LDA #2BH
-         ;NOTA
-         ;STA C000H   ; Output to LED port
+         LDA #2BH
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #6DH    ; Load a value in A
+         CMPA #6DH   ; Compare with the same value
+         JNE F800H   ; Error if values are different
          
          ; --------------------------------------------------------------------
          ; OP.2C JEQ ****H
