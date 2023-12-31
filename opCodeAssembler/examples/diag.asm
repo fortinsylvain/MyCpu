@@ -1,23 +1,23 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin
-; Date : 28 december 2023
+; Date : 31 december 2023
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
 ; 0000H - 17FFH Total RAM space
 ; 0000H - 00FFH Stack
 ; 0100H - 17EF  Free for application
-; 1FF0H         SP Stack Pointer 8 bit
-; 1FF1H temp SP1
-; 1FF2H temp SP2
-; 1FFAH bit<0>	Equal
-; 1FFBH bit<0>	Carry
-; 1FFCH A Register
-; 1FFEH IPH	Instruction Pointer MSB
-; 1FFFH IPL Instruction Pointer LSB
-; C000H           LED port
-; E000H - F000H   EEPROM 2864 for program storage
+; 1FF0H SP      Stack Pointer 8 bit
+; 1FF1H JSH     Temporary storage for JSR MSB address
+; 1FF2H JSL          "       "     "   "  LSB    "
+; 1FFAH E       bit<0> Equal Status bit
+; 1FFBH C       bit<0> Carry Status bit
+; 1FFCH A       Register
+; 1FFEH IPH	    Instruction Pointer MSB
+; 1FFFH IPL          "         "    LSB
+; C000H         LED port
+; E000H - F000H EEPROM for application program
 ; -----------------------------------------------------------------
                      ; 
          ORG/E000H   ; EEPROM Start
@@ -72,7 +72,23 @@
          LDA #06H
          NOTA
          STA C000H   ; Output to LED port
-         JSR F810H
+         JSR FFC0H   ; 1 layer
+         JSR FFC3H   ; 2
+         JSR FFC9H   ; 3
+         JSR FFCFH   ; 4
+         JSR FFD5H   ; 5
+         JSR FFDBH   ; 6
+         JSR FFE1H   ; 7
+         JSR FFE7H   ; 8
+         JSR FFEDH   ; 9
+         JSR FFF3H   ; 10
+         ; --------------------------------------------------------------------
+         ; OP.07 RTS    ReTurn from Subroutine
+         ; Tested in OP.06 JSR
+         ; --------------------------------------------------------------------
+         ;LDA #07H
+         ;NOTA
+         ;STA C000H   ; Output to LED port
          ; --------------------------------------------------------------------
          ; OP.08 STOP
          ; STOP EXECUTING
@@ -84,6 +100,15 @@
          ;NOTA
          ;STA C000H   ; Output to LED port
          ;STOP
+         ; --------------------------------------------------------------------
+         ; OP.09 NOP   NO OPERATION
+         ; --------------------------------------------------------------------
+         LDA #09H
+         NOTA
+         STA C000H   ; Output to LED port
+         NOP
+         NOP
+         NOP
          ; --------------------------------------------------------------------
          ; OP.29 ADDA ****H  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
@@ -774,10 +799,45 @@
          ; --------------------------------------------------------------------
          ; JSR and RTS Test subroutine
          ; --------------------------------------------------------------------
-         ORG/F810H
-         LDA #55H
+         ORG/FFC0H
+         LDA #11H
          RTS
-         
+         ORG/FFC3H
+         LDA #22H
+         JSR FFC0H
+         RTS
+         ORG/FFC9H
+         LDA #33H
+         JSR FFC3H
+         RTS
+         ORG/FFCFH
+         LDA #44H
+         JSR FFC9H
+         RTS
+         ORG/FFD5H
+         LDA #44H
+         JSR FFCFH
+         RTS
+         ORG/FFDBH
+         LDA #55H
+         JSR FFD5H
+         RTS
+         ORG/FFE1H
+         LDA #66H
+         JSR FFDBH
+         RTS
+         ORG/FFE7H
+         LDA #77H
+         JSR FFE1H
+         RTS
+         ORG/FFEDH
+         LDA #88H
+         JSR FFE7H
+         RTS
+         ORG/FFF3H
+         LDA #99H
+         JSR FFEDH
+         RTS
          ; --------------------------------------------------------------------
          ; Reset Vector
          ; --------------------------------------------------------------------

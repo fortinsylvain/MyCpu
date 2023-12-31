@@ -1,22 +1,24 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin
-; Date : 26 december 2023
+; Date : 31 december 2023
 ; Documentation : Will be converted into 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
 ; External RAM required to support the microcode
-; 0000H - 17FFH   Total RAM space
-; 0000H - 00FFH   Stack
-; 0100H - 17EF    Free for application
-; 1FF0H SP        Stack Pointer 8 bit
-; 1FF1H temp      SP1
-; 1FF2H temp      SP2
-; 1FFAH bit<0>    Equal Status bit
-; 1FFBH bit<0>    Carry Status bit
-; 1FFCH A         A Register
-; 1FFEH IPH       Instruction Pointer MSB
-; 1FFFH IPL       Instruction Pointer LSB
+; 0000H - 17FFH Total RAM space
+; 0000H - 00FFH Stack
+; 0100H - 17EF  Free for application
+; 1FF0H SP      Stack Pointer 8 bit
+; 1FF1H JSH     Temporary storage for JSR MSB address
+; 1FF2H JSL          "       "     "   "  LSB    "
+; 1FFAH E       bit<0> Equal Status bit
+; 1FFBH C       bit<0> Carry Status bit
+; 1FFCH A       Register
+; 1FFEH IPH	    Instruction Pointer MSB
+; 1FFFH IPL          "         "    LSB
+; C000H         LED port
+; E000H - F000H EEPROM for application program
 ; -----------------------------------------------------------------
 ORG/0000H               ; 0000H   RESET
 00H>R0                  ; DUMMY INSTRUCTION
@@ -70,7 +72,7 @@ DATA>R3                 ; READ OP. CODE
 JMP                     ; ***************************************************
 ORG/0300H               ; OP.06 JSR    Jump to SubRoutine
 DATA>R0                 ; Read MSB IP Destination
-1FH>AH                  ; Store in TEMP SP1
+1FH>AH                  ; Store in JSH (Temp SP1) MSB
 F1H>AL                  
 R0>DATA  
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
@@ -79,7 +81,7 @@ R0>DATA
 09H>R5                  ;  IP>ADD  |
 JMP                     ;          | JMP TO ROUTINE
 DATA>R0                 ; Read LSB IP Destination
-1FH>AH                  ; Store in TEMP SP2
+1FH>AH                  ; Store in JSL (Temp SP2) LSB
 F2H>AL
 R0>DATA
 3CH>UH                  ;  IP+1>IP | ADDRESS OF ROUTINE TO INCREMENT IP
@@ -117,14 +119,14 @@ JMP
 1FH>AH                  ; Store new value in SP Register
 F0H>AL
 R0>DATA
-1FH>AH                  ; Read stored MSB address of routine to execute
+1FH>AH                  ; Read JSH stored MSB address of routine to execute
 F1H>AL
-R0>DATA
+DATA>R0
 FEH>AL                  ; Write MSB address routine in IPH
 R0>DATA
-1FH>AH                  ; Read stored LSB address of routine to execute
+1FH>AH                  ; Read JSL stored LSB address of routine to execute
 F2H>AL
-R0>DATA
+DATA>R0
 FFH>AL                  ; Write LSB address routine in IPL
 R0>DATA
 01H>UH                  ; GO EXECUTE OP. POINTED BY IP
@@ -150,6 +152,8 @@ R1>DATA
 07H>R6                  ;          | ADD. return
 13H>R7                  ; Again decrementing the Stack Pointer Register
 JMP
+F0H>AL                  ; Store in SP register
+R0>DATA
 00H>AH                  ; Read from Stack return address IPH
 R0>AL
 DATA>R1
@@ -462,7 +466,7 @@ R0>DATA                 ; STORE RESULT IN REG A
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
-ORG/1A80H               ; OP.35 EXORA xx   EXCLUSIVE OR BETWWEN A AND VALUE
+ORG/1A80H               ; OP.35 XORA #**H   REG A EXCLUSIVE OR immediate Byte
 DATA>R0                 ; PREND DONNE
 1FH>AH
 FCH>AL
@@ -542,6 +546,77 @@ R0>DATA
 ;R0>DATA
 01H>UH                  ; Go execute currently pointed OP.
 00H>UL
+JMP                     ; ******************************************************
+ORG/1D00H               ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
+R0-0>A                  ; NOT R0 > R0
+NOT A-0
+R0-1>A
+NOT A-1
+R0-2>A
+NOT A-2
+R0-3>A
+NOT A-3
+R0-4>A
+NOT A-4
+R0-5>A
+NOT A-5
+R0-6>A
+NOT A-6
+R0-7>A
+NOT A-7
+Q>R0
+R0-0>A                  ; R0+1>R0
+A>Q0
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q>R1                    ; SAVE Cout into R1-7 (Not used)
+Q6>A
+XOR R0-7
+Q5>A
+XOR R0-6
+Q4>A
+XOR R0-5
+Q3>A
+XOR R0-4
+Q2>A
+XOR R0-3
+Q1>A
+XOR R0-2
+Q0>A
+XOR R0-1
+R0-0>A
+NOT A-0
+Q>R0                    ; Save temporary result into R0
+R0-0>A                  ; NOT R0 > R0
+NOT A-0
+R0-1>A
+NOT A-1
+R0-2>A
+NOT A-2
+R0-3>A
+NOT A-3
+R0-4>A
+NOT A-4
+R0-5>A
+NOT A-5
+R0-6>A
+NOT A-6
+R0-7>A
+NOT A-7
+Q>R0
+R6>UH                   ; Return to calling microprogram
+R7>UL
 JMP                     ; ******************************************************
 ORG/1D80H               ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.                 *
 1FH>AH                  ;        READ IPL  * (RETURN  R4:MSB ADD. R5:LSB ADD.) *

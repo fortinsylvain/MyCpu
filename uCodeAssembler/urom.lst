@@ -1,22 +1,24 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin
-                              ; Date : 26 december 2023
+                              ; Date : 31 december 2023
                               ; Documentation : Will be converted into 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
                               ; External RAM required to support the microcode
-                              ; 0000H - 17FFH   Total RAM space
-                              ; 0000H - 00FFH   Stack
-                              ; 0100H - 17EF    Free for application
-                              ; 1FF0H SP        Stack Pointer 8 bit
-                              ; 1FF1H temp      SP1
-                              ; 1FF2H temp      SP2
-                              ; 1FFAH bit<0>    Equal Status bit
-                              ; 1FFBH bit<0>    Carry Status bit
-                              ; 1FFCH A         A Register
-                              ; 1FFEH IPH       Instruction Pointer MSB
-                              ; 1FFFH IPL       Instruction Pointer LSB
+                              ; 0000H - 17FFH Total RAM space
+                              ; 0000H - 00FFH Stack
+                              ; 0100H - 17EF  Free for application
+                              ; 1FF0H SP      Stack Pointer 8 bit
+                              ; 1FF1H JSH     Temporary storage for JSR MSB address
+                              ; 1FF2H JSL          "       "     "   "  LSB    "
+                              ; 1FFAH E       bit<0> Equal Status bit
+                              ; 1FFBH C       bit<0> Carry Status bit
+                              ; 1FFCH A       Register
+                              ; 1FFEH IPH	    Instruction Pointer MSB
+                              ; 1FFFH IPL          "         "    LSB
+                              ; C000H         LED port
+                              ; E000H - F000H EEPROM for application program
                               ; -----------------------------------------------------------------
                               ORG/0000H    ; 0000H   RESET
 0000       2800               00H>R0       ; DUMMY INSTRUCTION
@@ -70,7 +72,7 @@
 020A       C800               JMP          ; ***************************************************
                               ORG/0300H    ; OP.06 JSR    Jump to SubRoutine
 0600       2000               DATA>R0      ; Read MSB IP Destination
-0601       781F               1FH>AH       ; Store in TEMP SP1
+0601       781F               1FH>AH       ; Store in JSH (Temp SP1) MSB
 0602       68F1               F1H>AL       
 0603       5800               R0>DATA  
 0604       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
@@ -79,7 +81,7 @@
 0607       2D09               09H>R5       ;  IP>ADD  |
 0608       C800               JMP          ;          | JMP TO ROUTINE
 0609       2000               DATA>R0      ; Read LSB IP Destination
-060A       781F               1FH>AH       ; Store in TEMP SP2
+060A       781F               1FH>AH       ; Store in JSL (Temp SP2) LSB
 060B       68F2               F2H>AL
 060C       5800               R0>DATA
 060D       303C               3CH>UH       ;  IP+1>IP | ADDRESS OF ROUTINE TO INCREMENT IP
@@ -117,14 +119,14 @@
 062D       781F               1FH>AH       ; Store new value in SP Register
 062E       68F0               F0H>AL
 062F       5800               R0>DATA
-0630       781F               1FH>AH       ; Read stored MSB address of routine to execute
+0630       781F               1FH>AH       ; Read JSH stored MSB address of routine to execute
 0631       68F1               F1H>AL
-0632       5800               R0>DATA      ; Appear to be corrupted!!! <<<---------------
+0632       2000               DATA>R0
 0633       68FE               FEH>AL       ; Write MSB address routine in IPH
 0634       5800               R0>DATA
-0635       781F               1FH>AH       ; Read stored LSB address of routine to execute
+0635       781F               1FH>AH       ; Read JSL stored LSB address of routine to execute
 0636       68F2               F2H>AL
-0637       5800               R0>DATA
+0637       2000               DATA>R0
 0638       68FF               FFH>AL       ; Write LSB address routine in IPL
 0639       5800               R0>DATA
 063A       3001               01H>UH       ; GO EXECUTE OP. POINTED BY IP
@@ -150,15 +152,17 @@
 0710       2E07               07H>R6       ;          | ADD. return
 0711       2F13               13H>R7       ; Again decrementing the Stack Pointer Register
 0712       C800               JMP
-0713       7800               00H>AH       ; Read from Stack return address IPH
-0714       1800               R0>AL
-0715       2100               DATA>R1
-0716       781F               1FH>AH       ; Store in IPH Register
-0717       68FE               FEH>AL
-0718       5900               R1>DATA
-0719       3001               01H>UH       ; GO EXECUTE OP. POINTED BY IP
-071A       3800               00H>UL
-071B       C800               JMP          ; ***************************************************
+0713       68F0               F0H>AL       ; Store in SP register
+0714       5800               R0>DATA
+0715       7800               00H>AH       ; Read from Stack return address IPH
+0716       1800               R0>AL
+0717       2100               DATA>R1
+0718       781F               1FH>AH       ; Store in IPH Register
+0719       68FE               FEH>AL
+071A       5900               R1>DATA
+071B       3001               01H>UH       ; GO EXECUTE OP. POINTED BY IP
+071C       3800               00H>UL
+071D       C800               JMP          ; ***************************************************
                               ORG/0400H    ; OP.08 STOP   STOP MICROPROGRAM EXECUTION
 0800       3008               08H>UH
 0801       3802               02H>UL
@@ -462,7 +466,7 @@
 3416       3002               02H>UH       ; NEXT OP.
 3417       3800               00H>UL
 3418       C800               JMP          ; ***************************************************
-                              ORG/1A80H    ; OP.35 EXORA xx   EXCLUSIVE OR BETWWEN A AND VAL
+                              ORG/1A80H    ; OP.35 XORA #**H   REG A EXCLUSIVE OR immediate 
 3500       2000               DATA>R0      ; PREND DONNE
 3501       781F               1FH>AH
 3502       68FC               FCH>AL
@@ -543,6 +547,77 @@
 370B       3001               01H>UH       ; Go execute currently pointed OP.
 370C       3800               00H>UL
 370D       C800               JMP          ; ******************************************************
+                              ORG/1D00H    ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6
+3A00       5000               R0-0>A       ; NOT R0 > R0
+3A01       4038               NOT A-0
+3A02       5001               R0-1>A
+3A03       4039               NOT A-1
+3A04       5002               R0-2>A
+3A05       403A               NOT A-2
+3A06       5003               R0-3>A
+3A07       403B               NOT A-3
+3A08       5004               R0-4>A
+3A09       403C               NOT A-4
+3A0A       5005               R0-5>A
+3A0B       403D               NOT A-5
+3A0C       5006               R0-6>A
+3A0D       403E               NOT A-6
+3A0E       5007               R0-7>A
+3A0F       403F               NOT A-7
+3A10       6000               Q>R0
+3A11       5000               R0-0>A       ; R0+1>R0
+3A12       4818               A>Q0
+3A13       4021               AND R0-1
+3A14       7001               Q1>A
+3A15       4022               AND R0-2
+3A16       7002               Q2>A
+3A17       4023               AND R0-3
+3A18       7003               Q3>A
+3A19       4024               AND R0-4
+3A1A       7004               Q4>A
+3A1B       4025               AND R0-5
+3A1C       7005               Q5>A
+3A1D       4026               AND R0-6
+3A1E       7006               Q6>A
+3A1F       4027               AND R0-7
+3A20       6100               Q>R1         ; SAVE Cout into R1-7 (Not used)
+3A21       7006               Q6>A
+3A22       4017               XOR R0-7
+3A23       7005               Q5>A
+3A24       4016               XOR R0-6
+3A25       7004               Q4>A
+3A26       4015               XOR R0-5
+3A27       7003               Q3>A
+3A28       4014               XOR R0-4
+3A29       7002               Q2>A
+3A2A       4013               XOR R0-3
+3A2B       7001               Q1>A
+3A2C       4012               XOR R0-2
+3A2D       7000               Q0>A
+3A2E       4011               XOR R0-1
+3A2F       5000               R0-0>A
+3A30       4038               NOT A-0
+3A31       6000               Q>R0         ; Save temporary result into R0
+3A32       5000               R0-0>A       ; NOT R0 > R0
+3A33       4038               NOT A-0
+3A34       5001               R0-1>A
+3A35       4039               NOT A-1
+3A36       5002               R0-2>A
+3A37       403A               NOT A-2
+3A38       5003               R0-3>A
+3A39       403B               NOT A-3
+3A3A       5004               R0-4>A
+3A3B       403C               NOT A-4
+3A3C       5005               R0-5>A
+3A3D       403D               NOT A-5
+3A3E       5006               R0-6>A
+3A3F       403E               NOT A-6
+3A40       5007               R0-7>A
+3A41       403F               NOT A-7
+3A42       6000               Q>R0
+3A43       0600               R6>UH        ; Return to calling microprogram
+3A44       0F00               R7>UL
+3A45       C800               JMP          ; ******************************************************
                               ORG/1D80H    ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.           
 3B00       781F               1FH>AH       ;        READ IPL  * (RETURN  R4:MSB ADD. R5:LSB ADD.) *
 3B01       68FF               FFH>AL       ;        PUT IN R0 *************************************
