@@ -1,7 +1,7 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin
-                              ; Date : 31 december 2023
+                              ; Date : 1 january 2024
                               ; Documentation : Will be converted into 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
@@ -12,9 +12,11 @@
                               ; 1FF0H SP      Stack Pointer 8 bit
                               ; 1FF1H JSH     Temporary storage for JSR MSB address
                               ; 1FF2H JSL          "       "     "   "  LSB    "
+                              ; 1FF3H X MSB   X Register MSB
+                              ; 1FF4H X LSB   X Register LSB
                               ; 1FFAH E       bit<0> Equal Status bit
                               ; 1FFBH C       bit<0> Carry Status bit
-                              ; 1FFCH A       Register
+                              ; 1FFCH A       A Register
                               ; 1FFEH IPH	    Instruction Pointer MSB
                               ; 1FFFH IPL          "         "    LSB
                               ; C000H         LED port
@@ -440,7 +442,7 @@
 3316       3002               02H>UH       ; NEXT OP.
 3317       3800               00H>UL
 3318       C800               JMP          ; ***************************************************
-                              ORG/1A00H    ; OP.34 ORA xx   LOGICAL OR BETWEEN REG A AND BYT
+                              ORG/1A00H    ; OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND B
 3400       2000               DATA>R0      ; IMMEDIATE BYTE STORED INTO R0
 3401       781F               1FH>AH
 3402       68FC               FCH>AL
@@ -547,6 +549,45 @@
 370B       3001               01H>UH       ; Go execute currently pointed OP.
 370C       3800               00H>UL
 370D       C800               JMP          ; ******************************************************
+                              ORG/1C00H    ; OP.38 LDX #****H  Load Register X with 16 bits 
+3800       2200               DATA>R2      ; Take MSB Immediate value
+3801       303B               3BH>UH       ;          | ADD. ROUTINE
+3802       3800               00H>UL       ;  IP+1>IP |
+3803       2C32               32H>R4       ;  IP>ADD  | ADD. RETURN
+3804       2D06               06H>R5       ;          |
+3805       C800               JMP
+3806       2300               DATA>R3      ; Take LSB Immediate value
+3807       781F               1FH>AH       ; Put MSB value into register X MSB
+3808       68F3               F3H>AL
+3809       5A00               R2>DATA
+380A       68F4               F4H>AL       ; Put LSB value into register X LSB
+380B       5B00               R3>DATA
+380C       3002               02H>UH       ; NEXT OP.
+380D       3800               00H>UL
+380E       C800               JMP          ; ***************************************************
+                              ORG/1C80H    ; OP.39 INCX  Increment Register X
+3900       781F               1FH>AH       ;             Carry Not Updated
+3901       68F4               F4H>AL
+3902       2000               DATA>R0      ; Read Reg X LSB
+3903       2E39               39H>R6       ;
+3904       2F08               08H>R7       ; R0+1>R0
+3905       303E               3EH>UH       ; Cout>R1-7
+3906       3800               00H>UL
+3907       C800               JMP
+3908       781F               1FH>AH       ; Put increment result in REG. X LSB
+3909       68F4               F4H>AL
+390A       5800               R0>DATA
+390B       5107               R1-7>A       ; Add 1 to X MSB only if there is a carry
+390C       3001               01H>UH       ; If Cout=0 no increment on X MSB
+390D       3800               00H>UL       ; and go execute currently pointed OP.
+390E       C81B               JMP_A=0      
+390F       68F3               F3H>AL       ; If Cout=1 then we increment X MSB
+3910       2000               DATA>R0      ; Read X MSB
+3911       2E01               01H>R6       ; R0+1>R0
+3912       2F00               00H>R7       ; Cout>R1-7, go execute currently pointed OP.
+3913       303E               3EH>UH       
+3914       3800               00H>UL
+3915       C800               JMP          ; ******************************************************
                               ORG/1D00H    ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6
 3A00       5000               R0-0>A       ; NOT R0 > R0
 3A01       4038               NOT A-0

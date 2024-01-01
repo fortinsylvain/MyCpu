@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin
-; Date : 31 december 2023
+; Date : 1 january 2024
 ; Documentation : Will be converted into 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -12,9 +12,11 @@
 ; 1FF0H SP      Stack Pointer 8 bit
 ; 1FF1H JSH     Temporary storage for JSR MSB address
 ; 1FF2H JSL          "       "     "   "  LSB    "
+; 1FF3H X MSB   X Register MSB
+; 1FF4H X LSB   X Register LSB
 ; 1FFAH E       bit<0> Equal Status bit
 ; 1FFBH C       bit<0> Carry Status bit
-; 1FFCH A       Register
+; 1FFCH A       A Register
 ; 1FFEH IPH	    Instruction Pointer MSB
 ; 1FFFH IPL          "         "    LSB
 ; C000H         LED port
@@ -440,7 +442,7 @@ R0>DATA                 ; STORE R0 INTO REGISTER A
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
-ORG/1A00H               ; OP.34 ORA xx   LOGICAL OR BETWEEN REG A AND BYTE
+ORG/1A00H               ; OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND BYTE
 DATA>R0                 ; IMMEDIATE BYTE STORED INTO R0
 1FH>AH
 FCH>AL
@@ -545,6 +547,45 @@ R0>DATA
 ;FBH>AL
 ;R0>DATA
 01H>UH                  ; Go execute currently pointed OP.
+00H>UL
+JMP                     ; ******************************************************
+ORG/1C00H               ; OP.38 LDX #****H  Load Register X with 16 bits immediate
+DATA>R2                 ; Take MSB Immediate value
+3BH>UH                  ;          | ADD. ROUTINE
+00H>UL                  ;  IP+1>IP |
+32H>R4                  ;  IP>ADD  | ADD. RETURN
+06H>R5                  ;          |
+JMP
+DATA>R3                 ; Take LSB Immediate value
+1FH>AH                  ; Put MSB value into register X MSB
+F3H>AL
+R2>DATA
+F4H>AL                  ; Put LSB value into register X LSB
+R3>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/1C80H               ; OP.39 INCX  Increment Register X
+1FH>AH                  ;             Carry Not Updated
+F4H>AL
+DATA>R0                 ; Read Reg X LSB
+39H>R6                  ;
+08H>R7                  ; R0+1>R0
+3EH>UH                  ; Cout>R1-7
+00H>UL
+JMP
+1FH>AH                  ; Put increment result in REG. X LSB
+F4H>AL
+R0>DATA
+R1-7>A                  ; Add 1 to X MSB only if there is a carry
+01H>UH                  ; If Cout=0 no increment on X MSB
+00H>UL                  ; and go execute currently pointed OP.
+JMP_A=0                 
+F3H>AL                  ; If Cout=1 then we increment X MSB
+DATA>R0                 ; Read X MSB
+01H>R6                  ; R0+1>R0
+00H>R7                  ; Cout>R1-7, go execute currently pointed OP.
+3EH>UH                  
 00H>UL
 JMP                     ; ******************************************************
 ORG/1D00H               ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7

@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin
-; Date : 31 december 2023
+; Date : 1 january 2024
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
@@ -11,9 +11,11 @@
 ; 1FF0H SP      Stack Pointer 8 bit
 ; 1FF1H JSH     Temporary storage for JSR MSB address
 ; 1FF2H JSL          "       "     "   "  LSB    "
+; 1FF3H X MSB   X Register MSB
+; 1FF4H X LSB   X Register LSB
 ; 1FFAH E       bit<0> Equal Status bit
 ; 1FFBH C       bit<0> Carry Status bit
-; 1FFCH A       Register
+; 1FFCH A       A Register
 ; 1FFEH IPH	    Instruction Pointer MSB
 ; 1FFFH IPL          "         "    LSB
 ; C000H         LED port
@@ -106,9 +108,9 @@
          LDA #09H
          NOTA
          STA C000H   ; Output to LED port
-         NOP
-         NOP
-         NOP
+         ;NOP
+         ;NOP
+         ;NOP
          ; --------------------------------------------------------------------
          ; OP.29 ADDA ****H  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
@@ -626,6 +628,82 @@
          LDA 1FFBH   ; Read Carry bit <0>
          CMPA #01H   ; Expecting C=1 and <7:1> = 0
          JNE F800H
+         ; --------------------------------------------------------------------
+         ; OP.38  LDX #****H   Load X Register with 16 bits immediate value
+         ; --------------------------------------------------------------------
+         LDA #38H
+         NOTA
+         STA C000H   ; Output to LED port
+         LDX #1234H
+         LDA 1FF3H   ; Read Reg X MSB into A
+         CMPA #12H
+         JNE F800H
+         LDA 1FF4H   ; Read Reg X LSB into A
+         CMPA #34H
+         JNE F800H
+         LDX #ABCDH
+         LDA 1FF3H   ; Read Reg X MSB into A
+         CMPA #ABH
+         JNE F800H
+         LDA 1FF4H   ; Read Reg X LSB into A
+         CMPA #CDH
+         JNE F800H
+         ; --------------------------------------------------------------------
+         ; OP.39  INCX   Increment Register X,  Carry Not Updated
+         ; --------------------------------------------------------------------
+         LDA #39H
+         NOTA
+         STA C000H   ; Output to LED port
+         LDX #0000H  ; Clear X register
+         INCX        ; Increment X
+         LDA 1FF4H   ; Read Reg X LSB into A
+         CMPA #01H
+         JNE F800H
+         LDA 1FF3H   ; Read Reg X MSB into A
+         CMPA #00H
+         JNE F800H
+         INCX
+         LDA 1FF4H   ; Read Reg X LSB into A
+         CMPA #02H
+         JNE F800H
+         LDA 1FF3H   ; Read Reg X MSB into A
+         CMPA #00H
+         JNE F800H
+         
+         LDX #00FFH  ; Test a carry set
+         INCX        ; Increment X
+         LDA 1FF4H   ; Read Reg X LSB into A
+         CMPA #00H
+         JNE F800H
+         LDA 1FF3H   ; Read Reg X MSB into A
+         CMPA #01H
+         JNE F800H
+         INCX        ; Increment X
+         LDA 1FF4H   ; Read Reg X LSB into A
+         CMPA #01H
+         JNE F800H
+         LDA 1FF3H   ; Read Reg X MSB into A
+         CMPA #01H
+         JNE F800H
+         
+         LDX #1EFFH
+         INCX        ; Increment X
+         LDA 1FF4H   ; Read Reg X LSB into A
+         CMPA #00H
+         JNE F800H
+         LDA 1FF3H   ; Read Reg X MSB into A
+         CMPA #1FH
+         JNE F800H
+         
+         LDX #FFFFH
+         INCX        ; Increment X
+         LDA 1FF4H   ; Read Reg X LSB into A
+         CMPA #00H
+         JNE F800H
+         LDA 1FF3H   ; Read Reg X MSB into A
+         CMPA #00H
+         JNE F800H
+         
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; --------------------------------------------------------------------         

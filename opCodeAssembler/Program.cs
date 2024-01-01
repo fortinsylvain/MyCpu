@@ -1,6 +1,6 @@
 ﻿// Homebrew MyCPU assembler program
 // Author: Sylvain Fortin
-// Date: 28 december 2023
+// Date: 1 january 2024
 // Documentation: This is an assembler program converting mnemonic for the MyCPU into OP code
 //                that can be executed by the micro-program. The source file having an extension .asm 
 //                is passed in argument in the command line.
@@ -108,10 +108,10 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "DB **H",     OpCode = 0,    NbByte = 0, Offset = 3 });  // Define Byte in EEPROM Memory
             dataList.Add(new InstrTable { StringValue = "JSR ****H",  OpCode = 0x06, NbByte = 2, Offset = 4 });  // JSR ****H    Jump to SubRoutine
             dataList.Add(new InstrTable { StringValue = "RTS",        OpCode = 0x07, NbByte = 0, Offset = 0 });  // RTS          ReTurn from Subroutine
-            dataList.Add(new InstrTable { StringValue = "STOP",       OpCode = 0x08, NbByte = 0, Offset = 0 });  // STOP         STOP EXECUTING
-            dataList.Add(new InstrTable { StringValue = "NOP",        OpCode = 0x09, NbByte = 0, Offset = 0 });  // NOP          NO OPERATION
-            dataList.Add(new InstrTable { StringValue = "ADDA ****H", OpCode = 0x29, NbByte = 2, Offset = 5 });  // ADDA ****H   ADD BYTE FROM ADDRESS INTO REG A Carry update
-            dataList.Add(new InstrTable { StringValue = "LDA ****H",  OpCode = 0x2A, NbByte = 2, Offset = 4 });  // LDA ****H    LOAD BYTE FROM ADDRESS INTO REG A
+            dataList.Add(new InstrTable { StringValue = "STOP",       OpCode = 0x08, NbByte = 0, Offset = 0 });  // STOP         STOP Executing
+            dataList.Add(new InstrTable { StringValue = "NOP",        OpCode = 0x09, NbByte = 0, Offset = 0 });  // NOP          No Operation
+            dataList.Add(new InstrTable { StringValue = "ADDA ****H", OpCode = 0x29, NbByte = 2, Offset = 5 });  // ADDA ****H   Add Byte from Address into REG A Carry update
+            dataList.Add(new InstrTable { StringValue = "LDA ****H",  OpCode = 0x2A, NbByte = 2, Offset = 4 });  // LDA ****H    Load Byte from Address into REG A
             dataList.Add(new InstrTable { StringValue = "JNE ****H",  OpCode = 0x2B, NbByte = 2, Offset = 4 });  // JNE ****H    JUMP IF NOT EQUAL (E=0)
             dataList.Add(new InstrTable { StringValue = "JEQ ****H",  OpCode = 0x2C, NbByte = 2, Offset = 4 });  // JEQ ****H    JUMP IF EQUAL (E=1)
             dataList.Add(new InstrTable { StringValue = "CMPA #**H",  OpCode = 0x2D, NbByte = 1, Offset = 6 });  // CMPA #**H    COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
@@ -125,7 +125,8 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "XORA #**H",  OpCode = 0x35, NbByte = 1, Offset = 6 });  // XORA #**H    EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
             dataList.Add(new InstrTable { StringValue = "NOTA",       OpCode = 0x36, NbByte = 0, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
             dataList.Add(new InstrTable { StringValue = "INCA",       OpCode = 0x37, NbByte = 0, Offset = 0 });  // OP.37 INCA   INCREMENT REGISTER A, NO UPDATE ON CARRY
-
+            dataList.Add(new InstrTable { StringValue = "LDX #****H", OpCode = 0x38, NbByte = 2, Offset = 5 });  // LDX #****H   Load X Register with 16 bits immediate value
+            dataList.Add(new InstrTable { StringValue = "INCX",       OpCode = 0x39, NbByte = 0, Offset = 0 });  // INCX         Increment Register X,  Carry Not Updated
 
             int iFirstCharacterIndex;
             int iPosComment;
