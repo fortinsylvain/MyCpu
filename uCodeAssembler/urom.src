@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin
-; Date : 1 january 2024
+; Date : 7 january 2024
 ; Documentation : Will be converted into 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -169,8 +169,37 @@ ORG/0400H               ; OP.08 STOP   STOP MICROPROGRAM EXECUTION
 08H>UH
 02H>UL
 JMP                     ; ***************************************************
-ORG/0480H               ; OP.09 NOP    NO OPERATION
-02H>UH                  ; NEXT OP.
+ORG/0480H               ; OP.09 NOP    No OPeration
+02H>UH                  ; Next OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/0500H               ; OP.0A LDA (X) Load Reg A Indexed
+1FH>AH                  ; Read X MSB
+F3H>AL
+DATA>R2
+F4H>AL                  ; Read X LSB
+DATA>R3
+R2>AH                   ; Put on addres bus
+R3>AL
+DATA>R0                 ; Read pointed byte
+1FH>AH                  ; Write in register A
+FCH>AL   
+R0>DATA
+01H>UH                  ; Go execute currently pointed OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/0580H               ; OP.0B STA (X) Store Reg A Indexed
+1FH>AH                  ; Read X MSB
+F3H>AL
+DATA>R2
+F4H>AL                  ; Read X LSB
+DATA>R3
+FCH>AL                  ; Read Reg A
+DATA>R4
+R2>AH                   ; Set address bus
+R3>AL
+R4>DATA                 ; Write
+02H>UH                  ; Next OP.
 00H>UL
 JMP                     ; ***************************************************
 ORG/1480H               ; OP.29 ADDA ****H  ADD A WITH BYTE AT ADDRESS, C UPDATE
@@ -553,7 +582,7 @@ ORG/1C00H               ; OP.38 LDX #****H  Load Register X with 16 bits immedia
 DATA>R2                 ; Take MSB Immediate value
 3BH>UH                  ;          | ADD. ROUTINE
 00H>UL                  ;  IP+1>IP |
-32H>R4                  ;  IP>ADD  | ADD. RETURN
+38H>R4                  ;  IP>ADD  | ADD. RETURN
 06H>R5                  ;          |
 JMP
 DATA>R3                 ; Take LSB Immediate value
@@ -583,9 +612,13 @@ R1-7>A                  ; Add 1 to X MSB only if there is a carry
 JMP_A=0                 
 F3H>AL                  ; If Cout=1 then we increment X MSB
 DATA>R0                 ; Read X MSB
-01H>R6                  ; R0+1>R0
-00H>R7                  ; Cout>R1-7, go execute currently pointed OP.
+39H>R6                  ; R0+1>R0
+16H>R7                  ; Cout>R1-7, go execute currently pointed OP.
 3EH>UH                  
+00H>UL
+JMP
+R0>DATA                 ; Store X MSB
+01H>UH                  ; Go execute currently pointed OP.
 00H>UL
 JMP                     ; ******************************************************
 ORG/1D00H               ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7

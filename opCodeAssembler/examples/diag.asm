@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin
-; Date : 1 january 2024
+; Date : 7 january 2024
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
@@ -111,6 +111,43 @@
          ;NOP
          ;NOP
          ;NOP
+         ; --------------------------------------------------------------------
+         ; OP.0A LDA (X) Load Reg A Indexed
+         ; --------------------------------------------------------------------
+         LDA #0AH
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #55H    ; Store some value in RAM
+         STA 0100H
+         LDA #AAH
+         STA 0101H
+         LDA #DEH
+         STA 01F0H
+         LDA #CAH
+         STA 01FFH
+         LDX #0100H  ; Verify each locations
+         LDA (X)
+         CMPA #55H
+         JNE F800H   ; Jump if result not good
+         LDX #0101H
+         LDA (X)
+         CMPA #AAH
+         JNE F800H
+         LDX #01F0H
+         LDA (X)
+         CMPA #DEH
+         JNE F800H
+         LDX #01FFH
+         LDA (X)
+         CMPA #CAH
+         JNE F800H
+         ; --------------------------------------------------------------------
+         ; OP.0B STA (X) Store Reg A Indexed
+         ; --------------------------------------------------------------------
+         LDA #0BH
+         NOTA
+         STA C000H   ; Output to LED port
+         
          ; --------------------------------------------------------------------
          ; OP.29 ADDA ****H  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE

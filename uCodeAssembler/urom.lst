@@ -1,7 +1,7 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin
-                              ; Date : 1 january 2024
+                              ; Date : 7 january 2024
                               ; Documentation : Will be converted into 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
@@ -169,10 +169,39 @@
 0800       3008               08H>UH
 0801       3802               02H>UL
 0802       C800               JMP          ; ***************************************************
-                              ORG/0480H    ; OP.09 NOP    NO OPERATION
-0900       3002               02H>UH       ; NEXT OP.
+                              ORG/0480H    ; OP.09 NOP    No OPeration
+0900       3002               02H>UH       ; Next OP.
 0901       3800               00H>UL
 0902       C800               JMP          ; ***************************************************
+                              ORG/0500H    ; OP.0A LDA (X) Load Reg A Indexed
+0A00       781F               1FH>AH       ; Read X MSB
+0A01       68F3               F3H>AL
+0A02       2200               DATA>R2
+0A03       68F4               F4H>AL       ; Read X LSB
+0A04       2300               DATA>R3
+0A05       1200               R2>AH        ; Put on addres bus
+0A06       1B00               R3>AL
+0A07       2000               DATA>R0      ; Read pointed byte
+0A08       781F               1FH>AH       ; Write in register A
+0A09       68FC               FCH>AL   
+0A0A       5800               R0>DATA
+0A0B       3001               01H>UH       ; Go execute currently pointed OP.
+0A0C       3800               00H>UL
+0A0D       C800               JMP          ; ***************************************************
+                              ORG/0580H    ; OP.0B STA (X) Store Reg A Indexed
+0B00       781F               1FH>AH       ; Read X MSB
+0B01       68F3               F3H>AL
+0B02       2200               DATA>R2
+0B03       68F4               F4H>AL       ; Read X LSB
+0B04       2300               DATA>R3
+0B05       68FC               FCH>AL       ; Read Reg A
+0B06       2400               DATA>R4
+0B07       1200               R2>AH        ; Set address bus
+0B08       1B00               R3>AL
+0B09       5C00               R4>DATA      ; Write
+0B0A       3002               02H>UH       ; Next OP.
+0B0B       3800               00H>UL
+0B0C       C800               JMP          ; ***************************************************
                               ORG/1480H    ; OP.29 ADDA ****H  ADD A WITH BYTE AT ADDRESS, C
 2900       2200               DATA>R2      ; READ MSB ADDRESS
 2901       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
@@ -553,7 +582,7 @@
 3800       2200               DATA>R2      ; Take MSB Immediate value
 3801       303B               3BH>UH       ;          | ADD. ROUTINE
 3802       3800               00H>UL       ;  IP+1>IP |
-3803       2C32               32H>R4       ;  IP>ADD  | ADD. RETURN
+3803       2C38               38H>R4       ;  IP>ADD  | ADD. RETURN
 3804       2D06               06H>R5       ;          |
 3805       C800               JMP
 3806       2300               DATA>R3      ; Take LSB Immediate value
@@ -583,11 +612,15 @@
 390E       C81B               JMP_A=0      
 390F       68F3               F3H>AL       ; If Cout=1 then we increment X MSB
 3910       2000               DATA>R0      ; Read X MSB
-3911       2E01               01H>R6       ; R0+1>R0
-3912       2F00               00H>R7       ; Cout>R1-7, go execute currently pointed OP.
+3911       2E39               39H>R6       ; R0+1>R0
+3912       2F16               16H>R7       ; Cout>R1-7, go execute currently pointed OP.
 3913       303E               3EH>UH       
 3914       3800               00H>UL
-3915       C800               JMP          ; ******************************************************
+3915       C800               JMP
+3916       5800               R0>DATA      ; Store X MSB
+3917       3001               01H>UH       ; Go execute currently pointed OP.
+3918       3800               00H>UL
+3919       C800               JMP          ; ******************************************************
                               ORG/1D00H    ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6
 3A00       5000               R0-0>A       ; NOT R0 > R0
 3A01       4038               NOT A-0
