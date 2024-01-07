@@ -11,11 +11,13 @@ I built this CPU at home using 74LS circuit with some EEPROM.
 * 1FF0H SP      Stack Pointer 8 bit
 * 1FF1H JSH     Temporary storage for JSR MSB address
 * 1FF2H JSL          "       "     "   "  LSB    "
+* 1FF3H XH      Index Register MSB
+* 1FF4H XL      Index Register LSB
 * 1FFAH E       bit<0> Equal Status bit
 * 1FFBH C       bit<0> Carry Status bit
 * 1FFCH A       Register
 * 1FFEH IPH	    Instruction Pointer MSB
-* 1FFFH IPL          "         "    LSB
+* 1FFFH IPL     Instruction Pointer MSB
 * C000H         LED port
 * E000H - F000H EEPROM for application program
 
