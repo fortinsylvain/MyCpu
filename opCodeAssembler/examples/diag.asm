@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin
-; Date : 7 january 2024
+; Date : 8 march 2024
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
@@ -108,9 +108,9 @@
          LDA #09H
          NOTA
          STA C000H   ; Output to LED port
-         ;NOP
-         ;NOP
-         ;NOP
+         NOP
+         NOP
+         NOP
          ; --------------------------------------------------------------------
          ; OP.0A LDA (X) Load Reg A Indexed
          ; --------------------------------------------------------------------
@@ -147,7 +147,78 @@
          LDA #0BH
          NOTA
          STA C000H   ; Output to LED port
-         
+         ; --------------------------------------------------------------------
+         ; OP.0C JRA **H Unconditional relative jump
+         ; --------------------------------------------------------------------
+         LDA #0CH
+         NOTA
+         STA C000H   ; Output to LED port
+         JRA 00H     ; Test jump foward, Execute next instruction
+         JRA 01H     ; Skip next instruction
+         NOP
+         JRA 02H     ; Skip next two instructions
+         NOP
+         NOP
+         JRA 03H     ; Skip next two instructions
+         NOP
+         NOP
+         NOP
+         JRA 05H     ; Skip next two instructions
+         NOP
+         NOP
+         NOP
+         NOP 
+         NOP 
+         JRA 10H     ; Skip next 16 instructions
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP
+         JRA 20H     ; Skip next 32 instructions
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
+         NOP 
          ; --------------------------------------------------------------------
          ; OP.29 ADDA ****H  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE

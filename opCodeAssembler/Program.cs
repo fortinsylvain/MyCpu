@@ -112,6 +112,7 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "NOP",        OpCode = 0x09, NbByte = 0, Offset = 0 });  // NOP          No Operation
             dataList.Add(new InstrTable { StringValue = "LDA (X)",    OpCode = 0x0A, NbByte = 0, Offset = 0 });  // LDA (X)      Load Reg A Indexed
             dataList.Add(new InstrTable { StringValue = "STA (X)",    OpCode = 0x0B, NbByte = 0, Offset = 0 });  // STA (X)      Store Reg A Indexed
+            dataList.Add(new InstrTable { StringValue = "JRA **H",    OpCode = 0x0C, NbByte = 1, Offset = 4 });  // JRA **H      Unconditional relative jump
             dataList.Add(new InstrTable { StringValue = "ADDA ****H", OpCode = 0x29, NbByte = 2, Offset = 5 });  // ADDA ****H   Add Byte from Address into REG A Carry update
             dataList.Add(new InstrTable { StringValue = "LDA ****H",  OpCode = 0x2A, NbByte = 2, Offset = 4 });  // LDA ****H    Load Byte from Address into REG A
             dataList.Add(new InstrTable { StringValue = "JNE ****H",  OpCode = 0x2B, NbByte = 2, Offset = 4 });  // JNE ****H    JUMP IF NOT EQUAL (E=0)

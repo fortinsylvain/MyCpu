@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin
-; Date : 7 january 2024
+; Date : 8 march 2024
 ; Documentation : Will be converted into 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -242,7 +242,7 @@ ORG/0640H               ; Jump foward
 1FH>AH                  ; Read IPL
 FFH>AL                  
 DATA>R1
-00H>R2                  ; Put Cin=0
+01H>R2                  ; Put Cin=1 to jump relative to next instruction
 3FH>UH                  ;           | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
 0CH>R6                  ; Cout>R2-0 | RETURN ADDRESS

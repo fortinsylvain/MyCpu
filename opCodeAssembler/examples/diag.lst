@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin
-; Date : 1 january 2024
+; Date : 8 march 2024
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
@@ -108,371 +108,442 @@ E081 06 FF F3            JSR FFF3H   ; 10
 E084 30 09               LDA #09H
 E086 36                  NOTA
 E087 31 C0 00            STA C000H   ; Output to LED port
-                         ;NOP
-                         ;NOP
-                         ;NOP
+E08A 09                  NOP
+E08B 09                  NOP
+E08C 09                  NOP
                          ; --------------------------------------------------------------------
                          ; OP.0A LDA (X) Load Reg A Indexed
                          ; --------------------------------------------------------------------
-E08A 30 0A               LDA #0AH
-E08C 36                  NOTA
-E08D 31 C0 00            STA C000H   ; Output to LED port
-E090 30 55               LDA #55H    ; Store some value in RAM
-E092 31 01 00            STA 0100H
-E095 30 AA               LDA #AAH
-E097 31 01 01            STA 0101H
-E09A 30 DE               LDA #DEH
-E09C 31 01 F0            STA 01F0H
-E09F 30 CA               LDA #CAH
-E0A1 31 01 FF            STA 01FFH
-E0A4 38 01 00            LDX #0100H  ; Verify each locations
-E0A7 0A                  LDA (X)
-E0A8 2D 55               CMPA #55H
-E0AA 2B F8 00            JNE F800H   ; Jump if result not good
-E0AD 38 01 01            LDX #0101H
-E0B0 0A                  LDA (X)
-E0B1 2D AA               CMPA #AAH
-E0B3 2B F8 00            JNE F800H
-E0B6 38 01 F0            LDX #01F0H
-E0B9 0A                  LDA (X)
-E0BA 2D DE               CMPA #DEH
-E0BC 2B F8 00            JNE F800H
-E0BF 38 01 FF            LDX #01FFH
-E0C2 0A                  LDA (X)
-E0C3 2D CA               CMPA #CAH
-E0C5 2B F8 00            JNE F800H
+E08D 30 0A               LDA #0AH
+E08F 36                  NOTA
+E090 31 C0 00            STA C000H   ; Output to LED port
+E093 30 55               LDA #55H    ; Store some value in RAM
+E095 31 01 00            STA 0100H
+E098 30 AA               LDA #AAH
+E09A 31 01 01            STA 0101H
+E09D 30 DE               LDA #DEH
+E09F 31 01 F0            STA 01F0H
+E0A2 30 CA               LDA #CAH
+E0A4 31 01 FF            STA 01FFH
+E0A7 38 01 00            LDX #0100H  ; Verify each locations
+E0AA 0A                  LDA (X)
+E0AB 2D 55               CMPA #55H
+E0AD 2B F8 00            JNE F800H   ; Jump if result not good
+E0B0 38 01 01            LDX #0101H
+E0B3 0A                  LDA (X)
+E0B4 2D AA               CMPA #AAH
+E0B6 2B F8 00            JNE F800H
+E0B9 38 01 F0            LDX #01F0H
+E0BC 0A                  LDA (X)
+E0BD 2D DE               CMPA #DEH
+E0BF 2B F8 00            JNE F800H
+E0C2 38 01 FF            LDX #01FFH
+E0C5 0A                  LDA (X)
+E0C6 2D CA               CMPA #CAH
+E0C8 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.0B STA (X) Store Reg A Indexed
                          ; --------------------------------------------------------------------
-E0C8 30 0B               LDA #0BH
-E0CA 36                  NOTA
-E0CB 31 C0 00            STA C000H   ; Output to LED port
-
+E0CB 30 0B               LDA #0BH
+E0CD 36                  NOTA
+E0CE 31 C0 00            STA C000H   ; Output to LED port
+                         ; --------------------------------------------------------------------
+                         ; OP.0C JRA **H Unconditional relative jump
+                         ; --------------------------------------------------------------------
+E0D1 30 0C               LDA #0CH
+E0D3 36                  NOTA
+E0D4 31 C0 00            STA C000H   ; Output to LED port
+E0D7 0C 00               JRA 00H     ; Test jump foward, Execute next instruction
+E0D9 0C 01               JRA 01H     ; Skip next instruction
+E0DB 09                  NOP
+E0DC 0C 02               JRA 02H     ; Skip next two instructions
+E0DE 09                  NOP
+E0DF 09                  NOP
+E0E0 0C 03               JRA 03H     ; Skip next two instructions
+E0E2 09                  NOP
+E0E3 09                  NOP
+E0E4 09                  NOP
+E0E5 0C 05               JRA 05H     ; Skip next two instructions
+E0E7 09                  NOP
+E0E8 09                  NOP
+E0E9 09                  NOP
+E0EA 09                  NOP 
+E0EB 09                  NOP 
+E0EC 0C 10               JRA 10H     ; Skip next 16 instructions
+E0EE 09                  NOP
+E0EF 09                  NOP
+E0F0 09                  NOP
+E0F1 09                  NOP
+E0F2 09                  NOP
+E0F3 09                  NOP
+E0F4 09                  NOP
+E0F5 09                  NOP
+E0F6 09                  NOP 
+E0F7 09                  NOP 
+E0F8 09                  NOP 
+E0F9 09                  NOP 
+E0FA 09                  NOP 
+E0FB 09                  NOP 
+E0FC 09                  NOP 
+E0FD 09                  NOP
+E0FE 0C 20               JRA 20H     ; Skip next 32 instructions
+E100 09                  NOP
+E101 09                  NOP
+E102 09                  NOP
+E103 09                  NOP
+E104 09                  NOP
+E105 09                  NOP
+E106 09                  NOP
+E107 09                  NOP
+E108 09                  NOP 
+E109 09                  NOP 
+E10A 09                  NOP 
+E10B 09                  NOP 
+E10C 09                  NOP 
+E10D 09                  NOP 
+E10E 09                  NOP 
+E10F 09                  NOP 
+E110 09                  NOP
+E111 09                  NOP
+E112 09                  NOP
+E113 09                  NOP
+E114 09                  NOP
+E115 09                  NOP
+E116 09                  NOP
+E117 09                  NOP
+E118 09                  NOP 
+E119 09                  NOP 
+E11A 09                  NOP 
+E11B 09                  NOP 
+E11C 09                  NOP 
+E11D 09                  NOP 
+E11E 09                  NOP 
+E11F 09                  NOP 
                          ; --------------------------------------------------------------------
                          ; OP.29 ADDA ****H  
                          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
                          ; --------------------------------------------------------------------
-E0CE 30 29               LDA #29H
-E0D0 36                  NOTA
-E0D1 31 C0 00            STA C000H   ; Output to LED port
-E0D4 30 5F               LDA #5FH    ; Store a value in RAM
-E0D6 31 01 23            STA 0123H   
-E0D9 30 63               LDA #63H
-E0DB 29 01 23            ADDA 0123H  ; Add to A the byte at address location
-E0DE 2D C2               CMPA #C2H   ; Check the sum
-E0E0 2B F8 00            JNE F800H   ; Jump if result not good
-E0E3 2A 1F FB            LDA 1FFBH   ; Read the Carry Status
-E0E6 2D 00               CMPA #00H   ; No carry expected then C should be '0'
-E0E8 2B F8 00            JNE F800H   ; Error if carry is set
+E120 30 29               LDA #29H
+E122 36                  NOTA
+E123 31 C0 00            STA C000H   ; Output to LED port
+E126 30 5F               LDA #5FH    ; Store a value in RAM
+E128 31 01 23            STA 0123H   
+E12B 30 63               LDA #63H
+E12D 29 01 23            ADDA 0123H  ; Add to A the byte at address location
+E130 2D C2               CMPA #C2H   ; Check the sum
+E132 2B F8 00            JNE F800H   ; Jump if result not good
+E135 2A 1F FB            LDA 1FFBH   ; Read the Carry Status
+E138 2D 00               CMPA #00H   ; No carry expected then C should be '0'
+E13A 2B F8 00            JNE F800H   ; Error if carry is set
 
-E0EB 30 AC               LDA #ACH    ; Store another value in RAM
-E0ED 31 10 56            STA 1056H   
-E0F0 30 D9               LDA #D9H
-E0F2 29 10 56            ADDA 1056H  ; Add to A the byte at address location
-E0F5 2D 85               CMPA #85H   ; Check the sum LSB
-E0F7 2B F8 00            JNE F800H   ; Jump if result not as expected
-E0FA 2A 1F FB            LDA 1FFBH   ; Read the Carry Status
-E0FD 2D 01               CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
-E0FF 2B F8 00            JNE F800H   ; Error if different
+E13D 30 AC               LDA #ACH    ; Store another value in RAM
+E13F 31 10 56            STA 1056H   
+E142 30 D9               LDA #D9H
+E144 29 10 56            ADDA 1056H  ; Add to A the byte at address location
+E147 2D 85               CMPA #85H   ; Check the sum LSB
+E149 2B F8 00            JNE F800H   ; Jump if result not as expected
+E14C 2A 1F FB            LDA 1FFBH   ; Read the Carry Status
+E14F 2D 01               CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E151 2B F8 00            JNE F800H   ; Error if different
                          ; --------------------------------------------------------------------
                          ; OP.2A LDA ****H  
                          ; LOAD A WITH BYTE AT ADDRESS Test LDA #**H instruction 
                          ; --------------------------------------------------------------------
-E102 30 2A               LDA #2AH
-E104 36                  NOTA
-E105 31 C0 00            STA C000H   ; Output to LED port
-E108 30 AA               LDA #AAH    ; Load immediate in register A
-E10A 2D AA               CMPA #AAH
-E10C 2B F8 00            JNE F800H
-E10F 30 01               LDA #01H
-E111 2D 01               CMPA #01H
-E113 2B F8 00            JNE F800H
-E116 30 02               LDA #02H
-E118 2D 02               CMPA #02H
-E11A 2B F8 00            JNE F800H
-E11D 30 04               LDA #04H
-E11F 2D 04               CMPA #04H
-E121 2B F8 00            JNE F800H
-E124 30 08               LDA #08H
-E126 2D 08               CMPA #08H
-E128 2B F8 00            JNE F800H
-E12B 30 10               LDA #10H
-E12D 2D 10               CMPA #10H
-E12F 2B F8 00            JNE F800H
-E132 30 20               LDA #20H
-E134 2D 20               CMPA #20H
-E136 2B F8 00            JNE F800H
-E139 30 40               LDA #40H
-E13B 2D 40               CMPA #40H
-E13D 2B F8 00            JNE F800H
-E140 30 80               LDA #80H
-E142 2D 80               CMPA #80H
-E144 2B F8 00            JNE F800H
-E147 30 55               LDA #55H
-E149 2D 55               CMPA #55H
-E14B 2B F8 00            JNE F800H
-E14E 30 FF               LDA #FFH
-E150 2D FF               CMPA #FFH
-E152 2B F8 00            JNE F800H
+E154 30 2A               LDA #2AH
+E156 36                  NOTA
+E157 31 C0 00            STA C000H   ; Output to LED port
+E15A 30 AA               LDA #AAH    ; Load immediate in register A
+E15C 2D AA               CMPA #AAH
+E15E 2B F8 00            JNE F800H
+E161 30 01               LDA #01H
+E163 2D 01               CMPA #01H
+E165 2B F8 00            JNE F800H
+E168 30 02               LDA #02H
+E16A 2D 02               CMPA #02H
+E16C 2B F8 00            JNE F800H
+E16F 30 04               LDA #04H
+E171 2D 04               CMPA #04H
+E173 2B F8 00            JNE F800H
+E176 30 08               LDA #08H
+E178 2D 08               CMPA #08H
+E17A 2B F8 00            JNE F800H
+E17D 30 10               LDA #10H
+E17F 2D 10               CMPA #10H
+E181 2B F8 00            JNE F800H
+E184 30 20               LDA #20H
+E186 2D 20               CMPA #20H
+E188 2B F8 00            JNE F800H
+E18B 30 40               LDA #40H
+E18D 2D 40               CMPA #40H
+E18F 2B F8 00            JNE F800H
+E192 30 80               LDA #80H
+E194 2D 80               CMPA #80H
+E196 2B F8 00            JNE F800H
+E199 30 55               LDA #55H
+E19B 2D 55               CMPA #55H
+E19D 2B F8 00            JNE F800H
+E1A0 30 FF               LDA #FFH
+E1A2 2D FF               CMPA #FFH
+E1A4 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.2B JNE ****H  
                          ; JUMP IF E=0
                          ; Only a partial validation because i do not have symbolic address
                          ; processing in the assembler program.
                          ; --------------------------------------------------------------------
-E155 30 2B               LDA #2BH
-E157 36                  NOTA
-E158 31 C0 00            STA C000H   ; Output to LED port
-E15B 30 6D               LDA #6DH    ; Load a value in A
-E15D 2D 6D               CMPA #6DH   ; Compare with the same value
-E15F 2B F8 00            JNE F800H   ; Error if values are different
-E162 30 10               LDA #10H
-E164 2D 10               CMPA #10H
-E166 2B F8 00            JNE F800H
-E169 30 01               LDA #01H
-E16B 2D 01               CMPA #01H
-E16D 2B F8 00            JNE F800H
+E1A7 30 2B               LDA #2BH
+E1A9 36                  NOTA
+E1AA 31 C0 00            STA C000H   ; Output to LED port
+E1AD 30 6D               LDA #6DH    ; Load a value in A
+E1AF 2D 6D               CMPA #6DH   ; Compare with the same value
+E1B1 2B F8 00            JNE F800H   ; Error if values are different
+E1B4 30 10               LDA #10H
+E1B6 2D 10               CMPA #10H
+E1B8 2B F8 00            JNE F800H
+E1BB 30 01               LDA #01H
+E1BD 2D 01               CMPA #01H
+E1BF 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.2C JEQ ****H
                          ; JUMP IF E=1
                          ; Partial validation
                          ; --------------------------------------------------------------------
-E170 30 2C               LDA #2CH
-E172 36                  NOTA
-E173 31 C0 00            STA C000H   ; Output to LED port
-E176 30 7A               LDA #7AH    ; Load a value in A
-E178 2D 28               CMPA #28H   ; Compare with a different value
-E17A 2C F8 00            JEQ F800H   ; If appear identical then it's and error
-E17D 30 FE               LDA #FEH
-E17F 2D FF               CMPA #FFH
-E181 2C F8 00            JEQ F800H
-E184 30 01               LDA #01H
-E186 2D 10               CMPA #10H
-E188 2C F8 00            JEQ F800H
+E1C2 30 2C               LDA #2CH
+E1C4 36                  NOTA
+E1C5 31 C0 00            STA C000H   ; Output to LED port
+E1C8 30 7A               LDA #7AH    ; Load a value in A
+E1CA 2D 28               CMPA #28H   ; Compare with a different value
+E1CC 2C F8 00            JEQ F800H   ; If appear identical then it's and error
+E1CF 30 FE               LDA #FEH
+E1D1 2D FF               CMPA #FFH
+E1D3 2C F8 00            JEQ F800H
+E1D6 30 01               LDA #01H
+E1D8 2D 10               CMPA #10H
+E1DA 2C F8 00            JEQ F800H
                          ; --------------------------------------------------------------------
                          ; OP.2D CMPA #**H
                          ; COMPARE A WITH IMMEDIATE VALUE    EQUAL STATUS BIT (E) UPDATED
                          ; --------------------------------------------------------------------
-E18B 30 2D               LDA #2DH
-E18D 36                  NOTA
-E18E 31 C0 00            STA C000H   ; Output to LED port
-E191 30 12               LDA #12H    ; Load a value in A
-E193 2D 12               CMPA #12H   ; Compare with identical value
-E195 2A 1F FA            LDA 1FFAH   ; Inspect EQUAL STATUS 
-E198 2D 01               CMPA #01H   ; Verify bit<0> E = '1' and all others bits <7:1> are '0'    
-E19A 2B F8 00            JNE F800H   ; If different then it's and error
-E19D 30 AA               LDA #AAH
-E19F 2D 55               CMPA #55H   ; Compare with a different value
-E1A1 2A 1F FA            LDA 1FFAH   ; Inspect EQUAL STATUS
-E1A4 2D 00               CMPA #00H   ; Verify bit<0> E = '0' and all others bits <7:1> are '0'    
-E1A6 2B F8 00            JNE F800H   ; If different then it's and error
+E1DD 30 2D               LDA #2DH
+E1DF 36                  NOTA
+E1E0 31 C0 00            STA C000H   ; Output to LED port
+E1E3 30 12               LDA #12H    ; Load a value in A
+E1E5 2D 12               CMPA #12H   ; Compare with identical value
+E1E7 2A 1F FA            LDA 1FFAH   ; Inspect EQUAL STATUS 
+E1EA 2D 01               CMPA #01H   ; Verify bit<0> E = '1' and all others bits <7:1> are '0'    
+E1EC 2B F8 00            JNE F800H   ; If different then it's and error
+E1EF 30 AA               LDA #AAH
+E1F1 2D 55               CMPA #55H   ; Compare with a different value
+E1F3 2A 1F FA            LDA 1FFAH   ; Inspect EQUAL STATUS
+E1F6 2D 00               CMPA #00H   ; Verify bit<0> E = '0' and all others bits <7:1> are '0'    
+E1F8 2B F8 00            JNE F800H   ; If different then it's and error
                          ; --------------------------------------------------------------------
                          ; OP.2E ADCA #**H
                          ; REG A = REG A + IMMEDIATE BYTE + CARRY (C)   
                          ; CARRY STATUS (C) IS UPDATED
                          ; --------------------------------------------------------------------
-E1A9 30 2E               LDA #2EH
-E1AB 36                  NOTA
-E1AC 31 C0 00            STA C000H   ; Output to LED port
-E1AF 30 00               LDA #00H    ; Clear CARRY (C)
-E1B1 31 1F FB            STA 1FFBH      
-E1B4 30 45               LDA #45H
-E1B6 2E 5B               ADCA #5BH
-E1B8 2D A0               CMPA #A0H   ; Verify summ
-E1BA 2B F8 00            JNE F800H
-E1BD 2A 1F FB            LDA 1FFBH   ; Check carry
-E1C0 2D 00               CMPA #00H   ; Should be clear
-E1C2 2B F8 00            JNE F800H
+E1FB 30 2E               LDA #2EH
+E1FD 36                  NOTA
+E1FE 31 C0 00            STA C000H   ; Output to LED port
+E201 30 00               LDA #00H    ; Clear CARRY (C)
+E203 31 1F FB            STA 1FFBH      
+E206 30 45               LDA #45H
+E208 2E 5B               ADCA #5BH
+E20A 2D A0               CMPA #A0H   ; Verify summ
+E20C 2B F8 00            JNE F800H
+E20F 2A 1F FB            LDA 1FFBH   ; Check carry
+E212 2D 00               CMPA #00H   ; Should be clear
+E214 2B F8 00            JNE F800H
 
-E1C5 30 01               LDA #01H    ; Set CARRY (C)
-E1C7 31 1F FB            STA 1FFBH
-E1CA 30 56               LDA #56H
-E1CC 2E 6D               ADCA #6DH
-E1CE 2D C4               CMPA #C4H   ; Verify summ
-E1D0 2B F8 00            JNE F800H
-E1D3 2A 1F FB            LDA 1FFBH   ; Check carry
-E1D6 2D 00               CMPA #00H   ; Should be clear
-E1D8 2B F8 00            JNE F800H
+E217 30 01               LDA #01H    ; Set CARRY (C)
+E219 31 1F FB            STA 1FFBH
+E21C 30 56               LDA #56H
+E21E 2E 6D               ADCA #6DH
+E220 2D C4               CMPA #C4H   ; Verify summ
+E222 2B F8 00            JNE F800H
+E225 2A 1F FB            LDA 1FFBH   ; Check carry
+E228 2D 00               CMPA #00H   ; Should be clear
+E22A 2B F8 00            JNE F800H
 
-E1DB 30 00               LDA #00H    ; Clear CARRY (C)
-E1DD 31 1F FB            STA 1FFBH
-E1E0 30 7F               LDA #7FH
-E1E2 2E DE               ADCA #DEH
-E1E4 2D 5D               CMPA #5DH   ; Verify summ
-E1E6 2B F8 00            JNE F800H
-E1E9 2A 1F FB            LDA 1FFBH   ; Check carry
-E1EC 2D 01               CMPA #01H   ; Should be set
-E1EE 2B F8 00            JNE F800H
+E22D 30 00               LDA #00H    ; Clear CARRY (C)
+E22F 31 1F FB            STA 1FFBH
+E232 30 7F               LDA #7FH
+E234 2E DE               ADCA #DEH
+E236 2D 5D               CMPA #5DH   ; Verify summ
+E238 2B F8 00            JNE F800H
+E23B 2A 1F FB            LDA 1FFBH   ; Check carry
+E23E 2D 01               CMPA #01H   ; Should be set
+E240 2B F8 00            JNE F800H
 
-E1F1 30 01               LDA #01H    ; Set CARRY (C)
-E1F3 31 1F FB            STA 1FFBH
-E1F6 30 FF               LDA #FFH
-E1F8 2E FF               ADCA #FFH
-E1FA 2D FF               CMPA #FFH   ; Verify summ
-E1FC 2B F8 00            JNE F800H
-E1FF 2A 1F FB            LDA 1FFBH   ; Check carry
-E202 2D 01               CMPA #01H   ; Should be set
-E204 2B F8 00            JNE F800H
+E243 30 01               LDA #01H    ; Set CARRY (C)
+E245 31 1F FB            STA 1FFBH
+E248 30 FF               LDA #FFH
+E24A 2E FF               ADCA #FFH
+E24C 2D FF               CMPA #FFH   ; Verify summ
+E24E 2B F8 00            JNE F800H
+E251 2A 1F FB            LDA 1FFBH   ; Check carry
+E254 2D 01               CMPA #01H   ; Should be set
+E256 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.2F ADDA #**H
                          ; ACCA+M>ACCA     C UPDATED
                          ; --------------------------------------------------------------------
-E207 30 2F               LDA #2FH
-E209 36                  NOTA
-E20A 31 C0 00            STA C000H   ; Output to LED port
-E20D 30 23               LDA #23H
-E20F 2F 45               ADDA #45H
-E211 2D 68               CMPA #68H
-E213 2B F8 00            JNE F800H
-E216 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
-E219 2D 00               CMPA #00H   ; Expecting C=0
-E21B 2B F8 00            JNE F800H
-E21E 30 8A               LDA #8AH
-E220 2F BD               ADDA #BDH
-E222 2D 47               CMPA #47H   
-E224 2B F8 00            JNE F800H
-E227 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
-E22A 2D 01               CMPA #01H   ; Expecting C=1
-E22C 2B F8 00            JNE F800H
-E22F 30 01               LDA #01H
-E231 2F 02               ADDA #02H
-E233 2D 03               CMPA #03H
-E235 2B F8 00            JNE F800H
-E238 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
-E23B 2D 00               CMPA #00H   ; Expecting C=0
-E23D 2B F8 00            JNE F800H
-E240 30 FF               LDA #FFH
-E242 2F FF               ADDA #FFH
-E244 2D FE               CMPA #FEH
-E246 2B F8 00            JNE F800H
-E249 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
-E24C 2D 01               CMPA #01H   ; Expecting C=1
-E24E 2B F8 00            JNE F800H
+E259 30 2F               LDA #2FH
+E25B 36                  NOTA
+E25C 31 C0 00            STA C000H   ; Output to LED port
+E25F 30 23               LDA #23H
+E261 2F 45               ADDA #45H
+E263 2D 68               CMPA #68H
+E265 2B F8 00            JNE F800H
+E268 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
+E26B 2D 00               CMPA #00H   ; Expecting C=0
+E26D 2B F8 00            JNE F800H
+E270 30 8A               LDA #8AH
+E272 2F BD               ADDA #BDH
+E274 2D 47               CMPA #47H   
+E276 2B F8 00            JNE F800H
+E279 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
+E27C 2D 01               CMPA #01H   ; Expecting C=1
+E27E 2B F8 00            JNE F800H
+E281 30 01               LDA #01H
+E283 2F 02               ADDA #02H
+E285 2D 03               CMPA #03H
+E287 2B F8 00            JNE F800H
+E28A 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
+E28D 2D 00               CMPA #00H   ; Expecting C=0
+E28F 2B F8 00            JNE F800H
+E292 30 FF               LDA #FFH
+E294 2F FF               ADDA #FFH
+E296 2D FE               CMPA #FEH
+E298 2B F8 00            JNE F800H
+E29B 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
+E29E 2D 01               CMPA #01H   ; Expecting C=1
+E2A0 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.30 LDA #**H  
                          ; LOAD IMMEDIATE VALUE IN REGISTER A
                          ; --------------------------------------------------------------------
-E251 30 30               LDA #30H
-E253 36                  NOTA
-E254 31 C0 00            STA C000H   ; Output to LED port
-E257 30 00               LDA #00H
-E259 2D 00               CMPA #00H
-E25B 2B F8 00            JNE F800H
-E25E 30 01               LDA #01H
-E260 2D 01               CMPA #01H
-E262 2B F8 00            JNE F800H
-E265 30 02               LDA #02H
-E267 2D 02               CMPA #02H
-E269 2B F8 00            JNE F800H
-E26C 30 04               LDA #04H
-E26E 2D 04               CMPA #04H
-E270 2B F8 00            JNE F800H
-E273 30 08               LDA #08H
-E275 2D 08               CMPA #08H
-E277 2B F8 00            JNE F800H
-E27A 30 10               LDA #10H
-E27C 2D 10               CMPA #10H
-E27E 2B F8 00            JNE F800H
-E281 30 20               LDA #20H
-E283 2D 20               CMPA #20H
-E285 2B F8 00            JNE F800H
-E288 30 40               LDA #40H
-E28A 2D 40               CMPA #40H
-E28C 2B F8 00            JNE F800H
-E28F 30 80               LDA #80H
-E291 2D 80               CMPA #80H
-E293 2B F8 00            JNE F800H
-E296 30 55               LDA #55H
-E298 2D 55               CMPA #55H
-E29A 2B F8 00            JNE F800H
-E29D 30 AA               LDA #AAH
-E29F 2D AA               CMPA #AAH
-E2A1 2B F8 00            JNE F800H
-E2A4 30 FF               LDA #FFH
-E2A6 2D FF               CMPA #FFH
-E2A8 2B F8 00            JNE F800H
+E2A3 30 30               LDA #30H
+E2A5 36                  NOTA
+E2A6 31 C0 00            STA C000H   ; Output to LED port
+E2A9 30 00               LDA #00H
+E2AB 2D 00               CMPA #00H
+E2AD 2B F8 00            JNE F800H
+E2B0 30 01               LDA #01H
+E2B2 2D 01               CMPA #01H
+E2B4 2B F8 00            JNE F800H
+E2B7 30 02               LDA #02H
+E2B9 2D 02               CMPA #02H
+E2BB 2B F8 00            JNE F800H
+E2BE 30 04               LDA #04H
+E2C0 2D 04               CMPA #04H
+E2C2 2B F8 00            JNE F800H
+E2C5 30 08               LDA #08H
+E2C7 2D 08               CMPA #08H
+E2C9 2B F8 00            JNE F800H
+E2CC 30 10               LDA #10H
+E2CE 2D 10               CMPA #10H
+E2D0 2B F8 00            JNE F800H
+E2D3 30 20               LDA #20H
+E2D5 2D 20               CMPA #20H
+E2D7 2B F8 00            JNE F800H
+E2DA 30 40               LDA #40H
+E2DC 2D 40               CMPA #40H
+E2DE 2B F8 00            JNE F800H
+E2E1 30 80               LDA #80H
+E2E3 2D 80               CMPA #80H
+E2E5 2B F8 00            JNE F800H
+E2E8 30 55               LDA #55H
+E2EA 2D 55               CMPA #55H
+E2EC 2B F8 00            JNE F800H
+E2EF 30 AA               LDA #AAH
+E2F1 2D AA               CMPA #AAH
+E2F3 2B F8 00            JNE F800H
+E2F6 30 FF               LDA #FFH
+E2F8 2D FF               CMPA #FFH
+E2FA 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.31 STA ****H 
                          ; STORE REG.A TO ADDRESSE
                          ; --------------------------------------------------------------------
-E2AB 30 31               LDA #31H
-E2AD 36                  NOTA
-E2AE 31 C0 00            STA C000H   ; Output to LED port
-E2B1 30 12               LDA #12H    ; Write to RAM
-E2B3 31 00 00            STA 0000H
-E2B6 30 23               LDA #23H
-E2B8 31 00 01            STA 0001H
-E2BB 30 34               LDA #34H
-E2BD 31 00 02            STA 0002H
-E2C0 30 45               LDA #45H
-E2C2 31 00 04            STA 0004H
-E2C5 30 56               LDA #56H
-E2C7 31 00 08            STA 0008H
-E2CA 30 67               LDA #67H
-E2CC 31 00 10            STA 0010H
-E2CF 30 78               LDA #78H
-E2D1 31 00 20            STA 0020H
-E2D4 30 89               LDA #89H
-E2D6 31 00 40            STA 0040H
-E2D9 30 AB               LDA #ABH
-E2DB 31 00 80            STA 0080H
-E2DE 30 BC               LDA #BCH
-E2E0 31 01 00            STA 0100H
-E2E3 30 CD               LDA #CDH
-E2E5 31 02 00            STA 0200H
-E2E8 30 DE               LDA #DEH
-E2EA 31 04 00            STA 0400H
-E2ED 30 22               LDA #22H
-E2EF 31 08 00            STA 0800H
-E2F2 30 33               LDA #33H
-E2F4 31 10 00            STA 1000H
-E2F7 30 44               LDA #44H
-E2F9 31 17 00            STA 1700H
-E2FC 2A 00 00            LDA 0000H   ; Read from RAM and compare
-E2FF 2D 12               CMPA #12H
-E301 2B F8 00            JNE F800H
-E304 2A 00 01            LDA 0001H
-E307 2D 23               CMPA #23H
-E309 2B F8 00            JNE F800H
-E30C 2A 00 02            LDA 0002H
-E30F 2D 34               CMPA #34H
-E311 2B F8 00            JNE F800H
-E314 2A 00 04            LDA 0004H
-E317 2D 45               CMPA #45H
-E319 2B F8 00            JNE F800H
-E31C 2A 00 08            LDA 0008H
-E31F 2D 56               CMPA #56H
-E321 2B F8 00            JNE F800H
-E324 2A 00 10            LDA 0010H
-E327 2D 67               CMPA #67H
-E329 2B F8 00            JNE F800H
-E32C 2A 00 20            LDA 0020H
-E32F 2D 78               CMPA #78H
-E331 2B F8 00            JNE F800H
-E334 2A 00 40            LDA 0040H
-E337 2D 89               CMPA #89H
-E339 2B F8 00            JNE F800H
-E33C 2A 00 80            LDA 0080H
-E33F 2D AB               CMPA #ABH
-E341 2B F8 00            JNE F800H
-E344 2A 01 00            LDA 0100H
-E347 2D BC               CMPA #BCH
-E349 2B F8 00            JNE F800H
-E34C 2A 02 00            LDA 0200H
-E34F 2D CD               CMPA #CDH
-E351 2B F8 00            JNE F800H
-E354 2A 04 00            LDA 0400H
-E357 2D DE               CMPA #DEH
-E359 2B F8 00            JNE F800H
-E35C 2A 08 00            LDA 0800H
-E35F 2D 22               CMPA #22H
-E361 2B F8 00            JNE F800H
-E364 2A 10 00            LDA 1000H
-E367 2D 33               CMPA #33H
-E369 2B F8 00            JNE F800H
-E36C 2A 17 00            LDA 1700H
-E36F 2D 44               CMPA #44H
-E371 2B F8 00            JNE F800H
+E2FD 30 31               LDA #31H
+E2FF 36                  NOTA
+E300 31 C0 00            STA C000H   ; Output to LED port
+E303 30 12               LDA #12H    ; Write to RAM
+E305 31 00 00            STA 0000H
+E308 30 23               LDA #23H
+E30A 31 00 01            STA 0001H
+E30D 30 34               LDA #34H
+E30F 31 00 02            STA 0002H
+E312 30 45               LDA #45H
+E314 31 00 04            STA 0004H
+E317 30 56               LDA #56H
+E319 31 00 08            STA 0008H
+E31C 30 67               LDA #67H
+E31E 31 00 10            STA 0010H
+E321 30 78               LDA #78H
+E323 31 00 20            STA 0020H
+E326 30 89               LDA #89H
+E328 31 00 40            STA 0040H
+E32B 30 AB               LDA #ABH
+E32D 31 00 80            STA 0080H
+E330 30 BC               LDA #BCH
+E332 31 01 00            STA 0100H
+E335 30 CD               LDA #CDH
+E337 31 02 00            STA 0200H
+E33A 30 DE               LDA #DEH
+E33C 31 04 00            STA 0400H
+E33F 30 22               LDA #22H
+E341 31 08 00            STA 0800H
+E344 30 33               LDA #33H
+E346 31 10 00            STA 1000H
+E349 30 44               LDA #44H
+E34B 31 17 00            STA 1700H
+E34E 2A 00 00            LDA 0000H   ; Read from RAM and compare
+E351 2D 12               CMPA #12H
+E353 2B F8 00            JNE F800H
+E356 2A 00 01            LDA 0001H
+E359 2D 23               CMPA #23H
+E35B 2B F8 00            JNE F800H
+E35E 2A 00 02            LDA 0002H
+E361 2D 34               CMPA #34H
+E363 2B F8 00            JNE F800H
+E366 2A 00 04            LDA 0004H
+E369 2D 45               CMPA #45H
+E36B 2B F8 00            JNE F800H
+E36E 2A 00 08            LDA 0008H
+E371 2D 56               CMPA #56H
+E373 2B F8 00            JNE F800H
+E376 2A 00 10            LDA 0010H
+E379 2D 67               CMPA #67H
+E37B 2B F8 00            JNE F800H
+E37E 2A 00 20            LDA 0020H
+E381 2D 78               CMPA #78H
+E383 2B F8 00            JNE F800H
+E386 2A 00 40            LDA 0040H
+E389 2D 89               CMPA #89H
+E38B 2B F8 00            JNE F800H
+E38E 2A 00 80            LDA 0080H
+E391 2D AB               CMPA #ABH
+E393 2B F8 00            JNE F800H
+E396 2A 01 00            LDA 0100H
+E399 2D BC               CMPA #BCH
+E39B 2B F8 00            JNE F800H
+E39E 2A 02 00            LDA 0200H
+E3A1 2D CD               CMPA #CDH
+E3A3 2B F8 00            JNE F800H
+E3A6 2A 04 00            LDA 0400H
+E3A9 2D DE               CMPA #DEH
+E3AB 2B F8 00            JNE F800H
+E3AE 2A 08 00            LDA 0800H
+E3B1 2D 22               CMPA #22H
+E3B3 2B F8 00            JNE F800H
+E3B6 2A 10 00            LDA 1000H
+E3B9 2D 33               CMPA #33H
+E3BB 2B F8 00            JNE F800H
+E3BE 2A 17 00            LDA 1700H
+E3C1 2D 44               CMPA #44H
+E3C3 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.32 JMP ****H 
                          ; JUMP INCONDITIONAL TO ADDRESS
@@ -484,425 +555,425 @@ E371 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.33 ANDA #**H  REGISTER A AND LOGICAL IMMEDIATE BYTE
                          ; --------------------------------------------------------------------
-E374 30 33               LDA #33H
-E376 36                  NOTA
-E377 31 C0 00            STA C000H   ; Output to LED port
-E37A 30 FF               LDA #FFH
-E37C 33 52               ANDA #52H
-E37E 2D 52               CMPA #52H
-E380 2B F8 00            JNE F800H
-E383 30 E7               LDA #E7H
-E385 33 3C               ANDA #3CH
-E387 2D 24               CMPA #24H
-E389 2B F8 00            JNE F800H
-E38C 30 00               LDA #00H
-E38E 33 00               ANDA #00H
-E390 2D 00               CMPA #00H
-E392 2B F8 00            JNE F800H
-E395 30 FF               LDA #FFH
-E397 33 FF               ANDA #FFH
-E399 2D FF               CMPA #FFH
-E39B 2B F8 00            JNE F800H
-E39E 30 FF               LDA #FFH
-E3A0 33 55               ANDA #55H
-E3A2 2D 55               CMPA #55H
-E3A4 2B F8 00            JNE F800H
-E3A7 30 FF               LDA #FFH
-E3A9 33 00               ANDA #00H
-E3AB 2D 00               CMPA #00H
-E3AD 2B F8 00            JNE F800H
+E3C6 30 33               LDA #33H
+E3C8 36                  NOTA
+E3C9 31 C0 00            STA C000H   ; Output to LED port
+E3CC 30 FF               LDA #FFH
+E3CE 33 52               ANDA #52H
+E3D0 2D 52               CMPA #52H
+E3D2 2B F8 00            JNE F800H
+E3D5 30 E7               LDA #E7H
+E3D7 33 3C               ANDA #3CH
+E3D9 2D 24               CMPA #24H
+E3DB 2B F8 00            JNE F800H
+E3DE 30 00               LDA #00H
+E3E0 33 00               ANDA #00H
+E3E2 2D 00               CMPA #00H
+E3E4 2B F8 00            JNE F800H
+E3E7 30 FF               LDA #FFH
+E3E9 33 FF               ANDA #FFH
+E3EB 2D FF               CMPA #FFH
+E3ED 2B F8 00            JNE F800H
+E3F0 30 FF               LDA #FFH
+E3F2 33 55               ANDA #55H
+E3F4 2D 55               CMPA #55H
+E3F6 2B F8 00            JNE F800H
+E3F9 30 FF               LDA #FFH
+E3FB 33 00               ANDA #00H
+E3FD 2D 00               CMPA #00H
+E3FF 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
                          ; --------------------------------------------------------------------
-E3B0 30 34               LDA #34H
-E3B2 36                  NOTA
-E3B3 31 C0 00            STA C000H   ; Output to LED port
-E3B6 30 FF               LDA #FFH
-E3B8 34 FF               ORA #FFH
-E3BA 2D FF               CMPA #FFH
-E3BC 2B F8 00            JNE F800H
-E3BF 30 00               LDA #00H
-E3C1 34 00               ORA #00H
-E3C3 2D 00               CMPA #00H
-E3C5 2B F8 00            JNE F800H
-E3C8 30 25               LDA #25H
-E3CA 34 D3               ORA #D3H
-E3CC 2D F7               CMPA #F7H
-E3CE 2B F8 00            JNE F800H
-E3D1 30 00               LDA #00H
-E3D3 34 FF               ORA #FFH
-E3D5 2D FF               CMPA #FFH
-E3D7 2B F8 00            JNE F800H
-E3DA 30 FF               LDA #FFH
-E3DC 34 00               ORA #00H
-E3DE 2D FF               CMPA #FFH
-E3E0 2B F8 00            JNE F800H
-E3E3 30 14               LDA #14H
-E3E5 34 C1               ORA #C1H
-E3E7 2D D5               CMPA #D5H
-E3E9 2B F8 00            JNE F800H
-E3EC 30 AA               LDA #AAH
-E3EE 34 55               ORA #55H
-E3F0 2D FF               CMPA #FFH
-E3F2 2B F8 00            JNE F800H
+E402 30 34               LDA #34H
+E404 36                  NOTA
+E405 31 C0 00            STA C000H   ; Output to LED port
+E408 30 FF               LDA #FFH
+E40A 34 FF               ORA #FFH
+E40C 2D FF               CMPA #FFH
+E40E 2B F8 00            JNE F800H
+E411 30 00               LDA #00H
+E413 34 00               ORA #00H
+E415 2D 00               CMPA #00H
+E417 2B F8 00            JNE F800H
+E41A 30 25               LDA #25H
+E41C 34 D3               ORA #D3H
+E41E 2D F7               CMPA #F7H
+E420 2B F8 00            JNE F800H
+E423 30 00               LDA #00H
+E425 34 FF               ORA #FFH
+E427 2D FF               CMPA #FFH
+E429 2B F8 00            JNE F800H
+E42C 30 FF               LDA #FFH
+E42E 34 00               ORA #00H
+E430 2D FF               CMPA #FFH
+E432 2B F8 00            JNE F800H
+E435 30 14               LDA #14H
+E437 34 C1               ORA #C1H
+E439 2D D5               CMPA #D5H
+E43B 2B F8 00            JNE F800H
+E43E 30 AA               LDA #AAH
+E440 34 55               ORA #55H
+E442 2D FF               CMPA #FFH
+E444 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.35 XORA #**H  EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
                          ; --------------------------------------------------------------------
-E3F5 30 35               LDA #35H
-E3F7 36                  NOTA
-E3F8 31 C0 00            STA C000H   ; Output to LED port
-E3FB 30 00               LDA #00H
-E3FD 35 00               XORA #00H
-E3FF 2D 00               CMPA #00H
-E401 2B F8 00            JNE F800H
-E404 30 00               LDA #00H
-E406 35 FF               XORA #FFH
-E408 2D FF               CMPA #FFH
-E40A 2B F8 00            JNE F800H
-E40D 30 FF               LDA #FFH
-E40F 35 FF               XORA #FFH
-E411 2D 00               CMPA #00H
-E413 2B F8 00            JNE F800H
-E416 30 FF               LDA #FFH
-E418 35 55               XORA #55H
-E41A 2D AA               CMPA #AAH
-E41C 2B F8 00            JNE F800H
-E41F 30 CE               LDA #CEH
-E421 35 5A               XORA #5AH
-E423 2D 94               CMPA #94H
-E425 2B F8 00            JNE F800H
+E447 30 35               LDA #35H
+E449 36                  NOTA
+E44A 31 C0 00            STA C000H   ; Output to LED port
+E44D 30 00               LDA #00H
+E44F 35 00               XORA #00H
+E451 2D 00               CMPA #00H
+E453 2B F8 00            JNE F800H
+E456 30 00               LDA #00H
+E458 35 FF               XORA #FFH
+E45A 2D FF               CMPA #FFH
+E45C 2B F8 00            JNE F800H
+E45F 30 FF               LDA #FFH
+E461 35 FF               XORA #FFH
+E463 2D 00               CMPA #00H
+E465 2B F8 00            JNE F800H
+E468 30 FF               LDA #FFH
+E46A 35 55               XORA #55H
+E46C 2D AA               CMPA #AAH
+E46E 2B F8 00            JNE F800H
+E471 30 CE               LDA #CEH
+E473 35 5A               XORA #5AH
+E475 2D 94               CMPA #94H
+E477 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.36 NOTA  LOGIC NOT ON REG A
                          ; --------------------------------------------------------------------
-E428 30 36               LDA #36H
-E42A 36                  NOTA
-E42B 31 C0 00            STA C000H   ; Output to LED port
-E42E 30 00               LDA #00H
-E430 36                  NOTA
-E431 2D FF               CMPA #FFH
-E433 2B F8 00            JNE F800H
-E436 36                  NOTA
-E437 2D 00               CMPA #00H
-E439 2B F8 00            JNE F800H
-E43C 30 55               LDA #55H
-E43E 36                  NOTA
-E43F 2D AA               CMPA #AAH
-E441 2B F8 00            JNE F800H
-E444 36                  NOTA
-E445 2D 55               CMPA #55H
-E447 2B F8 00            JNE F800H
-E44A 36                  NOTA
-E44B 2D AA               CMPA #AAH
-E44D 2B F8 00            JNE F800H
+E47A 30 36               LDA #36H
+E47C 36                  NOTA
+E47D 31 C0 00            STA C000H   ; Output to LED port
+E480 30 00               LDA #00H
+E482 36                  NOTA
+E483 2D FF               CMPA #FFH
+E485 2B F8 00            JNE F800H
+E488 36                  NOTA
+E489 2D 00               CMPA #00H
+E48B 2B F8 00            JNE F800H
+E48E 30 55               LDA #55H
+E490 36                  NOTA
+E491 2D AA               CMPA #AAH
+E493 2B F8 00            JNE F800H
+E496 36                  NOTA
+E497 2D 55               CMPA #55H
+E499 2B F8 00            JNE F800H
+E49C 36                  NOTA
+E49D 2D AA               CMPA #AAH
+E49F 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.37 INCA  A = A + 1  INCREMENT REGISTRE A
                          ; NO UPDATE ON C (CARRY)
                          ; --------------------------------------------------------------------
-E450 30 37               LDA #37H
-E452 36                  NOTA
-E453 31 C0 00            STA C000H   ; Output to LED port
-E456 30 00               LDA #00H
-E458 37                  INCA
-E459 2D 01               CMPA #01H
-E45B 2B F8 00            JNE F800H
-E45E 30 01               LDA #01H
-E460 37                  INCA
-E461 2D 02               CMPA #02H
-E463 2B F8 00            JNE F800H
-E466 30 7C               LDA #7CH
-E468 37                  INCA
-E469 37                  INCA
-E46A 37                  INCA
-E46B 37                  INCA
-E46C 37                  INCA
-E46D 37                  INCA
-E46E 37                  INCA
-E46F 37                  INCA
-E470 37                  INCA
-E471 37                  INCA
-E472 2D 86               CMPA #86H
-E474 2B F8 00            JNE F800H
-E477 30 FE               LDA #FEH
-E479 37                  INCA
-E47A 2D FF               CMPA #FFH
-E47C 2B F8 00            JNE F800H
-E47F 30 FF               LDA #FFH
-E481 37                  INCA
-E482 2D 00               CMPA #00H
-E484 2B F8 00            JNE F800H
-E487 30 FF               LDA #FFH
-E489 37                  INCA
-E48A 37                  INCA
-E48B 2D 01               CMPA #01H
-E48D 2B F8 00            JNE F800H
-E490 37                  INCA
-E491 37                  INCA
-E492 37                  INCA
-E493 37                  INCA
-E494 2D 05               CMPA #05H
-E496 2B F8 00            JNE F800H
-E499 37                  INCA
-E49A 37                  INCA
-E49B 37                  INCA
-E49C 37                  INCA
-E49D 37                  INCA
-E49E 37                  INCA
-E49F 37                  INCA
-E4A0 37                  INCA
-E4A1 2D 0D               CMPA #0DH
-E4A3 2B F8 00            JNE F800H
-E4A6 30 00               LDA #00H    ; Test Carry is not updated
-E4A8 31 1F FB            STA 1FFBH   ; Clear Carry 
-E4AB 30 FF               LDA #FFH
-E4AD 37                  INCA
-E4AE 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
-E4B1 2D 00               CMPA #00H   ; Expecting C=0 and <7:1> = 0
-E4B3 2B F8 00            JNE F800H
-E4B6 30 01               LDA #01H    ; Set Carry 
-E4B8 31 1F FB            STA 1FFBH   
-E4BB 30 EB               LDA #EBH
+E4A2 30 37               LDA #37H
+E4A4 36                  NOTA
+E4A5 31 C0 00            STA C000H   ; Output to LED port
+E4A8 30 00               LDA #00H
+E4AA 37                  INCA
+E4AB 2D 01               CMPA #01H
+E4AD 2B F8 00            JNE F800H
+E4B0 30 01               LDA #01H
+E4B2 37                  INCA
+E4B3 2D 02               CMPA #02H
+E4B5 2B F8 00            JNE F800H
+E4B8 30 7C               LDA #7CH
+E4BA 37                  INCA
+E4BB 37                  INCA
+E4BC 37                  INCA
 E4BD 37                  INCA
-E4BE 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
-E4C1 2D 01               CMPA #01H   ; Expecting C=1 and <7:1> = 0
-E4C3 2B F8 00            JNE F800H
+E4BE 37                  INCA
+E4BF 37                  INCA
+E4C0 37                  INCA
+E4C1 37                  INCA
+E4C2 37                  INCA
+E4C3 37                  INCA
+E4C4 2D 86               CMPA #86H
+E4C6 2B F8 00            JNE F800H
+E4C9 30 FE               LDA #FEH
+E4CB 37                  INCA
+E4CC 2D FF               CMPA #FFH
+E4CE 2B F8 00            JNE F800H
+E4D1 30 FF               LDA #FFH
+E4D3 37                  INCA
+E4D4 2D 00               CMPA #00H
+E4D6 2B F8 00            JNE F800H
+E4D9 30 FF               LDA #FFH
+E4DB 37                  INCA
+E4DC 37                  INCA
+E4DD 2D 01               CMPA #01H
+E4DF 2B F8 00            JNE F800H
+E4E2 37                  INCA
+E4E3 37                  INCA
+E4E4 37                  INCA
+E4E5 37                  INCA
+E4E6 2D 05               CMPA #05H
+E4E8 2B F8 00            JNE F800H
+E4EB 37                  INCA
+E4EC 37                  INCA
+E4ED 37                  INCA
+E4EE 37                  INCA
+E4EF 37                  INCA
+E4F0 37                  INCA
+E4F1 37                  INCA
+E4F2 37                  INCA
+E4F3 2D 0D               CMPA #0DH
+E4F5 2B F8 00            JNE F800H
+E4F8 30 00               LDA #00H    ; Test Carry is not updated
+E4FA 31 1F FB            STA 1FFBH   ; Clear Carry 
+E4FD 30 FF               LDA #FFH
+E4FF 37                  INCA
+E500 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
+E503 2D 00               CMPA #00H   ; Expecting C=0 and <7:1> = 0
+E505 2B F8 00            JNE F800H
+E508 30 01               LDA #01H    ; Set Carry 
+E50A 31 1F FB            STA 1FFBH   
+E50D 30 EB               LDA #EBH
+E50F 37                  INCA
+E510 2A 1F FB            LDA 1FFBH   ; Read Carry bit <0>
+E513 2D 01               CMPA #01H   ; Expecting C=1 and <7:1> = 0
+E515 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.38  LDX #****H   Load X Register with 16 bits immediate value
                          ; --------------------------------------------------------------------
-E4C6 30 38               LDA #38H
-E4C8 36                  NOTA
-E4C9 31 C0 00            STA C000H   ; Output to LED port
-E4CC 38 12 34            LDX #1234H
-E4CF 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
-E4D2 2D 12               CMPA #12H
-E4D4 2B F8 00            JNE F800H
-E4D7 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
-E4DA 2D 34               CMPA #34H
-E4DC 2B F8 00            JNE F800H
-E4DF 38 AB CD            LDX #ABCDH
-E4E2 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
-E4E5 2D AB               CMPA #ABH
-E4E7 2B F8 00            JNE F800H
-E4EA 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
-E4ED 2D CD               CMPA #CDH
-E4EF 2B F8 00            JNE F800H
+E518 30 38               LDA #38H
+E51A 36                  NOTA
+E51B 31 C0 00            STA C000H   ; Output to LED port
+E51E 38 12 34            LDX #1234H
+E521 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
+E524 2D 12               CMPA #12H
+E526 2B F8 00            JNE F800H
+E529 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
+E52C 2D 34               CMPA #34H
+E52E 2B F8 00            JNE F800H
+E531 38 AB CD            LDX #ABCDH
+E534 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
+E537 2D AB               CMPA #ABH
+E539 2B F8 00            JNE F800H
+E53C 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
+E53F 2D CD               CMPA #CDH
+E541 2B F8 00            JNE F800H
                          ; --------------------------------------------------------------------
                          ; OP.39  INCX   Increment Register X,  Carry Not Updated
                          ; --------------------------------------------------------------------
-E4F2 30 39               LDA #39H
-E4F4 36                  NOTA
-E4F5 31 C0 00            STA C000H   ; Output to LED port
-E4F8 38 00 00            LDX #0000H  ; Clear X register
-E4FB 39                  INCX        ; Increment X
-E4FC 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
-E4FF 2D 01               CMPA #01H
-E501 2B F8 00            JNE F800H
-E504 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
-E507 2D 00               CMPA #00H
-E509 2B F8 00            JNE F800H
-E50C 39                  INCX
-E50D 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
-E510 2D 02               CMPA #02H
-E512 2B F8 00            JNE F800H
-E515 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
-E518 2D 00               CMPA #00H
-E51A 2B F8 00            JNE F800H
-
-E51D 38 00 FF            LDX #00FFH  ; Test a carry set
-E520 39                  INCX        ; Increment X
-E521 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
-E524 2D 00               CMPA #00H
-E526 2B F8 00            JNE F800H
-E529 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
-E52C 2D 01               CMPA #01H
-E52E 2B F8 00            JNE F800H
-E531 39                  INCX        ; Increment X
-E532 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
-E535 2D 01               CMPA #01H
-E537 2B F8 00            JNE F800H
-E53A 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
-E53D 2D 01               CMPA #01H
-E53F 2B F8 00            JNE F800H
-
-E542 38 1E FF            LDX #1EFFH
-E545 39                  INCX        ; Increment X
-E546 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
-E549 2D 00               CMPA #00H
-E54B 2B F8 00            JNE F800H
-E54E 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
-E551 2D 1F               CMPA #1FH
+E544 30 39               LDA #39H
+E546 36                  NOTA
+E547 31 C0 00            STA C000H   ; Output to LED port
+E54A 38 00 00            LDX #0000H  ; Clear X register
+E54D 39                  INCX        ; Increment X
+E54E 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
+E551 2D 01               CMPA #01H
 E553 2B F8 00            JNE F800H
+E556 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
+E559 2D 00               CMPA #00H
+E55B 2B F8 00            JNE F800H
+E55E 39                  INCX
+E55F 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
+E562 2D 02               CMPA #02H
+E564 2B F8 00            JNE F800H
+E567 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
+E56A 2D 00               CMPA #00H
+E56C 2B F8 00            JNE F800H
 
-E556 38 FF FF            LDX #FFFFH
-E559 39                  INCX        ; Increment X
-E55A 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
-E55D 2D 00               CMPA #00H
-E55F 2B F8 00            JNE F800H
-E562 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
-E565 2D 00               CMPA #00H
-E567 2B F8 00            JNE F800H
+E56F 38 00 FF            LDX #00FFH  ; Test a carry set
+E572 39                  INCX        ; Increment X
+E573 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
+E576 2D 00               CMPA #00H
+E578 2B F8 00            JNE F800H
+E57B 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
+E57E 2D 01               CMPA #01H
+E580 2B F8 00            JNE F800H
+E583 39                  INCX        ; Increment X
+E584 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
+E587 2D 01               CMPA #01H
+E589 2B F8 00            JNE F800H
+E58C 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
+E58F 2D 01               CMPA #01H
+E591 2B F8 00            JNE F800H
+
+E594 38 1E FF            LDX #1EFFH
+E597 39                  INCX        ; Increment X
+E598 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
+E59B 2D 00               CMPA #00H
+E59D 2B F8 00            JNE F800H
+E5A0 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
+E5A3 2D 1F               CMPA #1FH
+E5A5 2B F8 00            JNE F800H
+
+E5A8 38 FF FF            LDX #FFFFH
+E5AB 39                  INCX        ; Increment X
+E5AC 2A 1F F4            LDA 1FF4H   ; Read Reg X LSB into A
+E5AF 2D 00               CMPA #00H
+E5B1 2B F8 00            JNE F800H
+E5B4 2A 1F F3            LDA 1FF3H   ; Read Reg X MSB into A
+E5B7 2D 00               CMPA #00H
+E5B9 2B F8 00            JNE F800H
 
                          ; --------------------------------------------------------------------
                          ; FIBONACCI TEST
                          ; --------------------------------------------------------------------         
-E56A 30 FF               LDA #FFH
-E56C 36                  NOTA
-E56D 31 C0 00            STA C000H   ; Output to LED port
+E5BC 30 FF               LDA #FFH
+E5BE 36                  NOTA
+E5BF 31 C0 00            STA C000H   ; Output to LED port
                                      ;
-E570 30 00               LDA #00H    ; Init first number with 00H
-E572 31 10 00            STA 1000H
-E575 30 01               LDA #01H    ; Init second number with 01H
-E577 31 10 01            STA 1001H
-E57A 2A 10 00            LDA 1000H   ; Load first number in A
-E57D 29 10 01            ADDA 1001H  ; Add second number to A
-E580 31 10 02            STA 1002H   ; Store the summ
-E583 2D 01               CMPA #01H   ; HEX   Decimal  Real Value (in 8 bit storage only)
-E585 2B F8 00            JNE F800H   ; 01H   1        1
+E5C2 30 00               LDA #00H    ; Init first number with 00H
+E5C4 31 10 00            STA 1000H
+E5C7 30 01               LDA #01H    ; Init second number with 01H
+E5C9 31 10 01            STA 1001H
+E5CC 2A 10 00            LDA 1000H   ; Load first number in A
+E5CF 29 10 01            ADDA 1001H  ; Add second number to A
+E5D2 31 10 02            STA 1002H   ; Store the summ
+E5D5 2D 01               CMPA #01H   ; HEX   Decimal  Real Value (in 8 bit storage only)
+E5D7 2B F8 00            JNE F800H   ; 01H   1        1
 
-E588 2A 10 01            LDA 1001H   ; Move second number to the first number
-E58B 31 10 00            STA 1000H
-E58E 2A 10 02            LDA 1002H   ; Move summ to the second number
-E591 31 10 01            STA 1001H
-E594 2A 10 00            LDA 1000H   ; Load first number in A
-E597 29 10 01            ADDA 1001H  ; Add second number to A
-E59A 31 10 02            STA 1002H   ; Store the summ
-E59D 2D 02               CMPA #02H   ; HEX   Decimal  Real Value
-E59F 2B F8 00            JNE F800H   ; 02H   2        2
+E5DA 2A 10 01            LDA 1001H   ; Move second number to the first number
+E5DD 31 10 00            STA 1000H
+E5E0 2A 10 02            LDA 1002H   ; Move summ to the second number
+E5E3 31 10 01            STA 1001H
+E5E6 2A 10 00            LDA 1000H   ; Load first number in A
+E5E9 29 10 01            ADDA 1001H  ; Add second number to A
+E5EC 31 10 02            STA 1002H   ; Store the summ
+E5EF 2D 02               CMPA #02H   ; HEX   Decimal  Real Value
+E5F1 2B F8 00            JNE F800H   ; 02H   2        2
 
-E5A2 2A 10 01            LDA 1001H   ; Move second number to the first number
-E5A5 31 10 00            STA 1000H
-E5A8 2A 10 02            LDA 1002H   ; Move summ to the second number
-E5AB 31 10 01            STA 1001H
-E5AE 2A 10 00            LDA 1000H   ; Load first number in A
-E5B1 29 10 01            ADDA 1001H  ; Add second number to A
-E5B4 31 10 02            STA 1002H   ; Store the summ
-E5B7 2D 03               CMPA #03H   ; HEX   Decimal  Real Value
-E5B9 2B F8 00            JNE F800H   ; 03H   3        3
+E5F4 2A 10 01            LDA 1001H   ; Move second number to the first number
+E5F7 31 10 00            STA 1000H
+E5FA 2A 10 02            LDA 1002H   ; Move summ to the second number
+E5FD 31 10 01            STA 1001H
+E600 2A 10 00            LDA 1000H   ; Load first number in A
+E603 29 10 01            ADDA 1001H  ; Add second number to A
+E606 31 10 02            STA 1002H   ; Store the summ
+E609 2D 03               CMPA #03H   ; HEX   Decimal  Real Value
+E60B 2B F8 00            JNE F800H   ; 03H   3        3
 
-E5BC 2A 10 01            LDA 1001H   ; Move second number to the first number
-E5BF 31 10 00            STA 1000H
-E5C2 2A 10 02            LDA 1002H   ; Move summ to the second number
-E5C5 31 10 01            STA 1001H
-E5C8 2A 10 00            LDA 1000H   ; Load first number in A
-E5CB 29 10 01            ADDA 1001H  ; Add second number to A
-E5CE 31 10 02            STA 1002H   ; Store the summ
-E5D1 2D 05               CMPA #05H   ; HEX   Decimal  Real Value
-E5D3 2B F8 00            JNE F800H   ; 05H   5        5
+E60E 2A 10 01            LDA 1001H   ; Move second number to the first number
+E611 31 10 00            STA 1000H
+E614 2A 10 02            LDA 1002H   ; Move summ to the second number
+E617 31 10 01            STA 1001H
+E61A 2A 10 00            LDA 1000H   ; Load first number in A
+E61D 29 10 01            ADDA 1001H  ; Add second number to A
+E620 31 10 02            STA 1002H   ; Store the summ
+E623 2D 05               CMPA #05H   ; HEX   Decimal  Real Value
+E625 2B F8 00            JNE F800H   ; 05H   5        5
 
-E5D6 2A 10 01            LDA 1001H   ; Move second number to the first number
-E5D9 31 10 00            STA 1000H
-E5DC 2A 10 02            LDA 1002H   ; Move summ to the second number
-E5DF 31 10 01            STA 1001H
-E5E2 2A 10 00            LDA 1000H   ; Load first number in A
-E5E5 29 10 01            ADDA 1001H  ; Add second number to A
-E5E8 31 10 02            STA 1002H   ; Store the summ
-E5EB 2D 08               CMPA #08H   ; HEX   Decimal  Real Value
-E5ED 2B F8 00            JNE F800H   ; 08H   8        8
+E628 2A 10 01            LDA 1001H   ; Move second number to the first number
+E62B 31 10 00            STA 1000H
+E62E 2A 10 02            LDA 1002H   ; Move summ to the second number
+E631 31 10 01            STA 1001H
+E634 2A 10 00            LDA 1000H   ; Load first number in A
+E637 29 10 01            ADDA 1001H  ; Add second number to A
+E63A 31 10 02            STA 1002H   ; Store the summ
+E63D 2D 08               CMPA #08H   ; HEX   Decimal  Real Value
+E63F 2B F8 00            JNE F800H   ; 08H   8        8
 
-E5F0 2A 10 01            LDA 1001H   ; Move second number to the first number
-E5F3 31 10 00            STA 1000H
-E5F6 2A 10 02            LDA 1002H   ; Move summ to the second number
-E5F9 31 10 01            STA 1001H
-E5FC 2A 10 00            LDA 1000H   ; Load first number in A
-E5FF 29 10 01            ADDA 1001H  ; Add second number to A
-E602 31 10 02            STA 1002H   ; Store the summ
-E605 2D 0D               CMPA #0DH   ; HEX   Decimal  Real Value
-E607 2B F8 00            JNE F800H   ; 0DH   13       13
+E642 2A 10 01            LDA 1001H   ; Move second number to the first number
+E645 31 10 00            STA 1000H
+E648 2A 10 02            LDA 1002H   ; Move summ to the second number
+E64B 31 10 01            STA 1001H
+E64E 2A 10 00            LDA 1000H   ; Load first number in A
+E651 29 10 01            ADDA 1001H  ; Add second number to A
+E654 31 10 02            STA 1002H   ; Store the summ
+E657 2D 0D               CMPA #0DH   ; HEX   Decimal  Real Value
+E659 2B F8 00            JNE F800H   ; 0DH   13       13
 
-E60A 2A 10 01            LDA 1001H   ; Move second number to the first number
-E60D 31 10 00            STA 1000H
-E610 2A 10 02            LDA 1002H   ; Move summ to the second number
-E613 31 10 01            STA 1001H
-E616 2A 10 00            LDA 1000H   ; Load first number in A
-E619 29 10 01            ADDA 1001H  ; Add second number to A
-E61C 31 10 02            STA 1002H   ; Store the summ
-E61F 2D 15               CMPA #15H   ; HEX   Decimal  Real Value
-E621 2B F8 00            JNE F800H   ; 15H   21       21
+E65C 2A 10 01            LDA 1001H   ; Move second number to the first number
+E65F 31 10 00            STA 1000H
+E662 2A 10 02            LDA 1002H   ; Move summ to the second number
+E665 31 10 01            STA 1001H
+E668 2A 10 00            LDA 1000H   ; Load first number in A
+E66B 29 10 01            ADDA 1001H  ; Add second number to A
+E66E 31 10 02            STA 1002H   ; Store the summ
+E671 2D 15               CMPA #15H   ; HEX   Decimal  Real Value
+E673 2B F8 00            JNE F800H   ; 15H   21       21
 
-E624 2A 10 01            LDA 1001H   ; Move second number to the first number
-E627 31 10 00            STA 1000H
-E62A 2A 10 02            LDA 1002H   ; Move summ to the second number
-E62D 31 10 01            STA 1001H
-E630 2A 10 00            LDA 1000H   ; Load first number in A
-E633 29 10 01            ADDA 1001H  ; Add second number to A
-E636 31 10 02            STA 1002H   ; Store the summ
-E639 2D 22               CMPA #22H   ; HEX   Decimal  Real Value
-E63B 2B F8 00            JNE F800H   ; 22H   34       34
+E676 2A 10 01            LDA 1001H   ; Move second number to the first number
+E679 31 10 00            STA 1000H
+E67C 2A 10 02            LDA 1002H   ; Move summ to the second number
+E67F 31 10 01            STA 1001H
+E682 2A 10 00            LDA 1000H   ; Load first number in A
+E685 29 10 01            ADDA 1001H  ; Add second number to A
+E688 31 10 02            STA 1002H   ; Store the summ
+E68B 2D 22               CMPA #22H   ; HEX   Decimal  Real Value
+E68D 2B F8 00            JNE F800H   ; 22H   34       34
 
-E63E 2A 10 01            LDA 1001H   ; Move second number to the first number
-E641 31 10 00            STA 1000H
-E644 2A 10 02            LDA 1002H   ; Move summ to the second number
-E647 31 10 01            STA 1001H
-E64A 2A 10 00            LDA 1000H   ; Load first number in A
-E64D 29 10 01            ADDA 1001H  ; Add second number to A
-E650 31 10 02            STA 1002H   ; Store the summ
-E653 2D 37               CMPA #37H   ; HEX   Decimal  Real Value
-E655 2B F8 00            JNE F800H   ; 37H   55       55
+E690 2A 10 01            LDA 1001H   ; Move second number to the first number
+E693 31 10 00            STA 1000H
+E696 2A 10 02            LDA 1002H   ; Move summ to the second number
+E699 31 10 01            STA 1001H
+E69C 2A 10 00            LDA 1000H   ; Load first number in A
+E69F 29 10 01            ADDA 1001H  ; Add second number to A
+E6A2 31 10 02            STA 1002H   ; Store the summ
+E6A5 2D 37               CMPA #37H   ; HEX   Decimal  Real Value
+E6A7 2B F8 00            JNE F800H   ; 37H   55       55
 
-E658 2A 10 01            LDA 1001H   ; Move second number to the first number
-E65B 31 10 00            STA 1000H
-E65E 2A 10 02            LDA 1002H   ; Move summ to the second number
-E661 31 10 01            STA 1001H
-E664 2A 10 00            LDA 1000H   ; Load first number in A
-E667 29 10 01            ADDA 1001H  ; Add second number to A
-E66A 31 10 02            STA 1002H   ; Store the summ
-E66D 2D 59               CMPA #59H   ; HEX   Decimal  Real Value
-E66F 2B F8 00            JNE F800H   ; 59H   89       89
+E6AA 2A 10 01            LDA 1001H   ; Move second number to the first number
+E6AD 31 10 00            STA 1000H
+E6B0 2A 10 02            LDA 1002H   ; Move summ to the second number
+E6B3 31 10 01            STA 1001H
+E6B6 2A 10 00            LDA 1000H   ; Load first number in A
+E6B9 29 10 01            ADDA 1001H  ; Add second number to A
+E6BC 31 10 02            STA 1002H   ; Store the summ
+E6BF 2D 59               CMPA #59H   ; HEX   Decimal  Real Value
+E6C1 2B F8 00            JNE F800H   ; 59H   89       89
 
-E672 2A 10 01            LDA 1001H   ; Move second number to the first number
-E675 31 10 00            STA 1000H
-E678 2A 10 02            LDA 1002H   ; Move summ to the second number
-E67B 31 10 01            STA 1001H
-E67E 2A 10 00            LDA 1000H   ; Load first number in A
-E681 29 10 01            ADDA 1001H  ; Add second number to A
-E684 31 10 02            STA 1002H   ; Store the summ
-E687 2D 90               CMPA #90H   ; HEX   Decimal  Real Value
-E689 2B F8 00            JNE F800H   ; 90H   144      144
+E6C4 2A 10 01            LDA 1001H   ; Move second number to the first number
+E6C7 31 10 00            STA 1000H
+E6CA 2A 10 02            LDA 1002H   ; Move summ to the second number
+E6CD 31 10 01            STA 1001H
+E6D0 2A 10 00            LDA 1000H   ; Load first number in A
+E6D3 29 10 01            ADDA 1001H  ; Add second number to A
+E6D6 31 10 02            STA 1002H   ; Store the summ
+E6D9 2D 90               CMPA #90H   ; HEX   Decimal  Real Value
+E6DB 2B F8 00            JNE F800H   ; 90H   144      144
 
-E68C 2A 10 01            LDA 1001H   ; Move second number to the first number
-E68F 31 10 00            STA 1000H
-E692 2A 10 02            LDA 1002H   ; Move summ to the second number
-E695 31 10 01            STA 1001H
-E698 2A 10 00            LDA 1000H   ; Load first number in A
-E69B 29 10 01            ADDA 1001H  ; Add second number to A
-E69E 31 10 02            STA 1002H   ; Store the summ
-E6A1 2D E9               CMPA #E9H   ; HEX   Decimal  Real Value
-E6A3 2B F8 00            JNE F800H   ; E9H   233      233
+E6DE 2A 10 01            LDA 1001H   ; Move second number to the first number
+E6E1 31 10 00            STA 1000H
+E6E4 2A 10 02            LDA 1002H   ; Move summ to the second number
+E6E7 31 10 01            STA 1001H
+E6EA 2A 10 00            LDA 1000H   ; Load first number in A
+E6ED 29 10 01            ADDA 1001H  ; Add second number to A
+E6F0 31 10 02            STA 1002H   ; Store the summ
+E6F3 2D E9               CMPA #E9H   ; HEX   Decimal  Real Value
+E6F5 2B F8 00            JNE F800H   ; E9H   233      233
 
-E6A6 2A 10 01            LDA 1001H   ; Move second number to the first number
-E6A9 31 10 00            STA 1000H
-E6AC 2A 10 02            LDA 1002H   ; Move summ to the second number
-E6AF 31 10 01            STA 1001H
-E6B2 2A 10 00            LDA 1000H   ; Load first number in A
-E6B5 29 10 01            ADDA 1001H  ; Add second number to A
-E6B8 31 10 02            STA 1002H   ; Store the summ
-E6BB 2D 79               CMPA #79H   ; HEX   Decimal  Real Value
-E6BD 2B F8 00            JNE F800H   ; 79H   121      377 - (256*1) = 121
+E6F8 2A 10 01            LDA 1001H   ; Move second number to the first number
+E6FB 31 10 00            STA 1000H
+E6FE 2A 10 02            LDA 1002H   ; Move summ to the second number
+E701 31 10 01            STA 1001H
+E704 2A 10 00            LDA 1000H   ; Load first number in A
+E707 29 10 01            ADDA 1001H  ; Add second number to A
+E70A 31 10 02            STA 1002H   ; Store the summ
+E70D 2D 79               CMPA #79H   ; HEX   Decimal  Real Value
+E70F 2B F8 00            JNE F800H   ; 79H   121      377 - (256*1) = 121
 
-E6C0 2A 10 01            LDA 1001H   ; Move second number to the first number
-E6C3 31 10 00            STA 1000H
-E6C6 2A 10 02            LDA 1002H   ; Move summ to the second number
-E6C9 31 10 01            STA 1001H
-E6CC 2A 10 00            LDA 1000H   ; Load first number in A
-E6CF 29 10 01            ADDA 1001H  ; Add second number to A
-E6D2 31 10 02            STA 1002H   ; Store the summ
-E6D5 2D 62               CMPA #62H   ; HEX   Decimal  Real Value
-E6D7 2B F8 00            JNE F800H   ; 62H   98       610 - (256*2) = 98
+E712 2A 10 01            LDA 1001H   ; Move second number to the first number
+E715 31 10 00            STA 1000H
+E718 2A 10 02            LDA 1002H   ; Move summ to the second number
+E71B 31 10 01            STA 1001H
+E71E 2A 10 00            LDA 1000H   ; Load first number in A
+E721 29 10 01            ADDA 1001H  ; Add second number to A
+E724 31 10 02            STA 1002H   ; Store the summ
+E727 2D 62               CMPA #62H   ; HEX   Decimal  Real Value
+E729 2B F8 00            JNE F800H   ; 62H   98       610 - (256*2) = 98
 
-E6DA 2A 10 01            LDA 1001H   ; Move second number to the first number
-E6DD 31 10 00            STA 1000H
-E6E0 2A 10 02            LDA 1002H   ; Move summ to the second number
-E6E3 31 10 01            STA 1001H
-E6E6 2A 10 00            LDA 1000H   ; Load first number in A
-E6E9 29 10 01            ADDA 1001H  ; Add second number to A
-E6EC 31 10 02            STA 1002H   ; Store the summ
-E6EF 2D DB               CMPA #DBH   ; HEX   Decimal  Real Value
-E6F1 2B F8 00            JNE F800H   ; DBH   219      987 - (256*3) = 219         
+E72C 2A 10 01            LDA 1001H   ; Move second number to the first number
+E72F 31 10 00            STA 1000H
+E732 2A 10 02            LDA 1002H   ; Move summ to the second number
+E735 31 10 01            STA 1001H
+E738 2A 10 00            LDA 1000H   ; Load first number in A
+E73B 29 10 01            ADDA 1001H  ; Add second number to A
+E73E 31 10 02            STA 1002H   ; Store the summ
+E741 2D DB               CMPA #DBH   ; HEX   Decimal  Real Value
+E743 2B F8 00            JNE F800H   ; DBH   219      987 - (256*3) = 219         
 
                          ; --------------------------------------------------------------------      
                          ; END OF FIBONACCI TEST
                          ; --------------------------------------------------------------------      
 
-E6F4 32 E0 00            JMP E000H   ; Loop from start of diag test
+E746 32 E0 00            JMP E000H   ; Loop from start of diag test
 
                          ; --------------------------------------------------------------------
                          ; Error routine
