@@ -155,70 +155,71 @@
          STA C000H   ; Output to LED port
          JRA 00H     ; Test jump foward, Execute next instruction
          JRA 01H     ; Skip next instruction
-         NOP
-         JRA 02H     ; Skip next two instructions
-         NOP
-         NOP
-         JRA 03H     ; Skip next two instructions
-         NOP
-         NOP
-         NOP
-         JRA 05H     ; Skip next two instructions
-         NOP
-         NOP
-         NOP
-         NOP 
-         NOP 
+         NOP         ; 1
+         JRA 02H     ; Skip next 2 instructions
+         NOP         ; 1
+         NOP         ; 2
+         JRA 03H     ; Skip next 3 instructions
+         NOP         ; 1 
+         NOP         ; 2
+         NOP         ; 3
+         JRA 05H     ; Skip next 5 instructions
+         NOP         ; 1
+         NOP         ; 2
+         NOP         ; 3
+         NOP         ; 4
+         NOP         ; 5
          JRA 10H     ; Skip next 16 instructions
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP
-         JRA 20H     ; Skip next 32 instructions
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
-         NOP 
+         NOP         ; 1
+         NOP         ; 2
+         NOP         ; 3
+         NOP         ; 4
+         NOP         ; 5
+         NOP         ; 6
+         NOP         ; 7
+         NOP         ; 8
+         NOP         ; 9
+         NOP         ; 10
+         NOP         ; 11
+         NOP         ; 12
+         NOP         ; 13
+         NOP         ; 14
+         NOP         ; 15
+         NOP         ; 16
+         JRA 22H     ; Skip next 32 bytes
+         NOP         ; 1
+         NOP         ; 2
+         NOP         ; 3
+         JRA 1FH     ; 4-5   Final jump to the end of thest
+         NOP         ; 6
+         NOP         ; 7
+         NOP         ; 8
+         NOP         ; 9
+         NOP         ; 10
+         NOP         ; 11
+         NOP         ; 12
+         NOP         ; 13
+         NOP         ; 14
+         NOP         ; 15
+         NOP         ; 16
+         NOP         ; 17
+         NOP         ; 18
+         NOP         ; 19
+         NOP         ; 20
+         NOP         ; 21
+         NOP         ; 22
+         NOP         ; 23
+         NOP         ; 24
+         NOP         ; 25
+         JRA E8H     ; 26-27 Third Backward jump
+         NOP         ; 28
+         NOP         ; 29
+         NOP         ; 30
+         NOP         ; 31
+         NOP         ; 32
+         JRA F7H     ; Second Backward jump
+         JRA FCH     ; First Backward jump
+         NOP         ; Arrival of the last jump to end the test
          ; --------------------------------------------------------------------
          ; OP.29 ADDA ****H  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE

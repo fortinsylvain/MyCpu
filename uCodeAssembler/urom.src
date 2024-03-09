@@ -170,7 +170,7 @@ ORG/0400H               ; OP.08 STOP   STOP MICROPROGRAM EXECUTION
 02H>UL
 JMP                     ; ***************************************************
 ORG/0480H               ; OP.09 NOP    No OPeration
-02H>UH                  ; Next OP.
+01H>UH                  ; Go execute currently pointed OP.
 00H>UL
 JMP                     ; ***************************************************
 ORG/0500H               ; OP.0A LDA (X) Load Reg A Indexed
@@ -204,45 +204,37 @@ R4>DATA                 ; Write
 JMP                     ; ***************************************************
 ORG/0600H               ; OP.0C JRA **H Unconditional relative jump
 DATA>R0                 ; Read the displacement
-R0-7>A                  ; Check bit <7>
+R0-7>A                  ; Check sign bit <7>
 0CH>UH
 40H>UL
 JMP_A=0                 ; if bit 7 is 0 then we jump foward,
-R0-0>A                  ; Else jump backward
-NOT A-0                 ; do 1s complement Invert bits <6:0>
-R0-1>A
-NOT A-1
-R0-2>A
-NOT A-2
-R0-3>A
-NOT A-3
-R0-4>A
-NOT A-4
-R0-5>A
-NOT A-5
-R0-6>A
-NOT A-6
-Q>R0
-1FH>AH                  ; Read IPL
-FFH>AL                  
+1FH>AH                  ; Else jump backward
+FFH>AL                  ; Read IPL
 DATA>R1
-01H>R2                  ; Put Cin(R2-0)=1 to have 2s complement
+01H>R2                  ; Put Cin(R2-0)=1
 3FH>UH                  ;           | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
 0CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-1DH>R7
+0EH>R7
 JMP
-R0>DATA                 ; Store IPL    
-
-        
+R0>DATA                 ; Store IPL
+FEH>AL                  ; Read IPH
+DATA>R0
+FFH>R1                  ; Sign extension
+3FH>UH                  ; Cin(R2-0) | ADD. ROUTINE
+00H>UL                  ; R0+R1>R0  |
+0CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
+17H>R7
+JMP
+R0>DATA                 ; Store IPH
 01H>UH                  ; Go execute currently pointed OP.
 00H>UL
 JMP
-ORG/0640H               ; Jump foward
-1FH>AH                  ; Read IPL
+ORG/0640H 
+1FH>AH                  ; Read IPL >>Jump forward arrive here<<
 FFH>AL                  
 DATA>R1
-01H>R2                  ; Put Cin=1 to jump relative to next instruction
+01H>R2                  ; Put Cin(R2-0)=1 to jump relative to next instruction
 3FH>UH                  ;           | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
 0CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
