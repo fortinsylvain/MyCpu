@@ -1,7 +1,7 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin
-                              ; Date : 8 march 2024
+                              ; Date : 14 march 2024
                               ; Documentation : Will be converted into 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
@@ -23,50 +23,50 @@
                               ; E000H - F000H EEPROM for application program
                               ; -----------------------------------------------------------------
                               ORG/0000H    ; 0000H   RESET
-0000       2800               00H>R0       ; DUMMY INSTRUCTION
-0001       2800               00H>R0       ; STACK POINTER INIT
-0002       781F               1FH>AH       ; STACK START : 0000H
-0003       68F0               F0H>AL       ; STACK MAX   : 00FFH
+0000       2800               00H>R0       ; Dummy Instruction
+0001       2800               00H>R0       ; Stack Pointer Init
+0002       781F               1FH>AH       ; Stack Start : 0000H
+0003       68F0               F0H>AL       ; Stack Max   : 00FFH
 0004       5800               R0>DATA
-0005       78FF               FFH>AH       ; GET [FFFE] MSB START VECTEUR
+0005       78FF               FFH>AH       ; Get [FFFE] MSB Start Vector
 0006       68FE               FEH>AL
 0007       2000               DATA>R0
-0008       781F               1FH>AH       ; MSB START VECTEUR STORED IN IPH
+0008       781F               1FH>AH       ; MSB Start Vector Stored in IPH
 0009       68FE               FEH>AL
 000A       5800               R0>DATA
-000B       78FF               FFH>AH       ; GET [FFFF] LSB START VECTEUR
+000B       78FF               FFH>AH       ; Get [FFFF] LSB Start Vector
 000C       68FF               FFH>AL
 000D       2100               DATA>R1
-000E       781F               1FH>AH       ; LSB START VECTEUR STORED IN IPL
+000E       781F               1FH>AH       ; LSB Start Vector Stored in IPL
 000F       68FF               FFH>AL
 0010       5900               R1>DATA 
-0011       3001               01H>UH       ; GO EXECUTE OP. POINTED BY IP
+0011       3001               01H>UH       ; Get Pointed OP Code and Execute
 0012       3800               00H>UL
 0013       C800               JMP          ; ***************************************************
-                              ORG/0080H    ; 0100H GET POINTED OP CODE AND EXECUTE
-0100       781F               1FH>AH       ; READ IPH
+                              ORG/0080H    ; 0100H Get Pointed OP Code by IP and Execute
+0100       781F               1FH>AH       ; Read IPH
 0101       68FE               FEH>AL
 0102       2000               DATA>R0
-0103       68FF               FFH>AL       ; READ IPL
+0103       68FF               FFH>AL       ; Read IPL
 0104       2100               DATA>R1      
-0105       1000               R0>AH        ; WRITE IPH:IPL IN AH:AL
+0105       1000               R0>AH        ; Write IPH:IPL in AH:AL
 0106       1900               R1>AL
-0107       2300               DATA>R3      ; READ OP CODE
+0107       2300               DATA>R3      ; Read OP. Code
 0108       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
 0109       3800               00H>UL       ;          |
 010A       2C01               01H>R4       ;  IP+1>IP | ADD. RETURN
 010B       2D0D               0DH>R5       ;  IP>ADD  |
 010C       C800               JMP          ;          | JMP TO ROUTINE
-010D       0300               R3>UH        ; BUILD UADD. AND EXECUTE OP CODE
+010D       0300               R3>UH        ; Build micro address and execute OP. code
 010E       3800               00H>UL
 010F       C800               JMP          ; ***************************************************
-                              ORG/0100H    ; 0200H TAKE NEXT OP. AND EXECUTE
+                              ORG/0100H    ; 0200H Take Next OP Code and Execute
 0200       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
 0201       3800               00H>UL       ;          |
 0202       2C02               02H>R4       ;  IP+1>IP | ADD. RETURN
 0203       2D05               05H>R5       ;  IP>ADD  |
 0204       C800               JMP          ;          | JMP TO ROUTINE
-0205       2300               DATA>R3      ; READ OP. CODE
+0205       2300               DATA>R3      ; Read OP. Code
 0206       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
 0207       3800               00H>UL       ;          |
 0208       2C01               01H>R4       ;  IP+1>IP | ADD. RETURN
@@ -131,7 +131,7 @@
 0637       2000               DATA>R0
 0638       68FF               FFH>AL       ; Write LSB address routine in IPL
 0639       5800               R0>DATA
-063A       3001               01H>UH       ; GO EXECUTE OP. POINTED BY IP
+063A       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 063B       3800               00H>UL
 063C       C800               JMP          ; ***************************************************
                               ORG/0380H    ; OP.07 RTS    ReTurn from Subroutine
@@ -162,7 +162,7 @@
 0718       781F               1FH>AH       ; Store in IPH Register
 0719       68FE               FEH>AL
 071A       5900               R1>DATA
-071B       3001               01H>UH       ; GO EXECUTE OP. POINTED BY IP
+071B       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 071C       3800               00H>UL
 071D       C800               JMP          ; ***************************************************
                               ORG/0400H    ; OP.08 STOP   STOP MICROPROGRAM EXECUTION
@@ -185,7 +185,7 @@
 0A08       781F               1FH>AH       ; Write in register A
 0A09       68FC               FCH>AL   
 0A0A       5800               R0>DATA
-0A0B       3001               01H>UH       ; Go execute currently pointed OP.
+0A0B       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 0A0C       3800               00H>UL
 0A0D       C800               JMP          ; ***************************************************
                               ORG/0580H    ; OP.0B STA (X) Store Reg A Indexed
@@ -253,9 +253,92 @@
 0C53       2F55               55H>R7
 0C54       C800               JMP
 0C55       5800               R0>DATA      ; Store IPH
-0C56       3001               01H>UH       ; Go execute currently pointed OP.
+0C56       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 0C57       3800               00H>UL
 0C58       C800               JMP          ; ***************************************************
+                              ORG/0680H    ; OP.0D SRLA   Shift Right Logical on Reg A
+0D00       781F               1FH>AH       ;              0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+0D01       68FC               FCH>AL
+0D02       2000               DATA>R0      ; Read A Register and store in R0
+0D03       2900               00H>R1       ; Clear Register R1 to insert a '0' in bit 7
+0D04       5100               R1-0>A
+0D05       481F               A>Q7
+0D06       5007               R0-7>A       ; shift bit 6:1 to 5:0, result in Q
+0D07       481E               A>Q6
+0D08       5006               R0-6>A
+0D09       481D               A>Q5
+0D0A       5005               R0-5>A
+0D0B       481C               A>Q4
+0D0C       5004               R0-4>A
+0D0D       481B               A>Q3
+0D0E       5003               R0-3>A
+0D0F       481A               A>Q2
+0D10       5002               R0-2>A
+0D11       4819               A>Q1
+0D12       5001               R0-1>A
+0D13       4818               A>Q0
+0D14       6200               Q>R2         ; Transfer shifted result into R2
+0D15       5A00               R2>DATA      ; Store result in Register A
+0D16       5100               R1-0>A       ; Clear Q[7:1]
+0D17       481F               A>Q7
+0D18       481E               A>Q6
+0D19       481D               A>Q5
+0D1A       481C               A>Q4
+0D1B       481B               A>Q3
+0D1C       481A               A>Q2
+0D1D       4819               A>Q1
+0D1E       5000               R0-0>A       ; Get bit 0 of original value before shifting
+0D1F       4818               A>Q0         ; b0 -> C
+0D20       6300               Q>R3         ; Store Carry in R3
+0D21       68FB               FBH>AL       ; Save to the Carry Status Register
+0D22       5B00               R3>DATA
+0D23       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+0D24       3800               00H>UL
+0D25       C800               JMP          ; ***************************************************
+                              ORG/0700H    ; OP.0E SLLA/SLAA  Shift Left Logical/Arithmetic 
+0E00       781F               1FH>AH       ;              C <- b7 b6 b5 b4 b3 b2 b1 b0 <- 0
+0E01       68FC               FCH>AL
+0E02       2000               DATA>R0      ; Read A Register and store in R0
+0E03       2900               00H>R1       ; Clear Register R1 to insert a '0' in bit 0
+0E04       5100               R1-0>A
+0E05       4818               A>Q0
+0E06       5000               R0-0>A       ; shift bit 6:0 to 7:1, result in Q
+0E07       4819               A>Q1
+0E08       5001               R0-1>A
+0E09       481A               A>Q2
+0E0A       5002               R0-2>A
+0E0B       481B               A>Q3
+0E0C       5003               R0-3>A
+0E0D       481C               A>Q4
+0E0E       5004               R0-4>A
+0E0F       481D               A>Q5
+0E10       5005               R0-5>A
+0E11       481E               A>Q6
+0E12       5006               R0-6>A
+0E13       481F               A>Q7
+0E14       6200               Q>R2         ; Transfer shifted result into R2
+0E15       5A00               R2>DATA      ; Store result in Register A
+0E16       5100               R1-0>A       ; Clear Q[7:1]
+0E17       481F               A>Q7
+0E18       481E               A>Q6
+0E19       481D               A>Q5
+0E1A       481C               A>Q4
+0E1B       481B               A>Q3
+0E1C       481A               A>Q2
+0E1D       4819               A>Q1
+0E1E       5007               R0-7>A       ; Get bit 7 of original value before shifting
+0E1F       4818               A>Q0         ; b7 -> C
+0E20       6300               Q>R3         ; Store Carry in R3
+0E21       68FB               FBH>AL       ; Save to the Carry Status Register
+0E22       5B00               R3>DATA
+0E23       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+0E24       3800               00H>UL
+0E25       C800               JMP          ; ***************************************************
+                              ;ORG/0780H               ; OP.0F MULX  Multiply XH and XL put result in X
+                              ;JMP
+                              ;01H>UH                  ; Get Pointed OP Code by IP and Execute
+                              ;00H>UL
+                              ;JMP                     ; ***************************************************
                               ORG/1480H    ; OP.29 ADDA ****H  ADD A WITH BYTE AT ADDRESS, C
 2900       2200               DATA>R2      ; READ MSB ADDRESS
 2901       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
@@ -271,7 +354,7 @@
 290B       68FC               FCH>AL   
 290C       2100               DATA>R1
 290D       2A00               00H>R2       ; Put Cin=0
-290E       303F               3FH>UH       ;       | ADD. ROUTINE
+290E       303F               3FH>UH       ;           | ADD. ROUTINE
 290F       3800               00H>UL       ; R0+R1>R0  |
 2910       2E29               29H>R6       ; Cout>R2-0 | RETURN ADDRESS
 2911       2F13               13H>R7
@@ -333,7 +416,7 @@
 2B1C       5A00               R2>DATA
 2B1D       68FF               FFH>AL       ; MET LSB ADD. DE SAUT DANS IPL
 2B1E       5B00               R3>DATA
-2B1F       3001               01H>UH       ; EXECUTE OP. POINTEE ( SAUT DU A L'INEGALITE )
+2B1F       3001               01H>UH       ; Get Pointed OP Code by IP and Execute ( SAUT DU A L'INEGALITE )
 2B20       3800               00H>UL
 2B21       C800               JMP          ; ***************************************************
                               ORG/1600H    ; OP.2C JEQ ****H  JUMP IF STATUS E (EQUAL) = 1
@@ -496,7 +579,7 @@
 3209       5A00               R2>DATA
 320A       68FF               FFH>AL       ; MET LSB ADD. DE SAUT DANS IPL
 320B       5B00               R3>DATA
-320C       3001               01H>UH       ; EXECUTE OP. POINTEE
+320C       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 320D       3800               00H>UL
 320E       C800               JMP          ; **************************************************
                               ORG/1980H    ; OP.33 ANDA #**H  REGISTER A AND LOGICAL IMMEDIA
@@ -577,11 +660,11 @@
 3516       3002               02H>UH       ; NEXT OP.
 3517       3800               00H>UL
 3518       C800               JMP          ; ***************************************************
-                              ORG/1B00H    ; OP.36 NOTA   NOT LOGIQUE ON REGISTER A
+                              ORG/1B00H    ; OP.36 NOTA   NOT Logic on Register A
 3600       781F               1FH>AH
 3601       68FC               FCH>AL
-3602       2000               DATA>R0      ; LIS REG. A
-3603       5000               R0-0>A
+3602       2000               DATA>R0      ; Read Register A
+3603       5000               R0-0>A       ; Do the NOT operation on all bits
 3604       4038               NOT A-0
 3605       5001               R0-1>A
 3606       4039               NOT A-1
@@ -598,8 +681,8 @@
 3611       5007               R0-7>A
 3612       403F               NOT A-7
 3613       6000               Q>R0
-3614       5800               R0>DATA      ; MET LE RESULTAT DANS REG. A
-3615       3001               01H>UH       ; PREND OPERATION POINTEE ET EXECUTE
+3614       5800               R0>DATA      ; Put result in Register A
+3615       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 3616       3800               00H>UL
 3617       C800               JMP          ; ***************************************************
                               ORG/1B80H    ; OP.37 INCA  INCREMENT REGISTER A
@@ -614,22 +697,22 @@
 3708       781F               1FH>AH       ; RESULT IN REG. A
 3709       68FC               FCH>AL
 370A       5800               R0>DATA
-                              ;R1-7>A                  ; Carry bit stored in ALU input A
-                              ;A>Q0                    ; Place Carry in bit position <0>
-                              ;00H>R1                  ; Put '0' in ALU input A
+                              ;R1-7>A                 ; Carry bit stored in ALU input A
+                              ;A>Q0                   ; Place Carry in bit position <0>
+                              ;00H>R1                 ; Put '0' in ALU input A
                               ;R1-0>A
-                              ;A>Q1                    ; Set Q<7:1> to 0
-                              ;A>Q2                    ; To have a clean Carry Status Byte
+                              ;A>Q1                   ; Set Q<7:1> to 0
+                              ;A>Q2                   ; To have a clean Carry Status Byte
                               ;A>Q3
                               ;A>Q4
                               ;A>Q5
                               ;A>Q6
                               ;A>Q7
-                              ;Q>R0                    ; Move Q byte in R0
-                              ;1FH>AH                  ; Store R0 in Carry Status RAM location
+                              ;Q>R0                   ; Move Q byte in R0
+                              ;1FH>AH                 ; Store R0 in Carry Status RAM location
                               ;FBH>AL
                               ;R0>DATA
-370B       3001               01H>UH       ; Go execute currently pointed OP.
+370B       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 370C       3800               00H>UL
 370D       C800               JMP          ; ******************************************************
                               ORG/1C00H    ; OP.38 LDX #****H  Load Register X with 16 bits 
@@ -672,7 +755,7 @@
 3914       3800               00H>UL
 3915       C800               JMP
 3916       5800               R0>DATA      ; Store X MSB
-3917       3001               01H>UH       ; Go execute currently pointed OP.
+3917       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 3918       3800               00H>UL
 3919       C800               JMP          ; ******************************************************
                               ORG/1D00H    ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6
@@ -747,11 +830,11 @@
 3A44       0F00               R7>UL
 3A45       C800               JMP          ; ******************************************************
                               ORG/1D80H    ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.           
-3B00       781F               1FH>AH       ;        READ IPL  * (RETURN  R4:MSB ADD. R5:LSB ADD.) *
+3B00       781F               1FH>AH       ;        READ IPL  * RETURN  R4:MSB ADD. R5:LSB ADD.   *
 3B01       68FF               FFH>AL       ;        PUT IN R0 *************************************
 3B02       2000               DATA>R0      ; INCREMENT (COUT R1-7) R0+1>R0
 3B03       5000               R0-0>A
-3B04       4818               A>Q0         ; COMPUTE THE CARRYs
+3B04       4818               A>Q0         ; Compute the Carrys
 3B05       4021               AND R0-1
 3B06       7001               Q1>A-0
 3B07       4022               AND R0-2
@@ -765,7 +848,7 @@
 3B0F       4026               AND R0-6
 3B10       7006               Q6>A
 3B11       4027               AND R0-7
-3B12       6100               Q>R1         ; SAVE COUT IN R1-7
+3B12       6100               Q>R1         ; Savec Cout in R1-7
 3B13       7006               Q6>A
 3B14       4017               XOR R0-7
 3B15       7005               Q5>A
@@ -782,18 +865,18 @@
 3B20       4011               XOR R0-1
 3B21       5000               R0-0>A
 3B22       4038               NOT A-0
-3B23       6000               Q>R0         ; SAVE RESULT IN R0
-3B24       781F               1FH>AH       ; SAVE INCREMENT RESULT IN IPL
+3B23       6000               Q>R0         ; Save result in R0
+3B24       781F               1FH>AH       ; Save increment result in IPL
 3B25       68FF               FFH>AL
 3B26       5800               R0>DATA
-3B27       68FE               FEH>AL       ; READ IPH
+3B27       68FE               FEH>AL       ; Read IPH
 3B28       2000               DATA>R0
-3B29       5107               R1-7>A       ; ADD 1 to IPH IF THERE IS A CARRY R0 + (R1-7) > R
+3B29       5107               R1-7>A       ; Add 1 to IPH if there is a Carry R0 + (R1-7) > R
 3B2A       303B               3BH>UH
 3B2B       3850               50H>UL       
-3B2C       C81B               JMP_A=0      ; IF Cin=0 THEN SAVE TIME BY JUMPING
-3B2D       5000               R0-0>A       ; IF NOT WE INCREMENT R0 CONTAINING IPH
-3B2E       4818               A>Q0         ; COMPUTE CARRY BETWEEN BITS
+3B2C       C81B               JMP_A=0      ; If Cin=0 then save by jumping
+3B2D       5000               R0-0>A       ; If not we increment R0 containing IPH
+3B2E       4818               A>Q0         ; Compute Carrys between bits
 3B2F       4021               AND R0-1
 3B30       7001               Q1>A
 3B31       4022               AND R0-2
@@ -823,52 +906,52 @@
 3B49       4011               XOR R0-1
 3B4A       5000               R0-0>A
 3B4B       4038               NOT A-0
-3B4C       6000               Q>R0         ; INCREMENT RESULT IN R0
-3B4D       781F               1FH>AH       ; SAVE NEW IPH VALUE
+3B4C       6000               Q>R0         ; Increment result in R0
+3B4D       781F               1FH>AH       ; Save new IPH value
 3B4E       68FE               FEH>AL       
 3B4F       5800               R0>DATA
-3B50       781F               1FH>AH       ; READ IPH
+3B50       781F               1FH>AH       ; Read IPH
 3B51       68FE               FEH>AL
 3B52       2000               DATA>R0
-3B53       68FF               FFH>AL       ; READ IPL
+3B53       68FF               FFH>AL       ; Read IPL
 3B54       2100               DATA>R1
-3B55       1000               R0>AH        ; PUT IP ON ADRESS BUS
+3B55       1000               R0>AH        ; Put IP in Address Bus
 3B56       1900               R1>AL
-3B57       0400               R4>UH        ; RETURN TO CALLING ROUTINE
+3B57       0400               R4>UH        ; Return to calling routine
 3B58       0D00               R5>UL
 3B59       C800               JMP          ; *************************************************
                               ORG/1E00H    ; 3C00H  INCREMENT IP
-3C00       781F               1FH>AH       ;        READ IPL  (RETURN  R4:MSB ADD. R5:LSB ADD.)
-3C01       68FF               FFH>AL
-3C02       2000               DATA>R0
-3C03       303E               3EH>UH       ; ADDRESSE ROUTINE D'INCREMENTATION
+3C00       781F               1FH>AH       ;        Return  R4:MSB R5:LSB
+3C01       68FF               FFH>AL       ; Read IPL
+3C02       2000               DATA>R0      
+3C03       303E               3EH>UH       ; Address Increment routine
 3C04       3800               00H>UL
-3C05       2E3C               3CH>R6       ; ADDRESSE DE RETOUR PT.RET.
+3C05       2E3C               3CH>R6       ; Address Return
 3C06       2F08               08H>R7
 3C07       C800               JMP
-3C08       781F               1FH>AH       ; PT.RET.  MET LE RESULTAT DANS IPL
+3C08       781F               1FH>AH       ; Result in IPL
 3C09       68FF               FFH>AL
 3C0A       5800               R0>DATA
-3C0B       68FE               FEH>AL       ; LIS IPH
+3C0B       68FE               FEH>AL       ; Read IPH
 3C0C       2000               DATA>R0
-3C0D       303D               3DH>UH       ; ADD ROUTINE AJOUTE LA RETENUE
+3C0D       303D               3DH>UH       ; Address routine to Add Carry
 3C0E       3800               00H>UL
-3C0F       2E3C               3CH>R6       ; ADDRESSE DE RETOUR   RET.RET.
+3C0F       2E3C               3CH>R6       ; Return Address
 3C10       2F12               12H>R7
-3C11       C800               JMP          ; APPEL DE LA ROUTINE
-3C12       781F               1FH>AH       ; SAUVE RESULTAT AJOUT DE RETENUE
+3C11       C800               JMP          ; Call routine
+3C12       781F               1FH>AH       ; Save result Add Carry
 3C13       68FE               FEH>AL
-3C14       5800               R0>DATA      ; RET.RET.
-3C15       0400               R4>UH        ; ADDRESSE DE RETOUR
+3C14       5800               R0>DATA      
+3C15       0400               R4>UH        ; Return Address
 3C16       0D00               R5>UL
 3C17       C800               JMP          ; ***************************************************
-                              ORG/1E80H    ; 3D00H  ADD CARRY   R0 + (R1-7) >R0
-3D00       5107               R1-7>A       ;        RETURN R6:MSB R7:LSB    Cout > R1-7
+                              ORG/1E80H    ; 3D00H  ADD CARRY   R0+(R1-7)>R0  Cout:R1-7
+3D00       5107               R1-7>A       ;                    Return R6:MSB R7:LSB  
 3D01       303D               3DH>UH
 3D02       3828               28H>UL
-3D03       C81B               JMP_A=0      ; SI Cin=0 ALORS ON SAUTE A LA FIN POUR REVENIR
-3D04       5000               R0-0>A       ; ON INCREMENTE R0
-3D05       4818               A>Q0         ; CALCULONS LES RETENUES
+3D03       C81B               JMP_A=0      ; If Cin=0 then jump to end to go to return 
+3D04       5000               R0-0>A       ; Increment R0
+3D05       4818               A>Q0         ; Compute Carry
 3D06       4021               AND R0-1
 3D07       7001               Q1>A
 3D08       4022               AND R0-2
@@ -882,7 +965,7 @@
 3D10       4026               AND R0-6
 3D11       7006               Q6>A
 3D12       4027               AND R0-7
-3D13       6100               Q>R1         ; SAUVE COUT DANS R1-7
+3D13       6100               Q>R1         ; Save Cout in R1-7
 3D14       7006               Q6>A
 3D15       4017               XOR R0-7
 3D16       7005               Q5>A
@@ -899,17 +982,17 @@
 3D21       4011               XOR R0-1
 3D22       5000               R0-0>A
 3D23       4038               NOT A-0
-3D24       6000               Q>R0         ; SAUVE LE RESULTAT DANS R0
-3D25       0600               R6>UH        ; ADDRESSE DE RETOUR MSB
-3D26       0F00               R7>UL        ;                    LSB
-3D27       C800               JMP          ; FIN DE L'INCREMENTATION
-3D28       2900               00H>R1       ; ARRIVE  SI ON A PAS D'INCREMENTATION Cout=0
-3D29       0600               R6>UH
-3D2A       0F00               R7>UL
+3D24       6000               Q>R0         ; Save result in R0
+3D25       0600               R6>UH        ; Return Address MSB
+3D26       0F00               R7>UL        ;                LSB
+3D27       C800               JMP          ; End of incrementation
+3D28       2900               00H>R1       ; Come here if no incrementation (Cout=0)
+3D29       0600               R6>UH        ; Return Address MSB
+3D2A       0F00               R7>UL        ;                LSB
 3D2B       C800               JMP          ; ***************************************************
-                              ORG/1F00H    ; 3E00H  INCREMENT (COUT R1-7)  R0+1>R0
-3E00       5000               R0-0>A       ;                  RETURN R6:MSB R7:LSB
-3E01       4818               A>Q0         ; COMPUTE CARRY
+                              ORG/1F00H    ; 3E00H  INCREMENT R0+1>R0 Cout:R1-7
+3E00       5000               R0-0>A       ;                  Return R6:MSB R7:LSB
+3E01       4818               A>Q0         ; Compute Carry
 3E02       4021               AND R0-1
 3E03       7001               Q1>A
 3E04       4022               AND R0-2
@@ -923,7 +1006,7 @@
 3E0C       4026               AND R0-6
 3E0D       7006               Q6>A
 3E0E       4027               AND R0-7
-3E0F       6100               Q>R1         ; SAUVE COUT DANS R1-7
+3E0F       6100               Q>R1         ; Save Cout in R1-7
 3E10       7006               Q6>A
 3E11       4017               XOR R0-7
 3E12       7005               Q5>A
@@ -940,13 +1023,13 @@
 3E1D       4011               XOR R0-1
 3E1E       5000               R0-0>A
 3E1F       4038               NOT A-0
-3E20       6000               Q>R0         ; SAUVE LE RESULTAT DANS R0
-3E21       0600               R6>UH        ; ADDRESSE DE RETOUR MSB
-3E22       0F00               R7>UL        ;                    LSB
+3E20       6000               Q>R0         ; Save result in R0
+3E21       0600               R6>UH        ; Return Address MSB
+3E22       0F00               R7>UL        ;                LSB
 3E23       C800               JMP          ; ***************************************************
-                              ORG/1F80H    ; 3F00H  ADDITION (CIN ET COUT > R2-0 R0+R1>R0)
-3F00       5000               R0-0>A       ; R0 OR R1 > R3 ON 8 BITS (RETURN R6:MSB R7:LSB)
-3F01       4108               OR R1-0
+                              ORG/1F80H    ; 3F00H  ADDITION R0+R1>R0  Cin:R2-0  Cout:R2-0
+3F00       5000               R0-0>A       ;                 Return R6:MSB R7:LSB
+3F01       4108               OR R1-0      ;                 Using R3, R4, R5
 3F02       5001               R0-1>A
 3F03       4109               OR R1-1
 3F04       5002               R0-2>A
@@ -962,7 +1045,7 @@
 3F0E       5007               R0-7>A
 3F0F       410F               OR R1-7
 3F10       6300               Q>R3
-3F11       5000               R0-0>A       ; R0 ET R1 > R4
+3F11       5000               R0-0>A       ; R0 AND R1 > R4
 3F12       4120               AND R1-0
 3F13       5001               R0-1>A
 3F14       4121               AND R1-1
@@ -979,7 +1062,7 @@
 3F1F       5007               R0-7>A
 3F20       4127               AND R1-7
 3F21       6400               Q>R4
-3F22       5200               R2-0>A       ; PROCESS CARRY ( CIN=R2-0 )
+3F22       5200               R2-0>A       ; Process Carry  Cin:R2-0
 3F23       4320               AND R3-0
 3F24       7000               Q0>A
 3F25       4408               OR R4-0
@@ -1044,20 +1127,20 @@
 3F60       4017               XOR R0-7
 3F61       7007               Q7>A
 3F62       4117               XOR R1-7
-3F63       6000               Q>R0         ; SAVE FINAL RESUT IN R0
+3F63       6000               Q>R0         ; Save final result in R0
 3F64       5507               R5-7>A
-3F65       4818               A>Q0         ; STORE CARRY IN Q BIT<0>
+3F65       4818               A>Q0         ; Store Carry in Q Bit<0>
 3F66       2900               00H>R1
 3F67       5100               R1-0>A
 3F68       4819               A>Q1         ; Set Q <7:1> to 0
-3F69       481A               A>Q2         ; TO HAVE A CLEAN CARRY REGISTER
+3F69       481A               A>Q2         ; To have a clean carry register
 3F6A       481B               A>Q3
 3F6B       481C               A>Q4
 3F6C       481D               A>Q5
 3F6D       481E               A>Q6
 3F6E       481F               A>Q7
-3F6F       6200               Q>R2         ; SAVE CARRY
-3F70       0600               R6>UH        ; ADDRESS RETURN MSB
+3F6F       6200               Q>R2         ; Save Carry
+3F70       0600               R6>UH        ; Address return MSB
 3F71       0F00               R7>UL        ;                LSB
 3F72       C800               JMP          ; ***************************************************
 Assembly complete

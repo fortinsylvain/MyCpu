@@ -221,6 +221,219 @@
          JRA FCH     ; First Backward jump
          NOP         ; Arrival of the last jump to end the test
          ; --------------------------------------------------------------------
+         ; OP.0D SRLA Shift Right Logical on Reg A
+         ;            0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+         ; --------------------------------------------------------------------
+         LDA #0DH
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #A5H
+         SRLA
+         CMPA #52H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SRLA
+         SRLA
+         CMPA #29H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SRLA
+         SRLA
+         SRLA
+         CMPA #14H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         CMPA #0AH
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         CMPA #05H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         CMPA #02H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         CMPA #01H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         CMPA #00H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         CMPA #00H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         ; --------------------------------------------------------------------
+         ; OP.0E SLLA Shift Left Logical on Reg A
+         ;       SLAA Shift Left Arithmetic on Reg A (SLAA same as SLLA)
+         ;            C <- b7 b6 b5 b4 b3 b2 b1 b0 <- 0
+         ; --------------------------------------------------------------------
+         LDA #0EH
+         NOTA
+         STA C000H   ; Output to LED port
+         LDA #A5H
+         SLLA
+         CMPA #4AH
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SLLA
+         SLLA
+         CMPA #94H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SLLA
+         SLLA
+         SLLA
+         CMPA #28H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         CMPA #50H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         CMPA #A0H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLAA
+         CMPA #40H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLAA
+         SLAA
+         CMPA #80H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLAA
+         SLAA
+         SLAA
+         CMPA #00H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #01H   ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         LDA #A5H
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLAA
+         SLAA
+         SLAA
+         SLAA
+         CMPA #00H
+         JNE F800H   ; Jump if result not good
+         LDA 1FFBH   ; Read the Carry Status
+         CMPA #00H   ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE F800H   ; Error if different
+         ; --------------------------------------------------------------------
          ; OP.29 ADDA ****H  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
          ; --------------------------------------------------------------------
