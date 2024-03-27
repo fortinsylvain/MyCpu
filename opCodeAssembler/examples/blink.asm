@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin
-; Date : 1 december 2023
+; Date : 27 march 2024
 ; Documentation : blink.asm show two alternating values 0x55 
 ;                 and 0xAA on the led port of MyCPU
 ; Memory map of the computer
@@ -19,14 +19,17 @@
 ; C000H           LED port
 ; E000H - F000H   EEPROM 2864 for program storage
 ; -----------------------------------------------------------------
+; Some experiments with Symbols to have the assembler process them
+; by assigning address.
+
          ORG/E000H   ; EEPROM Start
-         LDA #AAH    ; Load immediate in register A
-         STA C000H   ; Output to LED port
+START    LDA #AAH    ; Load immediate in register A
+OUTPUT   STA C000H   ; Output to LED port
          NOTA        ; Not logical on Reg A
-         STA C000H   ; Output to LED port
-         JMP E000H   ; Jump inconditional to address
+STORE    STA C000H   ; Output to LED port
+END      JMP E000H   ; Jump inconditional to address
          ORG/FFFEH   ; Set the Reset vector
-         DB E0H      ; MSB Reset Vector
+RESET    DB E0H      ; MSB Reset Vector
          DB 00H      ; LSB Reset Vector
 
 
