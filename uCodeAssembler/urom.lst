@@ -1,7 +1,7 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin
-                              ; Date : 14 march 2024
+                              ; Date : 13 march 2025
                               ; Documentation : Will be converted into 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
@@ -881,7 +881,7 @@
 3B30       7001               Q1>A
 3B31       4022               AND R0-2
 3B32       7002               Q2>A
-3B33       4323               AND R3-3
+3B33       4023               AND R0-3
 3B34       7003               Q3>A
 3B35       4024               AND R0-4
 3B36       7004               Q4>A

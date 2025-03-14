@@ -137,7 +137,7 @@ namespace Assembler
             List<InstrTable> dataList = new List<InstrTable>();
             // OpCode : Byte value used to code each instruction
             // NbByte : Number of bytes following the OP code byte
-            // Sym    : Symbolic decoding is enabled after the mnemonic
+            // Sym    : Symbolic decoding is enabled after the mnemonic 0: hex address, 1:symbolic address, 2:symbolic relative adressing (+-127)
             // Offset : Character position where the hex value start.
             // Presently only hexadecimal values are supported, 8 and 16 bits only.
             dataList.Add(new InstrTable { StringValue = "ORG/0x****",   OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 }); // 
@@ -151,6 +151,7 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "LDA (X)",      OpCode = 0x0A,  NbByte = 0, Sym = 0, Offset = 0 });  // LDA (X)      Load Reg A Indexed
             dataList.Add(new InstrTable { StringValue = "STA (X)",      OpCode = 0x0B,  NbByte = 0, Sym = 0, Offset = 0 });  // STA (X)      Store Reg A Indexed
             dataList.Add(new InstrTable { StringValue = "JRA 0x**",     OpCode = 0x0C,  NbByte = 1, Sym = 0, Offset = 6 });  // JRA 0x**     Unconditional relative jump
+            dataList.Add(new InstrTable { StringValue = "JRA @",        OpCode = 0x0C,  NbByte = 1, Sym = 2, Offset = 4 });  // JRA symbol   Unconditional relative jump
             dataList.Add(new InstrTable { StringValue = "SRLA",         OpCode = 0x0D,  NbByte = 0, Sym = 0, Offset = 0 });  // SRLA         Shift Right Logical on Reg A
             dataList.Add(new InstrTable { StringValue = "SLLA",         OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLLA         Shift Left Logical on Reg A
             dataList.Add(new InstrTable { StringValue = "SLAA",         OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLAA         Shift Left Arithmetic on Reg A (SLAA same as SLLA)
@@ -248,13 +249,16 @@ namespace Assembler
                                                                        
                                 string sSymbol = sLine.Substring(0, iSpaceIndex);   // Extract the substring from the start of the space character
 
-                                // Symbol directory check and update only possible in PASS 1
-                                if (iPass == 1)                                 
+                                if (sSymbol != "")  // Only if non empty symbol
                                 {
-                                    if (!symbolTable.ContainsKey(sSymbol))              // only if symbol does not exist
+                                    // Symbol directory check and update only possible in PASS 1
+                                    if (iPass == 1)
                                     {
+                                        if (!symbolTable.ContainsKey(sSymbol))              // only if symbol does not exist
                                         {
-                                            symbolTable[sSymbol] = new SymbolTableEntry { Symbol = sSymbol, Address = iAddress };
+                                            {
+                                                symbolTable[sSymbol] = new SymbolTableEntry { Symbol = sSymbol, Address = iAddress };
+                                            }
                                         }
                                     }
                                 }
@@ -353,8 +357,10 @@ namespace Assembler
                                 }
                                 else    // Mnemonic to assemble
                                 {
-                                    // Symbolic decoding not implemented for this mnemonic ?
-                                    if ((dataList[iIndexTable].Sym) == 0)
+                                    int iSim = dataList[iIndexTable].Sym;
+                                    
+                                    // Hexadecimal address directly specifyed after the mnemonic ?
+                                    if (iSim == 0)
                                     {
                                         switch (dataList[iIndexTable].NbByte)   // How many byte follow
                                         {
@@ -393,8 +399,8 @@ namespace Assembler
                                                 break;
                                         }
                                     }
-                                    else
-                                    // Symbolic is implemented
+                                    // Symbolic address next to mnemonic ?
+                                    else if (iSim == 1) 
                                     {
                                         if (iPass == 2)
                                         {
@@ -439,7 +445,75 @@ namespace Assembler
                                                 lstFile.WriteLine(sErrorMsg);
 
                                                 iErrorNumber++;
-                                                iAddress = iAddress + 1;
+                                                iAddress++;
+                                            }
+                                        }
+
+
+                                    }
+                                    // Relative address jump +-127 to be computed from the symbol next to the mnemonic
+                                    else if (iSim == 2)
+                                    {
+                                        if (iPass == 2)
+                                        {
+                                            // Read the symbol
+                                            // Compute the offset to the first character of the symbol
+                                            iOffset = dataList[iIndexTable].Offset + iFirstCharacterIndex;
+
+                                            // Find the next space or the end of the string
+                                            int endIndex = sLine.IndexOf(' ', iOffset);
+
+                                            // Extract the symbol
+                                            string sSymbol = (endIndex == -1) ? sLine.Substring(iOffset) : sLine.Substring(iOffset, endIndex - iOffset);
+
+                                            // Now, to find the address of the symbol:
+                                            if (symbolTable.ContainsKey(sSymbol))
+                                            {
+                                                int symbolAddress = symbolTable[sSymbol].Address;
+
+                                                // Compute the difference beetween symbol address and next operand address to be exectued
+                                                int iDiff = symbolAddress - (iAddress + 2);
+
+                                                // Check if outside of addressing range
+                                                if((iDiff < -128) || (iDiff > 127))
+                                                {
+                                                    string sLineNumber = iAddress.ToString("X");
+                                                    Console.Write(sLineNumber);
+                                                    lstFile.WriteLine(sLineNumber);
+
+                                                    string sErrorMsg = $"{new string(' ', 7)}****** ERROR @ line {LineCounter} address 0x{iAddress:X4}, Relative address {iDiff} ouside -128 to +127 range ******";
+                                                    Console.WriteLine(sLine);
+                                                    Console.WriteLine(sErrorMsg);
+
+                                                    lstFile.WriteLine(sLine);
+                                                    lstFile.WriteLine(sErrorMsg);
+
+                                                    iErrorNumber++;
+                                                    iAddress++;
+                                                }
+
+                                                // Fill in the operation data array
+                                                iOpData[0] = dataList[iIndexTable].OpCode;
+                                                byte bRelAddress = (byte)(iDiff & 0xFF);
+                                                iOpData[1] = bRelAddress;
+                                            }
+                                            // Could not find the symbol in the table
+                                            else
+                                            {
+                                                string sLineNumber = iAddress.ToString("X");
+                                                Console.Write(sLineNumber);
+                                                lstFile.WriteLine(sLineNumber);
+
+                                                string sErrorMsg = $"{new string(' ', 7)}****** ERROR @ line {LineCounter} address 0x{iAddress:X4}, Can't find symbol  " + sSymbol + " ******";
+
+                                                Console.WriteLine(sLine);
+                                                Console.WriteLine(sErrorMsg);
+
+                                                lstFile.WriteLine(sLine);
+                                                lstFile.WriteLine(sErrorMsg);
+
+                                                iErrorNumber++;
+                                                iAddress++;
                                             }
                                         }
 
@@ -496,7 +570,7 @@ namespace Assembler
                                 lstFile.WriteLine(sErrorMsg);
 
                                 iErrorNumber++;
-                                iAddress = iAddress + 1;
+                                iAddress++;
                             }
                         }
 

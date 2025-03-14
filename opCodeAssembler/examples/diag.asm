@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin
-; Date : 7 march 2025
+; Date : 13 march 2025
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
@@ -10,6 +10,12 @@
 ; 0100H - 17EF  Free for application
 ; E000H - F000H EEPROM for application program
 ; -----------------------------------------------------------------
+
+; RAM test variable
+R8_0     EQU 0x1000
+R8_1     EQU 0x1001
+R8_2     EQU 0x1002
+R8_3     EQU 0x1003
 
 ; RAM Reserved location
 SP       EQU 0x1FF0  ; SP      Stack Pointer 8 bit
@@ -155,6 +161,7 @@ TSTOP0B  LDA #0x0B
          ; --------------------------------------------------------------------
          ; OP.0C JRA 0x** Unconditional relative jump
          ; --------------------------------------------------------------------
+         ; Testing using hexadecimal value after the mnemonic
          LDA #0x0C
          NOTA
          STA LEDPORT ; Output to LED port
@@ -191,7 +198,7 @@ TSTOP0B  LDA #0x0B
          NOP         ; 14
          NOP         ; 15
          NOP         ; 16
-         JRA 0x22    ; Skip next 32 bytes
+         JRA 0x22    ; Skip next 34 bytes
          NOP         ; 1
          NOP         ; 2
          NOP         ; 3
@@ -222,9 +229,227 @@ TSTOP0B  LDA #0x0B
          NOP         ; 30
          NOP         ; 31
          NOP         ; 32
-         JRA 0xF7    ; Second Backward jump
+         JRA 0xF7    ; 33-34 Second Backward jump
          JRA 0xFC    ; First Backward jump
          NOP         ; Arrival of the last jump to end the test
+         ; Testing using symbolic address after the mnemonic
+         JRA TST0B_0 ; Test jump foward, Execute next instruction
+TST0B_0  JRA TST0B_1 ; Skip next instruction
+         NOP         ; 1
+TST0B_1  JRA TST0B_2 ; Skip next 2 instructions
+         NOP         ; 1
+         NOP         ; 2
+TST0B_2  JRA TST0B_3 ; Skip next 3 instructions
+         NOP         ; 1 
+         NOP         ; 2
+         NOP         ; 3
+TST0B_3  JRA TST0B_4 ; Skip next 5 instructions
+         NOP         ; 1
+         NOP         ; 2
+         NOP         ; 3
+         NOP         ; 4
+         NOP         ; 5
+TST0B_4  JRA TST0B_5 ; Skip next 16 instructions
+         NOP         ; 1
+         NOP         ; 2
+         NOP         ; 3
+         NOP         ; 4
+         NOP         ; 5
+         NOP         ; 6
+         NOP         ; 7
+         NOP         ; 8
+         NOP         ; 9
+         NOP         ; 10
+         NOP         ; 11
+         NOP         ; 12
+         NOP         ; 13
+         NOP         ; 14
+         NOP         ; 15
+         NOP         ; 16
+TST0B_5  JRA TST0B_9 ; Skip next 34 bytes
+         NOP         ; 1
+         NOP         ; 2
+         NOP         ; 3
+TST0B_6  JRA TST0B_10 ; 4-5   Final jump to the end of test
+         NOP         ; 6
+         NOP         ; 7
+         NOP         ; 8
+         NOP         ; 9
+         NOP         ; 10
+         NOP         ; 11
+         NOP         ; 12
+         NOP         ; 13
+         NOP         ; 14
+         NOP         ; 15
+         NOP         ; 16
+         NOP         ; 17
+         NOP         ; 18
+         NOP         ; 19
+         NOP         ; 20
+         NOP         ; 21
+         NOP         ; 22
+         NOP         ; 23
+         NOP         ; 24
+         NOP         ; 25
+TST0B_7  JRA TST0B_6 ; 26-27 Third Backward jump
+         NOP         ; 28
+         NOP         ; 29
+         NOP         ; 30
+         NOP         ; 31
+         NOP         ; 32
+TST0B_8  JRA TST0B_7 ; 33-34 Second Backward jump
+TST0B_9  JRA TST0B_8 ; First Backward jump
+TST0B_10 NOP         ; Arrival of the last jump to end the test
+;         ; Higher range testing using symbolic address after the mnemonic
+         NOP         ; These NOP make relative jump to exercise carry on MSB address boundary
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         JRA TST0B_12
+         NOP         ; 1     1     
+         NOP
+;         NOP
+;         NOP
+TST0B_11 JRA TST0B_13
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         ; 16
+         NOP         ; 1     2   
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         ; 16
+         NOP         ; 1   3
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         ; 16
+         NOP         ; 1   4
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         ; 16
+         NOP         ; 1   5
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         ; 16
+         NOP         ; 1   5
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         ; 16
+         NOP         ; 1   6
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         ; 16
+         NOP         ; 1   7
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP         
+         NOP
+         NOP
+         NOP
+         NOP
+         NOP
+;         NOP        ; 16
+TST0B_12 NOP
+         JRA TST0B_11
+TST0B_13 NOP         ; final foward jump destination     
          ; --------------------------------------------------------------------
          ; OP.0D SRLA Shift Right Logical on Reg A
          ;            0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
@@ -1034,7 +1259,7 @@ TSTOP39  LDA #0x39
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; --------------------------------------------------------------------         
-TSTFIBON LDA #0xFF
+TSTFIBON LDA #0xFE
          NOTA
          STA LEDPORT ; Output to LED port
                      ;
@@ -1192,14 +1417,31 @@ TSTFIBON LDA #0xFF
          ; END OF FIBONACCI TEST
          ; --------------------------------------------------------------------      
          
+         ; ---------
+         ; Loop test
+         ; ---------
+LOOPTST  LDA #0xFF
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         LDA #0x05      ; Init a counter of iterations
+         STA R8_0
+LOOPTST1 LDA R8_0       ; Read counter
+         CMPA #0x00     ; Is it 0?
+         JEQ LOOPTST2   ; Yes then it's the end fo the test
+         ADDA #0xFF     ; Add -1 in complement 2 (equivalent to decrement)
+         STA R8_0       ; Save decremented count
+         JRA LOOPTST1
+LOOPTST2 NOP            ; End of decrement loop         
+
+
          JMP 0xE000  ; Loop from start of diag test
          
          ; --------------------------------------------------------------------
          ; Error routine
          ; --------------------------------------------------------------------
          ORG/0xF800  ; Diagnostic Error routine   
-FAIL     STOP        ; Stop execution
-         ;JMP F800H   ; Infinite Loop on error
+         ;STOP        ; Stop execution
+FAIL     JMP FAIL    ; Infinite Loop on error
          
          ; --------------------------------------------------------------------
          ; JSR and RTS Test subroutine
