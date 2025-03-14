@@ -1,8 +1,8 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin
-                              ; Date : 13 march 2025
-                              ; Documentation : Will be converted into 2 binary file to be 
+                              ; Date : 14 march 2025
+                              ; Documentation : uCode stored in 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
                               ; External RAM required to support the microcode
@@ -339,6 +339,36 @@
                               ;01H>UH                  ; Get Pointed OP Code by IP and Execute
                               ;00H>UL
                               ;JMP                     ; ***************************************************
+                              ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UP
+2800       2200               DATA>R2      ; READ MSB ADDRESS
+2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
+2802       3800               00H>UL       ;          |
+2803       2C28               28H>R4       ;  IP+1>IP | ADD. RETURN
+2804       2D06               06H>R5       ;  IP>ADD  |
+2805       C800               JMP          ;          | JMP TO ROUTINE
+2806       2300               DATA>R3      ; READ LSB ADDRESS
+2807       1200               R2>AH        ; PUT ADDRESS ON ADDRESS BUS
+2808       1B00               R3>AL
+2809       2000               DATA>R0      ; READ POINTED BYTE
+280A       781F               1FH>AH       ; READ REG A
+280B       68FC               FCH>AL   
+280C       2100               DATA>R1
+280D       781F               1FH>AH       ; READ CARRY IN
+280E       68FB               FBH>AL
+280F       2200               DATA>R2
+2810       303F               3FH>UH       ;           | ADD. ROUTINE
+2811       3800               00H>UL       ; R0+R1>R0  |
+2812       2E28               28H>R6       ; Cout>R2-0 | RETURN ADDRESS
+2813       2F15               15H>R7
+2814       C800               JMP
+2815       781F               1FH>AH       ; PUT SUMM IN REG. A
+2816       68FC               FCH>AL
+2817       5800               R0>DATA
+2818       68FB               FBH>AL       ; PUT Cout IN REG C (Carry)
+2819       5A00               R2>DATA
+281A       3002               02H>UH       ; NEXT OP.
+281B       3800               00H>UL
+281C       C800               JMP          ; ***************************************************
                               ORG/1480H    ; OP.29 ADDA ****H  ADD A WITH BYTE AT ADDRESS, C
 2900       2200               DATA>R2      ; READ MSB ADDRESS
 2901       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
@@ -425,28 +455,34 @@
 2C02       2000               DATA>R0
 2C03       5000               R0-0>A
 2C04       302C               2CH>UH       ; ADDRESSE DU SAUT DANS LE UPROG. SI E=0
-2C05       3816               16H>UL
+2C05       381C               1CH>UL
 2C06       C81B               JMP_A=0
-2C07       2200               DATA>R2      ; ICI ON A E=1 ALORS ON PREND L'ADDRESSE  MSB ADD.
-2C08       303B               3BH>UH       ;          | ADD. ROUTINE
-2C09       3800               00H>UL       ;  IP+1>IP |
-2C0A       2C2C               2CH>R4       ;  IP>ADD  | ADD. RETOUR
-2C0B       2D0D               0DH>R5       ;          |
-2C0C       C800               JMP
-2C0D       2300               DATA>R3      ; PREND LSB ADD. DU SAUT
-2C0E       781F               1FH>AH       ; MET MSB ADD. DE SAUT DANS IPH
-2C0F       68FE               FEH>AL
-2C10       5A00               R2>DATA
-2C11       68FF               FFH>AL       ; MET LSB ADD. DE SAUT DANS IPL
-2C12       5B00               R3>DATA
-2C13       3001               01H>UH       ; EXECUTE OP. POINTEE ( SAUT DU A L'EGALITE )
-2C14       3800               00H>UL
-2C15       C800               JMP
-2C16       303C               3CH>UH       ; POINT ARRIVE SI INEGALITE E=0     | ADD. ROUTINE
-2C17       3800               00H>UL       ;                           IP+1>IP |
-2C18       2C02               02H>R4       ;                                   | ADD. RETOUR
-2C19       2D00               00H>R5       ;                                   | PROCHAIN OP.
-2C1A       C800               JMP          ; ***************************************************
+2C07       68FE               FEH>AL       ; ICI ON A E=1 ALORS ON PREND L'ADDRESSE  MSB ADD.
+2C08       2200               DATA>R2      ; IPH > R2
+2C09       68FF               FFH>AL
+2C0A       2300               DATA>R3      ; IPL > R3
+2C0B       1200               R2>AH        ; IP > ADD
+2C0C       1B00               R3>AL
+2C0D       2200               DATA>R2      ; TAKE MSB ADD WHERE TO JUMP AND PUT IN R2
+2C0E       303B               3BH>UH       ;          | ADD. ROUTINE
+2C0F       3800               00H>UL       ;  IP+1>IP |
+2C10       2C2C               2CH>R4       ;  IP>ADD  | ADD. RETOUR
+2C11       2D13               13H>R5       ;          |
+2C12       C800               JMP
+2C13       2300               DATA>R3      ; PREND LSB WHERE TO JUMP AND PUT IN R3
+2C14       781F               1FH>AH       ; MET MSB ADD. DE SAUT DANS IPH
+2C15       68FE               FEH>AL
+2C16       5A00               R2>DATA
+2C17       68FF               FFH>AL       ; MET LSB ADD. DE SAUT DANS IPL
+2C18       5B00               R3>DATA
+2C19       3001               01H>UH       ; EXECUTE OP. POINTEE ( SAUT DU A L'EGALITE )
+2C1A       3800               00H>UL
+2C1B       C800               JMP
+2C1C       303C               3CH>UH       ; POINT ARRIVE SI INEGALITE E=0     | ADD. ROUTINE
+2C1D       3800               00H>UL       ;                           IP+1>IP |
+2C1E       2C02               02H>R4       ;                                   | ADD. RETOUR
+2C1F       2D00               00H>R5       ;                                   | PROCHAIN OP.
+2C20       C800               JMP          ; ***************************************************
                               ORG/1680H    ; OP.2D CMPA #**H COMPARE A WITH IMMEDIATE VALUE,
 2D00       2000               DATA>R0      ; Read Data       UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
 2D01       781F               1FH>AH       ; Read Reg. A     ELSE E = 0.

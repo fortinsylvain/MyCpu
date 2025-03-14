@@ -11,11 +11,42 @@
 ; E000H - F000H EEPROM for application program
 ; -----------------------------------------------------------------
 
-; RAM test variable
-R8_0     EQU 0x1000
-R8_1     EQU 0x1001
-R8_2     EQU 0x1002
-R8_3     EQU 0x1003
+; virtual registers
+;-----------------------------------------------------------------------------
+; ?b15 ?b14 ?b13 ?b12 | ?b11 ?b10 ?b9 ?b8 | ?b7 ?b6 ?b5 ?b4 | ?b3 ?b2 ?b1 ?b0 |  8 bits
+;    ?w7       ?w6    |   ?w5      ?w4    | ?w3     ?w2     |   ?w1     ?w0   | 16 bits
+;         ?l3         |        ?l2        |     ?l1         |       ?l0       | 32 bits
+;-----------------------------------------------------------------------------
+?b15     EQU 0x1000
+?b14     EQU 0x1001
+?b13     EQU 0x1002
+?b12     EQU 0x1003
+?b11     EQU 0x1004
+?b10     EQU 0x1005
+?b9      EQU 0x1006
+?b8      EQU 0x1007
+?b7      EQU 0x1008
+?b6      EQU 0x1009
+?b5      EQU 0x100A
+?b4      EQU 0x100B
+?b3      EQU 0x100C
+?b2      EQU 0x100D
+?b1      EQU 0x100E
+?b0      EQU 0x100F
+
+?w7      EQU 0x1000  ; ?b15:?b14
+?w6      EQU 0x1002  ; ?b13:?b12
+?w5      EQU 0x1004  ; ?b11:?b10
+?w4      EQU 0x1006  ; ?b9:?b8
+?w3      EQU 0x1008  ; ?b7:?b6
+?w2      EQU 0x100A  ; ?b5:?b4
+?w1      EQU 0x100C  ; ?b3:?b2
+?w0      EQU 0x100E  ; ?b1:?b0
+
+?l3      EQU 0x1000  ; ?b15,?b14,?b13,?b12
+?l2      EQU 0x1004  ; ?b11,?b10,?b9,?b8
+?l1      EQU 0x1008  ; ?b7,?b6,?b5,?b4
+?l0      EQU 0x100C  ; ?b3,?b2,?b1,?b0
 
 ; RAM Reserved location
 SP       EQU 0x1FF0  ; SP      Stack Pointer 8 bit
@@ -750,20 +781,60 @@ TSTOP2B  LDA #0x2B
          ; --------------------------------------------------------------------
          ; OP.2C JEQ 0x****
          ; JUMP IF E=1
-         ; Partial validation
          ; --------------------------------------------------------------------
-TSTOP2C  LDA #0x2C
+TST2C    LDA #0x2C
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0x7A   ; Load a value in A
          CMPA #0x28  ; Compare with a different value
          JEQ FAIL    ; If appear identical then it's and error
-         LDA #0xFE
+         LDA #0xFE   ; Again with adifference 
          CMPA #0xFF
          JEQ FAIL 
-         LDA #0x01
+         LDA #0x01   ; Another with difference
          CMPA #0x10
-         JEQ FAIL 
+         JEQ FAIL
+         LDA #0xAB   ; Now compare when values are identical
+         CMPA #0xAB
+         JEQ TST2C_1 ; Testing if equal?
+         JMP FAIL    ; Result say both are not equal then it's a failure
+TST2C_1  LDA #0x00   ; Result say the values are identical so we are passing
+         CMPA #0x00
+         JEQ TST2C_2 ; Testing if equal?
+         JMP FAIL    ; if different then it's a failure
+TST2C_2  LDA #0x01
+         CMPA #0x01
+         JEQ TST2C_3 ; Testing if equal?
+         JMP FAIL    ; if different then it's a failure
+TST2C_3  LDA #0x02
+         CMPA #0x02
+         JEQ TST2C_4 ; Testing if equal?
+         JMP FAIL    ; if different then it's a failure
+TST2C_4  LDA #0x04
+         CMPA #0x04
+         JEQ TST2C_5 ; Testing if equal?
+         JMP FAIL    ; if different then it's a failure
+TST2C_5  LDA #0x08
+         CMPA #0x08
+         JEQ TST2C_6 ; Testing if equal?
+         JMP FAIL    ; if different then it's a failure
+TST2C_6  LDA #0x10
+         CMPA #0x10
+         JEQ TST2C_7 ; Testing if equal?
+         JMP FAIL    ; if different then it's a failure
+TST2C_7  LDA #0x20
+         CMPA #0x20
+         JEQ TST2C_8 ; Testing if equal?
+         JMP FAIL    ; if different then it's a failure         
+TST2C_8  LDA #0x40
+         CMPA #0x40
+         JEQ TST2C_9 ; Testing if equal?
+         JMP FAIL    ; if different then it's a failure         
+TST2C_9  LDA #0x80
+         CMPA #0x80
+         JEQ TST2C_10 ; Testing if equal?
+         JMP FAIL    ; if different then it's a failure         
+TST2C_10 NOP
          ; --------------------------------------------------------------------
          ; OP.2D CMPA #0x**
          ; COMPARE A WITH IMMEDIATE VALUE    EQUAL STATUS BIT (E) UPDATED
@@ -1259,7 +1330,7 @@ TSTOP39  LDA #0x39
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; --------------------------------------------------------------------         
-TSTFIBON LDA #0xFE
+TSTFIBON LDA #0x80
          NOTA
          STA LEDPORT ; Output to LED port
                      ;
@@ -1420,22 +1491,81 @@ TSTFIBON LDA #0xFE
          ; ---------
          ; Loop test
          ; ---------
-LOOPTST  LDA #0xFF
+LOOPTST  LDA #0x81
          NOTA
          STA LEDPORT    ; Output to LED port
          LDA #0x05      ; Init a counter of iterations
-         STA R8_0
-LOOPTST1 LDA R8_0       ; Read counter
+         STA ?b0
+LOOPTST1 LDA ?b0        ; Read counter
          CMPA #0x00     ; Is it 0?
          JEQ LOOPTST2   ; Yes then it's the end fo the test
          ADDA #0xFF     ; Add -1 in complement 2 (equivalent to decrement)
-         STA R8_0       ; Save decremented count
+         STA ?b0        ; Save decremented count
          JRA LOOPTST1
 LOOPTST2 NOP            ; End of decrement loop         
 
+         ; -----------------
+         ; Math Library Test
+         ; -----------------
+         ; Test add32_l0_l0_l1  l0 <= l0 + l1
+         LDA #0x89   ; l0 = 0x89ABCDEF
+         STA ?b3
+         LDA #0xAB
+         STA ?b2
+         LDA #0xCD
+         STA ?b1
+         LDA #0xEF
+         STA ?b0
+         LDA #0xDE   ; l1 = DEADBEEF
+         STA ?b7
+         LDA #0xAD
+         STA ?b6
+         LDA #0xBE
+         STA ?b5
+         LDA #0xEF
+         STA ?b4
+         JSR add32_l0_l0_l1   ; l0 <= l0 + l1
+         LDA ?b3              ; Expected l0 = 68598CDE + C set
+         CMPA #0x68
+         JNE FAIL
+         LDA ?b2
+         CMPA #0x59
+         JNE FAIL
+         LDA ?b1
+         CMPA #0x8C
+         JNE FAIL
+         LDA ?b0
+         CMPA #0xDE
+         JNE FAIL
+         ; ---------------------
+         ; END Math Library Test
+         ; ---------------------
 
          JMP 0xE000  ; Loop from start of diag test
          
+         ; ---------------------
+         ; Math library routines
+         ; ---------------------
+         ; virtual registers
+;-----------------------------------------------------------------------------
+; ?b15 ?b14 ?b13 ?b12 | ?b11 ?b10 ?b9 ?b8 | ?b7 ?b6 ?b5 ?b4 | ?b3 ?b2 ?b1 ?b0 |  8 bits
+;    ?w7       ?w6    |   ?w5      ?w4    | ?w3     ?w2     |   ?w1     ?w0   | 16 bits
+;         ?l3         |        ?l2        |     ?l1         |       ?l0       | 32 bits
+;-----------------------------------------------------------------------------
+         ; Addition on 32 bits
+add32_l0_l0_l1    LDA ?b0  ; l0 <= l0 + l1  (LSB)
+                  ADDA ?b4
+                  STA ?b0
+                  LDA ?b1
+                  ADCA ?b5
+                  STA ?b1
+                  LDA ?b2
+                  ADCA ?b6
+                  STA ?b2
+                  LDA ?b3
+                  ADCA ?b7
+                  STA ?b3
+                  RTS
          ; --------------------------------------------------------------------
          ; Error routine
          ; --------------------------------------------------------------------

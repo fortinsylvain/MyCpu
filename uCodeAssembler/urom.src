@@ -1,8 +1,8 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin
-; Date : 13 march 2025
-; Documentation : Will be converted into 2 binary file to be 
+; Date : 14 march 2025
+; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
 ; External RAM required to support the microcode
@@ -339,6 +339,36 @@ JMP                     ; ***************************************************
 ;01H>UH                  ; Get Pointed OP Code by IP and Execute
 ;00H>UL
 ;JMP                     ; ***************************************************
+ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
+DATA>R2                 ; READ MSB ADDRESS
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+28H>R4                  ;  IP+1>IP | ADD. RETURN
+06H>R5                  ;  IP>ADD  |
+JMP                     ;          | JMP TO ROUTINE
+DATA>R3                 ; READ LSB ADDRESS
+R2>AH                   ; PUT ADDRESS ON ADDRESS BUS
+R3>AL
+DATA>R0                 ; READ POINTED BYTE
+1FH>AH                  ; READ REG A
+FCH>AL   
+DATA>R1
+1FH>AH                  ; READ CARRY IN
+FBH>AL
+DATA>R2
+3FH>UH                  ;           | ADD. ROUTINE
+00H>UL                  ; R0+R1>R0  |
+28H>R6                  ; Cout>R2-0 | RETURN ADDRESS
+15H>R7
+JMP
+1FH>AH                  ; PUT SUMM IN REG. A
+FCH>AL
+R0>DATA
+FBH>AL                  ; PUT Cout IN REG C (Carry)
+R2>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
 ORG/1480H               ; OP.29 ADDA ****H  ADD A WITH BYTE AT ADDRESS, C UPDATE
 DATA>R2                 ; READ MSB ADDRESS
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
@@ -425,15 +455,21 @@ FAH>AL
 DATA>R0
 R0-0>A
 2CH>UH                  ; ADDRESSE DU SAUT DANS LE UPROG. SI E=0
-16H>UL
+1CH>UL
 JMP_A=0
-DATA>R2                 ; ICI ON A E=1 ALORS ON PREND L'ADDRESSE  MSB ADD.
+FEH>AL                  ; ICI ON A E=1 ALORS ON PREND L'ADDRESSE  MSB ADD.
+DATA>R2                 ; IPH > R2
+FFH>AL
+DATA>R3                 ; IPL > R3
+R2>AH                   ; IP > ADD
+R3>AL
+DATA>R2                 ; TAKE MSB ADD WHERE TO JUMP AND PUT IN R2
 3BH>UH                  ;          | ADD. ROUTINE
 00H>UL                  ;  IP+1>IP |
 2CH>R4                  ;  IP>ADD  | ADD. RETOUR
-0DH>R5                  ;          |
+13H>R5                  ;          |
 JMP
-DATA>R3                 ; PREND LSB ADD. DU SAUT
+DATA>R3                 ; PREND LSB WHERE TO JUMP AND PUT IN R3
 1FH>AH                  ; MET MSB ADD. DE SAUT DANS IPH
 FEH>AL
 R2>DATA
