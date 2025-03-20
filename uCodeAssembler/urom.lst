@@ -1,7 +1,7 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin
-                              ; Date : 14 march 2025
+                              ; Date : 20 march 2025
                               ; Documentation : uCode stored in 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
@@ -14,7 +14,7 @@
                               ; 1FF2H JSL          "       "     "   "  LSB    "
                               ; 1FF3H X MSB   X Register MSB
                               ; 1FF4H X LSB   X Register LSB
-                              ; 1FFAH E       bit<0> Equal Status bit
+                              ; 1FFAH E       bit<0> Equal Status bit. Set if the result is 0 otherwise cleared
                               ; 1FFBH C       bit<0> Carry Status bit
                               ; 1FFCH A       A Register
                               ; 1FFEH IPH	    Instruction Pointer MSB
@@ -722,12 +722,12 @@
 3616       3800               00H>UL
 3617       C800               JMP          ; ***************************************************
                               ORG/1B80H    ; OP.37 INCA  INCREMENT REGISTER A
-3700       781F               1FH>AH       ;             Carry Not Updated
+3700       781F               1FH>AH       ;             C not updated, E updated
 3701       68FC               FCH>AL
 3702       2000               DATA>R0      ; READ REG. A
 3703       2E37               37H>R6       ;
 3704       2F08               08H>R7       ; R0+1>R0
-3705       303E               3EH>UH       ; Cout>R1-7  We will not use the carry result
+3705       303E               3EH>UH       ; Cout>R1-7
 3706       3800               00H>UL
 3707       C800               JMP
 3708       781F               1FH>AH       ; RESULT IN REG. A
@@ -748,9 +748,38 @@
                               ;1FH>AH                 ; Store R0 in Carry Status RAM location
                               ;FBH>AL
                               ;R0>DATA
-370B       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
-370C       3800               00H>UL
-370D       C800               JMP          ; ******************************************************
+370B       5000               R0-0>A       ; Update E (If result is zero then set E flag )
+370C       4009               OR R0-1      ; NOT( 7 OR 6 OR 5 OR 4 OR 3 OR 2 OR 1 OR 0 )
+370D       7001               Q1>A
+370E       400A               OR R0-2
+370F       7002               Q2>A
+3710       400B               OR R0-3
+3711       7003               Q3>A
+3712       400C               OR R0-4
+3713       7004               Q4>A
+3714       400D               OR R0-5
+3715       7005               Q5>A
+3716       400E               OR R0-6
+3717       7006               Q6>A
+3718       400F               OR R0-7
+3719       7007               Q7>A
+371A       4038               NOT A-0
+371B       2900               00H>R1       ; Set Q<7:1> to 0
+371C       5100               R1-0>A       ; To have a clean E Status Byte
+371D       4819               A>Q1         
+371E       481A               A>Q2         
+371F       481B               A>Q3
+3720       481C               A>Q4
+3721       481D               A>Q5
+3722       481E               A>Q6
+3723       481F               A>Q7
+3724       6100               Q>R1         ; Move Q byte in R1
+3725       781F               1FH>AH       ; Store RA in Equal Status RAM location
+3726       68FA               FAH>AL
+3727       5900               R1>DATA
+3728       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+3729       3800               00H>UL
+372A       C800               JMP          ; ******************************************************
                               ORG/1C00H    ; OP.38 LDX #****H  Load Register X with 16 bits 
 3800       2200               DATA>R2      ; Take MSB Immediate value
 3801       303B               3BH>UH       ;          | ADD. ROUTINE

@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin
-; Date : 14 march 2025
+; Date : 20 march 2025
 ; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -14,7 +14,7 @@
 ; 1FF2H JSL          "       "     "   "  LSB    "
 ; 1FF3H X MSB   X Register MSB
 ; 1FF4H X LSB   X Register LSB
-; 1FFAH E       bit<0> Equal Status bit
+; 1FFAH E       bit<0> Equal Status bit. Set if the result is 0 otherwise cleared
 ; 1FFBH C       bit<0> Carry Status bit
 ; 1FFCH A       A Register
 ; 1FFEH IPH	    Instruction Pointer MSB
@@ -722,12 +722,12 @@ R0>DATA                 ; Put result in Register A
 00H>UL
 JMP                     ; ***************************************************
 ORG/1B80H               ; OP.37 INCA  INCREMENT REGISTER A
-1FH>AH                  ;             Carry Not Updated
+1FH>AH                  ;             C not updated, E updated
 FCH>AL
 DATA>R0                 ; READ REG. A
 37H>R6                  ;
 08H>R7                  ; R0+1>R0
-3EH>UH                  ; Cout>R1-7  We will not use the carry result
+3EH>UH                  ; Cout>R1-7
 00H>UL
 JMP
 1FH>AH                  ; RESULT IN REG. A
@@ -748,6 +748,35 @@ R0>DATA
 ;1FH>AH                 ; Store R0 in Carry Status RAM location
 ;FBH>AL
 ;R0>DATA
+R0-0>A                  ; Update E (If result is zero then set E flag )
+OR R0-1                 ; NOT( 7 OR 6 OR 5 OR 4 OR 3 OR 2 OR 1 OR 0 )
+Q1>A
+OR R0-2
+Q2>A
+OR R0-3
+Q3>A
+OR R0-4
+Q4>A
+OR R0-5
+Q5>A
+OR R0-6
+Q6>A
+OR R0-7
+Q7>A
+NOT A-0
+00H>R1                  ; Set Q<7:1> to 0
+R1-0>A                  ; To have a clean E Status Byte
+A>Q1                   
+A>Q2                   
+A>Q3
+A>Q4
+A>Q5
+A>Q6
+A>Q7
+Q>R1                    ; Move Q byte in R1
+1FH>AH                  ; Store E in Equal Status RAM location
+FAH>AL
+R1>DATA
 01H>UH                  ; Get Pointed OP Code by IP and Execute
 00H>UL
 JMP                     ; ******************************************************

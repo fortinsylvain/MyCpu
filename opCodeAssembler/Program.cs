@@ -177,7 +177,7 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "ORA #0x**",    OpCode = 0x34,  NbByte = 1, Sym = 0, Offset = 7 });  // ORA #0x**    LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
             dataList.Add(new InstrTable { StringValue = "XORA #0x**",   OpCode = 0x35,  NbByte = 1, Sym = 0, Offset = 8 });  // XORA #0x**   EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
             dataList.Add(new InstrTable { StringValue = "NOTA",         OpCode = 0x36,  NbByte = 0, Sym = 0, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
-            dataList.Add(new InstrTable { StringValue = "INCA",         OpCode = 0x37,  NbByte = 0, Sym = 0, Offset = 0 });  // INCA         INCREMENT REGISTER A, NO UPDATE ON CARRY
+            dataList.Add(new InstrTable { StringValue = "INCA",         OpCode = 0x37,  NbByte = 0, Sym = 0, Offset = 0 });  // INCA         INCREMENT REGISTER A, E update, C not updated
             dataList.Add(new InstrTable { StringValue = "LDX #0x****",  OpCode = 0x38,  NbByte = 2, Sym = 0, Offset = 7 });  // LDX #0x****  Load X Register with 16 bits immediate value
             dataList.Add(new InstrTable { StringValue = "INCX",         OpCode = 0x39,  NbByte = 0, Sym = 0, Offset = 0 });  // INCX         Increment Register X,  Carry Not Updated
 
@@ -594,12 +594,18 @@ namespace Assembler
                             sTemp = "Symbol Table:";
                             Console.WriteLine(sTemp);
                             lstFile.WriteLine(sTemp);
+
+                            int symbolWidth = 20; // Fixed width for symbol name
+
                             foreach (var entry in symbolTable)
                             {
-                                //Console.WriteLine($"Symbol: {entry.Key}, Address: {entry.Value.Address}");
-                                //string sSymbol = entry.Key;
-                                sTemp = $"{entry.Key,-10}{entry.Value.Address:X4}";
-                                //Console.WriteLine($"{entry.Key,-10}{entry.Value.Address:X4}");
+                                // Truncate or pad the symbol name to exactly `symbolWidth` characters
+                                string symbolName = entry.Key.Length > symbolWidth
+                                    ? entry.Key.Substring(0, symbolWidth)  // Truncate if too long
+                                    : entry.Key.PadRight(symbolWidth);    // Pad with spaces if too short
+
+                                // Format output with the symbol and its value (hex)
+                                sTemp = $"{symbolName}{entry.Value.Address:X4}";
                                 Console.WriteLine(sTemp);
                                 lstFile.WriteLine(sTemp);
                             }

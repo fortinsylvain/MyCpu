@@ -14,8 +14,8 @@
 ; virtual registers
 ;-----------------------------------------------------------------------------
 ; ?b15 ?b14 ?b13 ?b12 | ?b11 ?b10 ?b9 ?b8 | ?b7 ?b6 ?b5 ?b4 | ?b3 ?b2 ?b1 ?b0 |  8 bits
-;    ?w7       ?w6    |   ?w5      ?w4    | ?w3     ?w2     |   ?w1     ?w0   | 16 bits
-;         ?l3         |        ?l2        |     ?l1         |       ?l0       | 32 bits
+;    ?w7       ?w6    |    ?w5      ?w4   |   ?w3     ?w2   |   ?w1     ?w0   | 16 bits
+;         ?l3         |         ?l2       |       ?l1       |       ?l0       | 32 bits
 ;-----------------------------------------------------------------------------
 ?b15     EQU 0x1000
 ?b14     EQU 0x1001
@@ -1182,7 +1182,7 @@ TSTOP36  LDA #0x36
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.37 INCA  A = A + 1  INCREMENT REGISTRE A
-         ; NO UPDATE ON C (CARRY)
+         ; E UPDATE, C unchanged
          ; --------------------------------------------------------------------
 TSTOP37  LDA #0x37
          NOTA
@@ -1237,7 +1237,7 @@ TSTOP37  LDA #0x37
          INCA
          CMPA #0x0D
          JNE FAIL
-         LDA #0x00   ; Test Carry is not updated
+         LDA #0x00   ; Test Carry unchanged
          STA CARRY   ; Clear Carry 
          LDA #0xFF
          INCA
@@ -1250,6 +1250,25 @@ TSTOP37  LDA #0x37
          INCA
          LDA CARRY   ; Read Carry bit <0>
          CMPA #0x01  ; Expecting C=1 and <7:1> = 0
+         JNE FAIL
+         LDA #0xFE   ; Test Equal (Set when result is 0)
+         INCA
+         CMPA #0xFF
+         JNE FAIL
+         LDA EQUAL   ; Read Equal status
+         CMPA #0x00  ; Expecting E=0 and <7:1> = 0
+         JNE FAIL
+         INCA
+         CMPA #0x00
+         JNE FAIL
+         LDA EQUAL   ; Read Equal status
+         CMPA #0x01  ; Expecting E=1 and <7:1> = 0
+         JNE FAIL
+         INCA
+         CMPA #0x01
+         JNE FAIL
+         LDA EQUAL
+         CMPA #0x00  ; Expecting E=0 and <7:1> = 0
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.38  LDX #0x****   Load X Register with 16 bits immediate value
@@ -1507,7 +1526,33 @@ LOOPTST2 NOP            ; End of decrement loop
          ; -----------------
          ; Math Library Test
          ; -----------------
+         ; Test add16_w0_w0_w1  w0 <= w0 + w1
+         LDA #0x82
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0xBE   ; w0 = 0xBEEF
+         STA ?b1
+         LDA #0xEF
+         STA ?b0
+         LDA #0xDE   ; w1 = 0xDEAD
+         STA ?b3
+         LDA #0xAD
+         STA ?b2
+         JSR ?add16_w0_w0_w1  ; w0 <= w0 + w1
+         LDA ?b1              ; Expected w0 = 9D9C + C set
+         CMPA #0x9D
+         JNE FAIL
+         LDA ?b0
+         CMPA #0x9C
+         JNE FAIL
+         LDA CARRY
+         CMPA #0x01
+         JNE FAIL
+
          ; Test add32_l0_l0_l1  l0 <= l0 + l1
+         LDA #0x83
+         NOTA
+         STA LEDPORT ; Output to LED port
          LDA #0x89   ; l0 = 0x89ABCDEF
          STA ?b3
          LDA #0xAB
@@ -1524,8 +1569,8 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b5
          LDA #0xEF
          STA ?b4
-         JSR add32_l0_l0_l1   ; l0 <= l0 + l1
-         LDA ?b3              ; Expected l0 = 68598CDE + C set
+         JSR ?add32_l0_l0_l1  ; l0 <= l0 + l1
+         LDA ?b3              ; Expected l0 = 0x68598CDE + C set
          CMPA #0x68
          JNE FAIL
          LDA ?b2
@@ -1537,6 +1582,88 @@ LOOPTST2 NOP            ; End of decrement loop
          LDA ?b0
          CMPA #0xDE
          JNE FAIL
+         LDA CARRY
+         CMPA #0x01
+         JNE FAIL
+
+         ; Test ?inc32_l0_l0   l0 <= l0 + 1
+;         LDA #0x84
+;         NOTA
+;         STA LEDPORT ; Output to LED port
+;         LDA #0xFF   ; l0 = 0xFFFFFFFF
+;         STA ?b3
+;         LDA #0xFF
+;         STA ?b2
+;         LDA #0xFF
+;         STA ?b1
+;         LDA #0xFF
+;         STA ?b0
+;         JSR ?inc32_l0_l0  ; l0 <= l0 + 1
+;         ; Expected l0 = 0x00000000 + C set
+;         LDA ?b3     ; Expected l0 = 0x00000000 + C set
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b2
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b1
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b0
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA CARRY
+;         CMPA #0x01
+;         JNE FAIL
+;         JSR ?inc32_l0_l0  ; l0 <= l0 + 1
+;         LDA ?b3
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b2
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b1
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b0
+;         CMPA #0x01
+;         JNE FAIL
+;         LDA CARRY
+;         CMPA #0x00
+;         JNE FAIL
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         JSR ?inc32_l0_l0
+;         LDA ?b3
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b2
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b1
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b0
+;         CMPA #0x11
+;         JNE FAIL
+;         LDA CARRY
+;         CMPA #0x00
+;         JNE FAIL
+
          ; ---------------------
          ; END Math Library Test
          ; ---------------------
@@ -1549,11 +1676,22 @@ LOOPTST2 NOP            ; End of decrement loop
          ; virtual registers
 ;-----------------------------------------------------------------------------
 ; ?b15 ?b14 ?b13 ?b12 | ?b11 ?b10 ?b9 ?b8 | ?b7 ?b6 ?b5 ?b4 | ?b3 ?b2 ?b1 ?b0 |  8 bits
-;    ?w7       ?w6    |   ?w5      ?w4    | ?w3     ?w2     |   ?w1     ?w0   | 16 bits
-;         ?l3         |        ?l2        |     ?l1         |       ?l0       | 32 bits
+;    ?w7       ?w6    |    ?w5      ?w4   |   ?w3     ?w2   |   ?w1     ?w0   | 16 bits
+;         ?l3         |         ?l2       |       ?l1       |       ?l0       | 32 bits
 ;-----------------------------------------------------------------------------
-         ; Addition on 32 bits
-add32_l0_l0_l1    LDA ?b0  ; l0 <= l0 + l1  (LSB)
+                  ; Addition on 16 bits  
+                  ; w0 <= w0 + w1
+?add16_w0_w0_w1   LDA ?b0  
+                  ADDA ?b2
+                  STA ?b0
+                  LDA ?b1
+                  ADCA ?b3
+                  STA ?b1
+                  RTS
+
+                  ; Addition on 32 bits
+                  ; l0 <= l0 + l1
+?add32_l0_l0_l1   LDA ?b0  
                   ADDA ?b4
                   STA ?b0
                   LDA ?b1
@@ -1566,6 +1704,26 @@ add32_l0_l0_l1    LDA ?b0  ; l0 <= l0 + l1  (LSB)
                   ADCA ?b7
                   STA ?b3
                   RTS
+
+                  ; INC 32 bit
+                  ; l0 <= l0 + 1
+?inc32_l0_l0      LDA ?b0
+                  INCA
+                  STA ?b0
+                  JNE ?inc32_0x_0x_JP
+                  LDA ?b1
+                  INCA
+                  STA ?b1
+                  JNE ?inc32_0x_0x_JP
+                  LDA ?b2
+                  INCA
+                  STA ?b2
+                  JNE ?inc32_0x_0x_JP
+                  LDA ?b3
+                  INCA
+                  STA ?b3
+?inc32_0x_0x_JP   RTS
+
          ; --------------------------------------------------------------------
          ; Error routine
          ; --------------------------------------------------------------------
