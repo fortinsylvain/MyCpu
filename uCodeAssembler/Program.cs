@@ -101,8 +101,7 @@ namespace UCT_Assembler
             int iErrorNumber = 0;
             int iLine = 0;
 
-            string[] TBL = new string[28];
-
+            string[] TBL = new string[29];
 
             TBL[0] = "";        // We do not use this location
             TBL[1] = "R*>UH";
@@ -132,7 +131,9 @@ namespace UCT_Assembler
             TBL[25] = "ORG/****H";
             TBL[26] = "Q*>A";
             TBL[27] = "**H>AH";
-            int iTblNumberOfElement = 28;
+            TBL[28] = "JMP_A=1";
+
+            int iTblNumberOfElement = 29;
 
             int iFirstCharacterIndex;
             int iPosComment;
@@ -177,40 +178,54 @@ namespace UCT_Assembler
                     }
                     else if (sLine.Substring(0, 1) != ";")   // Process the line only if it does not begin with comment 
                     {
+                        // Extract the part before ";" (or the whole line if ";" is not found), and trim space at end
+                        string sUcodeUser = (iPosComment >= 0 ? sLine.Substring(0, iPosComment) : sLine).TrimEnd();
+
+                        int iUcodeUserLength = sUcodeUser.Length;     // Get its length
+
                         // Find in table the ucode
                         bool bFound = false;
                         int iIndexTable = 1;    // start at first location
+
                         while ((iIndexTable < iTblNumberOfElement) && !bFound)
                         {
-                            int iCodeLength = TBL[iIndexTable].Length;
+                            string sUcodeTable = TBL[iIndexTable];
+                            int iUcodeLengthTable = TBL[iIndexTable].Length;
                             int iCharPointer = 0;
                             bool bIdentical = true;
 
-                            while ((iCharPointer < iCodeLength) && bIdentical)
+                            if (iUcodeUserLength == iUcodeLengthTable)
                             {
-                                char cCode = TBL[iIndexTable][iCharPointer];
-
-                                if (cCode != '*')   // Compare only if not and an asterix
+                                while ((iCharPointer < iUcodeLengthTable) && bIdentical)    // If size same them scan each char
                                 {
-                                    if (iCharPointer > (sLine.Length - 1))
-                                    {
-                                        bIdentical = false;
-                                    }
-                                    else if (cCode != sLine[iCharPointer])
-                                    {
-                                        bIdentical = false;
-                                    }
-                                }
-                                iCharPointer++;
-                            }
+                                    char cCode = TBL[iIndexTable][iCharPointer];
 
-                            if (bIdentical)
-                            {
-                                bFound = true;
+                                    if (cCode != '*')   // Compare only if not and an asterix
+                                    {
+                                        if (iCharPointer > (sLine.Length - 1))
+                                        {
+                                            bIdentical = false;
+                                        }
+                                        else if (cCode != sLine[iCharPointer])
+                                        {
+                                            bIdentical = false;
+                                        }
+                                    }
+                                    iCharPointer++;
+                                }
+
+                                if (bIdentical)
+                                {
+                                    bFound = true;
+                                }
+                                else
+                                {
+                                    iIndexTable++;
+                                }
                             }
                             else
                             {
-                                iIndexTable++;
+                                iIndexTable++;  // Else check next entry in table
                             }
                         }
 
@@ -253,7 +268,7 @@ namespace UCT_Assembler
                             {
                                 switch (iIndexTable)
                                 {
-                                    case 1:
+                                    case 1:     // R*>UH
                                         BS = 0;
                                         sRegisterNumber = sLine.Substring(1, 1);
                                         GetRegisterNumber(sRegisterNumber, ref iRegisterNumber, ref iErrorNumber);
@@ -447,6 +462,13 @@ namespace UCT_Assembler
                                         getNibble(sNibble, ref iNibble, ref iErrorNumber);
                                         ES = iNibble;
                                         break;
+                                    case 28:        // JMP_A=1
+                                        BS = 0xC;
+                                        CS = 8;
+                                        DS = 2;     // NOT A
+                                        ES = 0;  
+                                        break;
+
                                     default:
                                         // In case the OP code decoding is not implemented
                                         string sOpNotImplemented = $"{new string(' ', 7)}****** ERROR OP NOT IMPLEMENTED ******* {sLine.Substring(0, Math.Min(13, sLine.Length))}";

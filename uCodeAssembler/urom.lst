@@ -1,7 +1,7 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin
-                              ; Date : 20 march 2025
+                              ; Date : 21 march 2025
                               ; Documentation : uCode stored in 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
@@ -23,26 +23,27 @@
                               ; E000H - F000H EEPROM for application program
                               ; -----------------------------------------------------------------
                               ORG/0000H    ; 0000H   RESET
-0000       2800               00H>R0       ; Dummy Instruction
-0001       2800               00H>R0       ; Stack Pointer Init
-0002       781F               1FH>AH       ; Stack Start : 0000H
-0003       68F0               F0H>AL       ; Stack Max   : 00FFH
-0004       5800               R0>DATA
-0005       78FF               FFH>AH       ; Get [FFFE] MSB Start Vector
-0006       68FE               FEH>AL
-0007       2000               DATA>R0
-0008       781F               1FH>AH       ; MSB Start Vector Stored in IPH
-0009       68FE               FEH>AL
-000A       5800               R0>DATA
-000B       78FF               FFH>AH       ; Get [FFFF] LSB Start Vector
-000C       68FF               FFH>AL
-000D       2100               DATA>R1
-000E       781F               1FH>AH       ; LSB Start Vector Stored in IPL
-000F       68FF               FFH>AL
-0010       5900               R1>DATA 
-0011       3001               01H>UH       ; Get Pointed OP Code and Execute
-0012       3800               00H>UL
-0013       C800               JMP          ; ***************************************************
+0000       2900               00H>R1
+0001       2800               00H>R0       ; Dummy Instruction
+0002       2800               00H>R0       ; Stack Pointer Init
+0003       781F               1FH>AH       ; Stack Start : 0000H
+0004       68F0               F0H>AL       ; Stack Max   : 00FFH
+0005       5800               R0>DATA
+0006       78FF               FFH>AH       ; Get [FFFE] MSB Start Vector
+0007       68FE               FEH>AL
+0008       2000               DATA>R0
+0009       781F               1FH>AH       ; MSB Start Vector Stored in IPH
+000A       68FE               FEH>AL
+000B       5800               R0>DATA
+000C       78FF               FFH>AH       ; Get [FFFF] LSB Start Vector
+000D       68FF               FFH>AL
+000E       2100               DATA>R1
+000F       781F               1FH>AH       ; LSB Start Vector Stored in IPL
+0010       68FF               FFH>AL
+0011       5900               R1>DATA 
+0012       3001               01H>UH       ; Get Pointed OP Code and Execute
+0013       3800               00H>UL
+0014       C800               JMP          ; ***************************************************
                               ORG/0080H    ; 0100H Get Pointed OP Code by IP and Execute
 0100       781F               1FH>AH       ; Read IPH
 0101       68FE               FEH>AL
@@ -334,11 +335,68 @@
 0E23       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 0E24       3800               00H>UL
 0E25       C800               JMP          ; ***************************************************
-                              ;ORG/0780H               ; OP.0F MULX  Multiply XH and XL put result in X
-                              ;JMP
-                              ;01H>UH                  ; Get Pointed OP Code by IP and Execute
-                              ;00H>UL
-                              ;JMP                     ; ***************************************************
+                              ORG/0780H    ; OP.0F JRNC
+0F00       781F               1FH>AH       ; Read C bit and put in A ALU input
+0F01       68FB               FBH>AL
+0F02       2000               DATA>R0
+0F03       5000               R0-0>A
+0F04       300F               0FH>UH       ; if C = 0 then prepare the jump JRA
+0F05       380A               0AH>UL
+0F06       C81B               JMP_A=0
+0F07       3002               02H>UH       ; NEXT OP.
+0F08       3800               00H>UL
+0F09       C800               JMP          
+0F0A       68FE               FEH>AL       ; Put IP on Address Bus
+0F0B       2000               DATA>R0
+0F0C       68FF               FFH>AL
+0F0D       2100               DATA>R1
+0F0E       1000               R0>AH
+0F0F       1900               R1>AL
+0F10       300C               0CH>UH       ; do the JRA
+0F11       3800               00H>UL
+0F12       C800               JMP          ; ***************************************************
+                              ORG/0800H    ; OP.10 RRCA Rotate Right Logical Reg A through C
+1000       781F               1FH>AH       ;            C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+1001       68FC               FCH>AL
+1002       2000               DATA>R0      ; Read A Register and store in R0
+1003       68FB               FBH>AL       ; Read Carry and put in R1
+1004       2100               DATA>R1
+1005       5107               R1-7>A       ; Clear Carry from Register R1 and insert in bit 7
+1006       481F               A>Q7
+1007       5007               R0-7>A       ; shift bit 6:1 to 5:0, result in Q
+1008       481E               A>Q6
+1009       5006               R0-6>A
+100A       481D               A>Q5
+100B       5005               R0-5>A
+100C       481C               A>Q4
+100D       5004               R0-4>A
+100E       481B               A>Q3
+100F       5003               R0-3>A
+1010       481A               A>Q2
+1011       5002               R0-2>A
+1012       4819               A>Q1
+1013       5001               R0-1>A
+1014       4818               A>Q0
+1015       6200               Q>R2         ; Store shifted result in R2
+1016       68FC               FCH>AL       ; Store result in Register A
+1017       5A00               R2>DATA
+1018       2B00               00H>R3       ; Clear Q[7:1]
+1019       5300               R3-0>A       
+101A       481F               A>Q7
+101B       481E               A>Q6
+101C       481D               A>Q5
+101D       481C               A>Q4
+101E       481B               A>Q3
+101F       481A               A>Q2
+1020       4819               A>Q1
+1021       5000               R0-0>A       ; Get bit 0 of original value before shifting
+1022       4818               A>Q0         ; b0 -> C
+1023       6400               Q>R4         ; Store Carry in R4
+1024       68FB               FBH>AL       ; Save to the Carry Status Register
+1025       5C00               R4>DATA
+1026       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+1027       3800               00H>UL
+1028       C800               JMP          ; ***************************************************
                               ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UP
 2800       2200               DATA>R2      ; READ MSB ADDRESS
 2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
@@ -774,7 +832,7 @@
 3722       481E               A>Q6
 3723       481F               A>Q7
 3724       6100               Q>R1         ; Move Q byte in R1
-3725       781F               1FH>AH       ; Store RA in Equal Status RAM location
+3725       781F               1FH>AH       ; Store E in Equal Status RAM location
 3726       68FA               FAH>AL
 3727       5900               R1>DATA
 3728       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
@@ -901,7 +959,7 @@
 3B03       5000               R0-0>A
 3B04       4818               A>Q0         ; Compute the Carrys
 3B05       4021               AND R0-1
-3B06       7001               Q1>A-0
+3B06       7001               Q1>A
 3B07       4022               AND R0-2
 3B08       7002               Q2>A
 3B09       4023               AND R0-3

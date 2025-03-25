@@ -152,9 +152,11 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "STA (X)",      OpCode = 0x0B,  NbByte = 0, Sym = 0, Offset = 0 });  // STA (X)      Store Reg A Indexed
             dataList.Add(new InstrTable { StringValue = "JRA 0x**",     OpCode = 0x0C,  NbByte = 1, Sym = 0, Offset = 6 });  // JRA 0x**     Unconditional relative jump
             dataList.Add(new InstrTable { StringValue = "JRA @",        OpCode = 0x0C,  NbByte = 1, Sym = 2, Offset = 4 });  // JRA symbol   Unconditional relative jump
-            dataList.Add(new InstrTable { StringValue = "SRLA",         OpCode = 0x0D,  NbByte = 0, Sym = 0, Offset = 0 });  // SRLA         Shift Right Logical on Reg A
+            dataList.Add(new InstrTable { StringValue = "SRLA",         OpCode = 0x0D,  NbByte = 0, Sym = 0, Offset = 0 });  // SRLA         Shift Right Logical on Reg A  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
             dataList.Add(new InstrTable { StringValue = "SLLA",         OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLLA         Shift Left Logical on Reg A
             dataList.Add(new InstrTable { StringValue = "SLAA",         OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLAA         Shift Left Arithmetic on Reg A (SLAA same as SLLA)
+            dataList.Add(new InstrTable { StringValue = "JRNC @",       OpCode = 0x0F,  NbByte = 1, Sym = 2, Offset = 5 });  // JRNC symbol  Jump Relatif Not Carry
+            dataList.Add(new InstrTable { StringValue = "RRC",          OpCode = 0x10,  NbByte = 0, Sym = 0, Offset = 0 });  // RRCA         Rotate Right Logical Reg A through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C         
             dataList.Add(new InstrTable { StringValue = "ADCA 0x****",  OpCode = 0x28,  NbByte = 2, Sym = 0, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
             dataList.Add(new InstrTable { StringValue = "ADCA @",       OpCode = 0x28,  NbByte = 2, Sym = 1, Offset = 5 });  // ADCA symbol
             dataList.Add(new InstrTable { StringValue = "ADDA 0x****",  OpCode = 0x29,  NbByte = 2, Sym = 0, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update

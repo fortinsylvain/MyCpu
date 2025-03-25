@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin
-; Date : 13 march 2025
+; Date : 21 march 2025
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
@@ -695,6 +695,85 @@ TSTOP0E  LDA #0x0E
          CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          ; --------------------------------------------------------------------
+         ; OP.0F 
+         ; JRNC Jump Relatif if Not Carry
+         ; --------------------------------------------------------------------
+TSTOP0F  LDA #0x0F
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00   ; Clear carry
+         STA CARRY
+         JRNC TST0F_0
+         JMP FAIL
+TST0F_0  LDA #0x01   ; Set carry
+         STA CARRY
+         JRNC TST0F_1
+         JMP TST0F_2
+TST0F_1  JMP FAIL
+TST0F_2  NOP
+         ; --------------------------------------------------------------------
+         ; OP.10  RRCA   Rotate Right Logical Reg A through Carry 
+         ;               C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C  
+         ; --------------------------------------------------------------------
+TSTOP29  LDA #0x10
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00   ; Clear Carry
+         STA CARRY
+         RRCA
+         CMPA #0x00
+         JNE FAIL
+         LDA #0x00   ; Clear Carry
+         STA CARRY
+         RRCA
+         LDA CARRY
+         CMPA #0x00
+         JNE FAIL
+         LDA #0xAA   ; Test shifting
+         RRCA
+         CMPA #0x55
+         JNE FAIL
+         LDA #0x01   ; Test carry setting
+         RRCA
+         LDA CARRY
+         CMPA #0x01
+         JNE FAIL
+         LDA #0x01   ; Test carry injection
+         STA CARRY   ; Set carry
+         RRCA
+         CMPA #0x00
+         JNE FAIL
+         RRCA
+         CMPA #0x80
+         JNE FAIL
+         RRCA
+         CMPA #0x40
+         JNE FAIL
+         RRCA
+         CMPA #0x20
+         JNE FAIL
+         RRCA
+         CMPA #0x10
+         JNE FAIL
+         RRCA
+         CMPA #0x08
+         JNE FAIL
+         RRCA
+         CMPA #0x04
+         JNE FAIL
+         RRCA
+         CMPA #0x02
+         JNE FAIL
+         RRCA
+         CMPA #0x01
+         JNE FAIL
+         RRCA
+         CMPA #0x00
+         JNE FAIL
+         RRCA
+         CMPA #0x80
+         JNE FAIL
+         ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
          ; --------------------------------------------------------------------
@@ -1253,20 +1332,16 @@ TSTOP37  LDA #0x37
          JNE FAIL
          LDA #0xFE   ; Test Equal (Set when result is 0)
          INCA
-         CMPA #0xFF
-         JNE FAIL
          LDA EQUAL   ; Read Equal status
          CMPA #0x00  ; Expecting E=0 and <7:1> = 0
          JNE FAIL
+         LDA #0xFF
          INCA
-         CMPA #0x00
-         JNE FAIL
          LDA EQUAL   ; Read Equal status
          CMPA #0x01  ; Expecting E=1 and <7:1> = 0
          JNE FAIL
+         LDA #0x00
          INCA
-         CMPA #0x01
-         JNE FAIL
          LDA EQUAL
          CMPA #0x00  ; Expecting E=0 and <7:1> = 0
          JNE FAIL
@@ -1587,82 +1662,73 @@ LOOPTST2 NOP            ; End of decrement loop
          JNE FAIL
 
          ; Test ?inc32_l0_l0   l0 <= l0 + 1
-;         LDA #0x84
-;         NOTA
-;         STA LEDPORT ; Output to LED port
-;         LDA #0xFF   ; l0 = 0xFFFFFFFF
-;         STA ?b3
-;         LDA #0xFF
-;         STA ?b2
-;         LDA #0xFF
-;         STA ?b1
-;         LDA #0xFF
-;         STA ?b0
-;         JSR ?inc32_l0_l0  ; l0 <= l0 + 1
-;         ; Expected l0 = 0x00000000 + C set
-;         LDA ?b3     ; Expected l0 = 0x00000000 + C set
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b2
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b1
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b0
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA CARRY
-;         CMPA #0x01
-;         JNE FAIL
-;         JSR ?inc32_l0_l0  ; l0 <= l0 + 1
-;         LDA ?b3
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b2
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b1
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b0
-;         CMPA #0x01
-;         JNE FAIL
-;         LDA CARRY
-;         CMPA #0x00
-;         JNE FAIL
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         JSR ?inc32_l0_l0
-;         LDA ?b3
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b2
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b1
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b0
-;         CMPA #0x11
-;         JNE FAIL
-;         LDA CARRY
-;         CMPA #0x00
-;         JNE FAIL
+         LDA #0x84
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0xFF   ; l0 = 0xFFFFFFFF
+         STA ?b3
+         LDA #0xFF
+         STA ?b2
+         LDA #0xFF
+         STA ?b1
+         LDA #0xFF
+         STA ?b0
+         JSR ?inc32_l0_l0  ; l0 <= l0 + 1
+         ; Expected l0 = 0x00000000
+         LDA ?b3     ; Expected l0 = 0x00000000
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b2
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b1
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b0
+         CMPA #0x00
+         JNE FAIL
+         JSR ?inc32_l0_l0  ; l0 <= l0 + 1
+         LDA ?b3
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b2
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b1
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b0
+         CMPA #0x01
+         JNE FAIL
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         JSR ?inc32_l0_l0
+         LDA ?b3
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b2
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b1
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b0
+         CMPA #0x12
+         JNE FAIL
 
          ; ---------------------
          ; END Math Library Test
@@ -1723,6 +1789,43 @@ LOOPTST2 NOP            ; End of decrement loop
                   INCA
                   STA ?b3
 ?inc32_0x_0x_JP   RTS
+
+                  ; MUL 8-bit
+                  ; w1 (b3,b2) <= b1 * b0
+?mul8_w1_b1_b0    LDA #0x00   ; Clear ?w1
+                  STA ?b2
+                  STA ?b3
+                  LDX #0x0008 ; Loop counter (8 bits)
+?mul8_w1_loop     LDA ?b0     ; Shift right ?b0 (check LSB)
+                  SRLA
+                  STA ?b0
+                  JRNC ?skip_add  ; Conditional relative jump if not Carry
+;    BCC skip_add ; If LSB was 0, skip addition
+
+;    LDA ?w1     ; Load lower half of result
+;    ADDA ?b1    ; Add multiplicand
+;    STA ?w1     ; Store back
+
+;    LDA ?w1+1   ; Load upper half of result
+;    ADCA #0x00  ; Add carry if necessary
+;    STA ?w1+1   ; Store back
+
+?skip_add         LDA ?b3 ; Shift right ?b3 ?b2
+                  SRLA     ; 0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+                  STA ?b3
+                  LDA ?b2
+
+;    DEX         ; Decrement loop counter
+;    BNE mul_loop
+
+    ; Copy result from ?w1 to ?w0
+;    LDA ?w1
+;    STA ?w0
+;    LDA ?w1+1
+;    STA ?w0+1
+
+    RTS         ; Return (Result in ?w0)
+
 
          ; --------------------------------------------------------------------
          ; Error routine

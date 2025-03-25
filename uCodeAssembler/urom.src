@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin
-; Date : 20 march 2025
+; Date : 21 march 2025
 ; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -23,6 +23,7 @@
 ; E000H - F000H EEPROM for application program
 ; -----------------------------------------------------------------
 ORG/0000H               ; 0000H   RESET
+00H>R1
 00H>R0                  ; Dummy Instruction
 00H>R0                  ; Stack Pointer Init
 1FH>AH                  ; Stack Start : 0000H
@@ -334,11 +335,68 @@ R3>DATA
 01H>UH                  ; Get Pointed OP Code by IP and Execute
 00H>UL
 JMP                     ; ***************************************************
-;ORG/0780H               ; OP.0F MULX  Multiply XH and XL put result in X
-;JMP
-;01H>UH                  ; Get Pointed OP Code by IP and Execute
-;00H>UL
-;JMP                     ; ***************************************************
+ORG/0780H               ; OP.0F JRNC
+1FH>AH                  ; Read C bit and put in A ALU input
+FBH>AL
+DATA>R0
+R0-0>A
+0FH>UH                  ; if C = 0 then prepare the jump JRA
+0AH>UL
+JMP_A=0
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     
+FEH>AL                  ; Put IP on Address Bus
+DATA>R0
+FFH>AL
+DATA>R1
+R0>AH
+R1>AL
+0CH>UH                  ; do the JRA
+00H>UL
+JMP                     ; ***************************************************
+ORG/0800H               ; OP.10 RRCA Rotate Right Logical Reg A through Carry  
+1FH>AH                  ;            C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+FCH>AL
+DATA>R0                 ; Read A Register and store in R0
+FBH>AL                  ; Read Carry and put in R1
+DATA>R1
+R1-7>A                  ; Clear Carry from Register R1 and insert in bit 7
+A>Q7
+R0-7>A                  ; shift bit 6:1 to 5:0, result in Q
+A>Q6
+R0-6>A
+A>Q5
+R0-5>A
+A>Q4
+R0-4>A
+A>Q3
+R0-3>A
+A>Q2
+R0-2>A
+A>Q1
+R0-1>A
+A>Q0
+Q>R2                    ; Store shifted result in R2
+FCH>AL                  ; Store result in Register A
+R2>DATA
+00H>R3                  ; Clear Q[7:1]
+R3-0>A                  
+A>Q7
+A>Q6
+A>Q5
+A>Q4
+A>Q3
+A>Q2
+A>Q1
+R0-0>A                  ; Get bit 0 of original value before shifting
+A>Q0                    ; b0 -> C
+Q>R4                    ; Store Carry in R4
+FBH>AL                  ; Save to the Carry Status Register
+R4>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 DATA>R2                 ; READ MSB ADDRESS
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
@@ -901,7 +959,7 @@ DATA>R0                 ; INCREMENT (COUT R1-7) R0+1>R0
 R0-0>A
 A>Q0                    ; Compute the Carrys
 AND R0-1
-Q1>A-0
+Q1>A
 AND R0-2
 Q2>A
 AND R0-3
