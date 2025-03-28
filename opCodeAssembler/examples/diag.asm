@@ -819,6 +819,281 @@ TSTOP12  LDA #0x12
          CMPA #0xBE  ; If A value not same then fail
          JNE FAIL
          ; --------------------------------------------------------------------
+         ; OP.13  DECXL   Decrement XL   E updated
+         ; --------------------------------------------------------------------
+TSTOP13  LDA #0x13
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDX #0xFFFF
+         DECXL
+         LDA XH
+         CMPA #0xFF
+         JNE FAIL
+         LDA XL
+         CMPA #0xFE
+         JNE FAIL
+         DECXL
+         LDA XH
+         CMPA #0xFF
+         JNE FAIL
+         LDA XL
+         CMPA #0xFD
+         JNE FAIL
+         LDX #0xA502
+         DECXL
+         LDA XH
+         CMPA #0xA5
+         JNE FAIL
+         LDA XL
+         CMPA #0x01
+         JNE FAIL
+         DECXL
+         LDA XH
+         CMPA #0xA5
+         JNE FAIL
+         LDA XL
+         CMPA #0x00
+         JNE FAIL
+         DECXL
+         LDA XH
+         CMPA #0xA5
+         JNE FAIL
+         LDA XL
+         CMPA #0xFF
+         JNE FAIL
+         DECXL 
+         LDA XH
+         CMPA #0xA5
+         JNE FAIL
+         LDA XL
+         CMPA #0xFE
+         JNE FAIL
+         LDX #0x0002 ; Check E status
+         DECXL
+         LDA EQUAL
+         CMPA #0x00
+         JNE FAIL
+         LDX #0x0001
+         DECXL
+         LDA EQUAL
+         CMPA #0x01
+         JNE FAIL
+         LDX #0xFFFF
+         DECXL
+         LDA EQUAL
+         CMPA #0x00
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.14  RRC 0x****   Rotate Right Logical Address location through Carry 
+         ;                     C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C  
+         ; --------------------------------------------------------------------
+TSTOP14  LDA #0x14
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00   ; Clear Carry
+         STA CARRY
+         STA ?b0
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x00
+         JNE FAIL
+         LDA #0x00   ; Clear Carry
+         STA CARRY
+         STA ?b0
+         RRC ?b0
+         LDA CARRY
+         CMPA #0x00
+         JNE FAIL
+         LDA #0xAA   ; Test shifting
+         STA ?b0
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x55
+         JNE FAIL
+         LDA #0x01   ; Test transfer of bit <0> to carry
+         STA ?b0
+         RRC ?b0
+         LDA CARRY
+         CMPA #0x01
+         JNE FAIL
+         LDA #0x00   ; Test A become 0 after shifting when carry is 0
+         STA CARRY   ; insure carry is clear
+         LDA #0x01   ; set bit <0> to '1'
+         STA ?b0
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x00
+         JNE FAIL
+         LDA #0x00   ; Test bit <0> goes to bit <7> after 2 RRCA
+         STA CARRY   ; insure carry is clear
+         LDA #0x01
+         STA ?b0
+         RRC ?b0
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x80
+         JNE FAIL
+         RRC ?b0     ; continue rotating this bit
+         LDA ?b0
+         CMPA #0x40
+         JNE FAIL
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x20
+         JNE FAIL
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x10
+         JNE FAIL
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x08
+         JNE FAIL
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x04
+         JNE FAIL
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x02
+         JNE FAIL
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x01
+         JNE FAIL
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x00
+         JNE FAIL
+         RRC ?b0
+         LDA ?b0
+         CMPA #0x80
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.15 SRL 0x****   Shift Right Logical on Address
+         ;                    0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+         ; --------------------------------------------------------------------
+TSTOP15  LDA #0x15
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         LDA ?b0
+         CMPA #0x52
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         SRL ?b0
+         LDA ?b0
+         CMPA #0x29
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         LDA ?b0
+         CMPA #0x14
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         LDA ?b0
+         CMPA #0x0A
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         LDA ?b0
+         CMPA #0x05
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         LDA ?b0
+         CMPA #0x02
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         LDA ?b0
+         CMPA #0x01
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         LDA ?b0
+         CMPA #0x00
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         LDA ?b0
+         CMPA #0x00
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
          ; --------------------------------------------------------------------
@@ -1469,7 +1744,7 @@ TSTOP39  LDA #0x39
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; --------------------------------------------------------------------         
-TSTFIBON LDA #0x80
+TSTFIBON LDA #0x40
          NOTA
          STA LEDPORT ; Output to LED port
                      ;
@@ -1630,7 +1905,7 @@ TSTFIBON LDA #0x80
          ; ---------
          ; Loop test
          ; ---------
-LOOPTST  LDA #0x81
+LOOPTST  LDA #0x41
          NOTA
          STA LEDPORT    ; Output to LED port
          LDA #0x05      ; Init a counter of iterations
@@ -1647,7 +1922,7 @@ LOOPTST2 NOP            ; End of decrement loop
          ; Math Library Test
          ; -----------------
          ; Test add16_w0_w0_w1  w0 <= w0 + w1
-         LDA #0x82
+         LDA #0x42
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0xBE   ; w0 = 0xBEEF
@@ -1670,7 +1945,7 @@ LOOPTST2 NOP            ; End of decrement loop
          JNE FAIL
 
          ; Test add32_l0_l0_l1  l0 <= l0 + l1
-         LDA #0x83
+         LDA #0x43
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0x89   ; l0 = 0x89ABCDEF
@@ -1707,7 +1982,7 @@ LOOPTST2 NOP            ; End of decrement loop
          JNE FAIL
 
          ; Test ?inc32_l0_l0   l0 <= l0 + 1
-         LDA #0x84
+         LDA #0x44
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0xFF   ; l0 = 0xFFFFFFFF
@@ -1775,6 +2050,66 @@ LOOPTST2 NOP            ; End of decrement loop
          CMPA #0x12
          JNE FAIL
 
+         ; Test  MUL 8-bit
+         ; w1 (b3,b2) <= b1 * b0
+;         LDA #0x80
+;         NOTA
+;         STA LEDPORT ; Output to LED port
+;         LDA #0x02   ; 3 * 2 = 6
+;         STA ?b0
+;         LDA #0x03
+;         STA ?b1
+;         JSR ?mul8_w1_b1_b0
+;         LDA ?b3
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b2
+;         CMPA #0x06
+;         JNE FAIL
+
+         LDA #0x81
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0xFF   ; 255 * 255 = 65025 (0xFF * 0xFF = 0xFE01)
+         STA ?b0
+         STA ?b1
+         JSR ?mul8_w1_b1_b0
+         LDA ?b3
+         CMPA #0xFE
+         JNE FAIL
+         LDA ?b2
+         CMPA #0x01
+         JNE FAIL
+
+;         LDA #0x82
+;         NOTA
+;         STA LEDPORT ; Output to LED port
+;         LDA #0xAB   ; 171 * 205 = 35055 (0xAB * 0xCD = 0x88EF)
+;         STA ?b0
+;         LDA #0xCD
+;         STA ?b1
+;         JSR ?mul8_w1_b1_b0
+;         LDA ?b3
+;         CMPA #0x88
+;         JNE FAIL
+;         LDA ?b2
+;         CMPA #0xEF
+;         JNE FAIL
+
+;         LDA #0x83
+;         NOTA
+;         STA LEDPORT ; Output to LED port
+;         LDA #0x00   ; 0 * 0 = 0 (0x00 * 0x00 = 0x0000)
+;         STA ?b0
+;         STA ?b1
+;         JSR ?mul8_w1_b1_b0
+;         LDA ?b3
+;         CMPA #0x00
+;         JNE FAIL
+;         LDA ?b2
+;         CMPA #0x00
+;         JNE FAIL
+
          ; ---------------------
          ; END Math Library Test
          ; ---------------------
@@ -1837,40 +2172,19 @@ LOOPTST2 NOP            ; End of decrement loop
 
                   ; MUL 8-bit
                   ; w1 (b3,b2) <= b1 * b0
-?mul8_w1_b1_b0    LDA #0x00   ; Clear ?w1
-                  STA ?b2
+?mul8_w1_b1_b0    LDA #0x00   ; Only clear ?b3
                   STA ?b3
                   LDX #0x0008 ; Loop counter (8 bits)
-?mul8_w1_loop     LDA ?b0     ; Shift right ?b0 (check LSB)
-                  SRLA
-                  STA ?b0
-                  JRNC ?skip_add  ; Conditional relative jump if not Carry
-;    BCC skip_add ; If LSB was 0, skip addition
-
-;    LDA ?w1     ; Load lower half of result
-;    ADDA ?b1    ; Add multiplicand
-;    STA ?w1     ; Store back
-
-;    LDA ?w1+1   ; Load upper half of result
-;    ADCA #0x00  ; Add carry if necessary
-;    STA ?w1+1   ; Store back
-
-?skip_add         LDA ?b3 ; Shift right ?b3 ?b2
-                  SRLA     ; 0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-                  STA ?b3
-                  LDA ?b2
-
-;    DEX         ; Decrement loop counter
-;    BNE mul_loop
-
-    ; Copy result from ?w1 to ?w0
-;    LDA ?w1
-;    STA ?w0
-;    LDA ?w1+1
-;    STA ?w0+1
-
-    RTS         ; Return (Result in ?w0)
-
+?mul8_w1_b1_loop  SRL ?b0     ; Shift right ?b0 (check LSB)
+                  JRNC ?skip_add  ; Conditional relative jump if not Carry ( If LSB was 0, skip addition)
+                  LDA ?b3
+                  ADDA ?b1    ; Add multiplicand
+                  STA ?b3     ; Store back
+?skip_add         RRC ?b3     ; Shift right ?b3 ?b2  C -> 7 6 5 4 3 2 1 0 -> C 
+                  RRC ?b2     ;                      C -> 7 6 5 4 3 2 1 0 -> C
+                  DECXL       ; Decrement loop counter
+                  JNE ?mul8_w1_b1_loop
+                  RTS
 
          ; --------------------------------------------------------------------
          ; Error routine

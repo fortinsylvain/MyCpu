@@ -413,6 +413,149 @@ R0>DATA
 01H>UH                  ; Get Pointed OP Code by IP and Execute
 00H>UL
 JMP                     ; ***************************************************
+ORG/0980H               ; OP.13 DECXL  Decrement XL  E updated
+1FH>AH                  ; Read XL and put in R0
+F4H>AL
+DATA>R0
+3AH>UH                  ;          | ADD. Routine R0-1>R0
+00H>UL                  ;          |
+13H>R6                  ;          | ADD. return
+08H>R7                  ; 
+JMP
+R0>DATA                 ; Put result in XL
+R0-0>A                  ; Update E (If result is zero then set E flag )
+OR R0-1                 ; NOT( 7 OR 6 OR 5 OR 4 OR 3 OR 2 OR 1 OR 0 )
+Q1>A
+OR R0-2
+Q2>A
+OR R0-3
+Q3>A
+OR R0-4
+Q4>A
+OR R0-5
+Q5>A
+OR R0-6
+Q6>A
+OR R0-7
+Q7>A
+NOT A-0
+00H>R1                  ; Set Q<7:1> to 0
+R1-0>A                  ; To have a clean E Status Byte
+A>Q1                   
+A>Q2                   
+A>Q3
+A>Q4
+A>Q5
+A>Q6
+A>Q7
+Q>R1                    ; Move Q byte in R1
+FAH>AL                  ; Store E in Equal Status RAM location
+R1>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
+ORG/0A00H               ; OP.14 RRC ****H Rotate Right Logical Address through Carry  
+DATA>R2                 ; READ MSB ADDRESS    C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+14H>R4                  ;  IP+1>IP | ADD. RETURN
+06H>R5                  ;  IP>ADD  |
+JMP                     ;          | JMP TO ROUTINE
+DATA>R3                 ; READ LSB ADDRESS
+R2>AH                   ; PUT ADDRESS ON ADDRESS BUS
+R3>AL
+DATA>R0                 ; READ POINTED BYTE, put in R0
+1FH>AH                  ; Read Carry and put in R1
+FBH>AL                  
+DATA>R1
+R1-0>A                  ; Take Carry from Register R1 and insert in bit 7
+A>Q7
+R0-7>A                  ; shift bit 6:1 to 5:0, result in Q
+A>Q6
+R0-6>A
+A>Q5
+R0-5>A
+A>Q4
+R0-4>A
+A>Q3
+R0-3>A
+A>Q2
+R0-2>A
+A>Q1
+R0-1>A
+A>Q0
+Q>R1                    ; Store shifted result in R1
+R2>AH                   ; Store result in pointed byte
+R3>AL
+R1>DATA
+00H>R2                  ; Clear Q[7:1]
+R2-0>A                  
+A>Q7
+A>Q6
+A>Q5
+A>Q4
+A>Q3
+A>Q2
+A>Q1
+R0-0>A                  ; Get bit 0 of original value before shifting
+A>Q0                    ; b0 -> C
+Q>R4                    ; Store Carry in R4
+1FH>AH                  ; Save to the Carry Status Register
+FBH>AL                  
+R4>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/0A80H               ; OP.15 SRL ****H   Shift Right Logical on Address
+DATA>R2                 ; READ MSB ADDRESS  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+15H>R4                  ;  IP+1>IP | ADD. RETURN
+06H>R5                  ;  IP>ADD  |
+JMP                     ;          | JMP TO ROUTINE
+DATA>R3                 ; READ LSB ADDRESS
+R2>AH                   ; PUT ADDRESS ON ADDRESS BUS
+R3>AL
+DATA>R0                 ; READ POINTED BYTE, put in R0
+00H>R1                  ; Clear Register R1 to insert a '0' in bit 7
+R1-0>A
+A>Q7
+R0-7>A                  ; shift bit 6:1 to 5:0, result in Q
+A>Q6
+R0-6>A
+A>Q5
+R0-5>A
+A>Q4
+R0-4>A
+A>Q3
+R0-3>A
+A>Q2
+R0-2>A
+A>Q1
+R0-1>A
+A>Q0
+Q>R1                    ; Transfer shifted result into R1
+R2>AH                   ; Store shifted value back to address
+R3>AL
+R1>DATA                 
+00H>R1
+R1-0>A                  ; Clear Q[7:1]
+A>Q7
+A>Q6
+A>Q5
+A>Q4
+A>Q3
+A>Q2
+A>Q1
+R0-0>A                  ; Get bit 0 of original value before shifting
+A>Q0                    ; b0 -> C
+Q>R0                    ; Store Carry in R0
+1FH>AH                  ; Save to the Carry Status Register
+FBH>AL                  
+R0>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 DATA>R2                 ; READ MSB ADDRESS
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP

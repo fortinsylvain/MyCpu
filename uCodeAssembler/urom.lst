@@ -413,6 +413,149 @@
 1204       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 1205       3800               00H>UL
 1206       C800               JMP          ; ***************************************************
+                              ORG/0980H    ; OP.13 DECXL  Decrement XL  E updated
+1300       781F               1FH>AH       ; Read XL and put in R0
+1301       68F4               F4H>AL
+1302       2000               DATA>R0
+1303       303A               3AH>UH       ;          | ADD. Routine R0-1>R0
+1304       3800               00H>UL       ;          |
+1305       2E13               13H>R6       ;          | ADD. return
+1306       2F08               08H>R7       ; 
+1307       C800               JMP
+1308       5800               R0>DATA      ; Put result in XL
+1309       5000               R0-0>A       ; Update E (If result is zero then set E flag )
+130A       4009               OR R0-1      ; NOT( 7 OR 6 OR 5 OR 4 OR 3 OR 2 OR 1 OR 0 )
+130B       7001               Q1>A
+130C       400A               OR R0-2
+130D       7002               Q2>A
+130E       400B               OR R0-3
+130F       7003               Q3>A
+1310       400C               OR R0-4
+1311       7004               Q4>A
+1312       400D               OR R0-5
+1313       7005               Q5>A
+1314       400E               OR R0-6
+1315       7006               Q6>A
+1316       400F               OR R0-7
+1317       7007               Q7>A
+1318       4038               NOT A-0
+1319       2900               00H>R1       ; Set Q<7:1> to 0
+131A       5100               R1-0>A       ; To have a clean E Status Byte
+131B       4819               A>Q1         
+131C       481A               A>Q2         
+131D       481B               A>Q3
+131E       481C               A>Q4
+131F       481D               A>Q5
+1320       481E               A>Q6
+1321       481F               A>Q7
+1322       6100               Q>R1         ; Move Q byte in R1
+1323       68FA               FAH>AL       ; Store E in Equal Status RAM location
+1324       5900               R1>DATA
+1325       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+1326       3800               00H>UL
+1327       C800               JMP          ; ***************************************************
+                              ORG/0A00H    ; OP.14 RRC ****H Rotate Right Logical Address th
+1400       2200               DATA>R2      ; READ MSB ADDRESS    C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+1401       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
+1402       3800               00H>UL       ;          |
+1403       2C14               14H>R4       ;  IP+1>IP | ADD. RETURN
+1404       2D06               06H>R5       ;  IP>ADD  |
+1405       C800               JMP          ;          | JMP TO ROUTINE
+1406       2300               DATA>R3      ; READ LSB ADDRESS
+1407       1200               R2>AH        ; PUT ADDRESS ON ADDRESS BUS
+1408       1B00               R3>AL
+1409       2000               DATA>R0      ; READ POINTED BYTE, put in R0
+140A       781F               1FH>AH       ; Read Carry and put in R1
+140B       68FB               FBH>AL       
+140C       2100               DATA>R1
+140D       5100               R1-0>A       ; Take Carry from Register R1 and insert in bit 7
+140E       481F               A>Q7
+140F       5007               R0-7>A       ; shift bit 6:1 to 5:0, result in Q
+1410       481E               A>Q6
+1411       5006               R0-6>A
+1412       481D               A>Q5
+1413       5005               R0-5>A
+1414       481C               A>Q4
+1415       5004               R0-4>A
+1416       481B               A>Q3
+1417       5003               R0-3>A
+1418       481A               A>Q2
+1419       5002               R0-2>A
+141A       4819               A>Q1
+141B       5001               R0-1>A
+141C       4818               A>Q0
+141D       6100               Q>R1         ; Store shifted result in R1
+141E       1200               R2>AH        ; Store result in pointed byte
+141F       1B00               R3>AL
+1420       5900               R1>DATA
+1421       2A00               00H>R2       ; Clear Q[7:1]
+1422       5200               R2-0>A       
+1423       481F               A>Q7
+1424       481E               A>Q6
+1425       481D               A>Q5
+1426       481C               A>Q4
+1427       481B               A>Q3
+1428       481A               A>Q2
+1429       4819               A>Q1
+142A       5000               R0-0>A       ; Get bit 0 of original value before shifting
+142B       4818               A>Q0         ; b0 -> C
+142C       6400               Q>R4         ; Store Carry in R4
+142D       781F               1FH>AH       ; Save to the Carry Status Register
+142E       68FB               FBH>AL       
+142F       5C00               R4>DATA
+1430       3002               02H>UH       ; NEXT OP.
+1431       3800               00H>UL
+1432       C800               JMP          ; ***************************************************
+                              ORG/0A80H    ; OP.15 SRL ****H   Shift Right Logical on Addres
+1500       2200               DATA>R2      ; READ MSB ADDRESS  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+1501       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
+1502       3800               00H>UL       ;          |
+1503       2C15               15H>R4       ;  IP+1>IP | ADD. RETURN
+1504       2D06               06H>R5       ;  IP>ADD  |
+1505       C800               JMP          ;          | JMP TO ROUTINE
+1506       2300               DATA>R3      ; READ LSB ADDRESS
+1507       1200               R2>AH        ; PUT ADDRESS ON ADDRESS BUS
+1508       1B00               R3>AL
+1509       2000               DATA>R0      ; READ POINTED BYTE, put in R0
+150A       2900               00H>R1       ; Clear Register R1 to insert a '0' in bit 7
+150B       5100               R1-0>A
+150C       481F               A>Q7
+150D       5007               R0-7>A       ; shift bit 6:1 to 5:0, result in Q
+150E       481E               A>Q6
+150F       5006               R0-6>A
+1510       481D               A>Q5
+1511       5005               R0-5>A
+1512       481C               A>Q4
+1513       5004               R0-4>A
+1514       481B               A>Q3
+1515       5003               R0-3>A
+1516       481A               A>Q2
+1517       5002               R0-2>A
+1518       4819               A>Q1
+1519       5001               R0-1>A
+151A       4818               A>Q0
+151B       6100               Q>R1         ; Transfer shifted result into R1
+151C       1200               R2>AH        ; Store shifted value back to address
+151D       1B00               R3>AL
+151E       5900               R1>DATA      
+151F       2900               00H>R1
+1520       5100               R1-0>A       ; Clear Q[7:1]
+1521       481F               A>Q7
+1522       481E               A>Q6
+1523       481D               A>Q5
+1524       481C               A>Q4
+1525       481B               A>Q3
+1526       481A               A>Q2
+1527       4819               A>Q1
+1528       5000               R0-0>A       ; Get bit 0 of original value before shifting
+1529       4818               A>Q0         ; b0 -> C
+152A       6000               Q>R0         ; Store Carry in R0
+152B       781F               1FH>AH       ; Save to the Carry Status Register
+152C       68FB               FBH>AL       
+152D       5800               R0>DATA
+152E       3002               02H>UH       ; NEXT OP.
+152F       3800               00H>UL
+1530       C800               JMP          ; ***************************************************
                               ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UP
 2800       2200               DATA>R2      ; READ MSB ADDRESS
 2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
