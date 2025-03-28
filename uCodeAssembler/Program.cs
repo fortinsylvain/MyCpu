@@ -1,5 +1,5 @@
 ﻿// Homebrew MyCPU microassembler program
-// Author: Sylvain Fortin
+// Author: Sylvain Fortin   sylfortin71@hotmail.com
 // Date: 7 january 2024
 // Documentation: This is a microassembler to help develop the micro-program. The source file having an extension .src 
 //                is passed in argument in the command line.

@@ -1,5 +1,5 @@
 ﻿// Homebrew MyCPU assembler program
-// Author: Sylvain Fortin
+// Author: Sylvain Fortin  sylfortin71@hotmail.com
 // Date: 27 march 2024
 // Documentation: This is an assembler program converting mnemonic for the MyCPU into OP code
 //                that can be executed by the micro-program. The source file having an extension .asm 
@@ -157,6 +157,8 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "SLAA",         OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLAA         Shift Left Arithmetic on Reg A (SLAA same as SLLA)
             dataList.Add(new InstrTable { StringValue = "JRNC @",       OpCode = 0x0F,  NbByte = 1, Sym = 2, Offset = 5 });  // JRNC symbol  Jump Relatif Not Carry
             dataList.Add(new InstrTable { StringValue = "RRC",          OpCode = 0x10,  NbByte = 0, Sym = 0, Offset = 0 });  // RRCA         Rotate Right Logical Reg A through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C         
+            dataList.Add(new InstrTable { StringValue = "RCF",          OpCode = 0x11,  NbByte = 0, Sym = 0, Offset = 0 });  // RCF          Reset Carry Flag C <- 0
+            dataList.Add(new InstrTable { StringValue = "SCF",          OpCode = 0x12,  NbByte = 0, Sym = 0, Offset = 0 });  // SCF          Set Carry Flag C <- 1
             dataList.Add(new InstrTable { StringValue = "ADCA 0x****",  OpCode = 0x28,  NbByte = 2, Sym = 0, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
             dataList.Add(new InstrTable { StringValue = "ADCA @",       OpCode = 0x28,  NbByte = 2, Sym = 1, Offset = 5 });  // ADCA symbol
             dataList.Add(new InstrTable { StringValue = "ADDA 0x****",  OpCode = 0x29,  NbByte = 2, Sym = 0, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update

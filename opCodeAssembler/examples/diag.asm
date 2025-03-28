@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
-; Author: Sylvain Fortin
-; Date : 21 march 2025
+; Author: Sylvain Fortin sylfortin71@hotmail.com
+; Date : 28 march 2025
 ; Documentation : diag.asm is used to test the assembler
 ;                 instructions of MyCPU.
 ; Memory map of the computer
@@ -715,7 +715,7 @@ TST0F_2  NOP
          ; OP.10  RRCA   Rotate Right Logical Reg A through Carry 
          ;               C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C  
          ; --------------------------------------------------------------------
-TSTOP29  LDA #0x10
+TSTOP10  LDA #0x10
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0x00   ; Clear Carry
@@ -733,20 +733,25 @@ TSTOP29  LDA #0x10
          RRCA
          CMPA #0x55
          JNE FAIL
-         LDA #0x01   ; Test carry setting
+         LDA #0x01   ; Test transfer of bit <0> to carry
          RRCA
          LDA CARRY
          CMPA #0x01
          JNE FAIL
-         LDA #0x01   ; Test carry injection
-         STA CARRY   ; Set carry
+         LDA #0x00   ; Test A become 0 after shifting when carry is 0
+         STA CARRY   ; insure carry is clear
+         LDA #0x01   ; set bit <0> to '1'
          RRCA
          CMPA #0x00
          JNE FAIL
+         LDA #0x00   ; Test bit <0> goes to bit <7> after 2 RRCA
+         STA CARRY   ; insure carry is clear
+         LDA #0x01
+         RRCA
          RRCA
          CMPA #0x80
          JNE FAIL
-         RRCA
+         RRCA        ; continue rotating this bit
          CMPA #0x40
          JNE FAIL
          RRCA
@@ -772,6 +777,46 @@ TSTOP29  LDA #0x10
          JNE FAIL
          RRCA
          CMPA #0x80
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.11  RCF   Reset Carry Flag   C <- 0
+         ; --------------------------------------------------------------------
+TSTOP11  LDA #0x11
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x01   ; Set carry flag to 1
+         STA CARRY
+         RCF         ; Reset Carry Flag 
+         LDA CARRY   ; Check carry is now cleared
+         CMPA #0x00
+         JNE FAIL
+         RCF         ; Do again a Reset Carry Flag 
+         LDA CARRY   ; Check carry is still cleared
+         CMPA #0x00
+         JNE FAIL
+         LDA #0xA5   ; Check register A is not affected by a Reset Carry Flag
+         RCF         ; Reset Carry Flag
+         CMPA #0xA5  ; If A value not same then fail
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.12  SCF   Set Carry Flag   C <- 1
+         ; --------------------------------------------------------------------
+TSTOP12  LDA #0x12
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00   ; Clear carry flag
+         STA CARRY
+         SCF         ; Set Carry Flag 
+         LDA CARRY   ; Check carry is set
+         CMPA #0x01
+         JNE FAIL
+         SCF         ; Set Carry Flag again
+         LDA CARRY   ; Check carry is still set
+         CMPA #0x01
+         JNE FAIL
+         LDA #0xBE   ; Check register A is not affected by a Set Carry Flag
+         SCF         ; Set Carry Flag
+         CMPA #0xBE  ; If A value not same then fail
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  

@@ -1,6 +1,6 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
-                              ; Author: Sylvain Fortin
+                              ; Author: Sylvain Fortin  sylfortin71@hotmail.com
                               ; Date : 21 march 2025
                               ; Documentation : uCode stored in 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
@@ -361,7 +361,7 @@
 1002       2000               DATA>R0      ; Read A Register and store in R0
 1003       68FB               FBH>AL       ; Read Carry and put in R1
 1004       2100               DATA>R1
-1005       5107               R1-7>A       ; Clear Carry from Register R1 and insert in bit 7
+1005       5100               R1-0>A       ; Take Carry from Register R1 and insert in bit 7
 1006       481F               A>Q7
 1007       5007               R0-7>A       ; shift bit 6:1 to 5:0, result in Q
 1008       481E               A>Q6
@@ -397,6 +397,22 @@
 1026       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 1027       3800               00H>UL
 1028       C800               JMP          ; ***************************************************
+                              ORG/0880H    ; OP.11 RCF  Reset Carry Flag  Carry <- 0 
+1100       2800               00H>R0       ; clear all bits in R0
+1101       781F               1FH>AH       ; Write in carry satus bit
+1102       68FB               FBH>AL
+1103       5800               R0>DATA
+1104       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+1105       3800               00H>UL
+1106       C800               JMP          ; ***************************************************
+                              ORG/0900H    ; OP.12 SCF  Set Carry Flag  Carry <- 1
+1200       2801               01H>R0       ; Set carry flag
+1201       781F               1FH>AH       ; Write in carry satus bit
+1202       68FB               FBH>AL
+1203       5800               R0>DATA
+1204       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+1205       3800               00H>UL
+1206       C800               JMP          ; ***************************************************
                               ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UP
 2800       2200               DATA>R2      ; READ MSB ADDRESS
 2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP

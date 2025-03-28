@@ -1,6 +1,6 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
-; Author: Sylvain Fortin
+; Author: Sylvain Fortin  sylfortin71@hotmail.com
 ; Date : 21 march 2025
 ; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
@@ -361,7 +361,7 @@ FCH>AL
 DATA>R0                 ; Read A Register and store in R0
 FBH>AL                  ; Read Carry and put in R1
 DATA>R1
-R1-7>A                  ; Clear Carry from Register R1 and insert in bit 7
+R1-0>A                  ; Take Carry from Register R1 and insert in bit 7
 A>Q7
 R0-7>A                  ; shift bit 6:1 to 5:0, result in Q
 A>Q6
@@ -394,6 +394,22 @@ A>Q0                    ; b0 -> C
 Q>R4                    ; Store Carry in R4
 FBH>AL                  ; Save to the Carry Status Register
 R4>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
+ORG/0880H               ; OP.11 RCF  Reset Carry Flag  Carry <- 0 
+00H>R0                  ; clear all bits in R0
+1FH>AH                  ; Write in carry satus bit
+FBH>AL
+R0>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
+ORG/0900H               ; OP.12 SCF  Set Carry Flag  Carry <- 1
+01H>R0                  ; Set carry flag
+1FH>AH                  ; Write in carry satus bit
+FBH>AL
+R0>DATA
 01H>UH                  ; Get Pointed OP Code by IP and Execute
 00H>UL
 JMP                     ; ***************************************************
