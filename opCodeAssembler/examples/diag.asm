@@ -1,13 +1,12 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 28 march 2025
-; Documentation : diag.asm is used to test the assembler
-;                 instructions of MyCPU.
+; Date : 4 april 2025
+; Documentation : diag.asm is a test program that verifying every 
+;                 assembler instructions of MyCPU.
 ; Memory map of the computer
 ; 0000H - 17FFH Total RAM space
-; 0000H - 00FFH Stack
-; 0100H - 17EF  Free for application
+; 00A0H - 00FFH Stack
 ; E000H - F000H EEPROM for application program
 ; -----------------------------------------------------------------
 
@@ -17,36 +16,36 @@
 ;    ?w7       ?w6    |    ?w5      ?w4   |   ?w3     ?w2   |   ?w1     ?w0   | 16 bits
 ;         ?l3         |         ?l2       |       ?l1       |       ?l0       | 32 bits
 ;-----------------------------------------------------------------------------
-?b15     EQU 0x1000
-?b14     EQU 0x1001
-?b13     EQU 0x1002
-?b12     EQU 0x1003
-?b11     EQU 0x1004
-?b10     EQU 0x1005
-?b9      EQU 0x1006
-?b8      EQU 0x1007
-?b7      EQU 0x1008
-?b6      EQU 0x1009
-?b5      EQU 0x100A
-?b4      EQU 0x100B
-?b3      EQU 0x100C
-?b2      EQU 0x100D
-?b1      EQU 0x100E
-?b0      EQU 0x100F
+?b15     EQU 0x0000
+?b14     EQU 0x0001
+?b13     EQU 0x0002
+?b12     EQU 0x0003
+?b11     EQU 0x0004
+?b10     EQU 0x0005
+?b9      EQU 0x0006
+?b8      EQU 0x0007
+?b7      EQU 0x0008
+?b6      EQU 0x0009
+?b5      EQU 0x000A
+?b4      EQU 0x000B
+?b3      EQU 0x000C
+?b2      EQU 0x000D
+?b1      EQU 0x000E
+?b0      EQU 0x000F
 
-?w7      EQU 0x1000  ; ?b15:?b14
-?w6      EQU 0x1002  ; ?b13:?b12
-?w5      EQU 0x1004  ; ?b11:?b10
-?w4      EQU 0x1006  ; ?b9:?b8
-?w3      EQU 0x1008  ; ?b7:?b6
-?w2      EQU 0x100A  ; ?b5:?b4
-?w1      EQU 0x100C  ; ?b3:?b2
-?w0      EQU 0x100E  ; ?b1:?b0
+?w7      EQU 0x0000  ; ?b15:?b14
+?w6      EQU 0x0002  ; ?b13:?b12
+?w5      EQU 0x0004  ; ?b11:?b10
+?w4      EQU 0x0006  ; ?b9:?b8
+?w3      EQU 0x0008  ; ?b7:?b6
+?w2      EQU 0x000A  ; ?b5:?b4
+?w1      EQU 0x000C  ; ?b3:?b2
+?w0      EQU 0x000E  ; ?b1:?b0
 
-?l3      EQU 0x1000  ; ?b15,?b14,?b13,?b12
-?l2      EQU 0x1004  ; ?b11,?b10,?b9,?b8
-?l1      EQU 0x1008  ; ?b7,?b6,?b5,?b4
-?l0      EQU 0x100C  ; ?b3,?b2,?b1,?b0
+?l3      EQU 0x0000  ; ?b15,?b14,?b13,?b12
+?l2      EQU 0x0004  ; ?b11,?b10,?b9,?b8
+?l1      EQU 0x0008  ; ?b7,?b6,?b5,?b4
+?l0      EQU 0x000C  ; ?b3,?b2,?b1,?b0
 
 ; RAM Reserved location
 SP       EQU 0x1FF0  ; SP      Stack Pointer 8 bit
@@ -2051,25 +2050,22 @@ LOOPTST2 NOP            ; End of decrement loop
          JNE FAIL
 
          ; Test  MUL 8-bit
-         ; w1 (b3,b2) <= b1 * b0
-;         LDA #0x80
-;         NOTA
-;         STA LEDPORT ; Output to LED port
-;         LDA #0x02   ; 3 * 2 = 6
-;         STA ?b0
-;         LDA #0x03
-;         STA ?b1
-;         JSR ?mul8_w1_b1_b0
-;         LDA ?b3
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b2
-;         CMPA #0x06
-;         JNE FAIL
-
-         LDA #0x81
+         ; mul8_w1_b1_b0   w1 (b3,b2) <= b1 * b0
+         LDA #0x45
          NOTA
          STA LEDPORT ; Output to LED port
+         LDA #0x02   ; 3 * 2 = 6
+         STA ?b0
+         LDA #0x03
+         STA ?b1
+         JSR ?mul8_w1_b1_b0
+         LDA ?b3
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b2
+         CMPA #0x06
+         JNE FAIL
+
          LDA #0xFF   ; 255 * 255 = 65025 (0xFF * 0xFF = 0xFE01)
          STA ?b0
          STA ?b1
@@ -2081,35 +2077,97 @@ LOOPTST2 NOP            ; End of decrement loop
          CMPA #0x01
          JNE FAIL
 
-;         LDA #0x82
-;         NOTA
-;         STA LEDPORT ; Output to LED port
-;         LDA #0xAB   ; 171 * 205 = 35055 (0xAB * 0xCD = 0x88EF)
-;         STA ?b0
-;         LDA #0xCD
-;         STA ?b1
-;         JSR ?mul8_w1_b1_b0
-;         LDA ?b3
-;         CMPA #0x88
-;         JNE FAIL
-;         LDA ?b2
-;         CMPA #0xEF
-;         JNE FAIL
+         LDA #0xAB   ; 171 * 205 = 35055 (0xAB * 0xCD = 0x88EF)
+         STA ?b0
+         LDA #0xCD
+         STA ?b1
+         JSR ?mul8_w1_b1_b0
+         LDA ?b3
+         CMPA #0x88
+         JNE FAIL
+         LDA ?b2
+         CMPA #0xEF
+         JNE FAIL
 
-;         LDA #0x83
-;         NOTA
-;         STA LEDPORT ; Output to LED port
-;         LDA #0x00   ; 0 * 0 = 0 (0x00 * 0x00 = 0x0000)
-;         STA ?b0
-;         STA ?b1
-;         JSR ?mul8_w1_b1_b0
-;         LDA ?b3
-;         CMPA #0x00
-;         JNE FAIL
-;         LDA ?b2
-;         CMPA #0x00
-;         JNE FAIL
+         LDA #0x00   ; 0 * 0 = 0 (0x00 * 0x00 = 0x0000)
+         STA ?b0
+         STA ?b1
+         JSR ?mul8_w1_b1_b0
+         LDA ?b3
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b2
+         CMPA #0x00
+         JNE FAIL
 
+         ; Test  MUL 16-bit
+         ; Total time for 3 multiplications 140ms @ 2 MHz
+         ; 46ms per 16bit mult (21.7 multiplications per second)
+         ; l1 <= w1 * w0      (b7,b6,b5,b4) = (b3,b2) * (b1,b0)
+         LDA #0x80
+         NOTA
+         STA LEDPORT ; Output to LED port
+
+         LDA #0x00   ; 0 * 0 = 0 (0x0000 * 0x0000 = 0x00000000)
+         STA ?b0
+         STA ?b1
+         STA ?b2
+         STA ?b3
+         JSR ?mul16_l1_w1_w0
+         LDA ?b7
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b6
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b5
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b4
+         CMPA #0x00
+         JNE FAIL
+
+         LDA #0xFF   ; 65535 * 65535 = 4294836225  (0xFFFF * 0xFFFF = 0xFFFE0001)
+         STA ?b0
+         STA ?b1
+         STA ?b2
+         STA ?b3
+         JSR ?mul16_l1_w1_w0
+         LDA ?b7
+         CMPA #0xFF
+         JNE FAIL
+         LDA ?b6
+         CMPA #0xFE
+         JNE FAIL
+         LDA ?b5
+         CMPA #0x00
+         JNE FAIL
+         LDA ?b4
+         CMPA #0x01
+         JNE FAIL
+
+         LDA #0x31   ; 12345 * 54321 = 670592745  (0x3039 * 0xD431 = 0x27F86EE9)
+         STA ?b0
+         LDA #0xD4
+         STA ?b1
+         LDA #0x39
+         STA ?b2
+         LDA #0x30
+         STA ?b3
+         JSR ?mul16_l1_w1_w0   
+         LDA ?b7
+         CMPA #0x27
+         JNE FAIL
+         LDA ?b6
+         CMPA #0xF8
+         JNE FAIL
+         LDA ?b5
+         CMPA #0x6E
+         JNE FAIL
+         LDA ?b4
+         CMPA #0xE9
+         JNE FAIL  
+         
          ; ---------------------
          ; END Math Library Test
          ; ---------------------
@@ -2176,14 +2234,37 @@ LOOPTST2 NOP            ; End of decrement loop
                   STA ?b3
                   LDX #0x0008 ; Loop counter (8 bits)
 ?mul8_w1_b1_loop  SRL ?b0     ; Shift right ?b0 (check LSB)
-                  JRNC ?skip_add  ; Conditional relative jump if not Carry ( If LSB was 0, skip addition)
+                  JRNC ?mul8_skip_add  ; Conditional relative jump if not Carry ( If LSB was 0, skip addition)
                   LDA ?b3
                   ADDA ?b1    ; Add multiplicand
                   STA ?b3     ; Store back
-?skip_add         RRC ?b3     ; Shift right ?b3 ?b2  C -> 7 6 5 4 3 2 1 0 -> C 
-                  RRC ?b2     ;                      C -> 7 6 5 4 3 2 1 0 -> C
+?mul8_skip_add    RRC ?b3     ; Shift right ?b3 ?b2   C -> 7 6 5 4 3 2 1 0 -> C
+                  RRC ?b2     ;                       C -> 7 6 5 4 3 2 1 0 -> C
                   DECXL       ; Decrement loop counter
                   JNE ?mul8_w1_b1_loop
+                  RTS
+
+                  ; MUL 16-bit
+                  ; l1 <= w1 * w0      (b7,b6,b5,b4) = (b3,b2) * (b1,b0)
+?mul16_l1_w1_w0   LDA #0x00   ; Only clear ?b7 and ?b6
+                  STA ?b7
+                  STA ?b6
+                  LDX #0x0010 ; Loop counter (16 bits)
+?mul16_l1_w1_loop SRL ?b1     ; Shift right ?w0 (check LSB)  '0' -> 7 6 5 4 3 2 1 0 -> C
+                  RRC ?b0     ; C  -> 7 6 5 4 3 2 1 0 -> C
+                  JRNC ?mul16_skip_add  ; Conditional relative jump if not Carry ( If LSB was 0, skip addition)
+                  LDA ?b6
+                  ADDA ?b2    ; Add multiplicand
+                  STA ?b6     ; Store back
+                  LDA ?b7
+                  ADCA ?b3
+                  STA ?b7
+?mul16_skip_add   RRC ?b7     ; Shift right ?b7 ?b6 ?b5 ?b4   C -> 7 6 5 4 3 2 1 0 -> C 
+                  RRC ?b6     ;                               C -> 7 6 5 4 3 2 1 0 -> C
+                  RRC ?b5
+                  RRC ?b4
+                  DECXL       ; Decrement loop counter
+                  JNE ?mul16_l1_w1_loop
                   RTS
 
          ; --------------------------------------------------------------------

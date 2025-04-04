@@ -1,13 +1,13 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin  sylfortin71@hotmail.com
-; Date : 21 march 2025
+; Date : 4 april 2025
 ; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
 ; External RAM required to support the microcode
 ; 0000H - 17FFH Total RAM space
-; 0000H - 00FFH Stack
+; 00A0H - 00FFH Stack
 ; 0100H - 17EF  Free for application
 ; 1FF0H SP      Stack Pointer 8 bit
 ; 1FF1H JSH     Temporary storage for JSR MSB address
@@ -25,8 +25,8 @@
 ORG/0000H               ; 0000H   RESET
 00H>R1
 00H>R0                  ; Dummy Instruction
-00H>R0                  ; Stack Pointer Init
-1FH>AH                  ; Stack Start : 0000H
+A0H>R0                  ; Stack Pointer Init
+1FH>AH                  ; Stack Start : 00A0H
 F0H>AL                  ; Stack Max   : 00FFH
 R0>DATA
 FFH>AH                  ; Get [FFFE] MSB Start Vector
