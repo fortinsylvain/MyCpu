@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 4 april 2025
+; Date : 21 april 2025
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
@@ -109,6 +109,184 @@ TST02    LDA #0x02
          LDA EQUAL   ; Read Equal Status
          CMPA #0x00
          JNE FAIL
+
+         ; --------------------------------------------------------------------
+         ; OP.03 INCA  A = A + 1  INCREMENT REGISTRE A
+         ; E UPDATE, C unchanged
+         ; --------------------------------------------------------------------
+TSTOP03  LDA #0x03
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00
+         INCA
+         CMPA #0x01
+         JNE FAIL
+         LDA #0x01
+         INCA
+         CMPA #0x02
+         JNE FAIL
+         LDA #0x7C
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         CMPA #0x86
+         JNE FAIL
+         LDA #0xFE
+         INCA
+         CMPA #0xFF
+         JNE FAIL
+         LDA #0xFF
+         INCA
+         CMPA #0x00
+         JNE FAIL
+         LDA #0xFF
+         INCA
+         INCA
+         CMPA #0x01
+         JNE FAIL
+         INCA
+         INCA
+         INCA
+         INCA
+         CMPA #0x05
+         JNE FAIL
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         INCA
+         CMPA #0x0D
+         JNE FAIL
+         LDA #0x00   ; Test Carry unchanged
+         STA CARRY   ; Clear Carry 
+         LDA #0xFF
+         INCA
+         LDA CARRY   ; Read Carry bit <0>
+         CMPA #0x00  ; Expecting C=0 and <7:1> = 0
+         JNE FAIL
+         LDA #0x01   ; Set Carry 
+         STA CARRY   
+         LDA #0xEB
+         INCA
+         LDA CARRY   ; Read Carry bit <0>
+         CMPA #0x01  ; Expecting C=1 and <7:1> = 0
+         JNE FAIL
+         LDA #0xFE   ; Test Equal (Set when result is 0)
+         INCA
+         LDA EQUAL   ; Read Equal status
+         CMPA #0x00  ; Expecting E=0 and <7:1> = 0
+         JNE FAIL
+         LDA #0xFF
+         INCA
+         LDA EQUAL   ; Read Equal status
+         CMPA #0x01  ; Expecting E=1 and <7:1> = 0
+         JNE FAIL
+         LDA #0x00
+         INCA
+         LDA EQUAL
+         CMPA #0x00  ; Expecting E=0 and <7:1> = 0
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.04  LDX #0x****   Load X Register with 16 bits immediate value
+         ; --------------------------------------------------------------------
+TSTOP04  LDA #0x04
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDX #0x1234
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0x12
+         JNE FAIL
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0x34
+         JNE FAIL
+         LDX #0xABCD
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0xAB
+         JNE FAIL
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0xCD
+         JNE FAIL
+         ; Test using symbolic
+         LDX #?b0    ; ?b0      EQU 0x000F
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0x00
+         JNE FAIL
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0x0F
+         JNE FAIL
+         LDX #SP     ; SP       EQU 0x1FF0
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0x1F
+         JNE FAIL
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0xF0
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.05  INCX   Increment Register X,  Carry Not Updated
+         ; --------------------------------------------------------------------
+TSTOP05  LDA #0x05
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDX #0x0000 ; Clear X register
+         INCX        ; Increment X
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0x01
+         JNE FAIL
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0x00
+         JNE FAIL
+         INCX
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0x02
+         JNE FAIL
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0x00
+         JNE FAIL
+         
+         LDX #0x00FF ; Test a carry set
+         INCX        ; Increment X
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0x00
+         JNE FAIL
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0x01
+         JNE FAIL
+         INCX        ; Increment X
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0x01
+         JNE FAIL
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0x01
+         JNE FAIL
+         
+         LDX #0x1EFF
+         INCX        ; Increment X
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0x00
+         JNE FAIL
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0x1F
+         JNE FAIL
+         
+         LDX #0xFFFF
+         INCX        ; Increment X
+         LDA XL      ; Read Reg X LSB into A
+         CMPA #0x00
+         JNE FAIL
+         LDA XH      ; Read Reg X MSB into A
+         CMPA #0x00
+         JNE FAIL
+
          ; --------------------------------------------------------------------
          ; OP.06 JSR    Jump to SubRoutine
          ; --------------------------------------------------------------------
@@ -1093,6 +1271,94 @@ TSTOP15  LDA #0x15
          CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          ; --------------------------------------------------------------------
+         ; OP.16 STX
+         ; --------------------------------------------------------------------
+
+         ; --------------------------------------------------------------------
+         ; OP.17 ORA #0x**   LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
+         ; --------------------------------------------------------------------
+TSTOP17  LDA #0x17
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0xFF
+         ORA #0xFF
+         CMPA #0xFF
+         JNE FAIL
+         LDA #0x00
+         ORA #0x00
+         CMPA #0x00
+         JNE FAIL
+         LDA #0x25
+         ORA #0xD3
+         CMPA #0xF7
+         JNE FAIL
+         LDA #0x00
+         ORA #0xFF
+         CMPA #0xFF
+         JNE FAIL
+         LDA #0xFF
+         ORA #0x00
+         CMPA #0xFF
+         JNE FAIL
+         LDA #0x14
+         ORA #0xC1
+         CMPA #0xD5
+         JNE FAIL
+         LDA #0xAA
+         ORA #0x55
+         CMPA #0xFF
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.18 XORA #0x**  EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
+         ; --------------------------------------------------------------------
+TSTOP18  LDA #0x18
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00
+         XORA #0x00
+         CMPA #0x00
+         JNE FAIL
+         LDA #0x00
+         XORA #0xFF
+         CMPA #0xFF
+         JNE FAIL
+         LDA #0xFF
+         XORA #0xFF
+         CMPA #0x00
+         JNE FAIL
+         LDA #0xFF
+         XORA #0x55
+         CMPA #0xAA
+         JNE FAIL
+         LDA #0xCE
+         XORA #0x5A
+         CMPA #0x94
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.19 NOTA  LOGIC NOT ON REG A
+         ; --------------------------------------------------------------------
+TSTOP19  LDA #0x19
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00
+         NOTA
+         CMPA #0xFF
+         JNE FAIL
+         NOTA
+         CMPA #0x00
+         JNE FAIL
+         LDA #0x55
+         NOTA
+         CMPA #0xAA
+         JNE FAIL
+         NOTA
+         CMPA #0x55
+         JNE FAIL
+         NOTA
+         CMPA #0xAA
+         JNE FAIL  
+
+         ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
          ; --------------------------------------------------------------------
@@ -1495,251 +1761,7 @@ TSTOP33  LDA #0x33
          ANDA #0x00
          CMPA #0x00
          JNE FAIL
-         ; --------------------------------------------------------------------
-         ; OP.34 ORA #0x**   LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
-         ; --------------------------------------------------------------------
-TSTOP34  LDA #0x34
-         NOTA
-         STA LEDPORT ; Output to LED port
-         LDA #0xFF
-         ORA #0xFF
-         CMPA #0xFF
-         JNE FAIL
-         LDA #0x00
-         ORA #0x00
-         CMPA #0x00
-         JNE FAIL
-         LDA #0x25
-         ORA #0xD3
-         CMPA #0xF7
-         JNE FAIL
-         LDA #0x00
-         ORA #0xFF
-         CMPA #0xFF
-         JNE FAIL
-         LDA #0xFF
-         ORA #0x00
-         CMPA #0xFF
-         JNE FAIL
-         LDA #0x14
-         ORA #0xC1
-         CMPA #0xD5
-         JNE FAIL
-         LDA #0xAA
-         ORA #0x55
-         CMPA #0xFF
-         JNE FAIL
-         ; --------------------------------------------------------------------
-         ; OP.35 XORA #0x**  EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
-         ; --------------------------------------------------------------------
-TSTOP35  LDA #0x35
-         NOTA
-         STA LEDPORT ; Output to LED port
-         LDA #0x00
-         XORA #0x00
-         CMPA #0x00
-         JNE FAIL
-         LDA #0x00
-         XORA #0xFF
-         CMPA #0xFF
-         JNE FAIL
-         LDA #0xFF
-         XORA #0xFF
-         CMPA #0x00
-         JNE FAIL
-         LDA #0xFF
-         XORA #0x55
-         CMPA #0xAA
-         JNE FAIL
-         LDA #0xCE
-         XORA #0x5A
-         CMPA #0x94
-         JNE FAIL
-         ; --------------------------------------------------------------------
-         ; OP.36 NOTA  LOGIC NOT ON REG A
-         ; --------------------------------------------------------------------
-TSTOP36  LDA #0x36
-         NOTA
-         STA LEDPORT ; Output to LED port
-         LDA #0x00
-         NOTA
-         CMPA #0xFF
-         JNE FAIL
-         NOTA
-         CMPA #0x00
-         JNE FAIL
-         LDA #0x55
-         NOTA
-         CMPA #0xAA
-         JNE FAIL
-         NOTA
-         CMPA #0x55
-         JNE FAIL
-         NOTA
-         CMPA #0xAA
-         JNE FAIL
-         ; --------------------------------------------------------------------
-         ; OP.37 INCA  A = A + 1  INCREMENT REGISTRE A
-         ; E UPDATE, C unchanged
-         ; --------------------------------------------------------------------
-TSTOP37  LDA #0x37
-         NOTA
-         STA LEDPORT ; Output to LED port
-         LDA #0x00
-         INCA
-         CMPA #0x01
-         JNE FAIL
-         LDA #0x01
-         INCA
-         CMPA #0x02
-         JNE FAIL
-         LDA #0x7C
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         CMPA #0x86
-         JNE FAIL
-         LDA #0xFE
-         INCA
-         CMPA #0xFF
-         JNE FAIL
-         LDA #0xFF
-         INCA
-         CMPA #0x00
-         JNE FAIL
-         LDA #0xFF
-         INCA
-         INCA
-         CMPA #0x01
-         JNE FAIL
-         INCA
-         INCA
-         INCA
-         INCA
-         CMPA #0x05
-         JNE FAIL
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         INCA
-         CMPA #0x0D
-         JNE FAIL
-         LDA #0x00   ; Test Carry unchanged
-         STA CARRY   ; Clear Carry 
-         LDA #0xFF
-         INCA
-         LDA CARRY   ; Read Carry bit <0>
-         CMPA #0x00  ; Expecting C=0 and <7:1> = 0
-         JNE FAIL
-         LDA #0x01   ; Set Carry 
-         STA CARRY   
-         LDA #0xEB
-         INCA
-         LDA CARRY   ; Read Carry bit <0>
-         CMPA #0x01  ; Expecting C=1 and <7:1> = 0
-         JNE FAIL
-         LDA #0xFE   ; Test Equal (Set when result is 0)
-         INCA
-         LDA EQUAL   ; Read Equal status
-         CMPA #0x00  ; Expecting E=0 and <7:1> = 0
-         JNE FAIL
-         LDA #0xFF
-         INCA
-         LDA EQUAL   ; Read Equal status
-         CMPA #0x01  ; Expecting E=1 and <7:1> = 0
-         JNE FAIL
-         LDA #0x00
-         INCA
-         LDA EQUAL
-         CMPA #0x00  ; Expecting E=0 and <7:1> = 0
-         JNE FAIL
-         ; --------------------------------------------------------------------
-         ; OP.38  LDX #0x****   Load X Register with 16 bits immediate value
-         ; --------------------------------------------------------------------
-TSTOP38  LDA #0x38
-         NOTA
-         STA LEDPORT ; Output to LED port
-         LDX #0x1234
-         LDA XH      ; Read Reg X MSB into A
-         CMPA #0x12
-         JNE FAIL
-         LDA XL      ; Read Reg X LSB into A
-         CMPA #0x34
-         JNE FAIL
-         LDX #0xABCD
-         LDA XH      ; Read Reg X MSB into A
-         CMPA #0xAB
-         JNE FAIL
-         LDA XL      ; Read Reg X LSB into A
-         CMPA #0xCD
-         JNE FAIL
-         ; --------------------------------------------------------------------
-         ; OP.39  INCX   Increment Register X,  Carry Not Updated
-         ; --------------------------------------------------------------------
-TSTOP39  LDA #0x39
-         NOTA
-         STA LEDPORT ; Output to LED port
-         LDX #0x0000 ; Clear X register
-         INCX        ; Increment X
-         LDA XL      ; Read Reg X LSB into A
-         CMPA #0x01
-         JNE FAIL
-         LDA XH      ; Read Reg X MSB into A
-         CMPA #0x00
-         JNE FAIL
-         INCX
-         LDA XL      ; Read Reg X LSB into A
-         CMPA #0x02
-         JNE FAIL
-         LDA XH      ; Read Reg X MSB into A
-         CMPA #0x00
-         JNE FAIL
-         
-         LDX #0x00FF ; Test a carry set
-         INCX        ; Increment X
-         LDA XL      ; Read Reg X LSB into A
-         CMPA #0x00
-         JNE FAIL
-         LDA XH      ; Read Reg X MSB into A
-         CMPA #0x01
-         JNE FAIL
-         INCX        ; Increment X
-         LDA XL      ; Read Reg X LSB into A
-         CMPA #0x01
-         JNE FAIL
-         LDA XH      ; Read Reg X MSB into A
-         CMPA #0x01
-         JNE FAIL
-         
-         LDX #0x1EFF
-         INCX        ; Increment X
-         LDA XL      ; Read Reg X LSB into A
-         CMPA #0x00
-         JNE FAIL
-         LDA XH      ; Read Reg X MSB into A
-         CMPA #0x1F
-         JNE FAIL
-         
-         LDX #0xFFFF
-         INCX        ; Increment X
-         LDA XL      ; Read Reg X LSB into A
-         CMPA #0x00
-         JNE FAIL
-         LDA XH      ; Read Reg X MSB into A
-         CMPA #0x00
-         JNE FAIL
-         
+
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; --------------------------------------------------------------------         
@@ -2104,7 +2126,7 @@ LOOPTST2 NOP            ; End of decrement loop
          ; Total time for 3 multiplications 140ms @ 2 MHz
          ; 46ms per 16bit mult (21.7 multiplications per second)
          ; l1 <= w1 * w0      (b7,b6,b5,b4) = (b3,b2) * (b1,b0)
-         LDA #0x80
+         LDA #0x46
          NOTA
          STA LEDPORT ; Output to LED port
 
@@ -2171,6 +2193,31 @@ LOOPTST2 NOP            ; End of decrement loop
          ; ---------------------
          ; END Math Library Test
          ; ---------------------
+
+         ; Test code execution from ram
+         ; Copy a block of code from EEPROM to RAM
+         ; then call to execute this block in RAM. Resume execution from EEPROM
+         LDA #0x47
+         NOTA
+         STA LEDPORT ; Output to LED port
+         JMP BLKCODEEND   ; We skip the nex block of code to be copied in RAM
+               ; Simple 8 bit multiplication test code
+BLKCODESTART   LDA #0x56   ; 86 * 171 = 14706   (0x56 * 0xAB = 0x3972)
+               STA ?b0
+               LDA #0xAB
+               STA ?b1
+               JSR ?mul8_w1_b1_b0
+               LDA ?b3
+               CMPA #0x39
+               JNE FAIL
+               LDA ?b2
+               CMPA #0x72
+               JNE FAIL
+               RTS
+               ; Copy the Block of code from EEPROM to RAM
+BLKCODEEND     LDX #BLKCODESTART  ; Load address of BLKCODESTART
+               ;STX ?b1
+         
 
          JMP 0xE000  ; Loop from start of diag test
          

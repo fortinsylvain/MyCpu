@@ -73,6 +73,108 @@ DATA>R3                 ; Read OP. Code
 01H>R4                  ;  IP+1>IP | ADD. RETURN
 0DH>R5                  ;  IP>ADD  | JMP TO ROUTINE
 JMP                     ; ***************************************************
+ORG/0180H               ; OP.03 INCA  INCREMENT REGISTER A
+1FH>AH                  ;             C not updated, E updated
+FCH>AL
+DATA>R0                 ; READ REG. A
+03H>R6                  ;
+08H>R7                  ; R0+1>R0
+3EH>UH                  ; Cout>R1-7
+00H>UL
+JMP
+1FH>AH                  ; RESULT IN REG. A
+FCH>AL
+R0>DATA
+;R1-7>A                 ; Carry bit stored in ALU input A
+;A>Q0                   ; Place Carry in bit position <0>
+;00H>R1                 ; Put '0' in ALU input A
+;R1-0>A
+;A>Q1                   ; Set Q<7:1> to 0
+;A>Q2                   ; To have a clean Carry Status Byte
+;A>Q3
+;A>Q4
+;A>Q5
+;A>Q6
+;A>Q7
+;Q>R0                   ; Move Q byte in R0
+;1FH>AH                 ; Store R0 in Carry Status RAM location
+;FBH>AL
+;R0>DATA
+R0-0>A                  ; Update E (If result is zero then set E flag )
+OR R0-1                 ; NOT( 7 OR 6 OR 5 OR 4 OR 3 OR 2 OR 1 OR 0 )
+Q1>A
+OR R0-2
+Q2>A
+OR R0-3
+Q3>A
+OR R0-4
+Q4>A
+OR R0-5
+Q5>A
+OR R0-6
+Q6>A
+OR R0-7
+Q7>A
+NOT A-0
+00H>R1                  ; Set Q<7:1> to 0
+R1-0>A                  ; To have a clean E Status Byte
+A>Q1                   
+A>Q2                   
+A>Q3
+A>Q4
+A>Q5
+A>Q6
+A>Q7
+Q>R1                    ; Move Q byte in R1
+1FH>AH                  ; Store E in Equal Status RAM location
+FAH>AL
+R1>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ******************************************************
+ORG/0200H               ; OP.04 LDX #****H  Load Register X with 16 bits immediate
+DATA>R2                 ; Take MSB Immediate value
+3BH>UH                  ;          | ADD. ROUTINE
+00H>UL                  ;  IP+1>IP |
+04H>R4                  ;  IP>ADD  | ADD. RETURN
+06H>R5                  ;          |
+JMP
+DATA>R3                 ; Take LSB Immediate value
+1FH>AH                  ; Put MSB value into register X MSB
+F3H>AL
+R2>DATA
+F4H>AL                  ; Put LSB value into register X LSB
+R3>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/0280H               ; OP.05 INCX  Increment Register X
+1FH>AH                  ;             Carry Not Updated
+F4H>AL
+DATA>R0                 ; Read Reg X LSB
+05H>R6                  ;
+08H>R7                  ; R0+1>R0
+3EH>UH                  ; Cout>R1-7
+00H>UL
+JMP
+1FH>AH                  ; Put increment result in REG. X LSB
+F4H>AL
+R0>DATA
+R1-7>A                  ; Add 1 to X MSB only if there is a carry
+01H>UH                  ; If Cout=0 no increment on X MSB
+00H>UL                  ; and go execute currently pointed OP.
+JMP_A=0                 
+F3H>AL                  ; If Cout=1 then we increment X MSB
+DATA>R0                 ; Read X MSB
+05H>R6                  ; R0+1>R0
+16H>R7                  ; Cout>R1-7, go execute currently pointed OP.
+3EH>UH                  
+00H>UL
+JMP
+R0>DATA                 ; Store X MSB
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ******************************************************
 ORG/0300H               ; OP.06 JSR    Jump to SubRoutine
 DATA>R0                 ; Read MSB IP Destination
 1FH>AH                  ; Store in JSH (Temp SP1) MSB
@@ -556,6 +658,100 @@ R0>DATA
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
+ORG/0B00H               ; OP.16 STX ****H   STORE X REGISTER TO ADDRESS
+DATA>R2                 ; READ MSB ADDRESS
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+16H>R4                  ;  IP+1>IP | ADD. RETURN
+06H>R5                  ;  IP>ADD  |
+JMP                     ;          | JMP TO ROUTINE
+DATA>R3                 ; READ LSB ADDRESS
+1FH>AH                  ; READ XH
+F3H>AL
+DATA>R4
+R2>AH                   ; PUT ADDRESS ON ADDRESS BUS
+R3>AL
+R4>DATA                 ; Store XH and increment Storage address (R3:R2)
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/0B80H               ; OP.17 ORA #**H   LOGICAL OR BETWEEN REG A AND BYTE
+DATA>R0                 ; IMMEDIATE BYTE STORED INTO R0
+1FH>AH
+FCH>AL
+DATA>R1                 ; REG A STORED TO R1
+R0-0>A                  ; BITWISE OR, RESULT STORED IN Q
+OR R1-0
+R0-1>A
+OR R1-1
+R0-2>A
+OR R1-2
+R0-3>A
+OR R1-3
+R0-4>A
+OR R1-4
+R0-5>A
+OR R1-5
+R0-6>A
+OR R1-6
+R0-7>A
+OR R1-7
+Q>R0                    ; MOVE Q TO R0
+R0>DATA                 ; STORE RESULT IN REG A
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/0C00H               ; OP.18 XORA #**H   REG A EXCLUSIVE OR immediate Byte
+DATA>R0                 ; PREND DONNE
+1FH>AH
+FCH>AL
+DATA>R1                 ; PREND DONNE
+R0-0>A
+XOR R1-0
+R0-1>A
+XOR R1-1
+R0-2>A
+XOR R1-2
+R0-3>A
+XOR R1-3
+R0-4>A
+XOR R1-4
+R0-5>A
+XOR R1-5
+R0-6>A
+XOR R1-6
+R0-7>A
+XOR R1-7
+Q>R0
+R0>DATA                 ; MET LE RESULTAT DANS REG. A
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/0C80H               ; OP.19 NOTA   NOT Logic on Register A
+1FH>AH
+FCH>AL
+DATA>R0                 ; Read Register A
+R0-0>A                  ; Do the NOT operation on all bits
+NOT A-0
+R0-1>A
+NOT A-1
+R0-2>A
+NOT A-2
+R0-3>A
+NOT A-3
+R0-4>A
+NOT A-4
+R0-5>A
+NOT A-5
+R0-6>A
+NOT A-6
+R0-7>A
+NOT A-7
+Q>R0
+R0>DATA                 ; Put result in Register A
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 DATA>R2                 ; READ MSB ADDRESS
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
@@ -861,185 +1057,520 @@ R0>DATA                 ; STORE R0 INTO REGISTER A
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
-ORG/1A00H               ; OP.34 ORA #**H   LOGICAL OR BETWEEN REG A AND BYTE
-DATA>R0                 ; IMMEDIATE BYTE STORED INTO R0
-1FH>AH
-FCH>AL
-DATA>R1                 ; REG A STORED TO R1
-R0-0>A                  ; BITWISE OR, RESULT STORED IN Q
-OR R1-0
-R0-1>A
-OR R1-1
-R0-2>A
-OR R1-2
-R0-3>A
-OR R1-3
-R0-4>A
-OR R1-4
-R0-5>A
-OR R1-5
-R0-6>A
-OR R1-6
-R0-7>A
-OR R1-7
-Q>R0                    ; MOVE Q TO R0
-R0>DATA                 ; STORE RESULT IN REG A
-02H>UH                  ; NEXT OP.
-00H>UL
-JMP                     ; ***************************************************
-ORG/1A80H               ; OP.35 XORA #**H   REG A EXCLUSIVE OR immediate Byte
-DATA>R0                 ; PREND DONNE
-1FH>AH
-FCH>AL
-DATA>R1                 ; PREND DONNE
-R0-0>A
-XOR R1-0
-R0-1>A
-XOR R1-1
-R0-2>A
-XOR R1-2
-R0-3>A
-XOR R1-3
-R0-4>A
-XOR R1-4
-R0-5>A
-XOR R1-5
-R0-6>A
-XOR R1-6
-R0-7>A
-XOR R1-7
-Q>R0
-R0>DATA                 ; MET LE RESULTAT DANS REG. A
-02H>UH                  ; NEXT OP.
-00H>UL
-JMP                     ; ***************************************************
-ORG/1B00H               ; OP.36 NOTA   NOT Logic on Register A
-1FH>AH
-FCH>AL
-DATA>R0                 ; Read Register A
-R0-0>A                  ; Do the NOT operation on all bits
-NOT A-0
-R0-1>A
-NOT A-1
-R0-2>A
-NOT A-2
-R0-3>A
-NOT A-3
-R0-4>A
-NOT A-4
-R0-5>A
-NOT A-5
-R0-6>A
-NOT A-6
-R0-7>A
-NOT A-7
-Q>R0
-R0>DATA                 ; Put result in Register A
-01H>UH                  ; Get Pointed OP Code by IP and Execute
-00H>UL
-JMP                     ; ***************************************************
-ORG/1B80H               ; OP.37 INCA  INCREMENT REGISTER A
-1FH>AH                  ;             C not updated, E updated
-FCH>AL
-DATA>R0                 ; READ REG. A
-37H>R6                  ;
-08H>R7                  ; R0+1>R0
-3EH>UH                  ; Cout>R1-7
-00H>UL
+ORG/1A00H               ; 1AXX Incrementer
+01H>R0
 JMP
-1FH>AH                  ; RESULT IN REG. A
-FCH>AL
-R0>DATA
-;R1-7>A                 ; Carry bit stored in ALU input A
-;A>Q0                   ; Place Carry in bit position <0>
-;00H>R1                 ; Put '0' in ALU input A
-;R1-0>A
-;A>Q1                   ; Set Q<7:1> to 0
-;A>Q2                   ; To have a clean Carry Status Byte
-;A>Q3
-;A>Q4
-;A>Q5
-;A>Q6
-;A>Q7
-;Q>R0                   ; Move Q byte in R0
-;1FH>AH                 ; Store R0 in Carry Status RAM location
-;FBH>AL
-;R0>DATA
-R0-0>A                  ; Update E (If result is zero then set E flag )
-OR R0-1                 ; NOT( 7 OR 6 OR 5 OR 4 OR 3 OR 2 OR 1 OR 0 )
-Q1>A
-OR R0-2
-Q2>A
-OR R0-3
-Q3>A
-OR R0-4
-Q4>A
-OR R0-5
-Q5>A
-OR R0-6
-Q6>A
-OR R0-7
-Q7>A
-NOT A-0
-00H>R1                  ; Set Q<7:1> to 0
-R1-0>A                  ; To have a clean E Status Byte
-A>Q1                   
-A>Q2                   
-A>Q3
-A>Q4
-A>Q5
-A>Q6
-A>Q7
-Q>R1                    ; Move Q byte in R1
-1FH>AH                  ; Store E in Equal Status RAM location
-FAH>AL
-R1>DATA
-01H>UH                  ; Get Pointed OP Code by IP and Execute
-00H>UL
-JMP                     ; ******************************************************
-ORG/1C00H               ; OP.38 LDX #****H  Load Register X with 16 bits immediate
-DATA>R2                 ; Take MSB Immediate value
-3BH>UH                  ;          | ADD. ROUTINE
-00H>UL                  ;  IP+1>IP |
-38H>R4                  ;  IP>ADD  | ADD. RETURN
-06H>R5                  ;          |
+02H>R0
 JMP
-DATA>R3                 ; Take LSB Immediate value
-1FH>AH                  ; Put MSB value into register X MSB
-F3H>AL
-R2>DATA
-F4H>AL                  ; Put LSB value into register X LSB
-R3>DATA
-02H>UH                  ; NEXT OP.
-00H>UL
+03H>R0
+JMP
+04H>R0
+JMP
+05H>R0
+JMP
+06H>R0
+JMP
+07H>R0
+JMP
+08H>R0
+JMP
+09H>R0
+JMP
+0AH>R0
+JMP
+0BH>R0
+JMP
+0CH>R0
+JMP
+0DH>R0
+JMP
+0EH>R0
+JMP
+0FH>R0
+JMP
+10H>R0
+JMP
+11H>R0
+JMP
+12H>R0
+JMP
+13H>R0
+JMP
+14H>R0
+JMP
+15H>R0
+JMP
+16H>R0
+JMP
+17H>R0
+JMP
+18H>R0
+JMP
+19H>R0
+JMP
+1AH>R0
+JMP
+1BH>R0
+JMP
+1CH>R0
+JMP
+1DH>R0
+JMP
+1EH>R0
+JMP
+1FH>R0
+JMP
+20H>R0
+JMP
+21H>R0
+JMP
+22H>R0
+JMP
+23H>R0
+JMP
+24H>R0
+JMP
+25H>R0
+JMP
+26H>R0
+JMP
+27H>R0
+JMP
+28H>R0
+JMP
+29H>R0
+JMP
+2AH>R0
+JMP
+2BH>R0
+JMP
+2CH>R0
+JMP
+2DH>R0
+JMP
+2EH>R0
+JMP
+2FH>R0
+JMP
+30H>R0
+JMP
+31H>R0
+JMP
+32H>R0
+JMP
+33H>R0
+JMP
+34H>R0
+JMP
+35H>R0
+JMP
+36H>R0
+JMP
+37H>R0
+JMP
+38H>R0
+JMP
+39H>R0
+JMP
+3AH>R0
+JMP
+3BH>R0
+JMP
+3CH>R0
+JMP
+3DH>R0
+JMP
+3EH>R0
+JMP
+3FH>R0
+JMP
+40H>R0
+JMP
+41H>R0
+JMP
+42H>R0
+JMP
+43H>R0
+JMP
+44H>R0
+JMP
+45H>R0
+JMP
+46H>R0
+JMP
+47H>R0
+JMP
+48H>R0
+JMP
+49H>R0
+JMP
+4AH>R0
+JMP
+4BH>R0
+JMP
+4CH>R0
+JMP
+4DH>R0
+JMP
+4EH>R0
+JMP
+4FH>R0
+JMP
+50H>R0
+JMP
+51H>R0
+JMP
+52H>R0
+JMP
+53H>R0
+JMP
+54H>R0
+JMP
+55H>R0
+JMP
+56H>R0
+JMP
+57H>R0
+JMP
+58H>R0
+JMP
+59H>R0
+JMP
+5AH>R0
+JMP
+5BH>R0
+JMP
+5CH>R0
+JMP
+5DH>R0
+JMP
+5EH>R0
+JMP
+5FH>R0
+JMP
+60H>R0
+JMP
+61H>R0
+JMP
+62H>R0
+JMP
+63H>R0
+JMP
+64H>R0
+JMP
+65H>R0
+JMP
+66H>R0
+JMP
+67H>R0
+JMP
+68H>R0
+JMP
+69H>R0
+JMP
+6AH>R0
+JMP
+6BH>R0
+JMP
+6CH>R0
+JMP
+6DH>R0
+JMP
+6EH>R0
+JMP
+6FH>R0
+JMP
+70H>R0
+JMP
+71H>R0
+JMP
+72H>R0
+JMP
+73H>R0
+JMP
+74H>R0
+JMP
+75H>R0
+JMP
+76H>R0
+JMP
+77H>R0
+JMP
+78H>R0
+JMP
+79H>R0
+JMP
+7AH>R0
+JMP
+7BH>R0
+JMP
+7CH>R0
+JMP
+7DH>R0
+JMP
+7EH>R0
+JMP
+7FH>R0
+JMP
+80H>R0
+JMP
+81H>R0
+JMP
+82H>R0
+JMP
+83H>R0
+JMP
+84H>R0
+JMP
+85H>R0
+JMP
+86H>R0
+JMP
+87H>R0
+JMP
+88H>R0
+JMP
+89H>R0
+JMP
+8AH>R0
+JMP
+8BH>R0
+JMP
+8CH>R0
+JMP
+8DH>R0
+JMP
+8EH>R0
+JMP
+8FH>R0
+JMP
+90H>R0
+JMP
+91H>R0
+JMP
+92H>R0
+JMP
+93H>R0
+JMP
+94H>R0
+JMP
+95H>R0
+JMP
+96H>R0
+JMP
+97H>R0
+JMP
+98H>R0
+JMP
+99H>R0
+JMP
+9AH>R0
+JMP
+9BH>R0
+JMP
+9CH>R0
+JMP
+9DH>R0
+JMP
+9EH>R0
+JMP
+9FH>R0
+JMP
+A0H>R0
+JMP
+A1H>R0
+JMP
+A2H>R0
+JMP
+A3H>R0
+JMP
+A4H>R0
+JMP
+A5H>R0
+JMP
+A6H>R0
+JMP
+A7H>R0
+JMP
+A8H>R0
+JMP
+A9H>R0
+JMP
+AAH>R0
+JMP
+ABH>R0
+JMP
+ACH>R0
+JMP
+ADH>R0
+JMP
+AEH>R0
+JMP
+AFH>R0
+JMP
+B0H>R0
+JMP
+B1H>R0
+JMP
+B2H>R0
+JMP
+B3H>R0
+JMP
+B4H>R0
+JMP
+B5H>R0
+JMP
+B6H>R0
+JMP
+B7H>R0
+JMP
+B8H>R0
+JMP
+B9H>R0
+JMP
+BAH>R0
+JMP
+BBH>R0
+JMP
+BCH>R0
+JMP
+BDH>R0
+JMP
+BEH>R0
+JMP
+BFH>R0
+JMP
+C0H>R0
+JMP
+C1H>R0
+JMP
+C2H>R0
+JMP
+C3H>R0
+JMP
+C4H>R0
+JMP
+C5H>R0
+JMP
+C6H>R0
+JMP
+C7H>R0
+JMP
+C8H>R0
+JMP
+C9H>R0
+JMP
+CAH>R0
+JMP
+CBH>R0
+JMP
+CCH>R0
+JMP
+CDH>R0
+JMP
+CEH>R0
+JMP
+CFH>R0
+JMP
+D0H>R0
+JMP
+D1H>R0
+JMP
+D2H>R0
+JMP
+D3H>R0
+JMP
+D4H>R0
+JMP
+D5H>R0
+JMP
+D6H>R0
+JMP
+D7H>R0
+JMP
+D8H>R0
+JMP
+D9H>R0
+JMP
+DAH>R0
+JMP
+DBH>R0
+JMP
+DCH>R0
+JMP
+DDH>R0
+JMP
+DEH>R0
+JMP
+DFH>R0
+JMP
+E0H>R0
+JMP
+E1H>R0
+JMP
+E2H>R0
+JMP
+E3H>R0
+JMP
+E4H>R0
+JMP
+E5H>R0
+JMP
+E6H>R0
+JMP
+E7H>R0
+JMP
+E8H>R0
+JMP
+E9H>R0
+JMP
+EAH>R0
+JMP
+EBH>R0
+JMP
+ECH>R0
+JMP
+EDH>R0
+JMP
+EEH>R0
+JMP
+EFH>R0
+JMP
+F0H>R0
+JMP
+F1H>R0
+JMP
+F2H>R0
+JMP
+F3H>R0
+JMP
+F4H>R0
+JMP
+F5H>R0
+JMP
+F6H>R0
+JMP
+F7H>R0
+JMP
+F8H>R0
+JMP
+F9H>R0
+JMP
+FAH>R0
+JMP
+FBH>R0
+JMP
+FCH>R0
+JMP
+FDH>R0
+JMP
+FEH>R0
+JMP
+FFH>R0
+JMP
+00H>R0
+80H>R1
 JMP                     ; ***************************************************
-ORG/1C80H               ; OP.39 INCX  Increment Register X
-1FH>AH                  ;             Carry Not Updated
-F4H>AL
-DATA>R0                 ; Read Reg X LSB
-39H>R6                  ;
-08H>R7                  ; R0+1>R0
-3EH>UH                  ; Cout>R1-7
-00H>UL
-JMP
-1FH>AH                  ; Put increment result in REG. X LSB
-F4H>AL
-R0>DATA
-R1-7>A                  ; Add 1 to X MSB only if there is a carry
-01H>UH                  ; If Cout=0 no increment on X MSB
-00H>UL                  ; and go execute currently pointed OP.
-JMP_A=0                 
-F3H>AL                  ; If Cout=1 then we increment X MSB
-DATA>R0                 ; Read X MSB
-39H>R6                  ; R0+1>R0
-16H>R7                  ; Cout>R1-7, go execute currently pointed OP.
-3EH>UH                  
-00H>UL
-JMP
-R0>DATA                 ; Store X MSB
-01H>UH                  ; Get Pointed OP Code by IP and Execute
-00H>UL
-JMP                     ; ******************************************************
 ORG/1D00H               ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
 R0-0>A                  ; NOT R0 > R0
 NOT A-0
