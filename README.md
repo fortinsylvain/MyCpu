@@ -1,29 +1,57 @@
-Homebrew CPU Project (74LS Logic + EEPROM)
+# Homebrew CPU Project (74LS Logic + EEPROM)
+
 I built this CPU at home using 74LS logic ICs and EEPROMs, driven by curiosity and a desire to understand processor design at a fundamental level.
 
+---
 
+## 🔧 Project Overview
+My goal was to create a **fully functional CPU** using a **1-bit ALU**. While this results in relatively slow execution speeds, it allows me to explore the control and datapath mechanisms in detail.
 
-Project Overview
-My goal was to create a fully functional CPU using a 1-bit ALU. While this results in relatively slow execution speeds, it allows me to explore the control and datapath mechanisms in detail. All microcode for the CPU is stored in two binary files and programmed into 2864 EEPROM chips. A custom microassembler was written to generate these micro-instructions.
+- All **microcode** for the CPU is stored in **two binary files** programmed into 2864 EEPROM chips.
+- A custom **microassembler** generates these micro-instructions.
 
-Wire-Wrap Prototype
-Before moving to a PCB, I built a wire-wrap prototype to test the design on real hardware. This stage was essential for debugging the microcode, verifying timing, and refining the instruction set.
+---
 
-![](cpuPicture1.jpg)
+## 🧵 Wire-Wrap Prototype
+
+Before moving to a PCB, I built a **wire-wrap prototype** to test the design on real hardware. This stage was essential for debugging the microcode, verifying timing, and refining the instruction set.
+
+![Wire-Wrap CPU](cpuPicture1.jpg)
 
 Wire-wrapping made it easier to make changes during development while still providing a reliable and compact way to interconnect components.
 
-PCB Version Sponsored by PCBWay
-With the core architecture proven on the wire-wrap prototypes, I'm now working on a custom PCB version of the CPU. This step is generously sponsored by PCBWay.
+---
+
+## 🧩 PCB Version Sponsored by PCBWay
+
+With the core architecture proven on the wire-wrap prototypes, I'm now working on a custom **PCB version** of the CPU. This step is generously sponsored by **PCBWay**.
 
 Here’s a snapshot of the ongoing KiCad design:
 
-![](MyCPU_PCB.jpg)
+![KiCad PCB Design](MyCPU_PCB.jpg)
 
-Stay tuned for updates! The full source code, schematics, microcode files, and PCB layout will be shared as the project progresses.
+Stay tuned for updates! The full PCB layout will be shared as the project progresses.
 
+## 🗂 Microcode and Assembler
 
-The design also uses external RAM to support the CPU’s operation. Here is the memory address map used:
+- Microcode source: `uCodeAssembler/`
+- Opcode assembler: `opCodeAssembler/`
+- Diagnostic program: `opCodeAssembler/examples/diag.asm`
+
+## 🧠 Register Implementation on RAM
+
+The design uses address-mapped RAM to support the CPU’s operation. This approach saves chip count, though at the cost of execution speed.
+
+The following registers are implemented in RAM:
+- Instruction Pointer
+- Register A
+- Carry Flag
+- Equal Flag
+- Index Register
+- Stack Pointer
+- The Stack
+
+Here is the memory address map:
 
 0000H - 17FFH Total RAM space
 -----------------------------
@@ -43,34 +71,76 @@ The design also uses external RAM to support the CPU’s operation. Here is the 
 * C000H         LED port
 * E000H - F000H EEPROM for application program
 
+---
 
-Register A, Stack Pointer, Status flag and Instruction Pointer are stored in RAM. This is purely to save on chip count at the expense of a slower machine.
+## System Overview
 
-Here is the top level diagram of this relatively simple architecture.
-![](topDiagram.jpg)
+### Top-Level Architecture Diagram  
+![Top-Level Diagram](topDiagram.jpg)
 
-The hand written schematic
-![](cpuSchematic.jpg)
+### Hand-Written CPU Schematic  
+![CPU Schematic](cpuSchematic.jpg)
 
-The cpu board layout view
-![](cpuBoardLayout.jpg)
+### CPU Board Layout View  
+![CPU Board Layout](cpuBoardLayout.jpg)
 
-The ROM decoding table encodes the different combinations of how data can travel between the components. This ROM expands the number of lines we can control with the EEPROM microcode, saving the number of bits required. This architecture works using 16-bits micro-instructions. The chips IC20 and IC21 are 74S188 256 Open Collector PROMs (really one-time programmable). Several chips were lost before finding the correct table values.
-![](decoderRomTable.jpg)
+---
 
-The io board schematic. A RAM, EEPROM to store the application program with some LEDs.
-![](ioSchematic.jpg)
+## Microcode and Control ROMs
 
-Single clock step debug sessions starting from reset, using only a couple of LEDs to inspect ucode address and main bus byte display, became too painfull. I finally purchased a reasonably priced Agilent 1670G Logic Analyzer on eBay and connected it to MyCpu to obtain a better history of program exection, easing the debugging process. Using symbol assignment, it is possible to perform some rudimentary microcode dissassembly.
-Picure of the final wire wrap assembly connected to the Logic Analyzer
-![](cpuPicture2.jpg)
+The ROM decoding table encodes how data moves between components.  
+This reduces the number of control bits required by expanding microcode control using external PROMs.
 
-A view on the analyzer showing some microcode dissassembly.
-![](ucodeLogicAnalyzerDebug.jpg)
+- ROM chips: **IC20** and **IC21** (74S188, 256×1 Open Collector PROMs)
+- These are *one-time programmable* PROMs.
+- Several chips were sacrificed before the correct decoding table was finalized.
 
-I began documenting this project when i encountered other wonderfull machines showcased in this link: Homebuilt CPUs WebRing
-Definitely check out other awesome homebrew CPU builds on Warren's https://www.homebrewcpuring.org
+![Decoder ROM Table](decoderRomTable.jpg)
 
-Interested in joining the ring?
-To join the Homebuilt CPUs ring, drop Warren a line (mail is obfuscated, you have to change [at] to @), mentioning your page's URL. He'll then add it to the list. You will need to copy this code fragment into your page (or reference it.)
-Note: The ring is chartered for projects that include a home-built CPU. It can emulate a commercial part, that′s OK. But actually using that commercial CPU doesn′t rate. Likewise, the project must have been at least partially built: pure paper designs don′t rate either. It can be built using any technology you like, from relays to FPGAs.
+---
+
+## I/O Board Schematic
+
+Includes:
+- RAM
+- EEPROM (for application program)
+- LEDs for visual feedback
+
+![I/O Schematic](ioSchematic.jpg)
+
+---
+
+## Debugging Setup
+
+Early debugging involved **single clock stepping** and LEDs to display microcode address and main bus data.  
+This was quickly found to be too tedious, leading to the acquisition of an **Agilent 1670G Logic Analyzer** (eBay bargain!).
+
+- Logic analyzer connected to **MyCpu**
+- Allows recording of instruction traces
+- Symbol assignment enables **rudimentary microcode disassembly**
+
+### Final Wire-Wrap Assembly with Logic Analyzer  
+![Wire-Wrap and Logic Analyzer](cpuPicture2.jpg)
+
+### Microcode View on Logic Analyzer  
+![Microcode Disassembly](ucodeLogicAnalyzerDebug.jpg)
+
+---
+
+## Inspiration and Community
+
+I began documenting this project after discovering **other wonderful homebrew machines** featured on:
+
+👉 [Homebuilt CPUs WebRing](https://www.homebrewcpuring.org)
+
+### Join the Ring!
+
+Interested in joining the Homebuilt CPUs WebRing?
+
+- Contact **Warren** (email address is obfuscated—replace `[at]` with `@`)
+- Mention your page URL and request to join
+- Add the WebRing code fragment to your site
+
+📌 **Note:** The ring is for *actual home-built CPUs*. Emulations of commercial parts are OK.  
+However, projects must be *partially or fully built*—**paper designs don’t qualify**.  
+Technologies used can include **relays**, **TTL**, **CMOS**, **FPGAs**, etc.
