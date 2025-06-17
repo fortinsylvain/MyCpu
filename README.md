@@ -1,7 +1,29 @@
-I built this CPU at home using 74LS circuit with some EEPROM.
+Homebrew CPU Project (74LS Logic + EEPROM)
+I built this CPU at home using 74LS logic ICs and EEPROMs, driven by curiosity and a desire to understand processor design at a fundamental level.
+
+
+
+Project Overview
+My goal was to create a fully functional CPU using a 1-bit ALU. While this results in relatively slow execution speeds, it allows me to explore the control and datapath mechanisms in detail. All microcode for the CPU is stored in two binary files and programmed into 2864 EEPROM chips. A custom microassembler was written to generate these micro-instructions.
+
+Wire-Wrap Prototype
+Before moving to a PCB, I built a wire-wrap prototype to test the design on real hardware. This stage was essential for debugging the microcode, verifying timing, and refining the instruction set.
+
 ![](cpuPicture1.jpg)
 
- My goal was to try making my own CPU using only a one-bit ALU. I knew from the start that the machine would be quite slow compared to existing standards, but at least i can see if i can make it work.  All the microcode to control the machine is stored in 2 binary files to be programmed into 2864 EEPROM. A micro assembler program was developed to help generate the micro instructions. Some external RAM is required to support the microcode. Here is the RAM address mapping to implement the storage needed:
+Wire-wrapping made it easier to make changes during development while still providing a reliable and compact way to interconnect components.
+
+PCB Version Sponsored by PCBWay
+With the core architecture proven on the wire-wrap prototypes, I'm now working on a custom PCB version of the CPU. This step is generously sponsored by PCBWay.
+
+Here’s a snapshot of the ongoing KiCad design:
+
+![](MyCPU_PCB.jpg)
+
+Stay tuned for updates! The full source code, schematics, microcode files, and PCB layout will be shared as the project progresses.
+
+
+The design also uses external RAM to support the CPU’s operation. Here is the memory address map used:
 
 0000H - 17FFH Total RAM space
 -----------------------------
@@ -20,6 +42,7 @@ I built this CPU at home using 74LS circuit with some EEPROM.
 * 1FFFH IPL     Instruction Pointer MSB
 * C000H         LED port
 * E000H - F000H EEPROM for application program
+
 
 Register A, Stack Pointer, Status flag and Instruction Pointer are stored in RAM. This is purely to save on chip count at the expense of a slower machine.
 
