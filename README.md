@@ -22,15 +22,22 @@ Wire-wrapping made it easier to make changes during development while still prov
 
 ---
 
-## 🧩 PCB Version Sponsored by PCBWay
+## 🧠 Custom CPU PCB Update
 
-With the core architecture proven on the wire-wrap prototypes, I'm now working on a custom **PCB version** of the CPU. This step is generously sponsored by **PCBWay**.
+With the core architecture proven on the wire-wrap prototypes, the **custom PCB version** of the CPU is now complete. This phase of the project has been generously sponsored by [**PCBWay**](https://www.pcbway.com).
 
-Here’s a snapshot of the ongoing KiCad design:
+I was really impressed by PCBWay’s **one-click KiCad integration** — all design files were submitted automatically to the PCBWay factory with a single click. The ordering process was fast and seamless!
+
+✅ **KiCad development completed**  
+🛒 **PCB ordered via PCBWay**  
+📦 **Currently waiting for the board to arrive**  
+🧰 **Preparing components for assembly**
+
+Here’s a snapshot of the completed KiCad design:
 
 ![KiCad PCB Design](MyCPU_PCB.jpg)
 
-Stay tuned for updates! The full PCB layout will be shared as the project progresses.
+Stay tuned for updates — the full PCB layout will be shared as the project progresses!
 
 ## 🗂 Microcode and Assembler
 
