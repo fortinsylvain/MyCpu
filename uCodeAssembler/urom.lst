@@ -1,7 +1,7 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin  sylfortin71@hotmail.com
-                              ; Date : 4 april 2025
+                              ; Date : 3 may 2025
                               ; Documentation : uCode stored in 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
@@ -132,7 +132,7 @@
 0328       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 0329       3800               00H>UL
 032A       C800               JMP          ; ******************************************************
-                              ORG/0200H    ; OP.04 LDX #****H  Load Register X with 16 bits 
+                              ORG/0200H    ; OP.04 LDX #****H  Load Register X with 16 bits immediate
 0400       2200               DATA>R2      ; Take MSB Immediate value
 0401       303B               3BH>UH       ;          | ADD. ROUTINE
 0402       3800               00H>UL       ;  IP+1>IP |
@@ -398,7 +398,7 @@
 0D23       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 0D24       3800               00H>UL
 0D25       C800               JMP          ; ***************************************************
-                              ORG/0700H    ; OP.0E SLLA/SLAA  Shift Left Logical/Arithmetic 
+                              ORG/0700H    ; OP.0E SLLA/SLAA  Shift Left Logical/Arithmetic on Reg A
 0E00       781F               1FH>AH       ;              C <- b7 b6 b5 b4 b3 b2 b1 b0 <- 0
 0E01       68FC               FCH>AL
 0E02       2000               DATA>R0      ; Read A Register and store in R0
@@ -457,7 +457,7 @@
 0F10       300C               0CH>UH       ; do the JRA
 0F11       3800               00H>UL
 0F12       C800               JMP          ; ***************************************************
-                              ORG/0800H    ; OP.10 RRCA Rotate Right Logical Reg A through C
+                              ORG/0800H    ; OP.10 RRCA Rotate Right Logical Reg A through Carry  
 1000       781F               1FH>AH       ;            C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
 1001       68FC               FCH>AL
 1002       2000               DATA>R0      ; Read A Register and store in R0
@@ -556,7 +556,7 @@
 1325       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 1326       3800               00H>UL
 1327       C800               JMP          ; ***************************************************
-                              ORG/0A00H    ; OP.14 RRC ****H Rotate Right Logical Address th
+                              ORG/0A00H    ; OP.14 RRC ****H Rotate Right Logical Address through Carry  
 1400       2200               DATA>R2      ; READ MSB ADDRESS    C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
 1401       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
 1402       3800               00H>UL       ;          |
@@ -608,7 +608,7 @@
 1430       3002               02H>UH       ; NEXT OP.
 1431       3800               00H>UL
 1432       C800               JMP          ; ***************************************************
-                              ORG/0A80H    ; OP.15 SRL ****H   Shift Right Logical on Addres
+                              ORG/0A80H    ; OP.15 SRL ****H   Shift Right Logical on Address
 1500       2200               DATA>R2      ; READ MSB ADDRESS  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
 1501       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
 1502       3800               00H>UL       ;          |
@@ -659,23 +659,98 @@
 152F       3800               00H>UL
 1530       C800               JMP          ; ***************************************************
                               ORG/0B00H    ; OP.16 STX ****H   STORE X REGISTER TO ADDRESS
-1600       2200               DATA>R2      ; READ MSB ADDRESS
+1600       2300               DATA>R3      ; READ MSB ADDRESS
 1601       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
 1602       3800               00H>UL       ;          |
 1603       2C16               16H>R4       ;  IP+1>IP | ADD. RETURN
 1604       2D06               06H>R5       ;  IP>ADD  |
 1605       C800               JMP          ;          | JMP TO ROUTINE
-1606       2300               DATA>R3      ; READ LSB ADDRESS
+1606       2200               DATA>R2      ; READ LSB ADDRESS
 1607       781F               1FH>AH       ; READ XH
 1608       68F3               F3H>AL
 1609       2400               DATA>R4
-160A       1200               R2>AH        ; PUT ADDRESS ON ADDRESS BUS
-160B       1B00               R3>AL
+160A       1300               R3>AH        ; PUT ADDRESS ON ADDRESS BUS
+160B       1A00               R2>AL
 160C       5C00               R4>DATA      ; Store XH and increment Storage address (R3:R2)
-160D       3002               02H>UH       ; NEXT OP.
-160E       3800               00H>UL
-160F       C800               JMP          ; ***************************************************
-                              ORG/0B80H    ; OP.17 ORA #**H   LOGICAL OR BETWEEN REG A AND B
+160D       5200               R2-0>A
+160E       4818               A>Q0         ; Compute the Carrys
+160F       4221               AND R2-1
+1610       7001               Q1>A
+1611       4222               AND R2-2
+1612       7002               Q2>A
+1613       4223               AND R2-3
+1614       7003               Q3>A
+1615       4224               AND R2-4
+1616       7004               Q4>A
+1617       4225               AND R2-5
+1618       7005               Q5>A
+1619       4226               AND R2-6
+161A       7006               Q6>A
+161B       4227               AND R2-7
+161C       6000               Q>R0         ; Savec Cout in R0-7
+161D       7006               Q6>A
+161E       4217               XOR R2-7
+161F       7005               Q5>A
+1620       4216               XOR R2-6
+1621       7004               Q4>A
+1622       4215               XOR R2-5
+1623       7003               Q3>A
+1624       4214               XOR R2-4
+1625       7002               Q2>A
+1626       4213               XOR R2-3
+1627       7001               Q1>A
+1628       4212               XOR R2-2
+1629       7000               Q0>A
+162A       4211               XOR R2-1
+162B       5200               R2-0>A
+162C       4038               NOT A-0
+162D       6200               Q>R2         ; Save result in R2
+162E       5007               R0-7>A       ; Add 1 to MSB if there is a Carry
+162F       3016               16H>UH
+1630       3852               52H>UL       
+1631       C81B               JMP_A=0      ; If Cin=0 then save by jumping
+1632       5300               R3-0>A       ; If Cin=1 then increment R3
+1633       4818               A>Q0         ; Compute Carrys between bits
+1634       4321               AND R3-1
+1635       7001               Q1>A
+1636       4322               AND R3-2
+1637       7002               Q2>A
+1638       4323               AND R3-3
+1639       7003               Q3>A
+163A       4324               AND R3-4
+163B       7004               Q4>A
+163C       4325               AND R3-5
+163D       7005               Q5>A
+163E       4326               AND R3-6
+163F       7006               Q6>A
+1640       4327               AND R3-7
+1641       7006               Q6>A
+1642       4317               XOR R3-7
+1643       7005               Q5>A
+1644       4316               XOR R3-6
+1645       7004               Q4>A
+1646       4315               XOR R3-5
+1647       7003               Q3>A
+1648       4314               XOR R3-4
+1649       7002               Q2>A
+164A       4313               XOR R3-3
+164B       7001               Q1>A
+164C       4312               XOR R3-2
+164D       7000               Q0>A
+164E       4311               XOR R3-1
+164F       5300               R3-0>A
+1650       4038               NOT A-0
+1651       6300               Q>R3         ; increment result
+1652       781F               1FH>AH       ; READ XL
+1653       68F4               F4H>AL
+1654       2400               DATA>R4
+1655       1300               R3>AH        ; PUT ADDRESS ON ADDRESS BUS
+1656       1A00               R2>AL
+1657       5C00               R4>DATA      ; WRITE XL at destination address
+1658       3002               02H>UH       ; NEXT OP.
+1659       3800               00H>UL
+165A       C800               JMP          ; ***************************************************
+                              ORG/0B80H    ; OP.17 ORA #**H   LOGICAL OR BETWEEN REG A AND BYTE
 1700       2000               DATA>R0      ; IMMEDIATE BYTE STORED INTO R0
 1701       781F               1FH>AH
 1702       68FC               FCH>AL
@@ -701,7 +776,7 @@
 1716       3002               02H>UH       ; NEXT OP.
 1717       3800               00H>UL
 1718       C800               JMP          ; ***************************************************
-                              ORG/0C00H    ; OP.18 XORA #**H   REG A EXCLUSIVE OR immediate 
+                              ORG/0C00H    ; OP.18 XORA #**H   REG A EXCLUSIVE OR immediate Byte
 1800       2000               DATA>R0      ; PREND DONNE
 1801       781F               1FH>AH
 1802       68FC               FCH>AL
@@ -752,7 +827,117 @@
 1915       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 1916       3800               00H>UL
 1917       C800               JMP          ; ***************************************************
-                              ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UP
+                              ORG/0D00H    ; OP.1A CMPX 0x****   COMPARE X to immediate value
+1A00       2000               DATA>R0      ; Read MSB Data       UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
+1A01       781F               1FH>AH       ; Read XH             ELSE E = 0.
+1A02       68F3               F3H>AL
+1A03       2100               DATA>R1
+1A04       5000               R0-0>A       ; XNOR between each bits on MSB
+1A05       4130               XNOR R1-0
+1A06       5001               R0-1>A
+1A07       4131               XNOR R1-1
+1A08       5002               R0-2>A
+1A09       4132               XNOR R1-2
+1A0A       5003               R0-3>A
+1A0B       4133               XNOR R1-3
+1A0C       5004               R0-4>A
+1A0D       4134               XNOR R1-4
+1A0E       5005               R0-5>A
+1A0F       4135               XNOR R1-5
+1A10       5006               R0-6>A
+1A11       4136               XNOR R1-6
+1A12       5007               R0-7>A
+1A13       4137               XNOR R1-7
+1A14       6000               Q>R0         ; result in R0
+1A15       5000               R0-0>A       ; AND between each bits in R0
+1A16       4021               AND R0-1
+1A17       7001               Q1>A
+1A18       4022               AND R0-2
+1A19       7002               Q2>A
+1A1A       4023               AND R0-3
+1A1B       7003               Q3>A
+1A1C       4024               AND R0-4
+1A1D       7004               Q4>A
+1A1E       4025               AND R0-5
+1A1F       7005               Q5>A
+1A20       4026               AND R0-6
+1A21       7006               Q6>A
+1A22       4027               AND R0-7
+1A23       7007               Q7>A         ; Equal status in A
+1A24       301A               1AH>UH       ; If MSB identical we need to continue to verify LSB
+1A25       3833               33H>UL
+1A26       C83B               JMP_A=1
+1A27       2800               00H>R0       ; MSB is different, force '0' in Equal Status bit position <0>
+1A28       781F               1FH>AH
+1A29       68FA               FAH>AL
+1A2A       5800               R0>DATA
+1A2B       301E               1EH>UH       ; skip LSB | ADD. ROUTINE INCREMENT IP
+1A2C       3800               00H>UL       ;          |
+1A2D       2C1A               1AH>R4       ;  IP+1>IP | ADD. RETURN R4:MSB R5:LSB
+1A2E       2D30               30H>R5       ;          |
+1A2F       C800               JMP          ;          | JMP TO ROUTINE
+1A30       3002               02H>UH       ; NEXT OP.
+1A31       3800               00H>UL
+1A32       C800               JMP
+1A33       303B               3BH>UH       ; Continue compare with the LSB
+1A34       3800               00H>UL       ;          | ADD. ROUTINE INCREMENT IP
+1A35       2C1A               1AH>R4       ;  IP+1>IP | ADD. RETURN
+1A36       2D38               38H>R5       ;  IP>ADD  | JMP TO ROUTINE
+1A37       C800               JMP          ;
+1A38       2000               DATA>R0      ; Read LSB Data
+1A39       781F               1FH>AH       ; Read XL
+1A3A       68F4               F4H>AL
+1A3B       2100               DATA>R1
+1A3C       5000               R0-0>A       ; XNOR between each bits on MSB
+1A3D       4130               XNOR R1-0
+1A3E       5001               R0-1>A
+1A3F       4131               XNOR R1-1
+1A40       5002               R0-2>A
+1A41       4132               XNOR R1-2
+1A42       5003               R0-3>A
+1A43       4133               XNOR R1-3
+1A44       5004               R0-4>A
+1A45       4134               XNOR R1-4
+1A46       5005               R0-5>A
+1A47       4135               XNOR R1-5
+1A48       5006               R0-6>A
+1A49       4136               XNOR R1-6
+1A4A       5007               R0-7>A
+1A4B       4137               XNOR R1-7
+1A4C       6000               Q>R0         ; result in R0
+1A4D       5000               R0-0>A       ; AND between each bits in R0
+1A4E       4021               AND R0-1
+1A4F       7001               Q1>A
+1A50       4022               AND R0-2
+1A51       7002               Q2>A
+1A52       4023               AND R0-3
+1A53       7003               Q3>A
+1A54       4024               AND R0-4
+1A55       7004               Q4>A
+1A56       4025               AND R0-5
+1A57       7005               Q5>A
+1A58       4026               AND R0-6
+1A59       7006               Q6>A
+1A5A       4027               AND R0-7
+1A5B       7007               Q7>A         ; Equal status in A
+1A5C       301A               1AH>UH       ; If LSB identical go set the equal flag
+1A5D       3866               66H>UL
+1A5E       C83B               JMP_A=1
+1A5F       2800               00H>R0       ; Else it's different clear Equal Status bit position <0>
+1A60       781F               1FH>AH
+1A61       68FA               FAH>AL
+1A62       5800               R0>DATA
+1A63       3002               02H>UH       ; NEXT OP.
+1A64       3800               00H>UL
+1A65       C800               JMP
+1A66       2801               01H>R0       ; MSB and LSB are identical the set '1' in Equal Status bit position <0>
+1A67       781F               1FH>AH
+1A68       68FA               FAH>AL
+1A69       5800               R0>DATA
+1A6A       3002               02H>UH       ; NEXT OP.
+1A6B       3800               00H>UL
+1A6C       C800               JMP          ; ***************************************************
+                              ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 2800       2200               DATA>R2      ; READ MSB ADDRESS
 2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
 2802       3800               00H>UL       ;          |
@@ -782,7 +967,7 @@
 281A       3002               02H>UH       ; NEXT OP.
 281B       3800               00H>UL
 281C       C800               JMP          ; ***************************************************
-                              ORG/1480H    ; OP.29 ADDA ****H  ADD A WITH BYTE AT ADDRESS, C
+                              ORG/1480H    ; OP.29 ADDA ****H  ADD A WITH BYTE AT ADDRESS, C UPDATE
 2900       2200               DATA>R2      ; READ MSB ADDRESS
 2901       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
 2902       3800               00H>UL       ;          |
@@ -896,7 +1081,7 @@
 2C1E       2C02               02H>R4       ;                                   | ADD. RETOUR
 2C1F       2D00               00H>R5       ;                                   | PROCHAIN OP.
 2C20       C800               JMP          ; ***************************************************
-                              ORG/1680H    ; OP.2D CMPA #**H COMPARE A WITH IMMEDIATE VALUE,
+                              ORG/1680H    ; OP.2D CMPA #**H COMPARE A WITH IMMEDIATE VALUE, 
 2D00       2000               DATA>R0      ; Read Data       UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
 2D01       781F               1FH>AH       ; Read Reg. A     ELSE E = 0.
 2D02       68FC               FCH>AL
@@ -990,7 +1175,7 @@
 2F0F       3002               02H>UH       ; NEXT OP.
 2F10       3800               00H>UL
 2F11       C800               JMP          ; ***************************************************
-                              ORG/1800H    ; OP.30 LDA #**H  LOAD IMMEDIATE VALUE IN REGISTE
+                              ORG/1800H    ; OP.30 LDA #**H  LOAD IMMEDIATE VALUE IN REGISTER A
 3000       2000               DATA>R0      ; READ HEX VALUE TO LOAD
 3001       781F               1FH>AH       ; PUT VALUE AT REGISTER A ADDRESS
 3002       68FC               FCH>AL
@@ -1031,7 +1216,7 @@
 320C       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 320D       3800               00H>UL
 320E       C800               JMP          ; **************************************************
-                              ORG/1980H    ; OP.33 ANDA #**H  REGISTER A AND LOGICAL IMMEDIA
+                              ORG/1980H    ; OP.33 ANDA #**H  REGISTER A AND LOGICAL IMMEDIATE 
 3300       2000               DATA>R0      ; TAKE IMMEDIATE BYTE AND STORE IN R0
 3301       781F               1FH>AH
 3302       68FC               FCH>AL
@@ -1057,7 +1242,7 @@
 3316       3002               02H>UH       ; NEXT OP.
 3317       3800               00H>UL
 3318       C800               JMP          ; ***************************************************
-                              ORG/1A00H    ; 1AXX Incrementer
+                              ORG/1A00H    ; 1AXX Incrementer (Not working)
 3400       2801               01H>R0
 3401       C800               JMP
 3402       2802               02H>R0
@@ -1571,7 +1756,7 @@
 377E       2800               00H>R0
 377F       2980               80H>R1
 3800       C800               JMP          ; ***************************************************
-                              ORG/1D00H    ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6
+                              ORG/1D00H    ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
 3A00       5000               R0-0>A       ; NOT R0 > R0
 3A01       4038               NOT A-0
 3A02       5001               R0-1>A
@@ -1642,7 +1827,7 @@
 3A43       0600               R6>UH        ; Return to calling microprogram
 3A44       0F00               R7>UL
 3A45       C800               JMP          ; ******************************************************
-                              ORG/1D80H    ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.           
+                              ORG/1D80H    ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.                 *
 3B00       781F               1FH>AH       ;        READ IPL  * RETURN  R4:MSB ADD. R5:LSB ADD.   *
 3B01       68FF               FFH>AL       ;        PUT IN R0 *************************************
 3B02       2000               DATA>R0      ; INCREMENT (COUT R1-7) R0+1>R0
@@ -1730,6 +1915,40 @@
 3B54       2100               DATA>R1
 3B55       1000               R0>AH        ; Put IP in Address Bus
 3B56       1900               R1>AL
+                              ; Begin of alternate method using table. But it cant work; the table return address would double the EEPROM need.
+                              ; Method does not procure clock cycle economy.
+                              ;00H>R0                  ; Clear bit Q<0>
+                              ;R0-0>A
+                              ;A>Q0
+                              ;1FH>AH                  ; Read IPL and put in R1
+                              ;FFH>AL
+                              ;DATA>R1
+                              ;R1-0>A                  ; shift R1 one bit left and put in R2
+                              ;A>Q1
+                              ;R1-1>A
+                              ;A>Q2
+                              ;R1-2>A
+                              ;A>Q3
+                              ;R1-3>A
+                              ;A>Q4
+                              ;R1-4>A
+                              ;A>Q5
+                              ;R1-5>A
+                              ;A>Q6
+                              ;R1-6>A
+                              ;A>Q7
+                              ;Q>R2
+                              ;R1-7>A                 ; look at bit 7
+                              ;3BH>UH
+                              ;00H>UL
+                              ;JMP_A=1
+                              ;34H>UH                  ; it is 0
+                              ;00H>UL
+                              ;JMP
+                              ;36H>UH                  ; it is 1
+                              ;00H>UL
+                              ;JMP
+                              ; End of alternate method
 3B57       0400               R4>UH        ; Return to calling routine
 3B58       0D00               R5>UL
 3B59       C800               JMP          ; *************************************************

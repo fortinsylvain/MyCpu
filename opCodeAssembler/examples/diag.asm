@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 21 april 2025
+; Date : 10 mai 2025
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
@@ -1271,9 +1271,43 @@ TSTOP15  LDA #0x15
          CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          ; --------------------------------------------------------------------
-         ; OP.16 STX
+         ; OP.16 STX 0x****   STORE X REGISTER TO ADDRESS
          ; --------------------------------------------------------------------
-
+TSTOP16  LDA #0x16
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDX #0x1234 ; Test a STX using immediate Hex address value
+         STX 0x0000  
+         LDA 0x0000
+         CMPA #0x12
+         JNE FAIL
+         LDA 0x0001
+         CMPA #0x34
+         JNE FAIL
+         LDX #0xCAFE ; Test a STX at address boundary requiring a carry to MSB
+         STX 0x10FF  
+         LDA 0x10FF
+         CMPA #0xCA
+         JNE FAIL
+         LDA 0x1100
+         CMPA #0xFE
+         JNE FAIL
+         LDX #0xBEEF ; Test a STX on another boundary
+         STX 0x12FF  
+         LDA 0x12FF
+         CMPA #0xBE
+         JNE FAIL
+         LDA 0x1300
+         CMPA #0xEF
+         JNE FAIL
+         LDX #0x6789 ; Test a STX using symbolic address
+         STX ?b1
+         LDA ?b1
+         CMPA #0x67
+         JNE FAIL
+         LDA ?b0
+         CMPA #0x89
+         JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.17 ORA #0x**   LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
          ; --------------------------------------------------------------------
@@ -1356,8 +1390,50 @@ TSTOP19  LDA #0x19
          JNE FAIL
          NOTA
          CMPA #0xAA
-         JNE FAIL  
-
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.1A CMPX 0x****   COMPARE X to immediate value
+         ; --------------------------------------------------------------------
+TSTOP1A  LDA #0x1A
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDX #0x0000 ; Load 0x0000 in X  (Testing with immediate hex value)
+         CMPX #0x0000
+         JNE FAIL
+         CMPX #0x0001
+         JEQ FAIL
+         CMPX #0xFFFF
+         JEQ FAIL
+         LDX #0xFF00 ; Load 0xFF00 in X
+         CMPX #0xFF00
+         JNE FAIL
+         CMPX #0x00FF
+         JEQ FAIL
+         CMPX #0xFFFF
+         JEQ FAIL
+         LDX #0x00FF ; Load 0x00FF in X
+         CMPX #0x00FF
+         JNE FAIL
+         CMPX #0xFF00
+         JEQ FAIL
+         CMPX #0xFFFF
+         JEQ FAIL
+         LDX #0xFFFF ; Load 0xFFFF in X
+         CMPX #0xFFFF
+         JNE FAIL
+         CMPX #0xFF00
+         JEQ FAIL
+         CMPX #0x00FF
+         JEQ FAIL
+         LDX #0xAEC3 ; Load 0xAEC3 in X
+         CMPX #0xAEC3
+         JNE FAIL
+         CMPX #0xAEDB
+         JEQ FAIL
+         CMPX #0x12C3
+         JEQ FAIL
+         CMPX #0xFFFF
+         JEQ FAIL
          ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
@@ -2194,7 +2270,7 @@ LOOPTST2 NOP            ; End of decrement loop
          ; END Math Library Test
          ; ---------------------
 
-         ; Test code execution from ram
+         ; TEST EXECUTION FROM RAM
          ; Copy a block of code from EEPROM to RAM
          ; then call to execute this block in RAM. Resume execution from EEPROM
          LDA #0x47
@@ -2215,8 +2291,19 @@ BLKCODESTART   LDA #0x56   ; 86 * 171 = 14706   (0x56 * 0xAB = 0x3972)
                JNE FAIL
                RTS
                ; Copy the Block of code from EEPROM to RAM
-BLKCODEEND     LDX #BLKCODESTART  ; Load address of BLKCODESTART
-               ;STX ?b1
+BLKCODEEND     LDX #BLKCODESTART ; Load address of BLKCODESTART
+               STX ?b1           ; Store this adddress in ?b1:?b0
+RAMDESTSTART   EQU 0x1000
+               LDX #RAMDESTSTART ; Load address of RAM destination
+               STX ?b3           ; Store this adddress in ?b3:?b2
+               ; copy a byte from source to destination
+               ;LDX ?b1           ; Load X with source address in ?b1:?b0
+               ;LDA (X)           ; Load byte pointed by X
+               ;LDX ?b3           ; Load X with destination address in ?b3:?b2
+               ;STA (X)           ; Store byte to address pointed by X
+               ; Check if last byte copied
+               ;CMPX 
+               ; if yes then 
          
 
          JMP 0xE000  ; Loop from start of diag test

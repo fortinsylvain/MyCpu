@@ -22,12 +22,16 @@
 ; Some experiments with Symbols to have the assembler process them
 ; by assigning address.
 
+LEDPORT  EQU C000H   ; PORT for the LED
+BIDON    EQU C001H
+TESTA    EQU C010H
+
          ORG/E000H   ; EEPROM Start
 START    LDA #AAH    ; Load immediate in register A
-OUTPUT   STA C000H   ; Output to LED port
+         STA LEDPORT ; Output to LED port
          NOTA        ; Not logical on Reg A
-STORE    STA C000H   ; Output to LED port
-END      JMP E000H   ; Jump inconditional to address
+STORE    STA LEDPORT ; Output to LED port
+END      JMP START   ; Jump inconditional to address
          ORG/FFFEH   ; Set the Reset vector
 RESET    DB E0H      ; MSB Reset Vector
          DB 00H      ; LSB Reset Vector

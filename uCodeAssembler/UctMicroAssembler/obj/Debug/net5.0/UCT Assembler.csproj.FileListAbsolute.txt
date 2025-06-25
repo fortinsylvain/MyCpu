@@ -1,0 +1,32 @@
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.exe
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.deps.json
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.runtimeconfig.json
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.runtimeconfig.dev.json
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.dll
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\ref\UCT Assembler.dll
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.pdb
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.csproj.AssemblyReference.cache
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.GeneratedMSBuildEditorConfig.editorconfig
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.AssemblyInfoInputs.cache
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.AssemblyInfo.cs
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.csproj.CoreCompileInputs.cache
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.dll
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\ref\UCT Assembler.dll
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.pdb
+C:\Sylvain\UCT maison\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.genruntimeconfig.cache
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.exe
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.deps.json
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.runtimeconfig.json
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.runtimeconfig.dev.json
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.dll
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\ref\UCT Assembler.dll
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\bin\Debug\net5.0\UCT Assembler.pdb
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.csproj.AssemblyReference.cache
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.GeneratedMSBuildEditorConfig.editorconfig
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.AssemblyInfoInputs.cache
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.AssemblyInfo.cs
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.csproj.CoreCompileInputs.cache
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.dll
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\ref\UCT Assembler.dll
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.pdb
+C:\Sylvain\UCT\UCT uAssembler\UCT Assembler\obj\Debug\net5.0\UCT Assembler.genruntimeconfig.cache

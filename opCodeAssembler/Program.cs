@@ -166,10 +166,13 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "DECXL",        OpCode = 0x13,  NbByte = 0, Sym = 0, Offset = 0 });  // DECXL        Decrement XL (E updated)
             dataList.Add(new InstrTable { StringValue = "RRC @",        OpCode = 0x14,  NbByte = 2, Sym = 1, Offset = 4 });  // RRC symbol   Rotate Right Logical Address location through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
             dataList.Add(new InstrTable { StringValue = "SRL @",        OpCode = 0x15,  NbByte = 2, Sym = 1, Offset = 4 });  // SRL symbol   Shift Right Logical on address  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-            // STX 0x16
+            dataList.Add(new InstrTable { StringValue = "STX 0x****",   OpCode = 0x16,  NbByte = 2, Sym = 0, Offset = 6 });  // STX 0x****   Store X Register at Address
+            dataList.Add(new InstrTable { StringValue = "STX @",        OpCode = 0x16,  NbByte = 2, Sym = 1, Offset = 4 });  // STX symbol
             dataList.Add(new InstrTable { StringValue = "ORA #0x**",    OpCode = 0x17,  NbByte = 1, Sym = 0, Offset = 7 });  // ORA #0x**    LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
             dataList.Add(new InstrTable { StringValue = "XORA #0x**",   OpCode = 0x18,  NbByte = 1, Sym = 0, Offset = 8 });  // XORA #0x**   EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
             dataList.Add(new InstrTable { StringValue = "NOTA",         OpCode = 0x19,  NbByte = 0, Sym = 0, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
+            dataList.Add(new InstrTable { StringValue = "CMPX #0x****", OpCode = 0x1A,  NbByte = 2, Sym = 0, Offset = 8 });  // CMPX #0x**** COMPARE X to immediate value, E update
+            dataList.Add(new InstrTable { StringValue = "CMPX #@",      OpCode = 0x1A,  NbByte = 2, Sym = 1, Offset = 6 });  // CMPX #symbol
             dataList.Add(new InstrTable { StringValue = "ADCA 0x****",  OpCode = 0x28,  NbByte = 2, Sym = 0, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
             dataList.Add(new InstrTable { StringValue = "ADCA @",       OpCode = 0x28,  NbByte = 2, Sym = 1, Offset = 5 });  // ADCA symbol
             dataList.Add(new InstrTable { StringValue = "ADDA 0x****",  OpCode = 0x29,  NbByte = 2, Sym = 0, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update
@@ -673,24 +676,5 @@ namespace Assembler
             // Return -1 if no non-space character is found
             return -1;
         }
-
-        static int FindColonCharacter(string input) // Find colon character not in comment area
-        {
-            for (int i = 0; i < input.Length; i++)
-            {
-                if (input[i] != ';')    // Begin of comment area then
-                {
-                    return -1;          // Return we did not found the colon character
-                }
-                else if (input[i] == ':')
-                {
-                    return i;           // Found a colon character, return position
-                }
-            }
-
-            // Return -1 if colon character not found
-            return -1;
-        }
-
     }
 }

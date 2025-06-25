@@ -1,0 +1,14 @@
+C:\Sylvain\UCT\Assembler\bin\Debug\Assembler.exe.config
+C:\Sylvain\UCT\Assembler\bin\Debug\Assembler.exe
+C:\Sylvain\UCT\Assembler\bin\Debug\Assembler.pdb
+C:\Sylvain\UCT\Assembler\obj\Debug\Assembler.csproj.CoreCompileInputs.cache
+C:\Sylvain\UCT\Assembler\obj\Debug\Assembler.exe
+C:\Sylvain\UCT\Assembler\obj\Debug\Assembler.pdb
+C:\Sylvain\UCT\Assembler\obj\Debug\Assembler.csproj.AssemblyReference.cache
+C:\Sylvain\MyCPU\opCodeAssembler\bin\Debug\Assembler.exe.config
+C:\Sylvain\MyCPU\opCodeAssembler\bin\Debug\Assembler.exe
+C:\Sylvain\MyCPU\opCodeAssembler\bin\Debug\Assembler.pdb
+C:\Sylvain\MyCPU\opCodeAssembler\obj\Debug\Assembler.csproj.AssemblyReference.cache
+C:\Sylvain\MyCPU\opCodeAssembler\obj\Debug\Assembler.csproj.CoreCompileInputs.cache
+C:\Sylvain\MyCPU\opCodeAssembler\obj\Debug\Assembler.exe
+C:\Sylvain\MyCPU\opCodeAssembler\obj\Debug\Assembler.pdb

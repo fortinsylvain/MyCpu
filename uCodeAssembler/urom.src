@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin  sylfortin71@hotmail.com
-; Date : 4 april 2025
+; Date : 3 may 2025
 ; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -659,19 +659,94 @@ R0>DATA
 00H>UL
 JMP                     ; ***************************************************
 ORG/0B00H               ; OP.16 STX ****H   STORE X REGISTER TO ADDRESS
-DATA>R2                 ; READ MSB ADDRESS
+DATA>R3                 ; READ MSB ADDRESS
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
 00H>UL                  ;          |
 16H>R4                  ;  IP+1>IP | ADD. RETURN
 06H>R5                  ;  IP>ADD  |
 JMP                     ;          | JMP TO ROUTINE
-DATA>R3                 ; READ LSB ADDRESS
+DATA>R2                 ; READ LSB ADDRESS
 1FH>AH                  ; READ XH
 F3H>AL
 DATA>R4
-R2>AH                   ; PUT ADDRESS ON ADDRESS BUS
-R3>AL
+R3>AH                   ; PUT ADDRESS ON ADDRESS BUS
+R2>AL
 R4>DATA                 ; Store XH and increment Storage address (R3:R2)
+R2-0>A
+A>Q0                    ; Compute the Carrys
+AND R2-1
+Q1>A
+AND R2-2
+Q2>A
+AND R2-3
+Q3>A
+AND R2-4
+Q4>A
+AND R2-5
+Q5>A
+AND R2-6
+Q6>A
+AND R2-7
+Q>R0                    ; Savec Cout in R0-7
+Q6>A
+XOR R2-7
+Q5>A
+XOR R2-6
+Q4>A
+XOR R2-5
+Q3>A
+XOR R2-4
+Q2>A
+XOR R2-3
+Q1>A
+XOR R2-2
+Q0>A
+XOR R2-1
+R2-0>A
+NOT A-0
+Q>R2                    ; Save result in R2
+R0-7>A                  ; Add 1 to MSB if there is a Carry
+16H>UH
+52H>UL           
+JMP_A=0                 ; If Cin=0 then save by jumping
+R3-0>A                  ; If Cin=1 then increment R3
+A>Q0                    ; Compute Carrys between bits
+AND R3-1
+Q1>A
+AND R3-2
+Q2>A
+AND R3-3
+Q3>A
+AND R3-4
+Q4>A
+AND R3-5
+Q5>A
+AND R3-6
+Q6>A
+AND R3-7
+Q6>A
+XOR R3-7
+Q5>A
+XOR R3-6
+Q4>A
+XOR R3-5
+Q3>A
+XOR R3-4
+Q2>A
+XOR R3-3
+Q1>A
+XOR R3-2
+Q0>A
+XOR R3-1
+R3-0>A
+NOT A-0
+Q>R3                    ; increment result
+1FH>AH                  ; READ XL
+F4H>AL
+DATA>R4
+R3>AH                   ; PUT ADDRESS ON ADDRESS BUS
+R2>AL
+R4>DATA                 ; WRITE XL at destination address
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
@@ -750,6 +825,116 @@ NOT A-7
 Q>R0
 R0>DATA                 ; Put result in Register A
 01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
+ORG/0D00H               ; OP.1A CMPX 0x****   COMPARE X to immediate value
+DATA>R0                 ; Read MSB Data       UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
+1FH>AH                  ; Read XH             ELSE E = 0.
+F3H>AL
+DATA>R1
+R0-0>A                  ; XNOR between each bits on MSB
+XNOR R1-0
+R0-1>A
+XNOR R1-1
+R0-2>A
+XNOR R1-2
+R0-3>A
+XNOR R1-3
+R0-4>A
+XNOR R1-4
+R0-5>A
+XNOR R1-5
+R0-6>A
+XNOR R1-6
+R0-7>A
+XNOR R1-7
+Q>R0                    ; result in R0
+R0-0>A                  ; AND between each bits in R0
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q7>A                    ; Equal status in A
+1AH>UH                  ; If MSB identical we need to continue to verify LSB
+33H>UL
+JMP_A=1
+00H>R0                  ; MSB is different, force '0' in Equal Status bit position <0>
+1FH>AH
+FAH>AL
+R0>DATA
+1EH>UH                  ; skip LSB | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+1AH>R4                  ;  IP+1>IP | ADD. RETURN R4:MSB R5:LSB
+30H>R5                  ;          |
+JMP                     ;          | JMP TO ROUTINE
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP
+3BH>UH                  ; Continue compare with the LSB
+00H>UL                  ;          | ADD. ROUTINE INCREMENT IP
+1AH>R4                  ;  IP+1>IP | ADD. RETURN
+38H>R5                  ;  IP>ADD  | JMP TO ROUTINE
+JMP                     ;
+DATA>R0                 ; Read LSB Data
+1FH>AH                  ; Read XL
+F4H>AL
+DATA>R1
+R0-0>A                  ; XNOR between each bits on MSB
+XNOR R1-0
+R0-1>A
+XNOR R1-1
+R0-2>A
+XNOR R1-2
+R0-3>A
+XNOR R1-3
+R0-4>A
+XNOR R1-4
+R0-5>A
+XNOR R1-5
+R0-6>A
+XNOR R1-6
+R0-7>A
+XNOR R1-7
+Q>R0                    ; result in R0
+R0-0>A                  ; AND between each bits in R0
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q7>A                    ; Equal status in A
+1AH>UH                  ; If LSB identical go set the equal flag
+66H>UL
+JMP_A=1
+00H>R0                  ; Else it's different clear Equal Status bit position <0>
+1FH>AH
+FAH>AL
+R0>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP
+01H>R0                  ; MSB and LSB are identical the set '1' in Equal Status bit position <0>
+1FH>AH
+FAH>AL
+R0>DATA
+02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
@@ -1057,7 +1242,7 @@ R0>DATA                 ; STORE R0 INTO REGISTER A
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
-ORG/1A00H               ; 1AXX Incrementer
+ORG/1A00H               ; 1AXX Incrementer (Not working)
 01H>R0
 JMP
 02H>R0
@@ -1730,6 +1915,40 @@ FFH>AL                  ; Read IPL
 DATA>R1
 R0>AH                   ; Put IP in Address Bus
 R1>AL
+; Begin of alternate method using table. But it cant work; the table return address would double the EEPROM need.
+; Method does not procure clock cycle economy.
+;00H>R0                  ; Clear bit Q<0>
+;R0-0>A
+;A>Q0
+;1FH>AH                  ; Read IPL and put in R1
+;FFH>AL
+;DATA>R1
+;R1-0>A                  ; shift R1 one bit left and put in R2
+;A>Q1
+;R1-1>A
+;A>Q2
+;R1-2>A
+;A>Q3
+;R1-3>A
+;A>Q4
+;R1-4>A
+;A>Q5
+;R1-5>A
+;A>Q6
+;R1-6>A
+;A>Q7
+;Q>R2
+;R1-7>A                 ; look at bit 7
+;3BH>UH
+;00H>UL
+;JMP_A=1
+;34H>UH                  ; it is 0
+;00H>UL
+;JMP
+;36H>UH                  ; it is 1
+;00H>UL
+;JMP
+; End of alternate method
 R4>UH                   ; Return to calling routine
 R5>UL
 JMP                     ; *************************************************
