@@ -1,0 +1,313 @@
+(kicad_sch
+	(version 20250114)
+	(generator "eeschema")
+	(generator_version "9.0")
+	(uuid "3b2bc6e1-e750-4ab8-b1aa-7bf3bf6b6c01")
+	(paper "A4")
+	(title_block
+		(title "MyCPU")
+		(date "2025-06-23")
+		(company "Sylvain Fortin")
+	)
+	(lib_symbols)
+	(sheet
+		(at 50.8 161.29)
+		(size 25.4 11.43)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "616691dc-e2f3-4149-8914-9b9caa3a00d3")
+		(property "Sheetname" "MyCpu_ProgramRamEeprom"
+			(at 50.8 160.5784 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "MyCpu_ProgramRamEeprom.kicad_sch"
+			(at 50.8 173.3046 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "MyCPU"
+				(path "/3b2bc6e1-e750-4ab8-b1aa-7bf3bf6b6c01"
+					(page "8")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 50.8 139.7)
+		(size 25.4 11.43)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "72a8ad64-27dd-4a5a-a6ef-0e3de4ee3273")
+		(property "Sheetname" "MyCpu_Clock"
+			(at 50.8 138.9884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "MyCpu_Clock.kicad_sch"
+			(at 50.8 151.7146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "MyCPU"
+				(path "/3b2bc6e1-e750-4ab8-b1aa-7bf3bf6b6c01"
+					(page "7")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 50.8 81.28)
+		(size 25.4 11.43)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "8f42b431-84a2-4475-a2b5-0fd052d90c40")
+		(property "Sheetname" "MyCpu_EEPROM_ucode"
+			(at 50.8 80.5684 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "MyCpu_EEPROM_ucode.kicad_sch"
+			(at 50.8 93.2946 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "MyCPU"
+				(path "/3b2bc6e1-e750-4ab8-b1aa-7bf3bf6b6c01"
+					(page "4")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 50.8 101.6)
+		(size 25.4 11.43)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "953490f2-3a89-4476-a3e0-df62d4b74c68")
+		(property "Sheetname" "MyCpu_Registers"
+			(at 50.8 100.8884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "MyCpu_Registers.kicad_sch"
+			(at 50.8 113.6146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "MyCPU"
+				(path "/3b2bc6e1-e750-4ab8-b1aa-7bf3bf6b6c01"
+					(page "5")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 50.8 62.23)
+		(size 25.4 11.43)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "9a0d05ef-35fe-433e-b780-d3f5ac7b6e19")
+		(property "Sheetname" "MyCpu_counter"
+			(at 50.8 61.5184 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "MyCpu_counter.kicad_sch"
+			(at 50.8 74.2446 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "MyCPU"
+				(path "/3b2bc6e1-e750-4ab8-b1aa-7bf3bf6b6c01"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 50.8 121.92)
+		(size 25.4 11.43)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "9a6999c3-556b-4fe8-bc58-dfe051925439")
+		(property "Sheetname" "MyCpu_AddressData"
+			(at 50.8 121.2084 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "MyCpu_AddressData.kicad_sch"
+			(at 50.8 133.9346 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "MyCPU"
+				(path "/3b2bc6e1-e750-4ab8-b1aa-7bf3bf6b6c01"
+					(page "6")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 50.8 41.91)
+		(size 25.4 11.43)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "c17fa983-df31-4117-a87c-5689b8986f3d")
+		(property "Sheetname" "MyCpu_Alu"
+			(at 50.8 41.1984 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "MyCpu_Alu.kicad_sch"
+			(at 50.8 53.9246 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "MyCPU"
+				(path "/3b2bc6e1-e750-4ab8-b1aa-7bf3bf6b6c01"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
+	(embedded_fonts no)
+)

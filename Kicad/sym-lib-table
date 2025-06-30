@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "MyCpu_symbol_schematic")(type "KiCad")(uri "${KIPRJMOD}/MyCpu_symbol_schematic.kicad_sym")(options "")(descr ""))
+)
