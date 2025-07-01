@@ -41,9 +41,10 @@ Here’s a snapshot of the completed KiCad design:
 
 ## 🗂 Microcode and Assembler
 
-- Microcode source: `uCodeAssembler/`
-- Opcode assembler: `opCodeAssembler/`
-- Diagnostic program: `opCodeAssembler/examples/diag.asm`
+💾 [Download Microcode Source](uCodeAssembler/urom.lst)
+💾 [Download Microcode Assembler](uCodeAssembler/UctMicroAssembler/Program.cs)
+💾 [Download Opcode Assembler](opCodeAssembler/Program.cs)
+💾 [Download Diagnostic Program](opCodeAssembler/examples/diag.asm)
 
 ## 🧠 Register Implementation on RAM
 
