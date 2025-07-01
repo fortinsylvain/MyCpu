@@ -37,7 +37,7 @@ Here’s a snapshot of the completed KiCad design:
 
 ![KiCad PCB Design](MyCPU_PCB.jpg)
 
-[Download Schematic PDF](KiCad/MyCPU_Schematic.pdf)
+[Download Schematic PDF](Kicad/MyCPU_Schematic.pdf)
 
 ## 🗂 Microcode and Assembler
 
