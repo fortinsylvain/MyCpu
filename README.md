@@ -1,6 +1,6 @@
-# Homebrew CPU Project (74LS Logic + EEPROM)
+# Homebrew CPU Project
 
-I built this CPU at home using 74LS logic ICs and EEPROMs, driven by curiosity and a desire to understand processor design at a fundamental level.
+I built this CPU at home using 74LS logic ICs, EEPROMs, RAMs and GALs, driven by curiosity and a desire to understand processor design at a fundamental level.
 
 ---
 
@@ -12,31 +12,30 @@ My goal was to create a **fully functional CPU** using a **1-bit ALU**. While th
 
 ---
 
-## 🧵 Wire-Wrap Prototype
-
-Before moving to a PCB, I built a **wire-wrap prototype** to test the design on real hardware. This stage was essential for debugging the microcode, verifying timing, and refining the instruction set.
-
-![Wire-Wrap CPU](cpuPicture1.jpg)
-
-Wire-wrapping made it easier to make changes during development while still providing a reliable and compact way to interconnect components.
-
----
-
 ## 🧠 Custom CPU PCB Update
 
-With the core architecture proven on the wire-wrap prototypes, the **custom PCB version** of the CPU is now complete. This phase of the project has been generously sponsored by [**PCBWay**](https://www.pcbway.com).
+With the core architecture proven on the wire-wrap prototypes, the custom PCB version of the CPU is now complete. This phase of the project has been generously sponsored by PCBWay.
 
-I was really impressed by PCBWay’s **one-click KiCad integration** — all design files were submitted automatically to the PCBWay factory with a single click. The ordering process was fast and seamless!
+A special thank you to Liam from the Marketing Department at PCBWay, who discovered the wire-wrap prototype on GitHub and kindly offered sponsorship to support the development of a fully professional PCB.
 
-✅ **KiCad development completed**  
-🛒 **PCB ordered via PCBWay**  
-📦 **Currently waiting for the board to arrive**  
-🧰 **Preparing components for assembly**
+![KiCad PCB Design](MyCPU_JLCPCB.jpg)
 
-Here’s a snapshot of the completed KiCad design:
+🛠️ PCBWay Manufacturing Review
+I’m happy to share my experience working with PCBWay for manufacturing the custom PCB version of my CPU project. Here's a quick summary of how it went:
 
-![KiCad PCB Design](MyCPU_PCB.jpg)
+First, I transferred the handwritten schematic into KiCad, then completed the routing for each required part. I was able to find all the necessary components on AliExpress. After carefully checking my Gerber files, it was time to send the design to the factory.
 
+🔁 I was genuinely impressed by PCBWay’s one-click KiCad integration — all design files were submitted automatically to the PCBWay factory with a single click. No file packaging, no ZIP uploads — just click and go! The ordering process was fast and seamless.
+
+🌐 The web interface was intuitive and transparent, allowing me to track each step of the production process in real time.
+
+📦 The PCBs arrived astonishingly quickly, properly boxed and well-protected with excellent packaging.
+
+🛒 Although I ordered 5 PCBs, they kindly included 6 boards in the shipment — a thoughtful bonus!
+
+🌍 There’s a strong online community around PCBWay, full of shared open-source hardware projects — very inspiring!
+
+## 🧠 Board design files
 [Download Schematic PDF](Kicad/MyCPU_Schematic.pdf)
 
 ## 🗂 Microcode and Assembler
@@ -132,6 +131,16 @@ This was quickly found to be too tedious, leading to the acquisition of an **Agi
 
 ### Microcode View on Logic Analyzer  
 ![Microcode Disassembly](ucodeLogicAnalyzerDebug.jpg)
+
+---
+
+## 🧵 Wire-Wrap Prototype
+
+Before moving to a PCB, I built a **wire-wrap prototype** to test the design on real hardware. This stage was essential for debugging the microcode, verifying timing, and refining the instruction set.
+
+![Wire-Wrap CPU](cpuPicture1.jpg)
+
+Wire-wrapping made it easier to make changes during development while still providing a reliable and compact way to interconnect components.
 
 ---
 
