@@ -30,9 +30,14 @@ First, I transferred the handwritten schematic into KiCad, then completed the ro
 
 🌐 The web interface was intuitive and transparent, allowing me to track each step of the production process in real time.
 
-📦 The PCBs arrived astonishingly quickly, properly boxed and well-protected with excellent packaging.
+📦 The PCBs arrived astonishingly quickly, properly boxed and well-protected with excellent packaging. Although I ordered 5 boards, PCBWay generously included 6 — a thoughtful bonus!
 
-🛒 Although I ordered 5 PCBs, they kindly included 6 boards in the shipment — a thoughtful bonus!
+The soldering process went smoothly. I used footprints optimized for hand soldering, with larger pads to make it easier to work with. Only a couple of 0603 surface-mount resistors are present on the board.
+
+🔌 First power-on: the board worked on the first try!
+I reused the same EEPROM and GAL contents that were previously tested on the wire-wrap prototype — total success.
+
+Since the new board has a solid ground plane, I expect it will run faster than the prototype, with improved signal integrity. I plan to validate this with an oscilloscope soon — stay tuned for updates!
 
 🌍 There’s a strong online community around PCBWay, full of shared open-source hardware projects — very inspiring!
 
