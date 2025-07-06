@@ -20,7 +20,8 @@ A special thank you to Liam from the Marketing Department at PCBWay, who discove
 
 ![KiCad PCB Design](MyCPU_JLCPCB.jpg)
 
-🛠️ PCBWay Manufacturing Review
+## 🛠️ PCBWay Manufacturing Review
+
 I’m happy to share my experience working with PCBWay for manufacturing the custom PCB version of my CPU project. Here's a quick summary of how it went:
 
 First, I transferred the handwritten schematic into KiCad, then completed the routing for each required part. I was able to find all the necessary components on AliExpress. After carefully checking my Gerber files, it was time to send the design to the factory.
