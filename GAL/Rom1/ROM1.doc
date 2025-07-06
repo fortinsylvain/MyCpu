@@ -1,0 +1,194 @@
+
+*******************************************************************************
+                                     ROM1
+*******************************************************************************
+
+CUPL(WM)        5.0a Serial# 60008009
+Device          g16v8s  Library DLIB-h-40-9
+Created         Sat Jul 05 21:54:00 2025
+Name            ROM1
+Partno          1
+Revision        01
+Date            5/20/25
+Designer        Sylvain Fortin
+Company         Home
+Assembly        Example
+Location        Montreal
+
+===============================================================================
+                            Expanded Product Terms
+===============================================================================
+
+Address =>
+    D , C , B , A , PHI
+
+CS_N =>
+    A & B & C & D & !PHI
+  # A & C & D & PHI
+  # !A & B & C
+  # A & B & C & !D
+  # A & !B & !C & D
+  # !B & C & !PHI
+
+E =>
+    A & B & !C & D & PHI
+  # !A & !B & C & !D
+
+LA =>
+    !A & B & D & PHI
+
+LQ_N =>
+    !B & !C & D & !PHI
+  # !B & !C & !D
+  # C
+  # B & !C
+
+OE_N =>
+    A & !B & C
+  # !B & !C
+  # !A & B & !C
+  # A & B
+  # !A & C & !D
+
+OutputBits =>
+    E , CS_N , WE_N , LA , OE_N , LQ_N
+
+WE_N =>
+    A & B & C & D & !PHI
+  # !C
+  # A & C & D & PHI
+  # A & B & C & !D
+  # !B & C & !PHI
+  # !A & B & C
+
+
+===============================================================================
+                                 Symbol Table
+===============================================================================
+
+Pin Variable                                    Pterms   Max     Min    
+Pol   Name              Ext     Pin     Type     Used   Pterms  Level   
+--- --------            ---     ---     ----    ------  ------  -----   
+
+    A                           4        V        -       -       -     
+    Address                     0        F        -       -       -     
+    B                           5        V        -       -       -     
+    C                           6        V        -       -       -     
+    CS_N                        16       V        6       8       1     
+    D                           7        V        -       -       -     
+ !  E                           17       V        2       8       1     
+    LA                          14       V        1       8       1     
+    LQ_N                        12       V        4       8       1     
+    OE_N                        13       V        5       8       1     
+    OutputBits                  0        F        -       -       -     
+    PHI                         3        V        -       -       -     
+    WE_N                        15       V        6       8       1     
+
+
+LEGEND    D : default variable         F : field      G : group
+          I : intermediate variable    N : node       M : extended node
+          U : undefined                V : variable   X : extended variable
+          T : function
+
+
+===============================================================================
+                                   Fuse Plot
+===============================================================================
+
+Syn   02192 - Ac0   02193 x 
+
+Pin #19  02048  Pol x  02120  Ac1 - 
+ 00000 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00032 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00064 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00096 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00128 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00160 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00192 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00224 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #18  02049  Pol x  02121  Ac1 - 
+ 00256 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00288 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00320 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00352 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00384 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00416 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00448 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00480 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #17  02050  Pol x  02122  Ac1 x 
+ 00512 ----x---x---x----x--x----------- 
+ 00544 ---------x---x--x----x---------- 
+ 00576 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00608 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00640 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00672 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00704 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00736 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #16  02051  Pol -  02123  Ac1 x 
+ 00768 -----x--x---x---x---x----------- 
+ 00800 ----x---x-------x---x----------- 
+ 00832 ---------x--x---x--------------- 
+ 00864 --------x---x---x----x---------- 
+ 00896 --------x----x---x--x----------- 
+ 00928 -----x-------x--x--------------- 
+ 00960 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00992 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #15  02052  Pol -  02124  Ac1 x 
+ 01024 -----x--x---x---x---x----------- 
+ 01056 -----------------x-------------- 
+ 01088 ----x---x-------x---x----------- 
+ 01120 --------x---x---x----x---------- 
+ 01152 -----x-------x--x--------------- 
+ 01184 ---------x--x---x--------------- 
+ 01216 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01248 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #14  02053  Pol -  02125  Ac1 x 
+ 01280 ----x----x--x-------x----------- 
+ 01312 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01344 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01376 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01408 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01440 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01472 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01504 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #13  02054  Pol -  02126  Ac1 x 
+ 01536 --------x----x--x--------------- 
+ 01568 -------------x---x-------------- 
+ 01600 ---------x--x----x-------------- 
+ 01632 --------x---x------------------- 
+ 01664 ---------x------x----x---------- 
+ 01696 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01728 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01760 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #12  02055  Pol -  02127  Ac1 x 
+ 01792 -----x-------x---x--x----------- 
+ 01824 -------------x---x---x---------- 
+ 01856 ----------------x--------------- 
+ 01888 ------------x----x-------------- 
+ 01920 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01952 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 01984 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 02016 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+
+
+LEGEND    X : fuse not blown 
+          - : fuse blown 
+
+===============================================================================
+                                 Chip Diagram
+===============================================================================
+
+                               ______________
+                              |     ROM1     |
+                          x---|1           20|---x Vcc                      
+                          x---|2           19|---x                          
+                      PHI x---|3           18|---x                          
+                        A x---|4           17|---x !E                       
+                        B x---|5           16|---x CS_N                     
+                        C x---|6           15|---x WE_N                     
+                        D x---|7           14|---x LA                       
+                          x---|8           13|---x OE_N                     
+                          x---|9           12|---x LQ_N                     
+                      GND x---|10          11|---x                          
+                              |______________|
+

@@ -1,0 +1,90 @@
+Name     CLOCK;
+PartNo   00;
+Revision 01;
+Date     6/6/25;
+Designer Sylvain Fortin;
+Company  Home;
+Location Montreal;
+Assembly None;
+Device   g22v10;
+
+/*
+	Clock generator
+	Oscillator at clock is 26.8 MHz      
+
+                               ______________
+                              |   Counter    |
+                      CLK x---|1           24|---x Vcc                      
+                    RESET x---|2           23|---x PHI2
+                       S2 x---|3           22|---x PHI1
+                       S1 x---|4           21|---x PHI2_B
+                       S0 x---|5           20|---x PHI1_B
+                        I x---|6           19|---x I/O/Q
+                        I x---|7           18|---x 
+                        I x---|8           17|---x Q3
+                        I x---|9           16|---x Q2
+                        I x---|10          15|---x Q1
+                        I x---|11          14|---x Q0
+                     GND  x---|12          13|---x I
+                              |______________|
+                              
+*/
+
+
+/**  Inputs  **/
+PIN 1 = CLK;
+PIN 2 = RESET;
+PIN 3 = S2;
+PIN 4 = S1;
+PIN 5 = S0;
+
+/**  Outputs  **/
+PIN 14 = Q0;
+PIN 15 = Q1;
+PIN 16 = Q2;
+PIN 17 = Q3;
+
+PIN 20 = PHI1_B;
+PIN 21 = PHI2_B;
+PIN 22 = PHI1;
+PIN 23 = PHI2;
+
+
+/* Synchronous Reset + Binary Counter Logic */
+Q0.d = !Q0;   					/* Q0 toggle */
+Q1.d = (Q1 & !Q0) # (!Q1 & Q0);			/* Q1 toggles when Q0=1 */
+Q2.d = (Q2 & !(Q1 & Q0)) # (!Q2 & Q1 & Q0);  	/* Q2 toggles when Q1=1 and Q0=1 */
+Q3.d  = (Q3 & !(Q2 & Q1 & Q0)) # (!Q3 & Q2 & Q1 & Q0);
+
+/* Combinational outputs */
+/* 26.8 / 4 = 6.7 MHz */
+/* PHI1 = (!Q1 & !Q0) # (!Q1 & Q0);  /* PHI1 = 1 when Q = 0 or 1 */
+/* PHI2 = Q1 & !Q0;                  /* PHI2 = 1 when Q = 2 */
+
+/* Combinational outputs */
+/* 26.8 / 8 = 3.35 MHz */
+/* PHI1 = (!Q2 & !Q1) # (!Q2 & Q1);  /* PHI1 = 1 when Q = 0 or 1 */
+/* PHI2 = Q2 & !Q1;                  /* PHI2 = 1 when Q = 2 */
+
+/* Combinational outputs */
+/* 26.8 / 16 = 1.675 MHz */
+PHI1 = (!Q3 & !Q2) # (!Q3 & Q2);  /* PHI1 = 1 when Q = 0 or 1 */
+PHI2 = Q3 & !Q2;                  /* PHI2 = 1 when Q = 2 */
+PHI1_B = (!Q3 & !Q2) # (!Q3 & Q2);
+PHI2_B = Q3 & !Q2;
+
+
+/* asynchronous reset not used  */
+Q0.ar = 'h'00; 
+Q1.ar = 'h'00; 
+Q2.ar = 'h'00; 
+Q3.ar = 'h'00; 
+
+/* synchronous preset           */
+Q0.sp = 'h'00; 
+Q1.sp = 'h'00; 
+Q2.sp = 'h'00; 
+Q3.sp = 'h'00; 
+
+
+

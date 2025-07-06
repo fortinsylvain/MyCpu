@@ -1,0 +1,169 @@
+{COMPONENT C:\WINCUPL\WINCUPL\PROJECT\MYCPU\DECODER\DECODER.SYM
+
+ {ENVIRONMENT
+  {PDIFvrev 3.00}
+  {Program "CUPL(WM) Version 5.0a"}
+  {DBtype "Schematic"}
+  {DBvrev 1.01}
+  {DBtime "Sat Jul 05 22:36:19 2025 "}
+  {DBunit "MIL"}
+  {DBgrid 10}
+  {Lyrstr "WIRES" 1 "BUS" 1 "GATE" 2 "IEEE" 2 "PINFUN" 3 "PINNUM" 1 
+          "PINNAM" 6 "PINCON" 4 "REFDES" 2 "ATTR" 6 "SDOT" 1 
+          "DEVICE" 5 "OUTLIN" 5 "ATTR2" 6 "NOTES" 6 "NETNAM" 4 
+          "CMPNAM" 5 "BORDER" 5}
+ }
+
+ {USER
+  {VIEW
+   {Mode SYMB}
+   {Nlst OPEN}
+   {Vw 0 0 2}
+   {Lv 12 2 2 2 0 0 2 2 2 2 0 0 2 1 2 0 0 0 0}
+   {Gs 10 10}
+  }
+ }
+
+ {DISPLAY
+  [Ly "PINNUM"]
+  [Ls "SOLID"][Wd 0]
+  [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+ }
+
+ {SYMBOL
+  {PIN_DEF
+   [Ly "PINCON"]
+   {P A10 {Pt "INPUT"}{Lq 0}{Ploc 100 220}}
+   {P A11 {Pt "INPUT"}{Lq 0}{Ploc 100 200}}
+   {P A12 {Pt "INPUT"}{Lq 0}{Ploc 100 180}}
+   {P A13 {Pt "INPUT"}{Lq 0}{Ploc 100 160}}
+   {P A14 {Pt "INPUT"}{Lq 0}{Ploc 100 140}}
+   {P A15 {Pt "INPUT"}{Lq 0}{Ploc 100 120}}
+   {P E_N {Pt "INPUT"}{Lq 0}{Ploc 100 100}}
+   {P A0 {Pt "INPUT"}{Lq 0}{Ploc 100 80}}
+   {P A1 {Pt "INPUT"}{Lq 0}{Ploc 100 60}}
+   {P DEC1_CS_ {Pt "INPUT"}{Lq 0}{Ploc 100 40}}
+   {P DEC0_CS_ {Pt "INPUT"}{Lq 0}{Ploc 100 20}}
+   {P EEPROM_C {Pt "I/O"}{Lq 0}{Ploc 360 20}}
+   {P LED_PORT {Pt "I/O"}{Lq 0}{Ploc 360 40}}
+   {P RAM_CS_N {Pt "I/O"}{Lq 0}{Ploc 360 60}}
+  }
+
+  {PKG
+   [Ly "REFDES"]
+   [Ts 25][Tj "CB"][Tr 0][Tm "N"]
+   {Rdl 230 250}
+
+   [Ly "PINNUM"]
+   [Ts 15][Tj "RC"]
+   {Pnl 120 230}
+   {Pnl 120 210}
+   {Pnl 120 190}
+   {Pnl 120 170}
+   {Pnl 120 150}
+   {Pnl 120 130}
+   {Pnl 120 110}
+   {Pnl 120 90}
+   {Pnl 120 70}
+   {Pnl 120 50}
+   {Pnl 120 30}
+   [Ts 15][Tj "LC"]
+   {Pnl 340 30}
+   {Pnl 340 50}
+   {Pnl 340 70}
+
+   {Sd A 2 3 4 5 6 7 8 9 10 22 23 14 15 19}
+  }
+
+  {PIC
+   [Ly "GATE"]
+   [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+   {R 130 240 330 0}
+   {L 130 220 100 220}
+   {L 130 200 100 200}
+   {L 130 180 100 180}
+   {L 130 160 100 160}
+   {L 130 140 100 140}
+   {L 130 120 100 120}
+   {L 130 100 100 100}
+   {L 130 80 100 80}
+   {L 130 60 100 60}
+   {L 130 40 100 40}
+   {L 130 20 100 20}
+   {L 330 20 360 20}
+   {L 330 40 360 40}
+   {L 330 60 360 60}
+   [Ly "PINNAM"]
+   [Tj "LC"]
+   {T "A10" 140 220}
+   {T "A11" 140 200}
+   {T "A12" 140 180}
+   {T "A13" 140 160}
+   {T "A14" 140 140}
+   {T "A15" 140 120}
+   {T "E_N" 140 100}
+   {T "A0" 140 80}
+   {T "A1" 140 60}
+   {T "DEC1_CS_" 140 40}
+   {T "DEC0_CS_" 140 20}
+   [Tj "RC"]
+   {T "EEPROM_C" 320 20}
+   {T "LED_PORT" 320 40}
+   {T "RAM_CS_N" 320 60}
+   [Ly "DEVICE"]
+   [Tj "CT"]
+   {T "G22V10" 230 -10}
+  }
+
+  {ATR
+   {IN
+    {Org 100 20}
+    {Ty 255}
+   }
+   {EX
+    [Ly "ATTR2"]
+    [Ts 12][Tj "CT"][Tr 0][Tm "N"]
+    {At PLD C:\WINCUPL\WINCUPL\PROJECT\MYCPU\DECODER\DECODER 230 240}
+   }
+  }
+ }
+
+ {DETAIL
+  {ANNOTATE
+  }
+
+  {NET_DEF
+   {N A10
+   }
+   {N A11
+   }
+   {N A12
+   }
+   {N A13
+   }
+   {N A14
+   }
+   {N A15
+   }
+   {N E_N
+   }
+   {N A0
+   }
+   {N A1
+   }
+   {N DEC1_CS_
+   }
+   {N DEC0_CS_
+   }
+   {N EEPROM_C
+   }
+   {N LED_PORT
+   }
+   {N RAM_CS_N
+   }
+  }
+
+  {SUBCOMP
+  }
+ }
+}

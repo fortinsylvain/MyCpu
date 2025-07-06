@@ -1,0 +1,93 @@
+%SIGNAL
+PIN   1 =  CLK 
+PIN  22 =  PHI1 
+PIN  20 =  PHI1_B 
+PIN  23 =  PHI2 
+PIN  21 =  PHI2_B 
+PIN  14 =  Q0 
+PIN  15 =  Q1 
+PIN  16 =  Q2 
+PIN  17 =  Q3 
+PIN   2 =  RESET 
+PIN   5 =  S0 
+PIN   4 =  S1 
+PIN   3 =  S2 
+%END
+
+%FIELD
+%END
+
+%EQUATION
+PHI1 =>
+    Q3
+
+PHI1_B =>
+    Q3
+
+PHI2 =>
+    Q2 & !Q3
+
+PHI2_B =>
+    Q2 & !Q3
+
+Q0.d  =>
+    Q0
+
+Q0.ar Q1.ar Q2.ar Q3.ar  =>
+    0 
+
+Q0.sp Q1.sp Q2.sp Q3.sp  =>
+    0 
+
+Q1.d  =>
+    Q0 & !Q1
+  # !Q0 & Q1
+
+Q1.ar  =>
+    
+Q1.sp  =>
+    
+Q2.d  =>
+    Q1 & !Q2
+  # Q0 & !Q2
+  # !Q0 & !Q1 & Q2
+
+Q2.ar  =>
+    
+Q2.sp  =>
+    
+Q3.d  =>
+    Q2 & !Q3
+  # Q1 & !Q3
+  # Q0 & !Q3
+  # !Q0 & !Q1 & !Q2 & Q3
+
+Q3.ar  =>
+    
+Q3.sp  =>
+    
+PHI1.oe  =>
+    1 
+
+PHI1_B.oe  =>
+    1 
+
+PHI2.oe  =>
+    1 
+
+PHI2_B.oe  =>
+    1 
+
+Q0.oe  =>
+    1 
+
+Q1.oe  =>
+    1 
+
+Q2.oe  =>
+    1 
+
+Q3.oe  =>
+    1 
+
+%END

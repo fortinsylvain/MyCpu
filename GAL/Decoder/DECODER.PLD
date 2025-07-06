@@ -1,0 +1,54 @@
+Name     DECODER;
+PartNo   1;
+Revision 1.0;
+Date     6/23/25;
+Designer Sylvain Fortin;
+Company  YourCompany;
+Assembly Home;
+Location Montreal;
+Device   g22v10;
+
+/*
+                               ______________
+                              |   DECODER    |
+                    I/CLK x---|1           24|---x Vcc                      
+                A10     I x---|2           23|---x I/O/Q DEC0_CS_N
+                A11     I x---|3           22|---x I/O/Q DEC1_CS_N
+                A12     I x---|4           21|---x I/O/Q
+                A13     I x---|5           20|---x I/O/Q
+                A14     I x---|6           19|---x I/O/Q RAM_CS_N
+                A15     I x---|7           18|---x I/O/Q 
+                E_N     I x---|8           17|---x I/O/Q
+                A0      I x---|9           16|---x I/O/Q
+                A1      I x---|10          15|---x I/O/Q LED_PORT_CLK  
+                        I x---|11          14|---x I/O/Q EEPROM_CS_N
+                      GND x---|12          13|---x I                              
+                              |______________|
+                              
+*/
+
+/** Input Pins **/
+Pin 2  = A10;
+Pin 3  = A11;
+Pin 4  = A12;
+Pin 5  = A13;
+Pin 6  = A14;
+Pin 7  = A15;
+Pin 8  = E_N;
+Pin 9  = A0;
+Pin 10 = A1;
+
+
+/** Output Pins **/
+Pin 14 = EEPROM_CS_N;
+Pin 15 = LED_PORT_CLK;
+Pin 19 = RAM_CS_N;
+Pin 22 = DEC1_CS_N;
+Pin 23 = DEC0_CS_N;
+
+
+!RAM_CS_N     = (!E_N & !A15 & !A14 & !A13);
+!LED_PORT_CLK = (!E_N &  A15 &  A14 & !A13);
+!EEPROM_CS_N  = (!E_N &  A15 &  A14 &  A13);
+
+

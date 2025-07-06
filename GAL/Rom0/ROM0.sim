@@ -1,0 +1,64 @@
+%SIGNAL
+PIN   3 =  A 
+PIN  17 =  AH 
+PIN  16 =  AL 
+PIN   4 =  B 
+PIN   5 =  C 
+PIN   6 =  D 
+PIN  14 =  DIR 
+PIN   7 =  E 
+PIN  15 =  G_N 
+PIN  12 =  I_N 
+PIN  13 =  RW 
+PIN  19 =  UH 
+PIN  18 =  UL 
+%END
+
+%FIELD
+FIELD Address = E,D,C,B,A
+FIELD OutputBits = UH,UL,AH,AL,G_N,DIR,RW,I_N
+%END
+
+%EQUATION
+AH =>
+    A & B & C & D & E
+  # A & !B & C & !D & !E
+
+AL =>
+    A & B & !C & D & E
+  # A & B & C & !D & !E
+
+DIR =>
+    B & C & !D & E
+
+G_N =>
+    B & !C & !D & E
+  # !C & !D & !E
+  # !B & !C & E
+  # B & C & !D & !E
+  # !B & C
+  # B & D
+
+I_N =>
+    !B & C & E
+  # !C & !D
+  # !B & C & !D & !E
+  # B & C & !D
+  # !B & !C & D
+
+RW =>
+    B & D
+  # !C & !D
+  # !B & C
+  # B & C & !D & !E
+  # !B & !C & D
+
+UH =>
+    A & !B & C & D & !E
+  # A & !B & !C & !D & !E
+
+UL =>
+    A & B & C & D & !E
+  # A & B & !C & !D & !E
+
+%END

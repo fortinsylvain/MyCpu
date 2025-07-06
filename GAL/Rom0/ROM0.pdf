@@ -1,0 +1,163 @@
+{COMPONENT C:\WINCUPL\WINCUPL\PROJECT\MYCPU\ROM0\ROM0.SYM
+
+ {ENVIRONMENT
+  {PDIFvrev 3.00}
+  {Program "CUPL(WM) Version 5.0a"}
+  {DBtype "Schematic"}
+  {DBvrev 1.01}
+  {DBtime "Sat Jul 05 21:34:28 2025 "}
+  {DBunit "MIL"}
+  {DBgrid 10}
+  {Lyrstr "WIRES" 1 "BUS" 1 "GATE" 2 "IEEE" 2 "PINFUN" 3 "PINNUM" 1 
+          "PINNAM" 6 "PINCON" 4 "REFDES" 2 "ATTR" 6 "SDOT" 1 
+          "DEVICE" 5 "OUTLIN" 5 "ATTR2" 6 "NOTES" 6 "NETNAM" 4 
+          "CMPNAM" 5 "BORDER" 5}
+ }
+
+ {USER
+  {VIEW
+   {Mode SYMB}
+   {Nlst OPEN}
+   {Vw 0 0 2}
+   {Lv 12 2 2 2 0 0 2 2 2 2 0 0 2 1 2 0 0 0 0}
+   {Gs 10 10}
+  }
+ }
+
+ {DISPLAY
+  [Ly "PINNUM"]
+  [Ls "SOLID"][Wd 0]
+  [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+ }
+
+ {SYMBOL
+  {PIN_DEF
+   [Ly "PINCON"]
+   {P A {Pt "INPUT"}{Lq 0}{Ploc 100 220}}
+   {P B {Pt "INPUT"}{Lq 0}{Ploc 100 200}}
+   {P C {Pt "INPUT"}{Lq 0}{Ploc 100 180}}
+   {P D {Pt "INPUT"}{Lq 0}{Ploc 100 160}}
+   {P E {Pt "INPUT"}{Lq 0}{Ploc 100 140}}
+   {P I_N {Pt "INPUT"}{Lq 0}{Ploc 100 120}}
+   {P RW {Pt "INPUT"}{Lq 0}{Ploc 100 100}}
+   {P DIR {Pt "INPUT"}{Lq 0}{Ploc 100 80}}
+   {P AH {Pt "INPUT"}{Lq 0}{Ploc 100 60}}
+   {P UL {Pt "INPUT"}{Lq 0}{Ploc 100 40}}
+   {P UH {Pt "INPUT"}{Lq 0}{Ploc 100 20}}
+   {P G_N {Pt "I/O"}{Lq 0}{Ploc 280 20}}
+   {P AL {Pt "I/O"}{Lq 0}{Ploc 280 40}}
+  }
+
+  {PKG
+   [Ly "REFDES"]
+   [Ts 25][Tj "CB"][Tr 0][Tm "N"]
+   {Rdl 190 250}
+
+   [Ly "PINNUM"]
+   [Ts 15][Tj "RC"]
+   {Pnl 120 230}
+   {Pnl 120 210}
+   {Pnl 120 190}
+   {Pnl 120 170}
+   {Pnl 120 150}
+   {Pnl 120 130}
+   {Pnl 120 110}
+   {Pnl 120 90}
+   {Pnl 120 70}
+   {Pnl 120 50}
+   {Pnl 120 30}
+   [Ts 15][Tj "LC"]
+   {Pnl 260 30}
+   {Pnl 260 50}
+
+   {Sd A 3 4 5 6 7 12 13 14 17 18 19 15 16}
+  }
+
+  {PIC
+   [Ly "GATE"]
+   [Ts 15][Tj "LC"][Tr 0][Tm "N"]
+   {R 130 240 250 0}
+   {L 130 220 100 220}
+   {L 130 200 100 200}
+   {L 130 180 100 180}
+   {L 130 160 100 160}
+   {L 130 140 100 140}
+   {L 130 120 100 120}
+   {L 130 100 100 100}
+   {L 130 80 100 80}
+   {L 130 60 100 60}
+   {L 130 40 100 40}
+   {L 130 20 100 20}
+   {L 250 20 280 20}
+   {L 250 40 280 40}
+   [Ly "PINNAM"]
+   [Tj "LC"]
+   {T "A" 140 220}
+   {T "B" 140 200}
+   {T "C" 140 180}
+   {T "D" 140 160}
+   {T "E" 140 140}
+   {T "I_N" 140 120}
+   {T "RW" 140 100}
+   {T "DIR" 140 80}
+   {T "AH" 140 60}
+   {T "UL" 140 40}
+   {T "UH" 140 20}
+   [Tj "RC"]
+   {T "G_N" 240 20}
+   {T "AL" 240 40}
+   [Ly "DEVICE"]
+   [Tj "CT"]
+   {T "G16V8S" 190 -10}
+  }
+
+  {ATR
+   {IN
+    {Org 100 20}
+    {Ty 255}
+   }
+   {EX
+    [Ly "ATTR2"]
+    [Ts 12][Tj "CT"][Tr 0][Tm "N"]
+    {At PLD C:\WINCUPL\WINCUPL\PROJECT\MYCPU\ROM0\ROM0 190 240}
+   }
+  }
+ }
+
+ {DETAIL
+  {ANNOTATE
+  }
+
+  {NET_DEF
+   {N A
+   }
+   {N B
+   }
+   {N C
+   }
+   {N D
+   }
+   {N E
+   }
+   {N I_N
+   }
+   {N RW
+   }
+   {N DIR
+   }
+   {N AH
+   }
+   {N UL
+   }
+   {N UH
+   }
+   {N G_N
+   }
+   {N AL
+   }
+  }
+
+  {SUBCOMP
+  }
+ }
+}

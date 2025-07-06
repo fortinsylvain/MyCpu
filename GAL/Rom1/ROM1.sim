@@ -1,0 +1,57 @@
+%SIGNAL
+PIN   4 =  A 
+PIN   5 =  B 
+PIN   6 =  C 
+PIN  16 =  CS_N 
+PIN   7 =  D 
+PIN  17 = !E 
+PIN  14 =  LA 
+PIN  12 =  LQ_N 
+PIN  13 =  OE_N 
+PIN   3 =  PHI 
+PIN  15 =  WE_N 
+%END
+
+%FIELD
+FIELD Address = D,C,B,A,PHI
+FIELD OutputBits = E,CS_N,WE_N,LA,OE_N,LQ_N
+%END
+
+%EQUATION
+CS_N =>
+    A & B & C & D & !PHI
+  # A & C & D & PHI
+  # !A & B & C
+  # A & B & C & !D
+  # A & !B & !C & D
+  # !B & C & !PHI
+
+E =>
+    A & B & !C & D & PHI
+  # !A & !B & C & !D
+
+LA =>
+    !A & B & D & PHI
+
+LQ_N =>
+    !B & !C & D & !PHI
+  # !B & !C & !D
+  # C
+  # B & !C
+
+OE_N =>
+    A & !B & C
+  # !B & !C
+  # !A & B & !C
+  # A & B
+  # !A & C & !D
+
+WE_N =>
+    A & B & C & D & !PHI
+  # !C
+  # A & C & D & PHI
+  # A & B & C & !D
+  # !B & C & !PHI
+  # !A & B & C
+
+%END

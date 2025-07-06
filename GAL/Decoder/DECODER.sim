@@ -1,0 +1,40 @@
+%SIGNAL
+PIN   9 =  A0 
+PIN  10 =  A1 
+PIN   2 =  A10 
+PIN   3 =  A11 
+PIN   4 =  A12 
+PIN   5 =  A13 
+PIN   6 =  A14 
+PIN   7 =  A15 
+PIN  23 =  DEC0_CS_N 
+PIN  22 =  DEC1_CS_N 
+PIN  14 =  EEPROM_CS_N 
+PIN   8 =  E_N 
+PIN  15 =  LED_PORT_CLK 
+PIN  19 =  RAM_CS_N 
+%END
+
+%FIELD
+%END
+
+%EQUATION
+!EEPROM_CS_N =>
+    A13 & A14 & A15 & !E_N
+
+!LED_PORT_CLK =>
+    !A13 & A14 & A15 & !E_N
+
+!RAM_CS_N =>
+    !A13 & !A14 & !A15 & !E_N
+
+EEPROM_CS_N.oe  =>
+    1 
+
+LED_PORT_CLK.oe  =>
+    1 
+
+RAM_CS_N.oe  =>
+    1 
+
+%END
