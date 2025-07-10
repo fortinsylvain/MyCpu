@@ -14,7 +14,7 @@ My goal was to create a **fully functional CPU** using a **1-bit ALU**. While th
 
 ## 🧠 Custom CPU PCB Update
 
-After validating the core architecture with wire-wrap prototypes, the custom PCB version of the CPU is now complete. The boards were professionally fabricated by PCBWay, thanks to a generous sponsorship offered by Liam from their marketing team, who discovered the project on GitHub. This support helped transition the design from a hand-built prototype to a professionally produced PCB.
+After validating the core architecture on a wire-wrap prototype, the custom PCB version of the CPU is now complete. The boards were professionally fabricated by PCBWay, thanks to a generous sponsorship offered by Liam from their marketing team, who discovered the project on GitHub. This support helped transition the design from a hand-built prototype to a professionally produced PCB.
 
 ![KiCad PCB Design](MyCPU_PCBWay.jpg)
 
