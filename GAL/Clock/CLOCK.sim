@@ -19,16 +19,20 @@ PIN   3 =  S2
 
 %EQUATION
 PHI1 =>
-    Q3
+    Q1 & !S0 & !S1 & !S2
+  # Q2 & S0 & !S1 & !S2
+  # Q3 & !S0 & S1 & !S2
 
 PHI1_B =>
-    Q3
+    PHI1
 
 PHI2 =>
-    Q2 & !Q3
+    Q0 & !Q1 & !S0 & !S1 & !S2
+  # Q1 & !Q2 & S0 & !S1 & !S2
+  # Q2 & !Q3 & !S0 & S1 & !S2
 
 PHI2_B =>
-    Q2 & !Q3
+    PHI2
 
 Q0.d  =>
     Q0

@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Sat Jul 05 22:22:52 2025
+Created         Sun Jul 06 19:27:12 2025
 Name            CLOCK
 Partno          00
 Revision        01
@@ -20,16 +20,20 @@ Location        Montreal
 ===============================================================================
 
 PHI1 =>
-    !Q3
+    !Q1 & !S0 & !S1 & !S2
+  # !Q2 & S0 & !S1 & !S2
+  # !Q3 & !S0 & S1 & !S2
 
 PHI1_B =>
-    !Q3
+    PHI1
 
 PHI2 =>
-    !Q2 & Q3
+    !Q0 & Q1 & !S0 & !S1 & !S2
+  # !Q1 & Q2 & S0 & !S1 & !S2
+  # !Q2 & Q3 & !S0 & S1 & !S2
 
 PHI2_B =>
-    !Q2 & Q3
+    PHI2
 
 Q0.d  =>
     !Q0
@@ -107,9 +111,9 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
 --- --------            ---     ---     ----    ------  ------  -----   
 
     CLK                         1        V        -       -       -     
-    PHI1                        22       V        1       10      1     
+    PHI1                        22       V        3       10      1     
     PHI1_B                      20       V        1       14      1     
-    PHI2                        23       V        1       8       1     
+    PHI2                        23       V        3       8       1     
     PHI2_B                      21       V        1       12      1     
     Q0                          14       V        -       -       -     
     Q0                  d       14       X        1       8       1     
@@ -159,9 +163,9 @@ AR
 
 Pin #23  05808 Mode  -- 
  00044 -------------------------------------------- 
- 00088 ---------------------------x--x------------- 
- 00132 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00176 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00088 ---------x---x---x-----------------x--x----- 
+ 00132 ---------x---x--x--------------x--x--------- 
+ 00176 ---------x--x----x---------x--x------------- 
  00220 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00264 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00308 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -169,9 +173,9 @@ Pin #23  05808 Mode  --
  00396 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #22  05810 Mode  -- 
  00440 -------------------------------------------- 
- 00484 --------------------------x----------------- 
- 00528 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00572 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 00484 ---------x---x---x----------------x--------- 
+ 00528 ---------x---x--x-------------x------------- 
+ 00572 ---------x--x----x--------x----------------- 
  00616 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00660 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00704 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -181,7 +185,7 @@ Pin #22  05810 Mode  --
  00880 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #21  05812 Mode  -- 
  00924 -------------------------------------------- 
- 00968 ---------------------------x--x------------- 
+ 00968 --x----------------------------------------- 
  01012 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01056 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01100 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -195,7 +199,7 @@ Pin #21  05812 Mode  --
  01452 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #20  05814 Mode  -- 
  01496 -------------------------------------------- 
- 01540 --------------------------x----------------- 
+ 01540 ------x------------------------------------- 
  01584 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01628 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  01672 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 

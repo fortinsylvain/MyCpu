@@ -65,6 +65,14 @@ Wire-wrapping made it easier to make changes during development while still prov
 💾 [Download Diagnostic Program](opCodeAssembler/examples/diag.asm)  
 
 ---
+## 🗂 GAL source files
+In the PCB version of MyCPU i make use of programmable logic devices (GALs) for clock phase generation, address decoding, and microcode ROM decoding tables.
+The source files were compiled using WinCupl, and the chips were programmed using a TL866II Plus programmer.
+
+💾 [Download GAL22V10 Clock](GAL/Clock/CLOCK.PLD)
+💾 [Download GAL22V10 Decoder](GAL/Decoder/DECODER.PLD)
+💾 [Download GAL16V8 ROM0](GAL/Rom0/ROM0.PLD)
+💾 [Download GAL16V8 ROM1](GAL/Rom1/ROM1.PLD)
 
 ## 🧠 Register Implementation on RAM
 
