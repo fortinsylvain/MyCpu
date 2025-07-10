@@ -14,11 +14,9 @@ My goal was to create a **fully functional CPU** using a **1-bit ALU**. While th
 
 ## 🧠 Custom CPU PCB Update
 
-With the core architecture proven on the wire-wrap prototypes, the custom PCB version of the CPU is now complete. This phase of the project has been generously sponsored by PCBWay.
+After validating the core architecture with wire-wrap prototypes, the custom PCB version of the CPU is now complete. The boards were professionally fabricated by PCBWay, thanks to a generous sponsorship offered by Liam from their marketing team, who discovered the project on GitHub. This support helped transition the design from a hand-built prototype to a professionally produced PCB.
 
-A special thank you to Liam from the Marketing Department at PCBWay, who discovered the wire-wrap prototype on GitHub and kindly offered sponsorship to support the development of a fully professional PCB.
-
-![KiCad PCB Design](MyCPU_JLCPCB.jpg)
+![KiCad PCB Design](MyCPU_PCBWay.jpg)
 
 ## 🛠️ PCBWay Manufacturing Review
 
@@ -35,7 +33,7 @@ First, I transferred the handwritten schematic into KiCad, then completed the ro
 The soldering process went smoothly. I used footprints optimized for hand soldering, with larger pads to make it easier to work with. Only a couple of 0603 surface-mount resistors are present on the board.
 
 🔌 First power-on: the board worked on the first try!
-I reused the same EEPROM and GAL contents that were previously tested on the wire-wrap prototype — total success.
+I reused the same microcode and program EEPROM, along with the GAL, that were previously tested on the wire-wrap prototype — total success.
 
 Since the new board has a solid ground plane, I expect it will run faster than the prototype, with improved signal integrity. I plan to validate this with an oscilloscope soon — stay tuned for updates!
 
@@ -44,12 +42,25 @@ Since the new board has a solid ground plane, I expect it will run faster than t
 ## 🧠 Board design files
 [Download Schematic PDF](Kicad/MyCPU_Schematic.pdf)
 
+## 🧵 Wire-Wrap Prototype
+
+Before moving to a PCB, I built a **wire-wrap prototype** to test the design on real hardware. This stage was essential for debugging the microcode, verifying timing, and refining the instruction set.
+
+![Wire-Wrap CPU](cpuPicture1.jpg)
+![Wire-Wrap CPU](cpuPicture_back.jpg)
+
+Wire-wrapping made it easier to make changes during development while still providing a reliable and compact way to interconnect components.
+
+---
+
 ## 🗂 Microcode and Assembler
 
 💾 [Download Microcode Source](uCodeAssembler/urom.lst)  
 💾 [Download Microcode Assembler](uCodeAssembler/UctMicroAssembler/Program.cs)  
 💾 [Download Opcode Assembler](opCodeAssembler/Program.cs)  
 💾 [Download Diagnostic Program](opCodeAssembler/examples/diag.asm)  
+
+---
 
 ## 🧠 Register Implementation on RAM
 
@@ -92,6 +103,8 @@ Here is the memory address map:
 ![Top-Level Diagram](topDiagram.jpg)
 
 ### Hand-Written CPU Schematic  
+When I started this project back in 1995, I didn’t have access to schematic capture software or a decent computer that could run it. I only had an IBM Personal Computer XT, so I used pen and paper to sketch how the electronic components were connected.
+
 ![CPU Schematic](cpuSchematic.jpg)
 
 ### CPU Board Layout View  
@@ -101,8 +114,13 @@ Here is the memory address map:
 
 ## Microcode and Control ROMs
 
-The ROM decoding table encodes how data moves between components.  
-This reduces the number of control bits required by expanding microcode control using external PROMs.
+The microcode is stored in two 2864 EEPROM ICs.
+Originally, a BASIC program was used to translate a text file of micro-instructions into a .hex file.
+A homemade EEPROM programmer was built to write these files via the parallel port of an IBM PC XT.
+
+Today, a modern C# program performs the same translation into .hex format for programming.
+
+The ROM decoding table encodes how data moves between components. This reduces the number of control bits required by expanding microcode control using external PROMs.
 
 - ROM chips: **IC20** and **IC21** (74S188, 256×1 Open Collector PROMs)
 - These are *one-time programmable* PROMs.
@@ -110,43 +128,35 @@ This reduces the number of control bits required by expanding microcode control 
 
 ![Decoder ROM Table](decoderRomTable.jpg)
 
+In the PCB version of the board, two GAL16V8 replaces the PROMs to implement the decoding table, offering greater flexibility and eliminating the need for one-time programmable chips.
+
 ---
 
 ## I/O Board Schematic
-
-Includes:
+Wire wrap proto required a second board to include the following:
 - RAM
 - EEPROM (for application program)
 - LEDs for visual feedback
 
+The PCB version include all these in the sameboard.
+
 ![I/O Schematic](ioSchematic.jpg)
 
+The PCB version includes all of these components on a single board.
 ---
 
 ## Debugging Setup
 
-Early debugging involved **single clock stepping** and LEDs to display microcode address and main bus data.  
-This was quickly found to be too tedious, leading to the acquisition of an **Agilent 1670G Logic Analyzer** (eBay bargain!).
+Initially, I was single-stepping using push switches, LEDs, and a pair of classic TIL311 hex displays to monitor the 8-bit data bus on the wire-wrap prototype, but it quickly stopped being fun. When bugs like stack corruption became too tricky to debug, I decided to get an Agilent 1670G Logic Analyzer. I found one on eBay for 510 CAD, which seemed like a reasonable price—I never thought I’d own one! It’s the color LCD version, so now I get to see the word in color.
 
-- Logic analyzer connected to **MyCpu**
-- Allows recording of instruction traces
-- Symbol assignment enables **rudimentary microcode disassembly**
+With the analyzer, I can trigger on specific conditions and even do some reverse assembly of the microcode using basic symbolic decoding. It allow recording of detailed intructions traces. Quite cool!
 
 ### Final Wire-Wrap Assembly with Logic Analyzer  
+Here the Logic analyzer connected to **MyCpu** for a debug session.
 ![Wire-Wrap and Logic Analyzer](cpuPicture2.jpg)
 
 ### Microcode View on Logic Analyzer  
 ![Microcode Disassembly](ucodeLogicAnalyzerDebug.jpg)
-
----
-
-## 🧵 Wire-Wrap Prototype
-
-Before moving to a PCB, I built a **wire-wrap prototype** to test the design on real hardware. This stage was essential for debugging the microcode, verifying timing, and refining the instruction set.
-
-![Wire-Wrap CPU](cpuPicture1.jpg)
-
-Wire-wrapping made it easier to make changes during development while still providing a reliable and compact way to interconnect components.
 
 ---
 
