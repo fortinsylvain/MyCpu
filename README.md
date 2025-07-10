@@ -138,11 +138,10 @@ Wire wrap proto required a second board to include the following:
 - EEPROM (for application program)
 - LEDs for visual feedback
 
-The PCB version include all these in the sameboard.
+The PCB version includes all of these components on a single board.
 
 ![I/O Schematic](ioSchematic.jpg)
 
-The PCB version includes all of these components on a single board.
 ---
 
 ## Debugging Setup
