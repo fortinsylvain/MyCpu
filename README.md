@@ -47,6 +47,10 @@ Since the new board has a solid ground plane, I expect it will run faster than t
 Before moving to a PCB, I built a **wire-wrap prototype** to test the design on real hardware. This stage was essential for debugging the microcode, verifying timing, and refining the instruction set.
 
 ![Wire-Wrap CPU](cpuPicture1.jpg)
+
+Here’s a picture of the back — a lot of patience was required!
+Amazingly, it's still holding together and executing code after 30 years.
+
 ![Wire-Wrap CPU](cpuPicture_back.jpg)
 
 Wire-wrapping made it easier to make changes during development while still providing a reliable and compact way to interconnect components.
