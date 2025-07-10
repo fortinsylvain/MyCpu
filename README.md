@@ -57,7 +57,7 @@ Wire-wrapping made it easier to make changes during development while still prov
 
 ---
 
-## 🗂 Microcode and Assembler
+## Microcode and Assembler
 
 💾 [Download Microcode Source](uCodeAssembler/urom.lst)  
 💾 [Download Microcode Assembler](uCodeAssembler/UctMicroAssembler/Program.cs)  
@@ -65,7 +65,7 @@ Wire-wrapping made it easier to make changes during development while still prov
 💾 [Download Diagnostic Program](opCodeAssembler/examples/diag.asm)  
 
 ---
-## 🗂 GAL source files
+## GAL source files
 In the PCB version of MyCPU i make use of programmable logic devices (GALs) for clock phase generation, address decoding, and microcode ROM decoding tables.
 The source files were compiled using WinCupl, and the chips were programmed using a TL866II Plus programmer.
 
