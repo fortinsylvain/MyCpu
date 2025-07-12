@@ -188,3 +188,6 @@ Interested in joining the Homebuilt CPUs WebRing?
 📌 **Note:** The ring is for *actual home-built CPUs*. Emulations of commercial parts are OK.  
 However, projects must be *partially or fully built*—**paper designs don’t qualify**.  
 Technologies used can include **relays**, **TTL**, **CMOS**, **FPGAs**, etc.
+
+## License
+This project is licensed under the MIT License – see the [LICENSE](license.txt) file for details.
