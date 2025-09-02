@@ -5,11 +5,11 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Sat Jul 05 22:36:19 2025
+Created         Tue Aug 12 23:21:10 2025
 Name            DECODER
 Partno          1
 Revision        1.0
-Date            6/23/25
+Date            8/12/25
 Designer        Sylvain Fortin
 Company         YourCompany
 Assembly        Home
@@ -20,13 +20,14 @@ Location        Montreal
 ===============================================================================
 
 !EEPROM_CS_N =>
-    A13 & A14 & A15 & !E_N
+    A13 & A14 & A15
 
 !LED_PORT_CLK =>
     !A13 & A14 & A15 & !E_N
 
 !RAM_CS_N =>
-    !A13 & !A14 & !A15 & !E_N
+    !A13 & !A14 & !A15 & RW
+  # !A13 & !A14 & !A15 & !E_N & !RW
 
 EEPROM_CS_N.oe  =>
     1 
@@ -59,7 +60,8 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     EEPROM_CS_N                 14       V        1       8       1     
     E_N                         8        V        -       -       -     
     LED_PORT_CLK                15       V        1       10      1     
-    RAM_CS_N                    19       V        1       16      1     
+    RAM_CS_N                    19       V        2       16      1     
+    RW                          11       V        -       -       -     
     EEPROM_CS_N         oe      14       D        1       1       0     
     LED_PORT_CLK        oe      15       D        1       1       0     
     RAM_CS_N            oe      19       D        1       1       0     
@@ -135,8 +137,8 @@ Pin #20  05814 Mode  xx
  02112 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #19  05816 Mode  x- 
  02156 -------------------------------------------- 
- 02200 -----------------x---x---x---x-------------- 
- 02244 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+ 02200 -----------------x---x---x--------------x--- 
+ 02244 -----------------x---x---x---x-----------x-- 
  02288 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02332 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  02376 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -213,7 +215,7 @@ Pin #15  05824 Mode  x-
  05324 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #14  05826 Mode  x- 
  05368 -------------------------------------------- 
- 05412 ----------------x---x---x----x-------------- 
+ 05412 ----------------x---x---x------------------- 
  05456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05500 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05544 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -242,7 +244,7 @@ LEGEND    X : fuse not blown
                       E_N x---|8           17|---x                          
                        A0 x---|9           16|---x                          
                        A1 x---|10          15|---x LED_PORT_CLK             
-                          x---|11          14|---x EEPROM_CS_N              
+                       RW x---|11          14|---x EEPROM_CS_N              
                       GND x---|12          13|---x                          
                               |______________|
 

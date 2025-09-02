@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 10 mai 2025
+; Date : 1 september 2025
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
@@ -1392,7 +1392,7 @@ TSTOP19  LDA #0x19
          CMPA #0xAA
          JNE FAIL
          ; --------------------------------------------------------------------
-         ; OP.1A CMPX 0x****   COMPARE X to immediate value
+         ; OP.1A CMPX #0x****   COMPARE X to immediate value
          ; --------------------------------------------------------------------
 TSTOP1A  LDA #0x1A
          NOTA
@@ -1401,7 +1401,7 @@ TSTOP1A  LDA #0x1A
          CMPX #0x0000
          JNE FAIL
          CMPX #0x0001
-         JEQ FAIL
+         JEQ FAIL    ; good up tho here
          CMPX #0xFFFF
          JEQ FAIL
          LDX #0xFF00 ; Load 0xFF00 in X
@@ -1425,7 +1425,13 @@ TSTOP1A  LDA #0x1A
          JEQ FAIL
          CMPX #0x00FF
          JEQ FAIL
-         LDX #0xAEC3 ; Load 0xAEC3 in X
+         LDX #0xABCD
+         CMPX #0xA5CD
+         JEQ FAIL
+         LDX #0x1234
+         CMPX #0x12AA
+         JEQ FAIL
+         LDX #0xAEC3
          CMPX #0xAEC3
          JNE FAIL
          CMPX #0xAEDB
@@ -1434,6 +1440,68 @@ TSTOP1A  LDA #0x1A
          JEQ FAIL
          CMPX #0xFFFF
          JEQ FAIL
+         ; --------------------------------------------------------------------
+         ; OP.1B LDX 0x**  
+         ; LDX using a 8-bit direct address (8-bit offset into 0x00–0xFF page)
+         ; --------------------------------------------------------------------
+TSTOP1B  LDA #0x1B
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         LDA #0x00
+         STA 0x0000
+         LDA #0x00
+         STA 0x0001
+         LDX 0x00       ; Load index pointer from this 8 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0x00
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0x00
+         JNE FAIL       ;
+         LDA #0xAB
+         STA 0x0002
+         LDA #0xCD
+         STA 0x0003
+         LDX 0x02       ; Load index pointer from this 8 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0xAB
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0xCD
+         JNE FAIL       ;      
+         LDA #0xCA
+         STA 0x0048
+         LDA #0xFE
+         STA 0x0049
+         LDX 0x48       ; Load index pointer from this 8 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0xCA
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0xFE
+         JNE FAIL
+         LDA #0x12      ; Test using symbolic adress
+         STA 0x000E     ; ?b1
+         LDA #0x34
+         STA 0x000F     ; ?b0
+         LDX ?b1        ; Load index pointer using symbolic LSB 8 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0x12
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0x34
+         JNE FAIL
+         LDA #0x56      ; Test using symbolic adress
+         STA 0x0009     ; ?b6
+         LDA #0x78
+         STA 0x000A     ; ?b7
+         LDX ?b6        ; Load index pointer using symbolic LSB 8 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0x56
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0x78
+         JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
@@ -2297,14 +2365,18 @@ RAMDESTSTART   EQU 0x1000
                LDX #RAMDESTSTART ; Load address of RAM destination
                STX ?b3           ; Store this adddress in ?b3:?b2
                ; copy a byte from source to destination
-               ;LDX ?b1           ; Load X with source address in ?b1:?b0
-               ;LDA (X)           ; Load byte pointed by X
-               ;LDX ?b3           ; Load X with destination address in ?b3:?b2
-               ;STA (X)           ; Store byte to address pointed by X
-               ; Check if last byte copied
-               ;CMPX 
-               ; if yes then 
-         
+LOOPTST47      LDX ?b1           ; Load X with source address in ?b1:?b0
+               CMPX #BLKCODEEND  ; Check if last byte copied
+               JEQ ENDCOPYTST47  ; if yes then quit copy loop
+               LDA (X)           ; Load byte pointed by X
+               INCX
+               STX ?b1
+               LDX ?b3           ; Load X with destination address in ?b3:?b2
+               STA (X)           ; Store byte to address pointed by X
+               INCX
+               STX ?b3
+               JRA LOOPTST47
+ENDCOPYTST47   JSR RAMDESTSTART ; Jump to ram for code execution
 
          JMP 0xE000  ; Loop from start of diag test
          

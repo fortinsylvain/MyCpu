@@ -1,6 +1,6 @@
 ﻿// Homebrew MyCPU microassembler program
 // Author: Sylvain Fortin   sylfortin71@hotmail.com
-// Date: 7 january 2024
+// Date: sept 1, 2025
 // Documentation: This is a microassembler to help develop the micro-program. The source file having an extension .src 
 //                is passed in argument in the command line.
 //                Three output files are created:
@@ -252,7 +252,7 @@ namespace UCT_Assembler
                                     Console.Write(new string(' ', 4)); // TAB(4)
                                     lstFile.Write(new string(' ', 4));
 
-                                    string sOrgCommentSubstring = sLine.Substring(iOrgPosComm, Math.Min(49, sLine.Length - iOrgPosComm));
+                                    string sOrgCommentSubstring = sLine.Substring(iOrgPosComm, Math.Min(80, sLine.Length - iOrgPosComm));
                                     Console.Write(sOrgCommentSubstring);
                                     lstFile.Write(sOrgCommentSubstring);
                                 }
@@ -432,10 +432,10 @@ namespace UCT_Assembler
                                         getNibble(sNibble, ref iNibble, ref iErrorNumber);
                                         ES = iNibble;
                                         break;
-                                    case 23:
+                                    case 23:        // JMP_A=0
                                         BS = 0xC;
                                         CS = 8;
-                                        DS = 1;
+                                        DS = 1;     // A
                                         ES = 0xB;
                                         break;
                                     case 24:
@@ -465,8 +465,8 @@ namespace UCT_Assembler
                                     case 28:        // JMP_A=1
                                         BS = 0xC;
                                         CS = 8;
-                                        DS = 2;     // NOT A
-                                        ES = 0;  
+                                        DS = 3;     // NOT A
+                                        ES = 0xB;  
                                         break;
 
                                     default:

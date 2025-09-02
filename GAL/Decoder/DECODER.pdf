@@ -5,7 +5,7 @@
   {Program "CUPL(WM) Version 5.0a"}
   {DBtype "Schematic"}
   {DBvrev 1.01}
-  {DBtime "Sat Jul 05 22:36:19 2025 "}
+  {DBtime "Tue Aug 12 23:21:10 2025 "}
   {DBunit "MIL"}
   {DBgrid 10}
   {Lyrstr "WIRES" 1 "BUS" 1 "GATE" 2 "IEEE" 2 "PINFUN" 3 "PINNUM" 1 
@@ -33,15 +33,16 @@
  {SYMBOL
   {PIN_DEF
    [Ly "PINCON"]
-   {P A10 {Pt "INPUT"}{Lq 0}{Ploc 100 220}}
-   {P A11 {Pt "INPUT"}{Lq 0}{Ploc 100 200}}
-   {P A12 {Pt "INPUT"}{Lq 0}{Ploc 100 180}}
-   {P A13 {Pt "INPUT"}{Lq 0}{Ploc 100 160}}
-   {P A14 {Pt "INPUT"}{Lq 0}{Ploc 100 140}}
-   {P A15 {Pt "INPUT"}{Lq 0}{Ploc 100 120}}
-   {P E_N {Pt "INPUT"}{Lq 0}{Ploc 100 100}}
-   {P A0 {Pt "INPUT"}{Lq 0}{Ploc 100 80}}
-   {P A1 {Pt "INPUT"}{Lq 0}{Ploc 100 60}}
+   {P A10 {Pt "INPUT"}{Lq 0}{Ploc 100 240}}
+   {P A11 {Pt "INPUT"}{Lq 0}{Ploc 100 220}}
+   {P A12 {Pt "INPUT"}{Lq 0}{Ploc 100 200}}
+   {P A13 {Pt "INPUT"}{Lq 0}{Ploc 100 180}}
+   {P A14 {Pt "INPUT"}{Lq 0}{Ploc 100 160}}
+   {P A15 {Pt "INPUT"}{Lq 0}{Ploc 100 140}}
+   {P E_N {Pt "INPUT"}{Lq 0}{Ploc 100 120}}
+   {P A0 {Pt "INPUT"}{Lq 0}{Ploc 100 100}}
+   {P A1 {Pt "INPUT"}{Lq 0}{Ploc 100 80}}
+   {P RW {Pt "INPUT"}{Lq 0}{Ploc 100 60}}
    {P DEC1_CS_ {Pt "INPUT"}{Lq 0}{Ploc 100 40}}
    {P DEC0_CS_ {Pt "INPUT"}{Lq 0}{Ploc 100 20}}
    {P EEPROM_C {Pt "I/O"}{Lq 0}{Ploc 360 20}}
@@ -52,10 +53,11 @@
   {PKG
    [Ly "REFDES"]
    [Ts 25][Tj "CB"][Tr 0][Tm "N"]
-   {Rdl 230 250}
+   {Rdl 230 270}
 
    [Ly "PINNUM"]
    [Ts 15][Tj "RC"]
+   {Pnl 120 250}
    {Pnl 120 230}
    {Pnl 120 210}
    {Pnl 120 190}
@@ -72,13 +74,14 @@
    {Pnl 340 50}
    {Pnl 340 70}
 
-   {Sd A 2 3 4 5 6 7 8 9 10 22 23 14 15 19}
+   {Sd A 2 3 4 5 6 7 8 9 10 11 22 23 14 15 19}
   }
 
   {PIC
    [Ly "GATE"]
    [Ts 15][Tj "LC"][Tr 0][Tm "N"]
-   {R 130 240 330 0}
+   {R 130 260 330 0}
+   {L 130 240 100 240}
    {L 130 220 100 220}
    {L 130 200 100 200}
    {L 130 180 100 180}
@@ -95,15 +98,16 @@
    {L 330 60 360 60}
    [Ly "PINNAM"]
    [Tj "LC"]
-   {T "A10" 140 220}
-   {T "A11" 140 200}
-   {T "A12" 140 180}
-   {T "A13" 140 160}
-   {T "A14" 140 140}
-   {T "A15" 140 120}
-   {T "E_N" 140 100}
-   {T "A0" 140 80}
-   {T "A1" 140 60}
+   {T "A10" 140 240}
+   {T "A11" 140 220}
+   {T "A12" 140 200}
+   {T "A13" 140 180}
+   {T "A14" 140 160}
+   {T "A15" 140 140}
+   {T "E_N" 140 120}
+   {T "A0" 140 100}
+   {T "A1" 140 80}
+   {T "RW" 140 60}
    {T "DEC1_CS_" 140 40}
    {T "DEC0_CS_" 140 20}
    [Tj "RC"]
@@ -123,7 +127,7 @@
    {EX
     [Ly "ATTR2"]
     [Ts 12][Tj "CT"][Tr 0][Tm "N"]
-    {At PLD C:\WINCUPL\WINCUPL\PROJECT\MYCPU\DECODER\DECODER 230 240}
+    {At PLD C:\WINCUPL\WINCUPL\PROJECT\MYCPU\DECODER\DECODER 230 260}
    }
   }
  }
@@ -150,6 +154,8 @@
    {N A0
    }
    {N A1
+   }
+   {N RW
    }
    {N DEC1_CS_
    }

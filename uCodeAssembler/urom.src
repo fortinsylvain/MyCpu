@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin  sylfortin71@hotmail.com
-; Date : 3 may 2025
+; Date : 1 sept 2025
 ; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -302,7 +302,7 @@ DATA>R4
 R2>AH                   ; Set address bus
 R3>AL
 R4>DATA                 ; Write
-02H>UH                  ; Next OP.
+01H>UH                  ; Get Pointed OP Code by IP and Execute
 00H>UL
 JMP                     ; ***************************************************
 ORG/0600H               ; OP.0C JRA **H Unconditional relative jump
@@ -871,7 +871,7 @@ JMP_A=1
 1FH>AH
 FAH>AL
 R0>DATA
-1EH>UH                  ; skip LSB | ADD. ROUTINE INCREMENT IP
+3BH>UH                  ; skip LSB | ADD. ROUTINE INCREMENT IP
 00H>UL                  ;          |
 1AH>R4                  ;  IP+1>IP | ADD. RETURN R4:MSB R5:LSB
 30H>R5                  ;          |
@@ -934,6 +934,56 @@ JMP
 1FH>AH
 FAH>AL
 R0>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/0D80H               ; OP.1B LDX **H    LDX from specifyed 8 bit address
+DATA>R0                 ; Read LSB Address
+00H>AH                  ; Set address to source
+R0>AL
+DATA>R2                 ; Load MSB value
+1FH>AH
+F3H>AL
+R2>DATA                 ; Store in X MSB
+R0-0>A                  ; Point to next address (8 bit only range)
+A>Q0                    ; Compute Carry
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q>R1                    ; Save Cout in R1-7
+Q6>A
+XOR R0-7
+Q5>A
+XOR R0-6
+Q4>A
+XOR R0-5
+Q3>A
+XOR R0-4
+Q2>A
+XOR R0-3
+Q1>A
+XOR R0-2
+Q0>A
+XOR R0-1
+R0-0>A
+NOT A-0
+Q>R0                    ; Save increment result in R0
+00H>AH                  ; Set address to source
+R0>AL
+DATA>R2
+1FH>AH
+F4H>AL
+R2>DATA                 ; Store in X LSB
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************

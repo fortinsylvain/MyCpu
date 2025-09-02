@@ -1,7 +1,7 @@
 Name     DECODER;
 PartNo   1;
 Revision 1.0;
-Date     6/23/25;
+Date     8/12/25;
 Designer Sylvain Fortin;
 Company  YourCompany;
 Assembly Home;
@@ -21,8 +21,8 @@ Device   g22v10;
                 E_N     I x---|8           17|---x I/O/Q
                 A0      I x---|9           16|---x I/O/Q
                 A1      I x---|10          15|---x I/O/Q LED_PORT_CLK  
-                        I x---|11          14|---x I/O/Q EEPROM_CS_N
-                      GND x---|12          13|---x I                              
+                RW      I x---|11          14|---x I/O/Q EEPROM_CS_N
+                      GND x---|12          13|---x I                         
                               |______________|
                               
 */
@@ -37,6 +37,7 @@ Pin 7  = A15;
 Pin 8  = E_N;
 Pin 9  = A0;
 Pin 10 = A1;
+Pin 11 = RW;
 
 
 /** Output Pins **/
@@ -47,8 +48,11 @@ Pin 22 = DEC1_CS_N;
 Pin 23 = DEC0_CS_N;
 
 
-!RAM_CS_N     = (!E_N & !A15 & !A14 & !A13);
-!LED_PORT_CLK = (!E_N &  A15 &  A14 & !A13);
-!EEPROM_CS_N  = (!E_N &  A15 &  A14 &  A13);
+/** !RAM_CS_N     = (!E_N & !A15 & !A14 & !A13); **/
+/** For a read immediate CS_N but for a write use E_N **/
+!RAM_CS_N     = (RW & !A15 & !A14 & !A13) # (!RW & !E_N & !A15 & !A14 & !A13);
 
+!LED_PORT_CLK = (!E_N &  A15 &  A14 & !A13);
+/** !EEPROM_CS_N  = (!E_N &  A15 &  A14 &  A13);  **/
+!EEPROM_CS_N  = (A15 &  A14 &  A13);	/** Immediately activate the CS_N when address is in range to speed-up **/
 

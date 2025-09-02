@@ -13,6 +13,7 @@ PIN  14 =  EEPROM_CS_N
 PIN   8 =  E_N 
 PIN  15 =  LED_PORT_CLK 
 PIN  19 =  RAM_CS_N 
+PIN  11 =  RW 
 %END
 
 %FIELD
@@ -20,13 +21,14 @@ PIN  19 =  RAM_CS_N
 
 %EQUATION
 !EEPROM_CS_N =>
-    A13 & A14 & A15 & !E_N
+    A13 & A14 & A15
 
 !LED_PORT_CLK =>
     !A13 & A14 & A15 & !E_N
 
 !RAM_CS_N =>
-    !A13 & !A14 & !A15 & !E_N
+    !A13 & !A14 & !A15 & RW
+  # !A13 & !A14 & !A15 & !E_N & !RW
 
 EEPROM_CS_N.oe  =>
     1 

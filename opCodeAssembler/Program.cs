@@ -1,6 +1,6 @@
 ﻿// Homebrew MyCPU assembler program
 // Author: Sylvain Fortin  sylfortin71@hotmail.com
-// Date: 27 march 2024
+// Date: 1 september 2025
 // Documentation: This is an assembler program converting mnemonic for the MyCPU into OP code
 //                that can be executed by the micro-program. The source file having an extension .asm 
 //                is passed in argument in the command line.
@@ -173,6 +173,8 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "NOTA",         OpCode = 0x19,  NbByte = 0, Sym = 0, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
             dataList.Add(new InstrTable { StringValue = "CMPX #0x****", OpCode = 0x1A,  NbByte = 2, Sym = 0, Offset = 8 });  // CMPX #0x**** COMPARE X to immediate value, E update
             dataList.Add(new InstrTable { StringValue = "CMPX #@",      OpCode = 0x1A,  NbByte = 2, Sym = 1, Offset = 6 });  // CMPX #symbol
+            dataList.Add(new InstrTable { StringValue = "LDX 0x**",     OpCode = 0x1B,  NbByte = 1, Sym = 0, Offset = 6 });  // LDX #0x**    LDX from specifyed 8 bit address
+            dataList.Add(new InstrTable { StringValue = "LDX @",        OpCode = 0x1B,  NbByte = 1, Sym = 1, Offset = 4 });  // LDX @        LDX from specifyed symbolic 8 bit address
             dataList.Add(new InstrTable { StringValue = "ADCA 0x****",  OpCode = 0x28,  NbByte = 2, Sym = 0, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
             dataList.Add(new InstrTable { StringValue = "ADCA @",       OpCode = 0x28,  NbByte = 2, Sym = 1, Offset = 5 });  // ADCA symbol
             dataList.Add(new InstrTable { StringValue = "ADDA 0x****",  OpCode = 0x29,  NbByte = 2, Sym = 0, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update
@@ -441,8 +443,16 @@ namespace Assembler
 
                                                 // Fill in the operation data array
                                                 iOpData[0] = dataList[iIndexTable].OpCode;
-                                                iOpData[1] = msb;  // Most Significant Byte in iOpData[1]
-                                                iOpData[2] = lsb;  // Least Significant Byte in iOpData[2]
+                                                int bNbByte = dataList[iIndexTable].NbByte;
+                                                if (bNbByte == 2)
+                                                {
+                                                    iOpData[1] = msb;  // Most Significant Byte in iOpData[1]
+                                                    iOpData[2] = lsb;  // Least Significant Byte in iOpData[2]
+                                                }
+                                                else
+                                                {
+                                                    iOpData[1] = lsb;   // Least Significant Byte in iOpData[1]
+                                                }
                                             }
                                             // Could not find the symbol in the table
                                             else

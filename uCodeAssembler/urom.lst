@@ -1,7 +1,7 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin  sylfortin71@hotmail.com
-                              ; Date : 3 may 2025
+                              ; Date : 1 sept 2025
                               ; Documentation : uCode stored in 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
@@ -302,7 +302,7 @@
 0B07       1200               R2>AH        ; Set address bus
 0B08       1B00               R3>AL
 0B09       5C00               R4>DATA      ; Write
-0B0A       3002               02H>UH       ; Next OP.
+0B0A       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 0B0B       3800               00H>UL
 0B0C       C800               JMP          ; ***************************************************
                               ORG/0600H    ; OP.0C JRA **H Unconditional relative jump
@@ -871,7 +871,7 @@
 1A28       781F               1FH>AH
 1A29       68FA               FAH>AL
 1A2A       5800               R0>DATA
-1A2B       301E               1EH>UH       ; skip LSB | ADD. ROUTINE INCREMENT IP
+1A2B       303B               3BH>UH       ; skip LSB | ADD. ROUTINE INCREMENT IP
 1A2C       3800               00H>UL       ;          |
 1A2D       2C1A               1AH>R4       ;  IP+1>IP | ADD. RETURN R4:MSB R5:LSB
 1A2E       2D30               30H>R5       ;          |
@@ -937,6 +937,56 @@
 1A6A       3002               02H>UH       ; NEXT OP.
 1A6B       3800               00H>UL
 1A6C       C800               JMP          ; ***************************************************
+                              ORG/0D80H    ; OP.1B LDX **H    LDX from specifyed 8 bit address
+1B00       2000               DATA>R0      ; Read LSB Address
+1B01       7800               00H>AH       ; Set address to source
+1B02       1800               R0>AL
+1B03       2200               DATA>R2      ; Load MSB value
+1B04       781F               1FH>AH
+1B05       68F3               F3H>AL
+1B06       5A00               R2>DATA      ; Store in X MSB
+1B07       5000               R0-0>A       ; Point to next address (8 bit only range)
+1B08       4818               A>Q0         ; Compute Carry
+1B09       4021               AND R0-1
+1B0A       7001               Q1>A
+1B0B       4022               AND R0-2
+1B0C       7002               Q2>A
+1B0D       4023               AND R0-3
+1B0E       7003               Q3>A
+1B0F       4024               AND R0-4
+1B10       7004               Q4>A
+1B11       4025               AND R0-5
+1B12       7005               Q5>A
+1B13       4026               AND R0-6
+1B14       7006               Q6>A
+1B15       4027               AND R0-7
+1B16       6100               Q>R1         ; Save Cout in R1-7
+1B17       7006               Q6>A
+1B18       4017               XOR R0-7
+1B19       7005               Q5>A
+1B1A       4016               XOR R0-6
+1B1B       7004               Q4>A
+1B1C       4015               XOR R0-5
+1B1D       7003               Q3>A
+1B1E       4014               XOR R0-4
+1B1F       7002               Q2>A
+1B20       4013               XOR R0-3
+1B21       7001               Q1>A
+1B22       4012               XOR R0-2
+1B23       7000               Q0>A
+1B24       4011               XOR R0-1
+1B25       5000               R0-0>A
+1B26       4038               NOT A-0
+1B27       6000               Q>R0         ; Save increment result in R0
+1B28       7800               00H>AH       ; Set address to source
+1B29       1800               R0>AL
+1B2A       2200               DATA>R2
+1B2B       781F               1FH>AH
+1B2C       68F4               F4H>AL
+1B2D       5A00               R2>DATA      ; Store in X LSB
+1B2E       3002               02H>UH       ; NEXT OP.
+1B2F       3800               00H>UL
+1B30       C800               JMP          ; ***************************************************
                               ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 2800       2200               DATA>R2      ; READ MSB ADDRESS
 2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
