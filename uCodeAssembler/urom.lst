@@ -8,7 +8,11 @@
                               ; External RAM required to support the microcode
                               ; 0000H - 17FFH Total RAM space
                               ; 00A0H - 00FFH Stack
-                              ; 0100H - 17EF  Free for application
+                              ; 0100H - 17EB  Free for application
+                              ; 1FECH TEMP0   Temporary storage
+                              ; 1FEDH TEMP1       "        "
+                              ; 1FEEH TEMP2       "        "
+                              ; 1FEFH TEMP3       "        "
                               ; 1FF0H SP      Stack Pointer 8 bit
                               ; 1FF1H JSH     Temporary storage for JSR MSB address
                               ; 1FF2H JSL          "       "     "   "  LSB    "
@@ -987,6 +991,49 @@
 1B2E       3002               02H>UH       ; NEXT OP.
 1B2F       3800               00H>UL
 1B30       C800               JMP          ; ***************************************************
+                              ORG/0E00H    ; OP.1C LDA (****H,X) LDA indexed indirect addressing
+1C00       2000               DATA>R0      ; Read MSB Operand
+1C01       781F               1FH>AH       ; store in TEMP0
+1C02       68EC               ECH>AL
+1C03       5800               R0>DATA      
+1C04       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
+1C05       3800               00H>UL       ;          |
+1C06       2C1C               1CH>R4       ;  IP+1>IP | ADD. RETURN
+1C07       2D09               09H>R5       ;  IP>ADD  |
+1C08       C800               JMP          ;          | JMP TO ROUTINE
+1C09       2000               DATA>R0      ; Read LSB Operand
+1C0A       781F               1FH>AH       ; Read XL
+1C0B       68F4               F4H>AL
+1C0C       2100               DATA>R1
+1C0D       2A00               00H>R2       ; Clear carry in
+1C0E       303F               3FH>UH       ; Cin:R2-0  | ADD. ROUTINE
+1C0F       3800               00H>UL       ; R0+R1>R0  |
+1C10       2E1C               1CH>R6       ; Cout>R2-0 | RETURN ADDRESS
+1C11       2F13               13H>R7       ; keep carry in R2 it will be used later
+1C12       C800               JMP
+1C13       68ED               EDH>AL       ; store LSB address summ in TEMP1
+1C14       5800               R0>DATA      
+1C15       68EC               ECH>AL       ; Load MSB Operand from TEMP0
+1C16       2000               DATA>R0
+1C17       781F               1FH>AH       ; Read XH
+1C18       68F3               F3H>AL       
+1C19       2100               DATA>R1
+1C1A       303F               3FH>UH       ; Cin:R2-0  | ADD. ROUTINE
+1C1B       3800               00H>UL       ; R0+R1>R0  |
+1C1C       2E1C               1CH>R6       ; Cout>R2-0 | RETURN ADDRESS
+1C1D       2F1F               1FH>R7
+1C1E       C800               JMP
+1C1F       68ED               EDH>AL       ; MSB Address is in R0
+1C20       2100               DATA>R1      ; LSB Address is in TEMP1 put it in R1
+1C21       1000               R0>AH
+1C22       1900               R1>AL
+1C23       2000               DATA>R0      ; Read Data
+1C24       781F               1FH>AH       ; Store in Register A
+1C25       68FC               FCH>AL
+1C26       5800               R0>DATA      
+1C27       3002               02H>UH       ; NEXT OP
+1C28       3800               00H>UL
+1C29       C800               JMP          ; ***************************************************
                               ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 2800       2200               DATA>R2      ; READ MSB ADDRESS
 2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP

@@ -8,7 +8,11 @@
 ; External RAM required to support the microcode
 ; 0000H - 17FFH Total RAM space
 ; 00A0H - 00FFH Stack
-; 0100H - 17EF  Free for application
+; 0100H - 17EB  Free for application
+; 1FECH TEMP0   Temporary storage
+; 1FEDH TEMP1       "        "
+; 1FEEH TEMP2       "        "
+; 1FEFH TEMP3       "        "
 ; 1FF0H SP      Stack Pointer 8 bit
 ; 1FF1H JSH     Temporary storage for JSR MSB address
 ; 1FF2H JSL          "       "     "   "  LSB    "
@@ -985,6 +989,49 @@ DATA>R2
 F4H>AL
 R2>DATA                 ; Store in X LSB
 02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/0E00H               ; OP.1C LDA (****H,X) LDA indexed indirect addressing
+DATA>R0                 ; Read MSB Operand
+1FH>AH                  ; store in TEMP0
+ECH>AL
+R0>DATA                 
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+1CH>R4                  ;  IP+1>IP | ADD. RETURN
+09H>R5                  ;  IP>ADD  |
+JMP                     ;          | JMP TO ROUTINE
+DATA>R0                 ; Read LSB Operand
+1FH>AH                  ; Read XL
+F4H>AL
+DATA>R1
+00H>R2                  ; Clear carry in
+3FH>UH                  ; Cin:R2-0  | ADD. ROUTINE
+00H>UL                  ; R0+R1>R0  |
+1CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
+13H>R7                  ; keep carry in R2 it will be used later
+JMP
+EDH>AL                  ; store LSB address summ in TEMP1
+R0>DATA                 
+ECH>AL                  ; Load MSB Operand from TEMP0
+DATA>R0
+1FH>AH                  ; Read XH
+F3H>AL                  
+DATA>R1
+3FH>UH                  ; Cin:R2-0  | ADD. ROUTINE
+00H>UL                  ; R0+R1>R0  |
+1CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
+1FH>R7
+JMP
+EDH>AL                  ; MSB Address is in R0
+DATA>R1                 ; LSB Address is in TEMP1 put it in R1
+R0>AH
+R1>AL
+DATA>R0                 ; Read Data
+1FH>AH                  ; Store in Register A
+FCH>AL
+R0>DATA                 
+02H>UH                  ; NEXT OP
 00H>UL
 JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE

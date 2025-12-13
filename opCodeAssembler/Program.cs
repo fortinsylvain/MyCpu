@@ -140,60 +140,61 @@ namespace Assembler
             // Sym    : Symbolic decoding is enabled after the mnemonic 0: hex address, 1:symbolic address, 2:symbolic relative adressing (+-127)
             // Offset : Character position where the hex value start.
             // Presently only hexadecimal values are supported, 8 and 16 bits only.
-            dataList.Add(new InstrTable { StringValue = "ORG/0x****",   OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 }); // 
-            dataList.Add(new InstrTable { StringValue = "DB 0x**",      OpCode = 0,     NbByte = 0, Sym = 0, Offset = 5 });  // Define Byte in EEPROM Memory
-            dataList.Add(new InstrTable { StringValue = "EQU 0x",       OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 });  // Define Byte in EEPROM Memory
-            dataList.Add(new InstrTable { StringValue = "INCA",         OpCode = 0x03,  NbByte = 0, Sym = 0, Offset = 0 });  // INCA         INCREMENT REGISTER A, E update, C not updated
-            dataList.Add(new InstrTable { StringValue = "LDX #0x****",  OpCode = 0x04,  NbByte = 2, Sym = 0, Offset = 7 });  // LDX #0x****  Load X Register with 16 bits immediate value
-            dataList.Add(new InstrTable { StringValue = "LDX #@",       OpCode = 0x04,  NbByte = 2, Sym = 1, Offset = 5 });  // LDX #symbol
-            dataList.Add(new InstrTable { StringValue = "INCX",         OpCode = 0x05,  NbByte = 0, Sym = 0, Offset = 0 });  // INCX         Increment Register X,  Carry Not Updated
-            dataList.Add(new InstrTable { StringValue = "JSR 0x****",   OpCode = 0x06,  NbByte = 2, Sym = 0, Offset = 6 });  // JSR ****H    Jump to SubRoutine
-            dataList.Add(new InstrTable { StringValue = "JSR",          OpCode = 0x06,  NbByte = 2, Sym = 1, Offset = 4 });  // JSR sym
-            dataList.Add(new InstrTable { StringValue = "RTS",          OpCode = 0x07,  NbByte = 0, Sym = 0, Offset = 0 });  // RTS          ReTurn from Subroutine
-            dataList.Add(new InstrTable { StringValue = "STOP",         OpCode = 0x08,  NbByte = 0, Sym = 0, Offset = 0 });  // STOP         STOP Executing
-            dataList.Add(new InstrTable { StringValue = "NOP",          OpCode = 0x09,  NbByte = 0, Sym = 0, Offset = 0 });  // NOP          No Operation
-            dataList.Add(new InstrTable { StringValue = "LDA (X)",      OpCode = 0x0A,  NbByte = 0, Sym = 0, Offset = 0 });  // LDA (X)      Load Reg A Indexed
-            dataList.Add(new InstrTable { StringValue = "STA (X)",      OpCode = 0x0B,  NbByte = 0, Sym = 0, Offset = 0 });  // STA (X)      Store Reg A Indexed
-            dataList.Add(new InstrTable { StringValue = "JRA 0x**",     OpCode = 0x0C,  NbByte = 1, Sym = 0, Offset = 6 });  // JRA 0x**     Unconditional relative jump
-            dataList.Add(new InstrTable { StringValue = "JRA @",        OpCode = 0x0C,  NbByte = 1, Sym = 2, Offset = 4 });  // JRA symbol   Unconditional relative jump
-            dataList.Add(new InstrTable { StringValue = "SRLA",         OpCode = 0x0D,  NbByte = 0, Sym = 0, Offset = 0 });  // SRLA         Shift Right Logical on Reg A  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-            dataList.Add(new InstrTable { StringValue = "SLLA",         OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLLA         Shift Left Logical on Reg A
-            dataList.Add(new InstrTable { StringValue = "SLAA",         OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLAA         Shift Left Arithmetic on Reg A (SLAA same as SLLA)
-            dataList.Add(new InstrTable { StringValue = "JRNC @",       OpCode = 0x0F,  NbByte = 1, Sym = 2, Offset = 5 });  // JRNC symbol  Jump Relatif Not Carry
-            dataList.Add(new InstrTable { StringValue = "RRCA",         OpCode = 0x10,  NbByte = 0, Sym = 0, Offset = 0 });  // RRCA         Rotate Right Logical Reg A through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C         
-            dataList.Add(new InstrTable { StringValue = "RCF",          OpCode = 0x11,  NbByte = 0, Sym = 0, Offset = 0 });  // RCF          Reset Carry Flag C <- 0
-            dataList.Add(new InstrTable { StringValue = "SCF",          OpCode = 0x12,  NbByte = 0, Sym = 0, Offset = 0 });  // SCF          Set Carry Flag C <- 1
-            dataList.Add(new InstrTable { StringValue = "DECXL",        OpCode = 0x13,  NbByte = 0, Sym = 0, Offset = 0 });  // DECXL        Decrement XL (E updated)
-            dataList.Add(new InstrTable { StringValue = "RRC @",        OpCode = 0x14,  NbByte = 2, Sym = 1, Offset = 4 });  // RRC symbol   Rotate Right Logical Address location through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-            dataList.Add(new InstrTable { StringValue = "SRL @",        OpCode = 0x15,  NbByte = 2, Sym = 1, Offset = 4 });  // SRL symbol   Shift Right Logical on address  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-            dataList.Add(new InstrTable { StringValue = "STX 0x****",   OpCode = 0x16,  NbByte = 2, Sym = 0, Offset = 6 });  // STX 0x****   Store X Register at Address
-            dataList.Add(new InstrTable { StringValue = "STX @",        OpCode = 0x16,  NbByte = 2, Sym = 1, Offset = 4 });  // STX symbol
-            dataList.Add(new InstrTable { StringValue = "ORA #0x**",    OpCode = 0x17,  NbByte = 1, Sym = 0, Offset = 7 });  // ORA #0x**    LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
-            dataList.Add(new InstrTable { StringValue = "XORA #0x**",   OpCode = 0x18,  NbByte = 1, Sym = 0, Offset = 8 });  // XORA #0x**   EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
-            dataList.Add(new InstrTable { StringValue = "NOTA",         OpCode = 0x19,  NbByte = 0, Sym = 0, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
-            dataList.Add(new InstrTable { StringValue = "CMPX #0x****", OpCode = 0x1A,  NbByte = 2, Sym = 0, Offset = 8 });  // CMPX #0x**** COMPARE X to immediate value, E update
-            dataList.Add(new InstrTable { StringValue = "CMPX #@",      OpCode = 0x1A,  NbByte = 2, Sym = 1, Offset = 6 });  // CMPX #symbol
-            dataList.Add(new InstrTable { StringValue = "LDX 0x**",     OpCode = 0x1B,  NbByte = 1, Sym = 0, Offset = 6 });  // LDX #0x**    LDX from specifyed 8 bit address
-            dataList.Add(new InstrTable { StringValue = "LDX @",        OpCode = 0x1B,  NbByte = 1, Sym = 1, Offset = 4 });  // LDX @        LDX from specifyed symbolic 8 bit address
-            dataList.Add(new InstrTable { StringValue = "ADCA 0x****",  OpCode = 0x28,  NbByte = 2, Sym = 0, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
-            dataList.Add(new InstrTable { StringValue = "ADCA @",       OpCode = 0x28,  NbByte = 2, Sym = 1, Offset = 5 });  // ADCA symbol
-            dataList.Add(new InstrTable { StringValue = "ADDA 0x****",  OpCode = 0x29,  NbByte = 2, Sym = 0, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update
-            dataList.Add(new InstrTable { StringValue = "ADDA @",       OpCode = 0x29,  NbByte = 2, Sym = 1, Offset = 5 });  // ADDA symbol
-            dataList.Add(new InstrTable { StringValue = "LDA 0x****",   OpCode = 0x2A,  NbByte = 2, Sym = 0, Offset = 6 });  // LDA 0x****   Load Byte from Address into REG A
-            dataList.Add(new InstrTable { StringValue = "LDA @",        OpCode = 0x2A,  NbByte = 2, Sym = 1, Offset = 4 });  // LDA symboL
-            dataList.Add(new InstrTable { StringValue = "JNE 0x****",   OpCode = 0x2B,  NbByte = 2, Sym = 0, Offset = 6 });  // JNE 0x****   JUMP IF NOT EQUAL (E=0)
-            dataList.Add(new InstrTable { StringValue = "JNE @",        OpCode = 0x2B,  NbByte = 2, Sym = 1, Offset = 4 });  // JNE symbol
-            dataList.Add(new InstrTable { StringValue = "JEQ 0x****",   OpCode = 0x2C,  NbByte = 2, Sym = 0, Offset = 6 });  // JEQ 0x****   JUMP IF EQUAL (E=1)
-            dataList.Add(new InstrTable { StringValue = "JEQ",          OpCode = 0x2C,  NbByte = 2, Sym = 1, Offset = 4 });  // JEQ symbol
-            dataList.Add(new InstrTable { StringValue = "CMPA #0x**",   OpCode = 0x2D,  NbByte = 1, Sym = 0, Offset = 8 });  // CMPA #0x**   COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
-            dataList.Add(new InstrTable { StringValue = "ADCA #0x**",   OpCode = 0x2E,  NbByte = 1, Sym = 0, Offset = 8 });  // ADCA #0x**   REG A = REG A + IMMEDIATE BYTE + CARRY (C), Carry C Updated
-            dataList.Add(new InstrTable { StringValue = "ADDA #0x**",   OpCode = 0x2F,  NbByte = 1, Sym = 0, Offset = 8 });  // ADDA #0x**   ADD IMMEDIATE BYTE VALUE TO REGISTER A  C UPDATED
-            dataList.Add(new InstrTable { StringValue = "LDA #0x**",    OpCode = 0x30,  NbByte = 1, Sym = 0, Offset = 7 });  // LDA #0x**    LOAD IMMEDIATE VALUE IN REGISTER A
-            dataList.Add(new InstrTable { StringValue = "STA 0x****",   OpCode = 0x31,  NbByte = 2, Sym = 0, Offset = 6 });  // STA 0x****   STORE REG.A TO ADDRESSE
-            dataList.Add(new InstrTable { StringValue = "STA @",        OpCode = 0x31,  NbByte = 2, Sym = 1, Offset = 4 });  // STA symbol
-            dataList.Add(new InstrTable { StringValue = "JMP 0x****",   OpCode = 0x32,  NbByte = 2, Sym = 0, Offset = 6 });  // JMP 0x****   JUMP INCONDITIONAL TO ADDRESS
-            dataList.Add(new InstrTable { StringValue = "JMP",          OpCode = 0x32,  NbByte = 2, Sym = 1, Offset = 4 });  // JMP symbol
-            dataList.Add(new InstrTable { StringValue = "ANDA #0x**",   OpCode = 0x33,  NbByte = 1, Sym = 0, Offset = 8 });  // ANDA #0x**   REGISTER A AND LOGICAL WITH IMMEDIATE BYTE
+            dataList.Add(new InstrTable { StringValue = "ORG/0x****",       OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 }); // 
+            dataList.Add(new InstrTable { StringValue = "DB 0x**",          OpCode = 0,     NbByte = 0, Sym = 0, Offset = 5 });  // Define Byte in EEPROM Memory
+            dataList.Add(new InstrTable { StringValue = "EQU 0x",           OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 });  // Define Byte in EEPROM Memory
+            dataList.Add(new InstrTable { StringValue = "INCA",             OpCode = 0x03,  NbByte = 0, Sym = 0, Offset = 0 });  // INCA         INCREMENT REGISTER A, E update, C not updated
+            dataList.Add(new InstrTable { StringValue = "LDX #0x****",      OpCode = 0x04,  NbByte = 2, Sym = 0, Offset = 7 });  // LDX #0x****  Load X Register with 16 bits immediate value
+            dataList.Add(new InstrTable { StringValue = "LDX #@",           OpCode = 0x04,  NbByte = 2, Sym = 1, Offset = 5 });  // LDX #symbol
+            dataList.Add(new InstrTable { StringValue = "INCX",             OpCode = 0x05,  NbByte = 0, Sym = 0, Offset = 0 });  // INCX         Increment Register X,  Carry Not Updated
+            dataList.Add(new InstrTable { StringValue = "JSR 0x****",       OpCode = 0x06,  NbByte = 2, Sym = 0, Offset = 6 });  // JSR ****H    Jump to SubRoutine
+            dataList.Add(new InstrTable { StringValue = "JSR",              OpCode = 0x06,  NbByte = 2, Sym = 1, Offset = 4 });  // JSR sym
+            dataList.Add(new InstrTable { StringValue = "RTS",              OpCode = 0x07,  NbByte = 0, Sym = 0, Offset = 0 });  // RTS          ReTurn from Subroutine
+            dataList.Add(new InstrTable { StringValue = "STOP",             OpCode = 0x08,  NbByte = 0, Sym = 0, Offset = 0 });  // STOP         STOP Executing
+            dataList.Add(new InstrTable { StringValue = "NOP",              OpCode = 0x09,  NbByte = 0, Sym = 0, Offset = 0 });  // NOP          No Operation
+            dataList.Add(new InstrTable { StringValue = "LDA (X)",          OpCode = 0x0A,  NbByte = 0, Sym = 0, Offset = 0 });  // LDA (X)      Load Reg A Indexed
+            dataList.Add(new InstrTable { StringValue = "STA (X)",          OpCode = 0x0B,  NbByte = 0, Sym = 0, Offset = 0 });  // STA (X)      Store Reg A Indexed
+            dataList.Add(new InstrTable { StringValue = "JRA 0x**",         OpCode = 0x0C,  NbByte = 1, Sym = 0, Offset = 6 });  // JRA 0x**     Unconditional relative jump
+            dataList.Add(new InstrTable { StringValue = "JRA @",            OpCode = 0x0C,  NbByte = 1, Sym = 2, Offset = 4 });  // JRA symbol   Unconditional relative jump
+            dataList.Add(new InstrTable { StringValue = "SRLA",             OpCode = 0x0D,  NbByte = 0, Sym = 0, Offset = 0 });  // SRLA         Shift Right Logical on Reg A  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+            dataList.Add(new InstrTable { StringValue = "SLLA",             OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLLA         Shift Left Logical on Reg A
+            dataList.Add(new InstrTable { StringValue = "SLAA",             OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLAA         Shift Left Arithmetic on Reg A (SLAA same as SLLA)
+            dataList.Add(new InstrTable { StringValue = "JRNC @",           OpCode = 0x0F,  NbByte = 1, Sym = 2, Offset = 5 });  // JRNC symbol  Jump Relatif Not Carry
+            dataList.Add(new InstrTable { StringValue = "RRCA",             OpCode = 0x10,  NbByte = 0, Sym = 0, Offset = 0 });  // RRCA         Rotate Right Logical Reg A through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C         
+            dataList.Add(new InstrTable { StringValue = "RCF",              OpCode = 0x11,  NbByte = 0, Sym = 0, Offset = 0 });  // RCF          Reset Carry Flag C <- 0
+            dataList.Add(new InstrTable { StringValue = "SCF",              OpCode = 0x12,  NbByte = 0, Sym = 0, Offset = 0 });  // SCF          Set Carry Flag C <- 1
+            dataList.Add(new InstrTable { StringValue = "DECXL",            OpCode = 0x13,  NbByte = 0, Sym = 0, Offset = 0 });  // DECXL        Decrement XL (E updated)
+            dataList.Add(new InstrTable { StringValue = "RRC @",            OpCode = 0x14,  NbByte = 2, Sym = 1, Offset = 4 });  // RRC symbol   Rotate Right Logical Address location through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+            dataList.Add(new InstrTable { StringValue = "SRL @",            OpCode = 0x15,  NbByte = 2, Sym = 1, Offset = 4 });  // SRL symbol   Shift Right Logical on address  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+            dataList.Add(new InstrTable { StringValue = "STX 0x****",       OpCode = 0x16,  NbByte = 2, Sym = 0, Offset = 6 });  // STX 0x****   Store X Register at Address
+            dataList.Add(new InstrTable { StringValue = "STX @",            OpCode = 0x16,  NbByte = 2, Sym = 1, Offset = 4 });  // STX symbol
+            dataList.Add(new InstrTable { StringValue = "ORA #0x**",        OpCode = 0x17,  NbByte = 1, Sym = 0, Offset = 7 });  // ORA #0x**    LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
+            dataList.Add(new InstrTable { StringValue = "XORA #0x**",       OpCode = 0x18,  NbByte = 1, Sym = 0, Offset = 8 });  // XORA #0x**   EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
+            dataList.Add(new InstrTable { StringValue = "NOTA",             OpCode = 0x19,  NbByte = 0, Sym = 0, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
+            dataList.Add(new InstrTable { StringValue = "CMPX #0x****",     OpCode = 0x1A,  NbByte = 2, Sym = 0, Offset = 8 });  // CMPX #0x**** COMPARE X to immediate value, E update
+            dataList.Add(new InstrTable { StringValue = "CMPX #@",          OpCode = 0x1A,  NbByte = 2, Sym = 1, Offset = 6 });  // CMPX #symbol
+            dataList.Add(new InstrTable { StringValue = "LDX 0x**",         OpCode = 0x1B,  NbByte = 1, Sym = 0, Offset = 6 });  // LDX #0x**    LDX from specifyed 8 bit address
+            dataList.Add(new InstrTable { StringValue = "LDX @",            OpCode = 0x1B,  NbByte = 1, Sym = 1, Offset = 4 });  // LDX @        LDX from specifyed symbolic 8 bit address
+            dataList.Add(new InstrTable { StringValue = "LDA (0x****,X)",   OpCode = 0x1C,  NbByte = 2, Sym = 0, Offset = 7 });  // LDA (0x****,X) LDA indexed indirect addressing
+            dataList.Add(new InstrTable { StringValue = "ADCA 0x****",      OpCode = 0x28,  NbByte = 2, Sym = 0, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
+            dataList.Add(new InstrTable { StringValue = "ADCA @",           OpCode = 0x28,  NbByte = 2, Sym = 1, Offset = 5 });  // ADCA symbol
+            dataList.Add(new InstrTable { StringValue = "ADDA 0x****",      OpCode = 0x29,  NbByte = 2, Sym = 0, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update
+            dataList.Add(new InstrTable { StringValue = "ADDA @",           OpCode = 0x29,  NbByte = 2, Sym = 1, Offset = 5 });  // ADDA symbol
+            dataList.Add(new InstrTable { StringValue = "LDA 0x****",       OpCode = 0x2A,  NbByte = 2, Sym = 0, Offset = 6 });  // LDA 0x****   Load Byte from Address into REG A
+            dataList.Add(new InstrTable { StringValue = "LDA @",            OpCode = 0x2A,  NbByte = 2, Sym = 1, Offset = 4 });  // LDA symboL
+            dataList.Add(new InstrTable { StringValue = "JNE 0x****",       OpCode = 0x2B,  NbByte = 2, Sym = 0, Offset = 6 });  // JNE 0x****   JUMP IF NOT EQUAL (E=0)
+            dataList.Add(new InstrTable { StringValue = "JNE @",            OpCode = 0x2B,  NbByte = 2, Sym = 1, Offset = 4 });  // JNE symbol
+            dataList.Add(new InstrTable { StringValue = "JEQ 0x****",       OpCode = 0x2C,  NbByte = 2, Sym = 0, Offset = 6 });  // JEQ 0x****   JUMP IF EQUAL (E=1)
+            dataList.Add(new InstrTable { StringValue = "JEQ",              OpCode = 0x2C,  NbByte = 2, Sym = 1, Offset = 4 });  // JEQ symbol
+            dataList.Add(new InstrTable { StringValue = "CMPA #0x**",       OpCode = 0x2D,  NbByte = 1, Sym = 0, Offset = 8 });  // CMPA #0x**   COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
+            dataList.Add(new InstrTable { StringValue = "ADCA #0x**",       OpCode = 0x2E,  NbByte = 1, Sym = 0, Offset = 8 });  // ADCA #0x**   REG A = REG A + IMMEDIATE BYTE + CARRY (C), Carry C Updated
+            dataList.Add(new InstrTable { StringValue = "ADDA #0x**",       OpCode = 0x2F,  NbByte = 1, Sym = 0, Offset = 8 });  // ADDA #0x**   ADD IMMEDIATE BYTE VALUE TO REGISTER A  C UPDATED
+            dataList.Add(new InstrTable { StringValue = "LDA #0x**",        OpCode = 0x30,  NbByte = 1, Sym = 0, Offset = 7 });  // LDA #0x**    LOAD IMMEDIATE VALUE IN REGISTER A
+            dataList.Add(new InstrTable { StringValue = "STA 0x****",       OpCode = 0x31,  NbByte = 2, Sym = 0, Offset = 6 });  // STA 0x****   STORE REG.A TO ADDRESSE
+            dataList.Add(new InstrTable { StringValue = "STA @",            OpCode = 0x31,  NbByte = 2, Sym = 1, Offset = 4 });  // STA symbol
+            dataList.Add(new InstrTable { StringValue = "JMP 0x****",       OpCode = 0x32,  NbByte = 2, Sym = 0, Offset = 6 });  // JMP 0x****   JUMP INCONDITIONAL TO ADDRESS
+            dataList.Add(new InstrTable { StringValue = "JMP",              OpCode = 0x32,  NbByte = 2, Sym = 1, Offset = 4 });  // JMP symbol
+            dataList.Add(new InstrTable { StringValue = "ANDA #0x**",       OpCode = 0x33,  NbByte = 1, Sym = 0, Offset = 8 });  // ANDA #0x**   REGISTER A AND LOGICAL WITH IMMEDIATE BYTE
           
             UInt32 LineCounter;
             int iFirstCharacterIndex;

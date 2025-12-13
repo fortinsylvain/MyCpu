@@ -48,6 +48,10 @@
 ?l0      EQU 0x000C  ; ?b3,?b2,?b1,?b0
 
 ; RAM Reserved location
+TEMP0    EQU 0x1FEC  ; TEMP0
+TEMP1    EQU 0x1FED  ; TEMP1
+TEMP2    EQU 0x1FEE  ; TEMP2
+TEMP3    EQU 0x1FEF  ; TEMP3
 SP       EQU 0x1FF0  ; SP      Stack Pointer 8 bit
 JSH      EQU 0x1FF1  ; JSH     Temporary storage for JSR MSB address
 JSL      EQU 0x1FF2  ; JSL          "       "     "   "  LSB    "
@@ -1502,6 +1506,107 @@ TSTOP1B  LDA #0x1B
          LDA 0x1FF4     ; read X LSB
          CMPA #0x78
          JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.1C LDA (****H,X)
+         ; LDA indexed indirect addressing
+         ; --------------------------------------------------------------------
+TSTOP1C  LDA #0x1C
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         ;Store a few bytes in RAM to be read using indexed indirect addressing
+         ;test with base address not requiring a carry to MSB
+         ;by incrementing X from 0x0000 upwards
+         LDA #0x55
+         STA 0x0000
+         LDA #0xAA
+         STA 0x0001
+         LDA #0xBE
+         STA 0x0002
+         LDX #0x0000
+         LDA (0x0000,X)
+         CMPA #0x55
+         JNE FAIL
+         INCX
+         LDA (0x0000,X)
+         CMPA #0xAA
+         JNE FAIL
+         INCX
+         LDA (0x0000,X) 
+         CMPA #0xBE
+         JNE FAIL
+         ; Now test with a base address requiring a carry to MSB
+         ; by initializing X to 0x00FF and incrementing
+         ; storing data at 0x10FE onwards
+         LDA #0x12
+         STA 0x10FE
+         LDA #0x34
+         STA 0x10FF
+         LDA #0x56
+         STA 0x1100
+         LDA #0x78
+         STA 0x1101
+         LDX #0x0000 ; Point to LSB of base address   
+         LDA (0x10FE,X)
+         CMPA #0x12
+         JNE FAIL
+         INCX
+         LDA (0x10FE,X)
+         CMPA #0x34
+         JNE FAIL
+         INCX
+         LDA (0x10FE,X)
+         CMPA #0x56
+         JNE FAIL
+         INCX
+         LDA (0x10FE,X)
+         CMPA #0x78
+         JNE FAIL 
+         ; Finally test using a fixed indexed register with variable offset
+         ; storing data at 0x1234 onwards
+         LDA #0x12
+         STA 0x1234
+         LDA #0x34
+         STA 0x1235
+         LDA #0x56
+         STA 0x1236
+         LDA #0x78
+         STA 0x1237
+         LDX #0x1234 ; Point to base address
+         LDA (0x0000,X)
+         CMPA #0x12
+         JNE FAIL
+         LDA (0x0001,X)
+         CMPA #0x34
+         JNE FAIL
+         LDA (0x0002,X)
+         CMPA #0x56
+         JNE FAIL
+         LDA (0x0003,X)
+         CMPA #0x78
+         JNE FAIL
+         ; Test using a fixed index register with carry to MSB
+         LDA #0x9A
+         STA 0x12FE
+         LDA #0xBC   
+         STA 0x12FF
+         LDA #0xDE
+         STA 0x1300
+         LDA #0xF0
+         STA 0x1301
+         LDX #0x01FE ; Point to base address
+         LDA (0x1100,X)
+         CMPA #0x9A
+         JNE FAIL
+         LDA (0x1101,X)
+         CMPA #0xBC
+         JNE FAIL
+         LDA (0x1102,X)
+         CMPA #0xDE
+         JNE FAIL
+         LDA (0x1103,X)
+         CMPA #0xF0
+         JNE FAIL
+         STA LEDPORT    ; Output to LED port
          ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
