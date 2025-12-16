@@ -1025,15 +1025,58 @@
 1C1E       C800               JMP
 1C1F       68ED               EDH>AL       ; MSB Address is in R0
 1C20       2100               DATA>R1      ; LSB Address is in TEMP1 put it in R1
-1C21       1000               R0>AH
+1C21       1000               R0>AH        ; Read Data
 1C22       1900               R1>AL
-1C23       2000               DATA>R0      ; Read Data
+1C23       2000               DATA>R0      
 1C24       781F               1FH>AH       ; Store in Register A
 1C25       68FC               FCH>AL
 1C26       5800               R0>DATA      
 1C27       3002               02H>UH       ; NEXT OP
 1C28       3800               00H>UL
 1C29       C800               JMP          ; ***************************************************
+                              ORG/0E80H    ; OP.1D STA (****H,X) STA indexed indirect addressing
+1D00       2000               DATA>R0      ; Read MSB Operand
+1D01       781F               1FH>AH       ; store in TEMP0
+1D02       68EC               ECH>AL
+1D03       5800               R0>DATA      
+1D04       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
+1D05       3800               00H>UL       ;          |
+1D06       2C1D               1DH>R4       ;  IP+1>IP | ADD. RETURN
+1D07       2D09               09H>R5       ;  IP>ADD  |
+1D08       C800               JMP          ;          | JMP TO ROUTINE
+1D09       2000               DATA>R0      ; Read LSB Operand
+1D0A       781F               1FH>AH       ; Read XL
+1D0B       68F4               F4H>AL
+1D0C       2100               DATA>R1
+1D0D       2A00               00H>R2       ; Clear carry in
+1D0E       303F               3FH>UH       ; Cin:R2-0  | ADD. ROUTINE
+1D0F       3800               00H>UL       ; R0+R1>R0  |
+1D10       2E1D               1DH>R6       ; Cout>R2-0 | RETURN ADDRESS
+1D11       2F13               13H>R7       ; keep carry in R2 it will be used later
+1D12       C800               JMP
+1D13       68ED               EDH>AL       ; store LSB address summ in TEMP1
+1D14       5800               R0>DATA      
+1D15       68EC               ECH>AL       ; Load MSB Operand from TEMP0
+1D16       2000               DATA>R0
+1D17       781F               1FH>AH       ; Read XH
+1D18       68F3               F3H>AL       
+1D19       2100               DATA>R1
+1D1A       303F               3FH>UH       ; Cin:R2-0  | ADD. ROUTINE
+1D1B       3800               00H>UL       ; R0+R1>R0  |
+1D1C       2E1D               1DH>R6       ; Cout>R2-0 | RETURN ADDRESS
+1D1D       2F1F               1FH>R7
+1D1E       C800               JMP
+1D1F       68ED               EDH>AL       ; MSB Address is in R0
+1D20       2100               DATA>R1      ; LSB Address is in TEMP1 put it in R1
+1D21       781F               1FH>AH       ; Read Data from Register A
+1D22       68FC               FCH>AL
+1D23       2200               DATA>R2
+1D24       1000               R0>AH        ;  Store Data to specifyed resulting address
+1D25       1900               R1>AL
+1D26       5A00               R2>DATA
+1D27       3002               02H>UH       ; NEXT OP
+1D28       3800               00H>UL
+1D29       C800               JMP          ; ***************************************************
                               ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 2800       2200               DATA>R2      ; READ MSB ADDRESS
 2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP

@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 1 september 2025
+; Date : 15 december 2025
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
@@ -1607,6 +1607,143 @@ TSTOP1C  LDA #0x1C
          CMPA #0xF0
          JNE FAIL
          STA LEDPORT    ; Output to LED port
+         ; --------------------------------------------------------------------
+         ; OP.1D STA (****H,X)
+         ; STA indexed indirect addressing
+         ; --------------------------------------------------------------------
+TSTOP1D  LDA #0x1D
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         ;Store a few bytes in RAM using indexed indirect addressing
+         ;test with base address not requiring a carry to MSB
+         ;by incrementing X from 0x0000 upwards
+         LDA #0x55      ; store data at 0x0000 onwards
+         LDX #0x0000
+         STA (0x0000,X)
+         LDA #0xAA
+         INCX
+         STA (0x0000,X)
+         LDA #0xBE
+         INCX
+         STA (0x0000,X)
+         LDX #0x0000    ; Now read back the stored data
+         LDA (X)
+         CMPA #0x55
+         JNE FAIL
+         INCX
+         LDA (X)
+         CMPA #0xAA
+         JNE FAIL 
+         INCX
+         LDA (X) 
+         CMPA #0xBE
+         JNE FAIL
+         ; Now test with a base address requiring a carry to MSB
+         ; by initializing X to 0x10FE and incrementing storing data
+         LDA #0x12
+         LDX #0x10FE
+         STA (0x0000,X)
+         LDA #0x34
+         INCX
+         STA (0x0000,X)
+         LDA #0x56
+         INCX
+         STA (0x0000,X)
+         LDA #0x78
+         INCX
+         STA (0x0000,X)
+         LDX #0x10FE ; Initialize X to base address
+         LDA (X)
+         CMPA #0x12
+         JNE FAIL
+         INCX
+         LDA (X)
+         CMPA #0x34
+         JNE FAIL
+         INCX
+         LDA (X)
+         CMPA #0x56
+         JNE FAIL
+         INCX
+         LDA (X)
+         CMPA #0x78
+         JNE FAIL
+         ; Test using a fixed indexed register with variable offset
+         ; storing data at 0x1234 onwards
+         LDA #0x12
+         LDX #0x1234
+         STA (0x0000,X)
+         LDA #0x34
+         STA (0x0001,X)
+         LDA #0x56
+         STA (0x0002,X)
+         LDA #0x78
+         STA (0x0003,X)
+         LDX #0x1234 ; Point to base address
+         LDA (X)
+         CMPA #0x12
+         JNE FAIL
+         LDA (0x0001,X)
+         CMPA #0x34
+         JNE FAIL
+         LDA (0x0002,X)
+         CMPA #0x56
+         JNE FAIL
+         LDA (0x0003,X)
+         CMPA #0x78
+         JNE FAIL
+         ; Test using a fixed index register with carry to MSB
+         LDA #0x9A
+         LDX #0x14FE
+         STA (0x0000,X)
+         LDA #0xBC
+         STA (0x0001,X)
+         LDA #0xDE
+         STA (0x0002,X)
+         LDA #0xF0
+         STA (0x0003,X)
+         LDX #0x14FE ; Point to base address
+         LDA (X)
+         CMPA #0x9A
+         JNE FAIL
+         INCX
+         LDA (X)
+         CMPA #0xBC
+         JNE FAIL
+         INCX
+         LDA (X)
+         CMPA #0xDE
+         JNE FAIL
+         INCX
+         LDA (X)
+         CMPA #0xF0
+         JNE FAIL
+         ; Test with carry to MSB on index and base address
+         LDA #0x45
+         LDX #0x02FE
+         STA (0x1100,X)
+         LDA #0x67
+         STA (0x1101,X)
+         LDA #0x89
+         STA (0x1102,X)
+         LDA #0xAB
+         STA (0x1103,X)
+         LDX #0x01FE ; Point to base address
+         LDA (0x1200,X)
+         CMPA #0x45
+         JNE FAIL
+         INCX
+         LDA (0x1200,X)
+         CMPA #0x67
+         JNE FAIL
+         INCX
+         LDA (0x1200,X)
+         CMPA #0x89
+         JNE FAIL
+         INCX
+         LDA (0x1200,X)
+         CMPA #0xAB
+         JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE

@@ -1,6 +1,6 @@
 ﻿// Homebrew MyCPU assembler program
 // Author: Sylvain Fortin  sylfortin71@hotmail.com
-// Date: 1 september 2025
+// Date: 15 december 2025
 // Documentation: This is an assembler program converting mnemonic for the MyCPU into OP code
 //                that can be executed by the micro-program. The source file having an extension .asm 
 //                is passed in argument in the command line.
@@ -176,6 +176,7 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "LDX 0x**",         OpCode = 0x1B,  NbByte = 1, Sym = 0, Offset = 6 });  // LDX #0x**    LDX from specifyed 8 bit address
             dataList.Add(new InstrTable { StringValue = "LDX @",            OpCode = 0x1B,  NbByte = 1, Sym = 1, Offset = 4 });  // LDX @        LDX from specifyed symbolic 8 bit address
             dataList.Add(new InstrTable { StringValue = "LDA (0x****,X)",   OpCode = 0x1C,  NbByte = 2, Sym = 0, Offset = 7 });  // LDA (0x****,X) LDA indexed indirect addressing
+            dataList.Add(new InstrTable { StringValue = "STA (0x****,X)",   OpCode = 0x1D,  NbByte = 2, Sym = 0, Offset = 7 });  // STA (0x****,X) STA indexed indirect addressing
             dataList.Add(new InstrTable { StringValue = "ADCA 0x****",      OpCode = 0x28,  NbByte = 2, Sym = 0, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
             dataList.Add(new InstrTable { StringValue = "ADCA @",           OpCode = 0x28,  NbByte = 2, Sym = 1, Offset = 5 });  // ADCA symbol
             dataList.Add(new InstrTable { StringValue = "ADDA 0x****",      OpCode = 0x29,  NbByte = 2, Sym = 0, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update
