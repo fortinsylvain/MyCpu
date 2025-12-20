@@ -10,9 +10,12 @@
 //                - filename.bin contain the binary data to be programmed on the EEPROM.
 //                The EEPROM programmer i am using is model TL866II Plus from XGecu.
 
+using Assembler;
 using System;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Assembler
 {
@@ -140,9 +143,9 @@ namespace Assembler
             // Sym    : Symbolic decoding is enabled after the mnemonic 0: hex address, 1:symbolic address, 2:symbolic relative adressing (+-127)
             // Offset : Character position where the hex value start.
             // Presently only hexadecimal values are supported, 8 and 16 bits only.
-            dataList.Add(new InstrTable { StringValue = "ORG/0x****",       OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 }); // 
+            dataList.Add(new InstrTable { StringValue = "ORG/0x****",       OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 });  // 
             dataList.Add(new InstrTable { StringValue = "DB 0x**",          OpCode = 0,     NbByte = 0, Sym = 0, Offset = 5 });  // Define Byte in EEPROM Memory
-            dataList.Add(new InstrTable { StringValue = "EQU 0x",           OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 });  // Define Byte in EEPROM Memory
+            dataList.Add(new InstrTable { StringValue = "EQU 0x****",       OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 });  // Define Byte in EEPROM Memory
             dataList.Add(new InstrTable { StringValue = "INCA",             OpCode = 0x03,  NbByte = 0, Sym = 0, Offset = 0 });  // INCA         INCREMENT REGISTER A, E update, C not updated
             dataList.Add(new InstrTable { StringValue = "LDX #0x****",      OpCode = 0x04,  NbByte = 2, Sym = 0, Offset = 7 });  // LDX #0x****  Load X Register with 16 bits immediate value
             dataList.Add(new InstrTable { StringValue = "LDX #@",           OpCode = 0x04,  NbByte = 2, Sym = 1, Offset = 5 });  // LDX #symbol
@@ -176,7 +179,9 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "LDX 0x**",         OpCode = 0x1B,  NbByte = 1, Sym = 0, Offset = 6 });  // LDX #0x**    LDX from specifyed 8 bit address
             dataList.Add(new InstrTable { StringValue = "LDX @",            OpCode = 0x1B,  NbByte = 1, Sym = 1, Offset = 4 });  // LDX @        LDX from specifyed symbolic 8 bit address
             dataList.Add(new InstrTable { StringValue = "LDA (0x****,X)",   OpCode = 0x1C,  NbByte = 2, Sym = 0, Offset = 7 });  // LDA (0x****,X) LDA indexed indirect addressing
+            dataList.Add(new InstrTable { StringValue = "LDA (@,X)",        OpCode = 0x1C,  NbByte = 2, Sym = 1, Offset = 5 });  // LDA (symbol,X)
             dataList.Add(new InstrTable { StringValue = "STA (0x****,X)",   OpCode = 0x1D,  NbByte = 2, Sym = 0, Offset = 7 });  // STA (0x****,X) STA indexed indirect addressing
+            dataList.Add(new InstrTable { StringValue = "STA (@,X)",        OpCode = 0x1D,  NbByte = 2, Sym = 1, Offset = 5 });  // STA (symbol,X)
             dataList.Add(new InstrTable { StringValue = "ADCA 0x****",      OpCode = 0x28,  NbByte = 2, Sym = 0, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
             dataList.Add(new InstrTable { StringValue = "ADCA @",           OpCode = 0x28,  NbByte = 2, Sym = 1, Offset = 5 });  // ADCA symbol
             dataList.Add(new InstrTable { StringValue = "ADDA 0x****",      OpCode = 0x29,  NbByte = 2, Sym = 0, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update
@@ -196,7 +201,20 @@ namespace Assembler
             dataList.Add(new InstrTable { StringValue = "JMP 0x****",       OpCode = 0x32,  NbByte = 2, Sym = 0, Offset = 6 });  // JMP 0x****   JUMP INCONDITIONAL TO ADDRESS
             dataList.Add(new InstrTable { StringValue = "JMP",              OpCode = 0x32,  NbByte = 2, Sym = 1, Offset = 4 });  // JMP symbol
             dataList.Add(new InstrTable { StringValue = "ANDA #0x**",       OpCode = 0x33,  NbByte = 1, Sym = 0, Offset = 8 });  // ANDA #0x**   REGISTER A AND LOGICAL WITH IMMEDIATE BYTE
-          
+
+            /*
+            // Keep first 3 items
+            var firstThree = dataList.Take(3).ToList();
+
+            // Sort the rest by descending StringValue length
+            var restSorted = dataList.Skip(3)
+                                     .OrderByDescending(i => i.StringValue.Length)
+                                     .ToList();
+
+            // Merge back
+            dataList = firstThree.Concat(restSorted).ToList();
+            */
+
             UInt32 LineCounter;
             int iFirstCharacterIndex;
             int iPosComment;
@@ -292,47 +310,13 @@ namespace Assembler
                             bool bFound = false;
                             int iIndexTable = 0;    // start at first location
 
-                            foreach (InstrTable data in dataList)
+                            iIndexTable = FindInstructionIndex_old(sLine, iFirstCharacterIndex, dataList);
+                            //iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+                            if (iIndexTable != -1)
                             {
-                                int iCodeLength = data.StringValue.Length;
-                                int iCharPointer = 0;
-                                bool bIdentical = true;
-
-                                while ((iCharPointer < iCodeLength) && bIdentical)
-                                {
-                                    char cCode = data.StringValue[iCharPointer];
-                                    if ((cCode != '*') && (cCode != '@'))   // Compare only if not one of these symbol
-                                    {
-                                        if (iCharPointer > (sLine.Length - iFirstCharacterIndex - 1))
-                                        {
-                                            bIdentical = false;
-                                        }
-                                        else if (cCode != sLine[iCharPointer + iFirstCharacterIndex])
-                                        {
-                                            bIdentical = false;
-                                        }
-                                    }
-                                    if (cCode == '@')   // symbol begin is expected here
-                                    {
-                                        if (sLine[iCharPointer + iFirstCharacterIndex] == '#')  // if immediate then it's not a symbol
-                                        {
-                                            bIdentical = false;
-                                        }
-                                    }
-                                    iCharPointer++;
-                                }
-
-                                if (bIdentical)
-                                {
-                                    bFound = true;
-                                    break;
-                                }
-                                else
-                                {
-                                    iIndexTable++;
-                                }
-                            }
-
+                                bFound = true;
+                            } 
+                            
                             if (bFound)
                             {
                                 int iOffset = 0;
@@ -427,12 +411,23 @@ namespace Assembler
                                             // Read the symbol
                                             // Compute the offset to the first character of the symbol
                                             iOffset = dataList[iIndexTable].Offset + iFirstCharacterIndex;
-                                            
+
                                             // Find the next space or the end of the string
-                                            int endIndex = sLine.IndexOf(' ', iOffset);
+                                            //int endIndex = sLine.IndexOf(' ', iOffset);
 
                                             // Extract the symbol
-                                            string sSymbol = (endIndex == -1) ? sLine.Substring(iOffset) : sLine.Substring(iOffset, endIndex - iOffset);
+                                            //string sSymbol = (endIndex == -1) ? sLine.Substring(iOffset) : sLine.Substring(iOffset, endIndex - iOffset);
+
+                                            // Extract the symbol
+                                            int endIndex = sLine.Length;
+                                            int spaceIndex = sLine.IndexOf(' ', iOffset);   // space mark end of symbol
+                                            int commaIndex = sLine.IndexOf(',', iOffset);   // comma also mark end of symbol
+
+                                            if (spaceIndex != -1 && spaceIndex < endIndex) endIndex = spaceIndex;
+                                            if (commaIndex != -1 && commaIndex < endIndex) endIndex = commaIndex;
+
+                                            string sSymbol = sLine.Substring(iOffset, endIndex - iOffset);
+
 
                                             // Now, to find the address of the symbol:
                                             if (symbolTable.ContainsKey(sSymbol))
@@ -569,7 +564,7 @@ namespace Assembler
                                         lstFile.Write(sAllignedAssembledCode);
 
                                         // Full line with end of line
-                                        Console.WriteLine(sLine);
+                                        Console.WriteLine(sLine); 
                                         lstFile.WriteLine(sLine);
                                     }
 
@@ -688,5 +683,122 @@ namespace Assembler
             // Return -1 if no non-space character is found
             return -1;
         }
+
+        public static int FindInstructionIndex_old(string sLine, int iFirstCharacterIndex, List<InstrTable> dataList)
+        {
+            //bFound = false;
+            int iIndexTable = 0;    // start at first location
+            foreach (InstrTable data in dataList)
+            {
+                int iCodeLength = data.StringValue.Length;
+                int iCharPointer = 0;
+                bool bIdentical = true;
+
+                while ((iCharPointer < iCodeLength) && bIdentical)
+                {
+                    char cCode = data.StringValue[iCharPointer];
+                    if ((cCode != '*') && (cCode != '@'))   // Compare only if not one of these symbol
+                    {
+                        if (iCharPointer > (sLine.Length - iFirstCharacterIndex - 1))
+                        {
+                            bIdentical = false;
+                        }
+                        else if (cCode != sLine[iCharPointer + iFirstCharacterIndex])
+                        {
+                            bIdentical = false;
+                        }
+                    }
+                    if (cCode == '@')   // symbol begin is expected here
+                    {
+                        if (sLine[iCharPointer + iFirstCharacterIndex] == '#')  // if immediate then it's not a symbol
+                        {
+                            bIdentical = false;
+                        }
+                    }
+                    iCharPointer++;
+                }
+
+                if (bIdentical)
+                {
+                    //bFound = true;
+                    return iIndexTable;
+                }
+                else
+                {
+                    iIndexTable++;
+                }
+            }
+            return -1;
+        }
+
+
+        public static int FindInstructionIndex(string sLine, int iFirstCharacterIndex, List<InstrTable> dataList)
+        {
+            // Defensive checks
+            if (string.IsNullOrEmpty(sLine)) return -1;
+            if (iFirstCharacterIndex < 0 || iFirstCharacterIndex >= sLine.Length) return -1;
+
+            // Remove comment portion starting at ';' that is after the mnemonic start
+            int commentPos = sLine.IndexOf(';', iFirstCharacterIndex);
+            string codePortion;
+            if (commentPos >= 0)
+            {
+                int len = commentPos - iFirstCharacterIndex;
+                if (len <= 0) return -1;
+                codePortion = sLine.Substring(iFirstCharacterIndex, len);
+            }
+            else
+            {
+                codePortion = sLine.Substring(iFirstCharacterIndex);
+            }
+
+            // Trim whitespace around the mnemonic/operands
+            string subLine = codePortion.Trim();
+
+            for (int iIndexTable = 0; iIndexTable < dataList.Count; iIndexTable++)
+            {
+                InstrTable instr = dataList[iIndexTable];
+                string pattern = InstrToRegex(instr.StringValue);
+
+                if (Regex.IsMatch(subLine, pattern, RegexOptions.IgnoreCase))
+                {
+                    return iIndexTable; // Found instruction
+                }
+            }
+
+            return -1; // Not found
+        }
+
+        // Convert instruction string to regex
+        public static string InstrToRegex(string instr)
+        {
+            // Split on spaces so we can join tokens with \s+ (one or more whitespace)
+            var tokens = instr.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+
+            var tokenPatterns = tokens.Select(token =>
+            {
+                // Escape token and then replace escaped placeholders
+                string p = Regex.Escape(token);
+
+                // '*' means one or more hex digits (keep same behavior)
+                p = p.Replace(@"\*", @"[0-9A-Fa-f]+");
+
+                // '@' means a symbol: letter/underscore then letters/digits/underscore
+                p = p.Replace(@"\@", @"[A-Za-z_][A-Za-z0-9_]*");
+
+                // '#' is optional immediate marker (keeps original semantics)
+                p = p.Replace(@"\#", @"#?");
+
+                return p;
+            });
+
+            // Match the tokens at the start, allow flexible whitespace between tokens,
+            // and allow punctuation/extra tokens after the matched pattern.
+            string pattern = "^" + string.Join(@"\s+", tokenPatterns) + @"(?=(\s|,|$))";
+            return pattern;
+        }
+
     }
 }
+
+
