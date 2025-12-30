@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 15 december 2025
+; Date : 29 december 2025
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
@@ -16,6 +16,7 @@
 ;    ?w7       ?w6    |    ?w5      ?w4   |   ?w3     ?w2   |   ?w1     ?w0   | 16 bits
 ;         ?l3         |         ?l2       |       ?l1       |       ?l0       | 32 bits
 ;-----------------------------------------------------------------------------
+
 ?b15     EQU 0x0000
 ?b14     EQU 0x0001
 ?b13     EQU 0x0002
@@ -1606,7 +1607,78 @@ TSTOP1C  LDA #0x1C
          LDA (0x1103,X)
          CMPA #0xF0
          JNE FAIL
-         STA LEDPORT    ; Output to LED port
+         ; Test using symbolic with fixed index register to 0
+         LDA #0xDE
+         STA 0x0000
+         LDA #0xAD
+         STA 0x0001
+         LDA #0xBE
+         STA 0x0002
+         LDA #0xEF
+         STA 0x0003
+         LDX #0x0000 ; Clear index
+         LDA (?b15,X)
+         CMPA #0xDE
+         JNE FAIL
+         LDA (?b14,X)
+         CMPA #0xAD
+         JNE FAIL
+         LDA (?b13,X)
+         CMPA #0xBE
+         JNE FAIL
+         LDA (?b12,X)
+         CMPA #0xEF
+         JNE FAIL
+         ; Test using symbolic and incrementing index
+         LDA #0xCA   ; ?b7      EQU 0x0008
+         STA 0x0008
+         LDA #0xFE
+         STA 0x0009
+         LDA #0x55
+         STA 0x000A
+         LDA #0xAA
+         STA 0x000B
+         LDX #0x0000 ; Clear index
+         LDA (?b7,X)
+         CMPA #0xCA
+         JNE FAIL
+         INCX
+         LDA (?b7,X)
+         CMPA #0xFE
+         JNE FAIL
+         INCX
+         LDA (?b7,X)
+         CMPA #0x55
+         JNE FAIL
+         INCX
+         LDA (?b7,X)
+         CMPA #0xAA
+         JNE FAIL              
+         ; Test using symbolic and incrementing index with a carry
+         LDA #0x12   ; ?b0      EQU 0x000F
+         STA 0x16FE
+         LDA #0x34
+         STA 0x16FF
+         LDA #0x56
+         STA 0x1700
+         LDA #0x78
+         STA 0x1701
+         LDX #0x16EF ; Set base index
+         LDA (?b0,X)
+         CMPA #0x12
+         JNE FAIL              
+         INCX
+         LDA (?b0,X)
+         CMPA #0x34
+         JNE FAIL              
+         INCX        ; carry on MSB
+         LDA (?b0,X)
+         CMPA #0x56
+         JNE FAIL              
+         INCX
+         LDA (?b0,X)
+         CMPA #0x78
+         JNE FAIL              
          ; --------------------------------------------------------------------
          ; OP.1D STA (****H,X)
          ; STA indexed indirect addressing
@@ -1743,6 +1815,111 @@ TSTOP1D  LDA #0x1D
          INCX
          LDA (0x1200,X)
          CMPA #0xAB
+         JNE FAIL
+         ; test using symbolic with fixed index register to 0
+         LDX #0x0000 ; Clear index
+         LDA #0xDE
+         STA (?b10,X)
+         LDA #0xAD
+         STA (?b9,X)
+         LDA #0xBE
+         STA (?b8,X)   
+         LDA #0xEF
+         STA (?b7,X)
+         LDA 0x0005
+         CMPA #0xDE
+         JNE FAIL
+         LDA 0x0006
+         CMPA #0xAD
+         JNE FAIL
+         LDA 0x0007
+         CMPA #0xBE
+         JNE FAIL
+         LDA 0x0008
+         CMPA #0xEF
+         JNE FAIL
+         ; test using symbolic and incrementing index
+         LDX #0x0000 ; Clear index
+         LDA #0xCA   
+         STA (?b0,X) ; ?b0      EQU 0x000F
+         INCX
+         LDA #0xFE
+         STA (?b0,X)
+         INCX 
+         LDA #0x55
+         STA (?b0,X)
+         INCX
+         LDA #0xAA
+         STA (?b0,X)
+         LDA 0x000F
+         CMPA #0xCA
+         JNE FAIL
+         LDA 0x0010
+         CMPA #0xFE
+         JNE FAIL
+         LDA 0x0011
+         CMPA #0x55
+         JNE FAIL
+         LDA 0x0012
+         CMPA #0xAA
+         JNE FAIL         
+         ; Test using symbolic and incrementing index with a carry
+         LDX #0x14EF ; Set base index
+         LDA #0x12
+         STA (?b0,X) ; 0x14FE
+         INCX
+         LDA #0x34
+         STA (?b0,X) ; 0x14FF
+         INCX
+         LDA #0x56
+         STA (?b0,X) ; 0x1500
+         INCX
+         LDA #0x78
+         STA (?b0,X) ; 0x1501
+         LDA 0x14FE
+         CMPA #0x12
+         JNE FAIL
+         LDA 0x14FF
+         CMPA #0x34
+         JNE FAIL
+         LDA 0x1500
+         CMPA #0x56
+         JNE FAIL
+         LDA 0x1501
+         CMPA #0x78
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.1E CLRX
+         ; CLEAR X REGISTER
+         ; --------------------------------------------------------------------
+TSTOP1E  LDA #0x1E
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00   ; Clear E equal flag
+         STA 0x1FFA
+         LDX #0xFFFF ; Load X with non zero value
+         CLRX
+         LDA 0x1FF3  ; Read X MSB
+         CMPA #0x00
+         JNE FAIL
+         LDA 0x1FF4  ; Read X LSB
+         CMPA #0x00
+         JNE FAIL
+         LDA 0x1FFA  ; Read E flag and check it is set
+         CMPA #0x01
+         JNE FAIL
+         LDA #0x01   ; Set E equal flag
+         STA 0x1FFA
+         LDX #0x1234 ; Load X with non zero value
+         CLRX
+         LDA 0x1FF3  ; Read X MSB
+         CMPA #0x00
+         JNE FAIL
+         LDA 0x1FF4  ; Read X LSB
+         CMPA #0x00
+         JNE FAIL
+         LDA 0x1FFA  ; Read E flag and check it is set
+         CMPA #0x01  
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
@@ -1940,7 +2117,7 @@ TSTOP2E  LDA #0x2E
          CMPA #0x01  ; Should be set
          JNE FAIL
          
-         LDA #0x01H  ; Set CARRY (C)
+         LDA #0x01   ; Set CARRY (C)
          STA CARRY
          LDA #0xFF
          ADCA #0xFF
@@ -2620,7 +2797,10 @@ LOOPTST47      LDX ?b1           ; Load X with source address in ?b1:?b0
                JRA LOOPTST47
 ENDCOPYTST47   JSR RAMDESTSTART ; Jump to ram for code execution
 
-         JMP 0xE000  ; Loop from start of diag test
+               JMP 0xE000  ; Loop from start of diag test
+MSGTXT1        .ASCII "123ABC"
+MSGTXT2        .ASCII "Hello Word"
+MSGTXT3        .ASCII "This is a text message to test ascii text table in assembler"
          
          ; ---------------------
          ; Math library routines

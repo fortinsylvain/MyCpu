@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin  sylfortin71@hotmail.com
-; Date : 1 sept 2025
+; Date : 29 dec 2025
 ; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -1075,6 +1075,19 @@ R0>AH                   ;  Store Data to specifyed resulting address
 R1>AL
 R2>DATA
 02H>UH                  ; NEXT OP
+00H>UL
+JMP                     ; ***************************************************
+ORG/0F00H               ; OP.1E CLRX  Clear X register, Set the E bit.
+00H>R0                  
+1FH>AH                  ; Clear X MSB
+F3H>AL
+R0>DATA
+F4H>AL                  ; Clear X LSB
+R0>DATA
+01H>R0                  ; Set 1FFAH E bit<0> Equal Status bit
+FAH>AL
+R0>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
 00H>UL
 JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE

@@ -1,30 +1,46 @@
 ﻿// Homebrew MyCPU assembler program
 // Author: Sylvain Fortin  sylfortin71@hotmail.com
-// Date: 15 december 2025
-// Documentation: This is an assembler program converting mnemonic for the MyCPU into OP code
-//                that can be executed by the micro-program. The source file having an extension .asm 
-//                is passed in argument in the command line.
-//                Two output files are created:
-//                - filename.lst is an ascii file of the listing containing the address, op code, operand
-//                with the comments.
-//                - filename.bin contain the binary data to be programmed on the EEPROM.
-//                The EEPROM programmer i am using is model TL866II Plus from XGecu.
+// Date: 27 december 2025
+// Documentation:
+// This program is an assembler that converts MyCPU mnemonics into opcodes
+// executable by the MyCPU micro-program.
+// 
+// The source file (with .asm extension) is passed as a command-line argument.
+//
+// Two output files are generated:
+// - filename.lst : ASCII listing file containing the address, opcode, operands,
+//                  and comments.
+// - filename.bin : Binary file containing the assembled data to be programmed
+//                  into the EEPROM.
+//
+// The EEPROM programmer used is the TL866II Plus from XGecu.
 
 using Assembler;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Assembler
 {
+    public enum OperandMode
+    {
+        Hex = 0,
+        Symbol = 1,
+        Relative = 2,
+        Ascii = 3
+    }
+
     public class InstrTable
     {
         public string StringValue { get; set; }
         public int OpCode { get; set; }
         public int NbByte { get; set; }
-        public int Sym { get; set; }        public int Offset { get; set; }
+        public OperandMode Sym { get; set; }
+        public int Offset { get; set; }
+        public Regex Regex { get; set; }
     }
 
     class SymbolTableEntry
@@ -86,14 +102,14 @@ namespace Assembler
             return -1; // Return -1 if no non-space character is found after the startIndex
         }
 
-//        static void PrintSymbolTable()
-//        {
-//            Console.WriteLine("Symbol Table:");
-//            foreach (var entry in symbolTable)
-//            {
-//                Console.WriteLine($"{entry.Key,-10}{entry.Value.Address:X4}");
-//            }
-//        }
+        //        static void PrintSymbolTable()
+        //        {
+        //            Console.WriteLine("Symbol Table:");
+        //            foreach (var entry in symbolTable)
+        //            {
+        //                Console.WriteLine($"{entry.Key,-10}{entry.Value.Address:X4}");
+        //            }
+        //        }
 
         static void Main(string[] args)
         {
@@ -106,6 +122,14 @@ namespace Assembler
             string sRepositoryPath = "";
             string sFileName = "";
 
+            // ---- Argument validation ----
+            if (args.Length != 1)
+            {
+                Console.WriteLine("ERROR: Invalid number of arguments.");
+                Console.WriteLine("Usage: assembler <sourcefile.asm>");
+                Environment.Exit(1);
+            }
+
             sFileName = args[0];
             if (args.Length != 1)   // No argument
             {
@@ -115,7 +139,7 @@ namespace Assembler
             else
             {                       // With argument
                 sCurrentPath = Directory.GetCurrentDirectory();
-                sRepositoryPath = Path.Combine(sCurrentPath, "../../examples");           // Move up two level and go to examples
+                sRepositoryPath = Path.Combine(sCurrentPath, "..\\..\\examples");           // Move up two level and go to examples
 
             }
 
@@ -143,64 +167,78 @@ namespace Assembler
             // Sym    : Symbolic decoding is enabled after the mnemonic 0: hex address, 1:symbolic address, 2:symbolic relative adressing (+-127)
             // Offset : Character position where the hex value start.
             // Presently only hexadecimal values are supported, 8 and 16 bits only.
-            dataList.Add(new InstrTable { StringValue = "ORG/0x****",       OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 });  // 
-            dataList.Add(new InstrTable { StringValue = "DB 0x**",          OpCode = 0,     NbByte = 0, Sym = 0, Offset = 5 });  // Define Byte in EEPROM Memory
-            dataList.Add(new InstrTable { StringValue = "EQU 0x****",       OpCode = 0,     NbByte = 0, Sym = 0, Offset = 6 });  // Define Byte in EEPROM Memory
-            dataList.Add(new InstrTable { StringValue = "INCA",             OpCode = 0x03,  NbByte = 0, Sym = 0, Offset = 0 });  // INCA         INCREMENT REGISTER A, E update, C not updated
-            dataList.Add(new InstrTable { StringValue = "LDX #0x****",      OpCode = 0x04,  NbByte = 2, Sym = 0, Offset = 7 });  // LDX #0x****  Load X Register with 16 bits immediate value
-            dataList.Add(new InstrTable { StringValue = "LDX #@",           OpCode = 0x04,  NbByte = 2, Sym = 1, Offset = 5 });  // LDX #symbol
-            dataList.Add(new InstrTable { StringValue = "INCX",             OpCode = 0x05,  NbByte = 0, Sym = 0, Offset = 0 });  // INCX         Increment Register X,  Carry Not Updated
-            dataList.Add(new InstrTable { StringValue = "JSR 0x****",       OpCode = 0x06,  NbByte = 2, Sym = 0, Offset = 6 });  // JSR ****H    Jump to SubRoutine
-            dataList.Add(new InstrTable { StringValue = "JSR",              OpCode = 0x06,  NbByte = 2, Sym = 1, Offset = 4 });  // JSR sym
-            dataList.Add(new InstrTable { StringValue = "RTS",              OpCode = 0x07,  NbByte = 0, Sym = 0, Offset = 0 });  // RTS          ReTurn from Subroutine
-            dataList.Add(new InstrTable { StringValue = "STOP",             OpCode = 0x08,  NbByte = 0, Sym = 0, Offset = 0 });  // STOP         STOP Executing
-            dataList.Add(new InstrTable { StringValue = "NOP",              OpCode = 0x09,  NbByte = 0, Sym = 0, Offset = 0 });  // NOP          No Operation
-            dataList.Add(new InstrTable { StringValue = "LDA (X)",          OpCode = 0x0A,  NbByte = 0, Sym = 0, Offset = 0 });  // LDA (X)      Load Reg A Indexed
-            dataList.Add(new InstrTable { StringValue = "STA (X)",          OpCode = 0x0B,  NbByte = 0, Sym = 0, Offset = 0 });  // STA (X)      Store Reg A Indexed
-            dataList.Add(new InstrTable { StringValue = "JRA 0x**",         OpCode = 0x0C,  NbByte = 1, Sym = 0, Offset = 6 });  // JRA 0x**     Unconditional relative jump
-            dataList.Add(new InstrTable { StringValue = "JRA @",            OpCode = 0x0C,  NbByte = 1, Sym = 2, Offset = 4 });  // JRA symbol   Unconditional relative jump
-            dataList.Add(new InstrTable { StringValue = "SRLA",             OpCode = 0x0D,  NbByte = 0, Sym = 0, Offset = 0 });  // SRLA         Shift Right Logical on Reg A  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-            dataList.Add(new InstrTable { StringValue = "SLLA",             OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLLA         Shift Left Logical on Reg A
-            dataList.Add(new InstrTable { StringValue = "SLAA",             OpCode = 0x0E,  NbByte = 0, Sym = 0, Offset = 0 });  // SLAA         Shift Left Arithmetic on Reg A (SLAA same as SLLA)
-            dataList.Add(new InstrTable { StringValue = "JRNC @",           OpCode = 0x0F,  NbByte = 1, Sym = 2, Offset = 5 });  // JRNC symbol  Jump Relatif Not Carry
-            dataList.Add(new InstrTable { StringValue = "RRCA",             OpCode = 0x10,  NbByte = 0, Sym = 0, Offset = 0 });  // RRCA         Rotate Right Logical Reg A through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C         
-            dataList.Add(new InstrTable { StringValue = "RCF",              OpCode = 0x11,  NbByte = 0, Sym = 0, Offset = 0 });  // RCF          Reset Carry Flag C <- 0
-            dataList.Add(new InstrTable { StringValue = "SCF",              OpCode = 0x12,  NbByte = 0, Sym = 0, Offset = 0 });  // SCF          Set Carry Flag C <- 1
-            dataList.Add(new InstrTable { StringValue = "DECXL",            OpCode = 0x13,  NbByte = 0, Sym = 0, Offset = 0 });  // DECXL        Decrement XL (E updated)
-            dataList.Add(new InstrTable { StringValue = "RRC @",            OpCode = 0x14,  NbByte = 2, Sym = 1, Offset = 4 });  // RRC symbol   Rotate Right Logical Address location through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-            dataList.Add(new InstrTable { StringValue = "SRL @",            OpCode = 0x15,  NbByte = 2, Sym = 1, Offset = 4 });  // SRL symbol   Shift Right Logical on address  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-            dataList.Add(new InstrTable { StringValue = "STX 0x****",       OpCode = 0x16,  NbByte = 2, Sym = 0, Offset = 6 });  // STX 0x****   Store X Register at Address
-            dataList.Add(new InstrTable { StringValue = "STX @",            OpCode = 0x16,  NbByte = 2, Sym = 1, Offset = 4 });  // STX symbol
-            dataList.Add(new InstrTable { StringValue = "ORA #0x**",        OpCode = 0x17,  NbByte = 1, Sym = 0, Offset = 7 });  // ORA #0x**    LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
-            dataList.Add(new InstrTable { StringValue = "XORA #0x**",       OpCode = 0x18,  NbByte = 1, Sym = 0, Offset = 8 });  // XORA #0x**   EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
-            dataList.Add(new InstrTable { StringValue = "NOTA",             OpCode = 0x19,  NbByte = 0, Sym = 0, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
-            dataList.Add(new InstrTable { StringValue = "CMPX #0x****",     OpCode = 0x1A,  NbByte = 2, Sym = 0, Offset = 8 });  // CMPX #0x**** COMPARE X to immediate value, E update
-            dataList.Add(new InstrTable { StringValue = "CMPX #@",          OpCode = 0x1A,  NbByte = 2, Sym = 1, Offset = 6 });  // CMPX #symbol
-            dataList.Add(new InstrTable { StringValue = "LDX 0x**",         OpCode = 0x1B,  NbByte = 1, Sym = 0, Offset = 6 });  // LDX #0x**    LDX from specifyed 8 bit address
-            dataList.Add(new InstrTable { StringValue = "LDX @",            OpCode = 0x1B,  NbByte = 1, Sym = 1, Offset = 4 });  // LDX @        LDX from specifyed symbolic 8 bit address
-            dataList.Add(new InstrTable { StringValue = "LDA (0x****,X)",   OpCode = 0x1C,  NbByte = 2, Sym = 0, Offset = 7 });  // LDA (0x****,X) LDA indexed indirect addressing
-            dataList.Add(new InstrTable { StringValue = "LDA (@,X)",        OpCode = 0x1C,  NbByte = 2, Sym = 1, Offset = 5 });  // LDA (symbol,X)
-            dataList.Add(new InstrTable { StringValue = "STA (0x****,X)",   OpCode = 0x1D,  NbByte = 2, Sym = 0, Offset = 7 });  // STA (0x****,X) STA indexed indirect addressing
-            dataList.Add(new InstrTable { StringValue = "STA (@,X)",        OpCode = 0x1D,  NbByte = 2, Sym = 1, Offset = 5 });  // STA (symbol,X)
-            dataList.Add(new InstrTable { StringValue = "ADCA 0x****",      OpCode = 0x28,  NbByte = 2, Sym = 0, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
-            dataList.Add(new InstrTable { StringValue = "ADCA @",           OpCode = 0x28,  NbByte = 2, Sym = 1, Offset = 5 });  // ADCA symbol
-            dataList.Add(new InstrTable { StringValue = "ADDA 0x****",      OpCode = 0x29,  NbByte = 2, Sym = 0, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update
-            dataList.Add(new InstrTable { StringValue = "ADDA @",           OpCode = 0x29,  NbByte = 2, Sym = 1, Offset = 5 });  // ADDA symbol
-            dataList.Add(new InstrTable { StringValue = "LDA 0x****",       OpCode = 0x2A,  NbByte = 2, Sym = 0, Offset = 6 });  // LDA 0x****   Load Byte from Address into REG A
-            dataList.Add(new InstrTable { StringValue = "LDA @",            OpCode = 0x2A,  NbByte = 2, Sym = 1, Offset = 4 });  // LDA symboL
-            dataList.Add(new InstrTable { StringValue = "JNE 0x****",       OpCode = 0x2B,  NbByte = 2, Sym = 0, Offset = 6 });  // JNE 0x****   JUMP IF NOT EQUAL (E=0)
-            dataList.Add(new InstrTable { StringValue = "JNE @",            OpCode = 0x2B,  NbByte = 2, Sym = 1, Offset = 4 });  // JNE symbol
-            dataList.Add(new InstrTable { StringValue = "JEQ 0x****",       OpCode = 0x2C,  NbByte = 2, Sym = 0, Offset = 6 });  // JEQ 0x****   JUMP IF EQUAL (E=1)
-            dataList.Add(new InstrTable { StringValue = "JEQ",              OpCode = 0x2C,  NbByte = 2, Sym = 1, Offset = 4 });  // JEQ symbol
-            dataList.Add(new InstrTable { StringValue = "CMPA #0x**",       OpCode = 0x2D,  NbByte = 1, Sym = 0, Offset = 8 });  // CMPA #0x**   COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
-            dataList.Add(new InstrTable { StringValue = "ADCA #0x**",       OpCode = 0x2E,  NbByte = 1, Sym = 0, Offset = 8 });  // ADCA #0x**   REG A = REG A + IMMEDIATE BYTE + CARRY (C), Carry C Updated
-            dataList.Add(new InstrTable { StringValue = "ADDA #0x**",       OpCode = 0x2F,  NbByte = 1, Sym = 0, Offset = 8 });  // ADDA #0x**   ADD IMMEDIATE BYTE VALUE TO REGISTER A  C UPDATED
-            dataList.Add(new InstrTable { StringValue = "LDA #0x**",        OpCode = 0x30,  NbByte = 1, Sym = 0, Offset = 7 });  // LDA #0x**    LOAD IMMEDIATE VALUE IN REGISTER A
-            dataList.Add(new InstrTable { StringValue = "STA 0x****",       OpCode = 0x31,  NbByte = 2, Sym = 0, Offset = 6 });  // STA 0x****   STORE REG.A TO ADDRESSE
-            dataList.Add(new InstrTable { StringValue = "STA @",            OpCode = 0x31,  NbByte = 2, Sym = 1, Offset = 4 });  // STA symbol
-            dataList.Add(new InstrTable { StringValue = "JMP 0x****",       OpCode = 0x32,  NbByte = 2, Sym = 0, Offset = 6 });  // JMP 0x****   JUMP INCONDITIONAL TO ADDRESS
-            dataList.Add(new InstrTable { StringValue = "JMP",              OpCode = 0x32,  NbByte = 2, Sym = 1, Offset = 4 });  // JMP symbol
-            dataList.Add(new InstrTable { StringValue = "ANDA #0x**",       OpCode = 0x33,  NbByte = 1, Sym = 0, Offset = 8 });  // ANDA #0x**   REGISTER A AND LOGICAL WITH IMMEDIATE BYTE
+            dataList.Add(new InstrTable { StringValue = "ORG/0x****", OpCode = 0, NbByte = 0, Sym = OperandMode.Hex, Offset = 6 });  // 
+            dataList.Add(new InstrTable { StringValue = "DB 0x**", OpCode = 0, NbByte = 0, Sym = OperandMode.Hex, Offset = 5 });  // Define Byte in EEPROM Memory
+            dataList.Add(new InstrTable { StringValue = "EQU 0x****", OpCode = 0, NbByte = 0, Sym = OperandMode.Hex, Offset = 6 });  // Define Byte in EEPROM Memory
+            dataList.Add(new InstrTable { StringValue = ".ASCII \"@\"", OpCode = 0, NbByte = 0, Sym = OperandMode.Ascii, Offset = 7 });  // Define a string of ASCII characters in EEPROM Memory
+            dataList.Add(new InstrTable { StringValue = "INCA", OpCode = 0x03, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // INCA         INCREMENT REGISTER A, E update, C not updated
+            dataList.Add(new InstrTable { StringValue = "LDX #0x****", OpCode = 0x04, NbByte = 2, Sym = OperandMode.Hex, Offset = 7 });  // LDX #0x****  Load X Register with 16 bits immediate value
+            dataList.Add(new InstrTable { StringValue = "LDX #@", OpCode = 0x04, NbByte = 2, Sym = OperandMode.Symbol, Offset = 5 });  // LDX #symbol
+            dataList.Add(new InstrTable { StringValue = "INCX", OpCode = 0x05, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // INCX         Increment Register X,  Carry Not Updated
+            dataList.Add(new InstrTable { StringValue = "JSR 0x****", OpCode = 0x06, NbByte = 2, Sym = OperandMode.Hex, Offset = 6 });  // JSR ****H    Jump to SubRoutine
+            dataList.Add(new InstrTable { StringValue = "JSR @", OpCode = 0x06, NbByte = 2, Sym = OperandMode.Symbol, Offset = 4 });  // JSR sym
+            dataList.Add(new InstrTable { StringValue = "RTS", OpCode = 0x07, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // RTS          ReTurn from Subroutine
+            dataList.Add(new InstrTable { StringValue = "STOP", OpCode = 0x08, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // STOP         STOP Executing
+            dataList.Add(new InstrTable { StringValue = "NOP", OpCode = 0x09, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // NOP          No Operation
+            dataList.Add(new InstrTable { StringValue = "LDA (X)", OpCode = 0x0A, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // LDA (X)      Load Reg A Indexed
+            dataList.Add(new InstrTable { StringValue = "STA (X)", OpCode = 0x0B, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // STA (X)      Store Reg A Indexed
+            dataList.Add(new InstrTable { StringValue = "JRA 0x**", OpCode = 0x0C, NbByte = 1, Sym = OperandMode.Hex, Offset = 6 });  // JRA 0x**     Unconditional relative jump
+            dataList.Add(new InstrTable { StringValue = "JRA @", OpCode = 0x0C, NbByte = 1, Sym = OperandMode.Relative, Offset = 4 });  // JRA symbol   Unconditional relative jump
+            dataList.Add(new InstrTable { StringValue = "SRLA", OpCode = 0x0D, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // SRLA         Shift Right Logical on Reg A  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+            dataList.Add(new InstrTable { StringValue = "SLLA", OpCode = 0x0E, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // SLLA         Shift Left Logical on Reg A
+            dataList.Add(new InstrTable { StringValue = "SLAA", OpCode = 0x0E, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // SLAA         Shift Left Arithmetic on Reg A (SLAA same as SLLA)
+            dataList.Add(new InstrTable { StringValue = "JRNC @", OpCode = 0x0F, NbByte = 1, Sym = OperandMode.Relative, Offset = 5 });  // JRNC symbol  Jump Relatif Not Carry
+            dataList.Add(new InstrTable { StringValue = "RRCA", OpCode = 0x10, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // RRCA         Rotate Right Logical Reg A through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C         
+            dataList.Add(new InstrTable { StringValue = "RCF", OpCode = 0x11, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // RCF          Reset Carry Flag C <- 0
+            dataList.Add(new InstrTable { StringValue = "SCF", OpCode = 0x12, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // SCF          Set Carry Flag C <- 1
+            dataList.Add(new InstrTable { StringValue = "DECXL", OpCode = 0x13, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // DECXL        Decrement XL (E updated)
+            dataList.Add(new InstrTable { StringValue = "RRC @", OpCode = 0x14, NbByte = 2, Sym = OperandMode.Symbol, Offset = 4 });  // RRC symbol   Rotate Right Logical Address location through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+            dataList.Add(new InstrTable { StringValue = "SRL @", OpCode = 0x15, NbByte = 2, Sym = OperandMode.Symbol, Offset = 4 });  // SRL symbol   Shift Right Logical on address  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
+            dataList.Add(new InstrTable { StringValue = "STX 0x****", OpCode = 0x16, NbByte = 2, Sym = OperandMode.Hex, Offset = 6 });  // STX 0x****   Store X Register at Address
+            dataList.Add(new InstrTable { StringValue = "STX @", OpCode = 0x16, NbByte = 2, Sym = OperandMode.Symbol, Offset = 4 });  // STX symbol
+            dataList.Add(new InstrTable { StringValue = "ORA #0x**", OpCode = 0x17, NbByte = 1, Sym = OperandMode.Hex, Offset = 7 });  // ORA #0x**    LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
+            dataList.Add(new InstrTable { StringValue = "XORA #0x**", OpCode = 0x18, NbByte = 1, Sym = OperandMode.Hex, Offset = 8 });  // XORA #0x**   EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
+            dataList.Add(new InstrTable { StringValue = "NOTA", OpCode = 0x19, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // NOTA         LOGIC NOT ON REG A
+            dataList.Add(new InstrTable { StringValue = "CMPX #0x****", OpCode = 0x1A, NbByte = 2, Sym = OperandMode.Hex, Offset = 8 });  // CMPX #0x**** COMPARE X to immediate value, E update
+            dataList.Add(new InstrTable { StringValue = "CMPX #@", OpCode = 0x1A, NbByte = 2, Sym = OperandMode.Symbol, Offset = 6 });  // CMPX #symbol
+            dataList.Add(new InstrTable { StringValue = "LDX 0x**", OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Hex, Offset = 6 });  // LDX #0x**    LDX from specifyed 8 bit address
+            dataList.Add(new InstrTable { StringValue = "LDX @", OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Symbol, Offset = 4 });  // LDX @        LDX from specifyed symbolic 8 bit address
+            dataList.Add(new InstrTable { StringValue = "LDA (0x****,X)", OpCode = 0x1C, NbByte = 2, Sym = OperandMode.Hex, Offset = 7 });  // LDA (0x****,X) LDA indexed indirect addressing
+            dataList.Add(new InstrTable { StringValue = "LDA (@,X)", OpCode = 0x1C, NbByte = 2, Sym = OperandMode.Symbol, Offset = 5 });  // LDA (symbol,X)
+            dataList.Add(new InstrTable { StringValue = "STA (0x****,X)", OpCode = 0x1D, NbByte = 2, Sym = OperandMode.Hex, Offset = 7 });  // STA (0x****,X) STA indexed indirect addressing
+            dataList.Add(new InstrTable { StringValue = "STA (@,X)", OpCode = 0x1D, NbByte = 2, Sym =OperandMode.Symbol, Offset = 5 });  // STA (symbol,X)
+            dataList.Add(new InstrTable { StringValue = "CLRX", OpCode = 0x1E, NbByte = 0, Sym = OperandMode.Hex, Offset = 0 });  // CLRX Clear X register, set E flag
+            dataList.Add(new InstrTable { StringValue = "ADCA 0x****", OpCode = 0x28, NbByte = 2, Sym = OperandMode.Hex, Offset = 7 });  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
+            dataList.Add(new InstrTable { StringValue = "ADCA @", OpCode = 0x28, NbByte = 2, Sym = OperandMode.Symbol, Offset = 5 });  // ADCA symbol
+            dataList.Add(new InstrTable { StringValue = "ADDA 0x****", OpCode = 0x29, NbByte = 2, Sym = OperandMode.Hex, Offset = 7 });  // ADDA 0x****  Add Byte from Address into REG A Carry update
+            dataList.Add(new InstrTable { StringValue = "ADDA @", OpCode = 0x29, NbByte = 2, Sym = OperandMode.Symbol, Offset = 5 });  // ADDA symbol
+            dataList.Add(new InstrTable { StringValue = "LDA 0x****", OpCode = 0x2A, NbByte = 2, Sym = OperandMode.Hex, Offset = 6 });  // LDA 0x****   Load Byte from Address into REG A
+            dataList.Add(new InstrTable { StringValue = "LDA @", OpCode = 0x2A, NbByte = 2, Sym = OperandMode.Symbol, Offset = 4 });  // LDA symboL
+            dataList.Add(new InstrTable { StringValue = "JNE 0x****", OpCode = 0x2B, NbByte = 2, Sym = OperandMode.Hex, Offset = 6 });  // JNE 0x****   JUMP IF NOT EQUAL (E=0)
+            dataList.Add(new InstrTable { StringValue = "JNE @", OpCode = 0x2B, NbByte = 2, Sym = OperandMode.Symbol, Offset = 4 });  // JNE symbol
+            dataList.Add(new InstrTable { StringValue = "JEQ 0x****", OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Hex, Offset = 6 });  // JEQ 0x****   JUMP IF EQUAL (E=1)
+            dataList.Add(new InstrTable { StringValue = "JEQ", OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Symbol, Offset = 4 });  // JEQ symbol
+            dataList.Add(new InstrTable { StringValue = "CMPA #0x**", OpCode = 0x2D, NbByte = 1, Sym = OperandMode.Hex, Offset = 8 });  // CMPA #0x**   COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
+            dataList.Add(new InstrTable { StringValue = "ADCA #0x**", OpCode = 0x2E, NbByte = 1, Sym = OperandMode.Hex, Offset = 8 });  // ADCA #0x**   REG A = REG A + IMMEDIATE BYTE + CARRY (C), Carry C Updated
+            dataList.Add(new InstrTable { StringValue = "ADDA #0x**", OpCode = 0x2F, NbByte = 1, Sym = OperandMode.Hex, Offset = 8 });  // ADDA #0x**   ADD IMMEDIATE BYTE VALUE TO REGISTER A  C UPDATED
+            dataList.Add(new InstrTable { StringValue = "LDA #0x**", OpCode = 0x30, NbByte = 1, Sym = OperandMode.Hex, Offset = 7 });  // LDA #0x**    LOAD IMMEDIATE VALUE IN REGISTER A
+            dataList.Add(new InstrTable { StringValue = "STA 0x****", OpCode = 0x31, NbByte = 2, Sym = OperandMode.Hex, Offset = 6 });  // STA 0x****   STORE REG.A TO ADDRESSE
+            dataList.Add(new InstrTable { StringValue = "STA @", OpCode = 0x31, NbByte = 2, Sym = OperandMode.Symbol, Offset = 4 });  // STA symbol
+            dataList.Add(new InstrTable { StringValue = "JMP 0x****", OpCode = 0x32, NbByte = 2, Sym = OperandMode.Hex, Offset = 6 });  // JMP 0x****   JUMP INCONDITIONAL TO ADDRESS
+            dataList.Add(new InstrTable { StringValue = "JMP", OpCode = 0x32, NbByte = 2, Sym = OperandMode.Symbol, Offset = 4 });  // JMP symbol
+            dataList.Add(new InstrTable { StringValue = "ANDA #0x**", OpCode = 0x33, NbByte = 1, Sym = OperandMode.Hex, Offset = 8 });  // ANDA #0x**   REGISTER A AND LOGICAL WITH IMMEDIATE BYTE
+
+            // Compile regex for each instruction
+            foreach (var instr in dataList)
+            {
+                string pattern = InstrToRegex(instr.StringValue);
+
+                instr.Regex = new Regex(
+                    pattern,
+                    RegexOptions.IgnoreCase | RegexOptions.Compiled
+                );
+            }
+
 
             /*
             // Keep first 3 items
@@ -215,8 +253,63 @@ namespace Assembler
             dataList = firstThree.Concat(restSorted).ToList();
             */
 
-            UInt32 LineCounter;
+
+            WriteInstructionTable(Path.Combine(sRepositoryPath, "instruction_table.txt"), dataList);
+            WriteRegexTable(Path.Combine(sRepositoryPath, "regex_table.txt"), dataList);
+
+            StreamReader inputFile;
+
+            try
+            {
+                inputFile = File.OpenText(fullPath);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                Console.WriteLine("ERROR: Could not find part of the path:");
+                Console.WriteLine(fullPath);
+                return;
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine("ERROR: File not found:");
+                Console.WriteLine(fullPath);
+                return;
+            }
+
+            int iIndexTable;
             int iFirstCharacterIndex;
+            string sLine = "";
+
+            /*
+             * iFirstCharacterIndex = 9;
+            sLine = "?b15     EQU 0x0000";
+            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+
+            sLine = "LEDPORT  EQU 0xC000";
+            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+
+            sLine = "         ORG/0xE000  ; EEPROM Start ";
+            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+
+            sLine = "         NOTA";
+            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+
+            sLine = "         STA LEDPORT ; Output to LED port";
+            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+
+            sLine = "         LDX #?b0    ; ?b0      EQU 0x000F";
+            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+
+            sLine = "         LDA (?b0,X)";
+            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+           
+            sLine = "               .ASCII \"123ABC\"";
+            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+            */
+
+            
+
+            UInt32 LineCounter;
             int iPosComment;
             string sNibble;
             int iMsq = 0;
@@ -231,10 +324,12 @@ namespace Assembler
                 LineCounter = 0;    // Input source file line number beeing processed
                 iAddress = 0;
                 iErrorNumber = 0;
-                using (StreamReader inputFile = File.OpenText(fullPath))
+              
+                using (inputFile = File.OpenText(fullPath))
                 using (StreamWriter lstFile = File.CreateText(Path.Combine(sRepositoryPath, baseFileName + ".lst")))
+
                 {
-                    string sLine = "";
+                    sLine = "";
                     while (!inputFile.EndOfStream)
                     {
                         LineCounter++;
@@ -243,7 +338,7 @@ namespace Assembler
                         iPosComment = sLine.IndexOf(';');   // Locate where the comment begin
 
                         // Empty line ?
-                        if (iFirstCharacterIndex == -1)    
+                        if (iFirstCharacterIndex == -1)
                         {
                             if (iPass == 2)     // Output only in PASS 2
                             {
@@ -253,7 +348,7 @@ namespace Assembler
                         }
 
                         // Begin with ";"
-                        else if (sLine.Substring(0, 1) == ";")  
+                        else if (sLine.Substring(0, 1) == ";")
                         {
                             if (iPass == 2)     // Output only in PASS 2
                             {
@@ -265,7 +360,7 @@ namespace Assembler
                         }
 
                         // Only a comment line ?
-                        else if (iFirstCharacterIndex == iPosComment)   
+                        else if (iFirstCharacterIndex == iPosComment)
                         {
                             if (iPass == 2)     // Output only in PASS 2
                             {
@@ -278,12 +373,12 @@ namespace Assembler
 
                         // Process the line
                         else
-                        {   
+                        {
                             // Line start with a symbol?
                             // if (iFirstCharacterIndex == 0)
                             {
                                 int iSpaceIndex = sLine.IndexOf(' ');   // Find the index of the first space character
-                                                                       
+
                                 string sSymbol = sLine.Substring(0, iSpaceIndex);   // Extract the substring from the start of the space character
 
                                 if (sSymbol != "")  // Only if non empty symbol
@@ -308,15 +403,14 @@ namespace Assembler
                             // Search in mnemonic table
 
                             bool bFound = false;
-                            int iIndexTable = 0;    // start at first location
+                            iIndexTable = 0;    // start at first location
 
-                            iIndexTable = FindInstructionIndex_old(sLine, iFirstCharacterIndex, dataList);
-                            //iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+                            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
                             if (iIndexTable != -1)
                             {
                                 bFound = true;
-                            } 
-                            
+                            }
+
                             if (bFound)
                             {
                                 int iOffset = 0;
@@ -326,11 +420,11 @@ namespace Assembler
                                     iAddress = int.Parse(sLine.Substring(iOffset, 4), System.Globalization.NumberStyles.HexNumber);
                                     if (iPass == 2)
                                     {
-                                       Console.Write(new string(' ', iAssembledMnemonicPosition));
-                                       lstFile.Write(new string(' ', iAssembledMnemonicPosition));
+                                        Console.Write(new string(' ', iAssembledMnemonicPosition));
+                                        lstFile.Write(new string(' ', iAssembledMnemonicPosition));
 
-                                       Console.WriteLine(sLine);
-                                       lstFile.WriteLine(sLine);
+                                        Console.WriteLine(sLine);
+                                        lstFile.WriteLine(sLine);
                                     }
                                 }
                                 else if (iIndexTable == 1)   // DB
@@ -360,10 +454,10 @@ namespace Assembler
                                 }
                                 else    // Mnemonic to assemble
                                 {
-                                    int iSim = dataList[iIndexTable].Sym;
-                                    
+                                    OperandMode iSim = dataList[iIndexTable].Sym;
+
                                     // Hexadecimal address directly specifyed after the mnemonic ?
-                                    if (iSim == 0)
+                                    if (iSim == OperandMode.Hex)
                                     {
                                         switch (dataList[iIndexTable].NbByte)   // How many byte follow
                                         {
@@ -403,7 +497,7 @@ namespace Assembler
                                         }
                                     }
                                     // Symbolic address next to mnemonic ?
-                                    else if (iSim == 1) 
+                                    else if (iSim == OperandMode.Symbol)
                                     {
                                         if (iPass == 2)
                                         {
@@ -474,7 +568,7 @@ namespace Assembler
 
                                     }
                                     // Relative address jump +-127 to be computed from the symbol next to the mnemonic
-                                    else if (iSim == 2)
+                                    else if (iSim == OperandMode.Relative)
                                     {
                                         if (iPass == 2)
                                         {
@@ -497,7 +591,7 @@ namespace Assembler
                                                 int iDiff = symbolAddress - (iAddress + 2);
 
                                                 // Check if outside of addressing range
-                                                if((iDiff < -128) || (iDiff > 127))
+                                                if ((iDiff < -128) || (iDiff > 127))
                                                 {
                                                     string sLineNumber = iAddress.ToString("X");
                                                     Console.Write(sLineNumber);
@@ -541,9 +635,73 @@ namespace Assembler
 
 
                                     }
+                                    else if (iSim == OperandMode.Ascii)
+                                    {
+
+                                        // ---- PASS 1 : advance PC only ----
+                                        if (iPass == 1)
+                                        {
+                                            int iOffsetStartStringDelimiter = dataList[iIndexTable].Offset + iFirstCharacterIndex;
+
+                                            int firstQuote = sLine.IndexOf('"', iOffsetStartStringDelimiter);
+                                            int lastQuote = sLine.LastIndexOf('"');
+
+                                            if (firstQuote == -1 || lastQuote <= firstQuote)
+                                            {
+                                                iErrorNumber++;
+                                                continue;
+                                            }
+
+                                            int length = lastQuote - firstQuote - 1;
+                                            iAddress += length + 1;   // +1 for null terminator
+                                        }
+
+
+                                        if (iPass == 2)
+                                        {
+                                            int startAddress = iAddress;
+
+                                            // Extract quoted string
+                                            iOffset = dataList[iIndexTable].Offset + iFirstCharacterIndex;
+
+                                            int firstQuote = sLine.IndexOf('"', iOffset);
+                                            int lastQuote = sLine.LastIndexOf('"');
+
+                                            if (firstQuote == -1 || lastQuote <= firstQuote)
+                                            {
+                                                Console.WriteLine("****** ERROR: Missing or invalid ASCII string ******");
+                                                lstFile.WriteLine("****** ERROR: Missing or invalid ASCII string ******");
+                                                iErrorNumber++;
+                                                continue;
+                                            }
+
+                                            string text = sLine.Substring(firstQuote + 1, lastQuote - firstQuote - 1);
+
+                                            // Build byte array once
+                                            byte[] bytes = new byte[text.Length + 1];
+                                            for (int i = 0; i < text.Length; i++)
+                                            {
+                                                bytes[i] = (byte)text[i];
+                                            }
+
+                                            bytes[text.Length] = 0;   // NULL terminator
+
+                                            // Emit bytes
+                                            foreach (byte b in bytes)
+                                            {
+                                                aEeprom[iAddress - iAddressEepromBegin] = b;
+                                                iAddress++;
+                                            }
+
+                                            WriteListingWithContinuation(startAddress, bytes, sLine, lstFile, toConsole: true);
+                                        }
+
+                                    }
+
                                 }
 
-                                if ((iIndexTable != 0) & (iIndexTable != 2))  // Only if not an ORG and not EQU
+                                //if ((iIndexTable != 0) & (iIndexTable != 2))  // Only if not an ORG and not EQU
+                                if ((iIndexTable != 0) && (iIndexTable != 2) && dataList[iIndexTable].Sym != OperandMode.Ascii)
                                 {
                                     if (iPass == 2)
                                     {
@@ -564,7 +722,7 @@ namespace Assembler
                                         lstFile.Write(sAllignedAssembledCode);
 
                                         // Full line with end of line
-                                        Console.WriteLine(sLine); 
+                                        Console.WriteLine(sLine);
                                         lstFile.WriteLine(sLine);
                                     }
 
@@ -576,6 +734,7 @@ namespace Assembler
                                     }
 
                                 }
+
                             }
                             else
                             {   // instruction not found
@@ -583,7 +742,7 @@ namespace Assembler
                                 Console.Write(sLineNumber);
                                 lstFile.WriteLine(sLineNumber);
 
-                                string sErrorMsg = $"{new string(' ', 7)}****** ERROR on line {LineCounter} address 0x{iAddress:X4}, Can't find mnemonic {sLine.Substring(0, Math.Min(13, sLine.Length))} ******";
+                                string sErrorMsg = $"{new string(' ', 7)}****** ERROR on line {LineCounter} address 0x{iAddress:X4}, Can't find mnemonic: {sLine.Trim()} ******";
 
                                 Console.WriteLine(sLine);
                                 Console.WriteLine(sErrorMsg);
@@ -597,8 +756,8 @@ namespace Assembler
                         }
 
                         // If stop on error is enabled and found an error then stop
-                       
-                        if((iPass == 2) && bStopOnError && (iErrorNumber >= 1))
+
+                        if ((iPass == 2) && bStopOnError && (iErrorNumber >= 1))
                         {
                             break;
                         }
@@ -648,7 +807,7 @@ namespace Assembler
 
                 }
 
-                if( iPass==1 )
+                if (iPass == 1)
                 {
                     iErrorNumberPass1 = iErrorNumber;
                 }
@@ -662,12 +821,10 @@ namespace Assembler
                     Console.WriteLine(sTemp);
                 }
 
-                
             }
 
             Console.WriteLine("Press any key to exit...");
             Console.ReadKey();
-
         }
 
         static int FindFirstNonSpaceCharacter(string input)
@@ -683,55 +840,7 @@ namespace Assembler
             // Return -1 if no non-space character is found
             return -1;
         }
-
-        public static int FindInstructionIndex_old(string sLine, int iFirstCharacterIndex, List<InstrTable> dataList)
-        {
-            //bFound = false;
-            int iIndexTable = 0;    // start at first location
-            foreach (InstrTable data in dataList)
-            {
-                int iCodeLength = data.StringValue.Length;
-                int iCharPointer = 0;
-                bool bIdentical = true;
-
-                while ((iCharPointer < iCodeLength) && bIdentical)
-                {
-                    char cCode = data.StringValue[iCharPointer];
-                    if ((cCode != '*') && (cCode != '@'))   // Compare only if not one of these symbol
-                    {
-                        if (iCharPointer > (sLine.Length - iFirstCharacterIndex - 1))
-                        {
-                            bIdentical = false;
-                        }
-                        else if (cCode != sLine[iCharPointer + iFirstCharacterIndex])
-                        {
-                            bIdentical = false;
-                        }
-                    }
-                    if (cCode == '@')   // symbol begin is expected here
-                    {
-                        if (sLine[iCharPointer + iFirstCharacterIndex] == '#')  // if immediate then it's not a symbol
-                        {
-                            bIdentical = false;
-                        }
-                    }
-                    iCharPointer++;
-                }
-
-                if (bIdentical)
-                {
-                    //bFound = true;
-                    return iIndexTable;
-                }
-                else
-                {
-                    iIndexTable++;
-                }
-            }
-            return -1;
-        }
-
-
+      
         public static int FindInstructionIndex(string sLine, int iFirstCharacterIndex, List<InstrTable> dataList)
         {
             // Defensive checks
@@ -758,9 +867,9 @@ namespace Assembler
             for (int iIndexTable = 0; iIndexTable < dataList.Count; iIndexTable++)
             {
                 InstrTable instr = dataList[iIndexTable];
-                string pattern = InstrToRegex(instr.StringValue);
-
-                if (Regex.IsMatch(subLine, pattern, RegexOptions.IgnoreCase))
+                //string pattern = InstrToRegex(instr.StringValue);
+                //if (Regex.IsMatch(subLine, pattern, RegexOptions.IgnoreCase))
+                if (instr.Regex.IsMatch(subLine))
                 {
                     return iIndexTable; // Found instruction
                 }
@@ -769,33 +878,114 @@ namespace Assembler
             return -1; // Not found
         }
 
-        // Convert instruction string to regex
         public static string InstrToRegex(string instr)
         {
-            // Split on spaces so we can join tokens with \s+ (one or more whitespace)
-            var tokens = instr.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-
-            var tokenPatterns = tokens.Select(token =>
             {
-                // Escape token and then replace escaped placeholders
-                string p = Regex.Escape(token);
+                var tokens = instr.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 
-                // '*' means one or more hex digits (keep same behavior)
-                p = p.Replace(@"\*", @"[0-9A-Fa-f]+");
+                var tokenPatterns = tokens.Select(token =>
+                {
+                    string p = token;
 
-                // '@' means a symbol: letter/underscore then letters/digits/underscore
-                p = p.Replace(@"\@", @"[A-Za-z_][A-Za-z0-9_]*");
+                    // CRITICAL ORDER: from the longest to the shortest
 
-                // '#' is optional immediate marker (keeps original semantics)
-                p = p.Replace(@"\#", @"#?");
+                    // Placeholders temporaires (impossibles à confondre)
+                    p = p.Replace("****", "__HEX4__");
+                    p = p.Replace("**", "__HEX2__");
+                    p = p.Replace("\"@\"", "__ASCII__");
+                    p = p.Replace("@", "__SYMBOL__");
+                    //p = p.Replace("#", "__IMM__");
 
-                return p;
-            });
+                    // Escape tout le reste
+                    p = Regex.Escape(p);
 
-            // Match the tokens at the start, allow flexible whitespace between tokens,
-            // and allow punctuation/extra tokens after the matched pattern.
-            string pattern = "^" + string.Join(@"\s+", tokenPatterns) + @"(?=(\s|,|$))";
-            return pattern;
+                    // Inject real regex patterns
+                    p = p.Replace("__HEX4__", @"[0-9A-Fa-f]{4}");
+                    p = p.Replace("__HEX2__", @"[0-9A-Fa-f]{2}");
+                    p = p.Replace("__SYMBOL__", @"[A-Za-z_?][A-Za-z0-9_]*");
+                    p = p.Replace("__ASCII__", "\"[^\"]*\"");
+                    //p = p.Replace("__IMM__", @"#?");
+
+                    return p;
+                });
+
+                string pattern = "^" + string.Join(@"\s+", tokenPatterns) + @"(?=(\s|,|$))";
+                return pattern;
+            }
+        }
+        static void WriteInstructionTable(string path, List<InstrTable> dataList)
+        {
+            using (var w = new StreamWriter(path))
+            {
+                w.WriteLine("Instruction Table");
+                w.WriteLine("Mnemonic                 Opcode  Bytes  Sym Offset");
+                w.WriteLine("--------------------------------------------------");
+
+                foreach (var i in dataList)
+                {
+                    w.WriteLine(
+                        $"{i.StringValue,-25} " +
+                        $"{i.OpCode:X2}      " +
+                        $"{i.NbByte,1}     " +
+                        $"{i.Sym,1}   " +
+                        $"{i.Offset,2}"
+                    );
+                }
+            }
+        }
+
+        static void WriteRegexTable(string path, List<InstrTable> dataList)
+        {
+            using (var w = new StreamWriter(path))
+            {
+                foreach (var i in dataList)
+                {
+                    w.WriteLine($"{i.StringValue}");
+                    w.WriteLine($"  Regex: {i.Regex}");
+                    w.WriteLine();
+                }
+            }
+        }
+
+        static void WriteListingWithContinuation(
+            int startAddress,
+            byte[] bytes,
+            string sourceLine,
+            TextWriter lstFile,
+            bool toConsole = false)
+        {
+            const int BYTES_PER_LINE = 16;  // Could be made global (for op code too...)
+            const int BYTE_COLUMN_WIDTH = BYTES_PER_LINE * 3; // "XX "
+
+            int address = startAddress;
+
+            for (int i = 0; i < bytes.Length; i += BYTES_PER_LINE)
+            {
+                int count = Math.Min(BYTES_PER_LINE, bytes.Length - i);
+
+                // Build byte field
+                StringBuilder byteField = new StringBuilder();
+                for (int j = 0; j < count; j++)
+                    byteField.AppendFormat("{0:X2} ", bytes[i + j]);
+
+                string paddedBytes = byteField.ToString().PadRight(BYTE_COLUMN_WIDTH);
+
+                bool firstLine = (i == 0);
+                bool lastLine = (i + count >= bytes.Length);
+
+                string addressField = firstLine
+                    ? $"{address:X4}"
+                    : "    ";
+
+                string src = lastLine ? sourceLine : "";
+
+                string line = $"{addressField} {paddedBytes} {src}";
+
+                lstFile.WriteLine(line);
+                if (toConsole) Console.WriteLine(line);
+
+                address += count;
+            }
         }
 
     }
