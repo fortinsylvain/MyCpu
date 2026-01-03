@@ -1507,6 +1507,8 @@ TSTOP1B  LDA #0x1B
          LDA 0x1FF4     ; read X LSB
          CMPA #0x78
          JNE FAIL
+         ; Test symbolic +- offset
+         
          ; --------------------------------------------------------------------
          ; OP.1C LDA (****H,X)
          ; LDA indexed indirect addressing
@@ -1949,7 +1951,7 @@ TSTOP29  LDA #0x29
          JNE FAIL    ; Error if different
          ; --------------------------------------------------------------------
          ; OP.2A LDA 0x****  
-         ; LOAD A WITH BYTE AT ADDRESS Test LDA #0x** instruction 
+         ; LOAD A WITH BYTE AT ADDRESS (Direct Addressing)
          ; --------------------------------------------------------------------
 TSTOP2A  LDA #0x2A
          NOTA
@@ -1986,6 +1988,53 @@ TSTOP2A  LDA #0x2A
          JNE FAIL
          LDA #0xFF
          CMPA #0xFF
+         JNE FAIL
+         ; Now test symbolic with positive offset
+         LDA MSGTXT1
+         CMPA #0x31     ; '1'
+         JNE FAIL
+         LDA MSGTXT1+1
+         CMPA #0x32     ; '2'
+         JNE FAIL
+         LDA MSGTXT1+2
+         CMPA #0x33     ; '3'
+         JNE FAIL
+         LDA MSGTXT1+3
+         CMPA #0x41     ; 'A'
+         JNE FAIL
+         LDA MSGTXT1+4
+         CMPA #0x42     ; 'B'
+         JNE FAIL
+         LDA MSGTXT1+5
+         CMPA #0x43     ; 'C'
+         JNE FAIL
+         LDA MSGTXT1+6
+         CMPA #0x00     ; null terminator
+         JNE FAIL
+         LDA MSGTXT1+10
+         CMPA #0x6C
+         JNE FAIL
+         LDA MSGTXT1+11
+         CMPA #0x6F
+         JNE FAIL
+         ; Now test symbolic with negative offset
+         LDA MSGTXT3
+         CMPA #0x54     ; 'T'
+         JNE FAIL
+         LDA MSGTXT3-1
+         CMPA #0x00     ; null terminator
+         JNE FAIL
+         LDA MSGTXT3-2
+         CMPA #0x64     ; 'd'
+         JNE FAIL
+         LDA MSGTXT3-3
+         CMPA #0x72     ; 'l'
+         JNE FAIL
+         LDA MSGTXT3-10
+         CMPA #0x65
+         JNE FAIL
+         LDA MSGTXT3-11
+         CMPA #0x48
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.2B JNE 0x****  
@@ -2327,8 +2376,9 @@ TSTOP33  LDA #0x33
 
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
+         ; first method using direct addressing
          ; --------------------------------------------------------------------         
-TSTFIBON LDA #0x40
+TSTFB1   LDA #0x40
          NOTA
          STA LEDPORT ; Output to LED port
                      ;
@@ -2481,10 +2531,9 @@ TSTFIBON LDA #0x40
          STA 0x1002  ; Store the summ
          CMPA #0xDB  ; HEX   Decimal  Real Value
          JNE FAIL    ; xDB   219      987 - (256*3) = 219         
-
          ; --------------------------------------------------------------------      
-         ; END OF FIBONACCI TEST
-         ; --------------------------------------------------------------------      
+         ; END OF FIBONACCI TEST (method using direct addressing)
+         ; --------------------------------------------------------------------          
          
          ; ---------
          ; Loop test
@@ -2757,13 +2806,13 @@ LOOPTST2 NOP            ; End of decrement loop
          ; END Math Library Test
          ; ---------------------
 
-         ; TEST EXECUTION FROM RAM
-         ; Copy a block of code from EEPROM to RAM
-         ; then call to execute this block in RAM. Resume execution from EEPROM
-         LDA #0x47
-         NOTA
-         STA LEDPORT ; Output to LED port
-         JMP BLKCODEEND   ; We skip the nex block of code to be copied in RAM
+               ; TEST EXECUTION FROM RAM
+               ; Copy a block of code from EEPROM to RAM
+               ; then call to execute this block in RAM. Resume execution from EEPROM
+               LDA #0x47
+               NOTA
+               STA LEDPORT ; Output to LED port
+               JMP BLKCODEEND   ; We skip the nex block of code to be copied in RAM
                ; Simple 8 bit multiplication test code
 BLKCODESTART   LDA #0x56   ; 86 * 171 = 14706   (0x56 * 0xAB = 0x3972)
                STA ?b0
@@ -2797,7 +2846,70 @@ LOOPTST47      LDX ?b1           ; Load X with source address in ?b1:?b0
                JRA LOOPTST47
 ENDCOPYTST47   JSR RAMDESTSTART ; Jump to ram for code execution
 
-               JMP 0xE000  ; Loop from start of diag test
+            ; ---------------------------------------
+            ; 32-bit Fibonacci using library routines
+            ; l2 = F(n), l1 = F(n-1), l0 = F(n-2)
+            ; ---------------------------------------
+            LDA #0x48
+            NOTA
+            STA LEDPORT
+LOOPCNT     EQU 0x0100           ; Loop counter storage
+FIBNUMB     EQU 0x1000           ; Output buffer for Fibonacci numbers
+            ; Initialize Fibonacci state
+            JSR ?clear32_l0      ; F(0) = 0
+            JSR ?set32_l1_to_1   ; F(1) = 1
+            JSR ?clear32_l2
+            ; Output buffer
+            LDX #FIBNUMB
+            JSR ?store32_l0      ; F(0)
+            JSR ?store32_l1      ; F(1)
+            ; Loop counter
+            ; F(47)=2,971,215,073  fit in 32 bits
+            ; F(48)=4,807,526,976  exceed 32 bits
+            LDA #0x2D   ; 47 - 2 = 45  iterations (0x2D)
+            STA LOOPCNT
+FIB32_LOOP  JSR ?add32_l2_l1_l0  ; l2 = l1 + l0
+            JSR ?store32_l2      ; store F(n)
+            ; rotate registers
+            JSR ?mov32_l0_l1     ; l0 = l1
+            JSR ?mov32_l1_l2     ; l1 = l2
+            ;  DEC LOOPCNT ; I dont have a decrament register A instruction for now
+            LDA LOOPCNT
+            ADDA #0xFF
+            STA LOOPCNT
+            CMPA #0x00
+            JNE FIB32_LOOP
+            ; End of fibonacy number cocmputation 
+            ;-----------------------------------------------
+            ; Verify Fibonacci numbers stored in memory
+            ; Memory layout:
+            ;   FIBNUMB: F(0), F(1), F(2), ...
+            ; Registers:
+            ;   l0 = previous-previous (F(n-2))
+            ;   l1 = previous          (F(n-1))
+            ;   l2 = current from mem  (F(n))
+            ;-----------------------------------------------
+;FIB_VERIFY  LDX #FIBNUMB         ; pointer to first Fibonacci number
+;            ; Load first two Fibonacci numbers from memory
+;            JSR ?load32_l0       ; l0 = F(0)
+;            JSR ?load32_l1       ; l1 = F(1)
+;            ; Set loop counter = total_numbers - 2 (first two already loaded)
+;            LDA #0x0E            ; e.g., total 16 numbers → 16-2=14 iterations
+;            STA LOOPCNT
+;VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l2
+;            JSR ?add32_l3_l1_l0  ; Compute sum l0 + l1 → l3
+;            JSR ?cmp32_l3_l2     ; Compare computed sum with loaded number
+;            JNE FAIL
+;            JSR ?mov32_l0_l1     ; Rotate registers for next iteration
+;            JSR ?mov32_l1_l2
+;            LDA LOOPCNT          ; Decrement loop counter
+;            ADDA #0xFF         ; decrement
+;            STA LOOPCNT
+;            CMPA #0x00
+;            JNE VERIFY_LOOP
+
+
+            JMP 0xE000  ; Loop from start of diag test
 MSGTXT1        .ASCII "123ABC"
 MSGTXT2        .ASCII "Hello Word"
 MSGTXT3        .ASCII "This is a text message to test ascii text table in assembler"
@@ -2811,6 +2923,280 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
 ;    ?w7       ?w6    |    ?w5      ?w4   |   ?w3     ?w2   |   ?w1     ?w0   | 16 bits
 ;         ?l3         |         ?l2       |       ?l1       |       ?l0       | 32 bits
 ;-----------------------------------------------------------------------------
+                  ; Clear 32bits
+?clear32_l0       LDA #0x00
+                  STA ?b0
+                  STA ?b1
+                  STA ?b2
+                  STA ?b3
+                  RTS
+?clear32_l1       LDA #0x00
+                  STA ?b4
+                  STA ?b5
+                  STA ?b6
+                  STA ?b7
+                  RTS   
+?clear32_l2       LDA #0x00
+                  STA ?b8
+                  STA ?b9
+                  STA ?b10
+                  STA ?b11
+                  RTS
+?clear32_l3       LDA #0x00
+                  STA ?b12
+                  STA ?b13
+                  STA ?b14
+                  STA ?b15
+                  RTS
+                  ; Clear 16bits
+?clear16_w0       LDA #0x00
+                  STA ?b0
+                  STA ?b1
+                  RTS
+?clear16_w1       LDA #0x00
+                  STA ?b2
+                  STA ?b3
+                  RTS
+?clear16_w2       LDA #0x00
+                  STA ?b4
+                  STA ?b5
+                  RTS
+?clear16_w3       LDA #0x00
+                  STA ?b6
+                  STA ?b7
+                  RTS
+?clear16_w4       LDA #0x00
+                  STA ?b8
+                  STA ?b9     
+                  RTS
+?clear16_w5       LDA #0x00
+                  STA ?b10
+                  STA ?b11
+                  RTS
+?clear16_w6       LDA #0x00
+                  STA ?b12
+                  STA ?b13
+                  RTS
+?clear16_w7       LDA #0x00
+                  STA ?b14
+                  STA ?b15
+                  RTS
+                  ; Set 32bits to 1
+?set32_l0_to_1    LDA #0x01
+                  STA ?b0
+                  LDA #0x00
+                  STA ?b1
+                  STA ?b2
+                  STA ?b3
+                  RTS
+?set32_l1_to_1    LDA #0x01
+                  STA ?b4
+                  ;CLR ?b5    ; I dont have a page 0 clear instruction yet
+                  ;CLR ?b6
+                  ;CLR ?b7
+                  LDA #0x00
+                  STA ?b5
+                  STA ?b6
+                  STA ?b7
+                  RTS                  
+                  ; Load 32bits l0 using X register as pointer
+?load32_l0        LDA (X)
+                  STA ?b3
+                  INCX
+                  LDA (X)
+                  STA ?b2
+                  INCX
+                  LDA (X)
+                  STA ?b1
+                  INCX
+                  LDA (X)
+                  STA ?b0
+                  RTS
+                  ; Load 32bits l1 using X register as pointer
+?load32_l1        LDA (X)
+                  STA ?b7
+                  INCX
+                  LDA (X)
+                  STA ?b6
+                  INCX
+                  LDA (X)
+                  STA ?b5
+                  INCX
+                  LDA (X)
+                  STA ?b4
+                  RTS
+                  ; Load 32bits l2 using X register as pointer
+?load32_l2        LDA (X)
+                  STA ?b11
+                  INCX
+                  LDA (X)
+                  STA ?b10
+                  INCX
+                  LDA (X)
+                  STA ?b9
+                  INCX
+                  LDA (X)
+                  STA ?b8
+                  RTS
+                  ; Load 32bits l3 using X register as pointer
+?load32_l3        LDA (X)
+                  STA ?b15
+                  INCX
+                  LDA (X)
+                  STA ?b14
+                  INCX
+                  LDA (X)
+                  STA ?b13
+                  INCX
+                  LDA (X)
+                  STA ?b12
+                  RTS                   
+                  ; Store 32bits l0 using X register as pointer
+?store32_l0       LDA ?b3
+                  STA (X)
+                  INCX
+                  LDA ?b2
+                  STA (X)
+                  INCX
+                  LDA ?b1
+                  STA (X)
+                  INCX
+                  LDA ?b0
+                  STA (X)
+                  INCX
+                  RTS
+                  ; Store 32bits l1 using X register as pointer
+?store32_l1       LDA ?b7
+                  STA (X)
+                  INCX
+                  LDA ?b6
+                  STA (X)
+                  INCX
+                  LDA ?b5
+                  STA (X)
+                  INCX
+                  LDA ?b4
+                  STA (X)
+                  INCX
+                  RTS
+                  ; Store 32bits l2 using X register as pointer
+?store32_l2       LDA ?b11
+                  STA (X)
+                  INCX
+                  LDA ?b10
+                  STA (X)
+                  INCX
+                  LDA ?b9
+                  STA (X)
+                  INCX
+                  LDA ?b8
+                  STA (X)
+                  INCX
+                  RTS
+                  ; Store 32bits l3 using X register as pointer
+?store32_l3       LDA ?b15
+                  STA (X)
+                  INCX
+                  LDA ?b14
+                  STA (X)  
+                  INCX
+                  LDA ?b13
+                  STA (X)
+                  INCX
+                  LDA ?b12
+                  STA (X)
+                  INCX
+                  RTS
+                  ; Move 32 bits from l0 to l1
+?mov32_l1_l0      LDA ?b3
+                  STA ?b7
+                  LDA ?b2
+                  STA ?b6
+                  LDA ?b1
+                  STA ?b5
+                  LDA ?b0
+                  STA ?b4
+                  RTS
+                  ; Move 32 bits from l0 to l2
+?mov32_l2_l0      LDA ?b3
+                  STA ?b11
+                  LDA ?b2
+                  STA ?b10
+                  LDA ?b1
+                  STA ?b9
+                  LDA ?b0
+                  STA ?b8
+                  RTS
+                  ; Move 32 bits from l0 to l3
+?mov32_l3_l0      LDA ?b3
+                  STA ?b15
+                  LDA ?b2
+                  STA ?b14
+                  LDA ?b1
+                  STA ?b13
+                  LDA ?b0
+                  STA ?b12
+                  RTS
+                  ; Move 32 bits from l1 to l0
+?mov32_l0_l1      LDA ?b7
+                  STA ?b3
+                  LDA ?b6
+                  STA ?b2
+                  LDA ?b5
+                  STA ?b1
+                  LDA ?b4
+                  STA ?b0
+                  RTS
+                  ; Move 32 bits from l1 to l2
+?mov32_l2_l1      LDA ?b7
+                  STA ?b11
+                  LDA ?b6
+                  STA ?b10
+                  LDA ?b5
+                  STA ?b9
+                  LDA ?b4
+                  STA ?b8
+                  RTS
+                  ; Move 32 bits from l1 to l3
+?mov32_l3_l1      LDA ?b7
+                  STA ?b15
+                  LDA ?b6
+                  STA ?b14
+                  LDA ?b5
+                  STA ?b13
+                  LDA ?b4
+                  STA ?b12
+                  RTS
+                  ; Move 32 bits from l2 to l0
+?mov32_l0_l2      LDA ?b11
+                  STA ?b3
+                  LDA ?b10
+                  STA ?b2
+                  LDA ?b9
+                  STA ?b1
+                  LDA ?b8
+                  STA ?b0
+                  RTS
+                  ; Move 32 bits from l2 to l1
+?mov32_l1_l2      LDA ?b11
+                  STA ?b7
+                  LDA ?b10
+                  STA ?b6
+                  LDA ?b9
+                  STA ?b5
+                  LDA ?b8
+                  STA ?b4
+                  RTS
+                  ; Move 32 bits from l2 to l3
+?mov32_l3_l2      LDA ?b11
+                  STA ?b15
+                  LDA ?b10
+                  STA ?b14
+                  LDA ?b9
+                  STA ?b13
+                  LDA ?b8
+                  STA ?b12
+                  RTS
                   ; Addition on 16 bits  
                   ; w0 <= w0 + w1
 ?add16_w0_w0_w1   LDA ?b0  
@@ -2820,7 +3206,6 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
                   ADCA ?b3
                   STA ?b1
                   RTS
-
                   ; Addition on 32 bits
                   ; l0 <= l0 + l1
 ?add32_l0_l0_l1   LDA ?b0  
@@ -2836,7 +3221,34 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
                   ADCA ?b7
                   STA ?b3
                   RTS
-
+                  ; l2 <= l1 + l0
+?add32_l2_l1_l0   LDA ?b0  
+                  ADDA ?b4
+                  STA ?b8
+                  LDA ?b1
+                  ADCA ?b5
+                  STA ?b9
+                  LDA ?b2
+                  ADCA ?b6
+                  STA ?b10
+                  LDA ?b3
+                  ADCA ?b7
+                  STA ?b11
+                  RTS
+                  ; l3 <= l1 + l0
+?add32_l3_l1_l0   LDA ?b0
+                  ADDA ?b4
+                  STA ?b12
+                  LDA ?b1
+                  ADCA ?b5
+                  STA ?b13
+                  LDA ?b2
+                  ADCA ?b6
+                  STA ?b14
+                  LDA ?b3
+                  ADCA ?b7
+                  STA ?b15
+                  RTS                  
                   ; INC 32 bit
                   ; l0 <= l0 + 1
 ?inc32_l0_l0      LDA ?b0
@@ -2855,6 +3267,26 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
                   INCA
                   STA ?b3
 ?inc32_0x_0x_JP   RTS
+
+                  ; Compare 32-bit registers
+                  ; Result: sets E flag if equal, clears if different
+;?cmp32_l3_l2      LDA ?b8
+;                  CMPA ?b12      ; This instruction not available yet
+;                  JNE ?cmp32_not_equal
+;                  LDA ?b9
+;                  CMPA ?b13
+;                  JNE ?cmp32_not_equal
+;                  LDA ?b10
+;                  CMPA ?b14
+;                  JNE ?cmp32_not_equal
+;                  LDA ?b11
+;                  CMPA ?b15
+;                  JNE ?cmp32_not_equal
+;                  ; All bytes equal, E flag already set from last comparison
+;                  RTS
+;?cmp32_not_equal  LDA #0x00   ; Clear E flag    I dont have a direct way to clear E flag
+;                  STA ?b0
+;                  RTS
 
                   ; MUL 8-bit
                   ; w1 (b3,b2) <= b1 * b0
