@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin  sylfortin71@hotmail.com
-; Date : 29 dec 2025
+; Date : 3 jan 2026
 ; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -1090,17 +1090,80 @@ R0>DATA
 01H>UH                  ; Get Pointed OP Code by IP and Execute
 00H>UL
 JMP                     ; ***************************************************
+ORG/0F80H               ; OP.1F CMPA ****H Compare A with direct-addressed byte, Update Status E
+DATA>R2                 ; Read MSB Address (MSB->R2)          
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+1FH>R4                  ;  IP+1>IP | ADD. RETURN
+06H>R5                  ;  IP>ADD  |
+JMP                     ;          | JMP TO ROUTINE
+DATA>R3                 ; Read LSB Address (LSB->R3)
+R2>AH                   ; Put address on the address bus
+R3>AL
+DATA>R0                 ; Read the memory operand (Operand->R0)
+1FH>AH                  ; Fetch register A (A->R1)
+FCH>AL   
+DATA>R1
+R0-0>A
+XNOR R1-0               ; Bitwise equality generation (XNOR chain)
+R0-1>A                  ; This produces 8 equality bits, one per bit
+XNOR R1-1
+R0-2>A
+XNOR R1-2
+R0-3>A
+XNOR R1-3
+R0-4>A
+XNOR R1-4
+R0-5>A
+XNOR R1-5
+R0-6>A
+XNOR R1-6
+R0-7>A
+XNOR R1-7
+Q>R0                    ; Reduction AND (collapse to single equality bit)
+R0-0>A
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q7>A
+A>Q0                    ; Place Equal Status in bit position <0>
+00H>R1                  ; Put '0' in ALU input A
+R1-0>A
+A>Q1                    ; Set Q<7:1> to 0
+A>Q2                    ; To have a clean Equal Status Byte
+A>Q3
+A>Q4
+A>Q5
+A>Q6
+A>Q7
+Q>R0                    ; Move Q byte in R0
+1FH>AH
+FAH>AL
+R0>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
-DATA>R2                 ; READ MSB ADDRESS
+DATA>R2                 ; Read MSB Address (MSB->R2)
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
 00H>UL                  ;          |
 28H>R4                  ;  IP+1>IP | ADD. RETURN
 06H>R5                  ;  IP>ADD  |
 JMP                     ;          | JMP TO ROUTINE
-DATA>R3                 ; READ LSB ADDRESS
-R2>AH                   ; PUT ADDRESS ON ADDRESS BUS
+DATA>R3                 ; Read LSB Address (LSB->R3)
+R2>AH                   ; Put address on the address bus
 R3>AL
-DATA>R0                 ; READ POINTED BYTE
+DATA>R0                 ; Read the memory operand
 1FH>AH                  ; READ REG A
 FCH>AL   
 DATA>R1

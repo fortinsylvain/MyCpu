@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 29 december 2025
+; Date : 3 january 2026
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
@@ -1923,6 +1923,95 @@ TSTOP1E  LDA #0x1E
          LDA 0x1FFA  ; Read E flag and check it is set
          CMPA #0x01  
          JNE FAIL
+         ; -----------------------------------------------------
+         ; OP.1F CMPA 0x**** 
+         ; Compare A with direct-addressed byte, Update Status E
+         ; -----------------------------------------------------
+TSTOP1F  LDA #0x1F
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x5A   ; Store a value in RAM
+         STA 0x0200   
+         LDA #0x5A
+         CMPA 0x0200 ; Compare with same value
+         JNE FAIL    ; Jump if result not good
+         LDA EQUAL   ; Read E flag and check it is set
+         CMPA #0x01  
+         JNE FAIL
+         LDA #0x3C
+         CMPA 0x0200 ; Compare with lower value
+         JEQ FAIL    ; Jump if result indicates equality
+         LDA EQUAL  ; Read E flag and check it is cleared
+         CMPA #0x00  
+         JNE FAIL
+         LDA #0x7E
+         CMPA 0x0200 ; Compare with higher value
+         JEQ FAIL    ; Jump if result indicates equality
+         LDA EQUAL   ; Read E flag and check it is cleared
+         CMPA #0x00  
+         JNE FAIL 
+         LDA #0x00
+         STA 0x1567
+         LDA #0xFF
+         STA 0x1789
+         LDA #0x00
+         CMPA 0x1567
+         JNE FAIL
+         LDA EQUAL
+         CMPA #0x01
+         JNE FAIL
+         LDA #0xFF
+         CMPA 0x1789
+         JNE FAIL
+         LDA EQUAL
+         CMPA #0x01
+         JNE FAIL 
+         LDA #0xAA
+         CMPA 0x1567
+         JEQ FAIL
+         LDA EQUAL
+         CMPA #0x00
+         JNE FAIL
+         LDA #0x55
+         CMPA 0x1789
+         JEQ FAIL
+         LDA EQUAL
+         CMPA #0x00
+         JNE FAIL
+         ; Test with symbolic address
+         LDA #0x41      ; 'A'
+         CMPA MSGTXT1   ; '1' 
+         JEQ FAIL
+         LDA #0x31      ; '1'
+         CMPA MSGTXT1   ; '1'
+         JNE FAIL
+         LDA #0x57      ; 'W'
+         CMPA MSGTXT2+6 ; 'W'
+         JNE FAIL
+         LDA #0x54
+         CMPA MSGTXT3   ; 'T'
+         JNE FAIL
+         LDA #0x68
+         CMPA MSGTXT3+1 ; 'h'
+         JNE FAIL
+         LDA #0x69
+         CMPA MSGTXT3+2 ; 'i'
+         JNE FAIL
+         LDA #0x73
+         CMPA MSGTXT3+3 ; 's'
+         JNE FAIL
+         LDA #0x20
+         CMPA MSGTXT3+4 ; ' '
+         JNE FAIL
+         LDA #0x69
+         CMPA MSGTXT3+5 ; 'i'
+         JNE FAIL
+         LDA #0x73
+         CMPA MSGTXT3+6 ; 's'
+         JNE FAIL
+         LDA #0x72      ; 'r'
+         CMPA MSGTXT3+59
+         JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
@@ -2801,7 +2890,96 @@ LOOPTST2 NOP            ; End of decrement loop
          LDA ?b4
          CMPA #0xE9
          JNE FAIL  
-         
+
+         ; Test load32_l0, load32_l1, load32_l2, load32_l3
+         LDA #0x47
+         NOTA
+         STA LEDPORT ; Output to LED port
+         ; Test load32_l0
+         LDX #0x1234
+         STX 0x1500        ; Store test address
+         LDX #0x5678
+         STX 0x1502        ; Store test address
+         LDX #0x1500       ; Load address of test data
+         JSR ?load32_l0    ; Load 32-bit value from memory to l0
+         LDA ?b3           ; Verify loaded value
+         CMPA #0x12
+         JNE FAIL
+         LDA ?b2
+         CMPA #0x34
+         JNE FAIL
+         LDA ?b1
+         CMPA #0x56
+         JNE FAIL
+         LDA ?b0
+         CMPA #0x78
+         JNE FAIL 
+         CMPX #0x1503      ; also verify current X value
+         JNE FAIL
+         ; Test load32_l1
+         LDX #0xABCD
+         STX 0x1600        ; Store test address
+         LDX #0xDEAD
+         STX 0x1602        ; Store test address
+         LDX #0x1600       ; Load address of test data
+         JSR ?load32_l1    ; Load 32-bit value from memory to l1
+         LDA ?b7           ; Verify loaded value
+         CMPA #0xAB
+         JNE FAIL
+         LDA ?b6
+         CMPA #0xCD
+         JNE FAIL
+         LDA ?b5
+         CMPA #0xDE
+         JNE FAIL
+         LDA ?b4
+         CMPA #0xAD
+         JNE FAIL 
+         CMPX #0x1603      ; also verify current X value
+         JNE FAIL
+         ; Test load32_l2
+         LDX #0x1A2B
+         STX 0x1700        ; Store test address
+         LDX #0x3C4D
+         STX 0x1702        ; Store test address
+         LDX #0x1700       ; Load address of test data
+         JSR ?load32_l2    ; Load 32-bit value from memory to l2
+         LDA ?b11          ; Verify loaded value
+         CMPA #0x1A
+         JNE FAIL
+         LDA ?b10
+         CMPA #0x2B
+         JNE FAIL
+         LDA ?b9
+         CMPA #0x3C
+         JNE FAIL
+         LDA ?b8
+         CMPA #0x4D
+         JNE FAIL 
+         CMPX #0x1703      ; also verify current X value
+         JNE FAIL
+         ; Test load32_l3
+         LDX #0x2F3E
+         STX 0x1800        ; Store test address
+         LDX #0x4D5C
+         STX 0x1802        ; Store test address
+         LDX #0x1800       ; Load address of test data
+         JSR ?load32_l3    ; Load 32-bit value from memory to l3
+         LDA ?b15          ; Verify loaded value
+         CMPA #0x2F
+         JNE FAIL
+         LDA ?b14
+         CMPA #0x3E
+         JNE FAIL
+         LDA ?b13
+         CMPA #0x4D
+         JNE FAIL
+         LDA ?b12
+         CMPA #0x5C
+         JNE FAIL 
+         CMPX #0x1803      ; also verify current X value
+         JNE FAIL         
+
          ; ---------------------
          ; END Math Library Test
          ; ---------------------
@@ -2809,7 +2987,7 @@ LOOPTST2 NOP            ; End of decrement loop
                ; TEST EXECUTION FROM RAM
                ; Copy a block of code from EEPROM to RAM
                ; then call to execute this block in RAM. Resume execution from EEPROM
-               LDA #0x47
+               LDA #0x80
                NOTA
                STA LEDPORT ; Output to LED port
                JMP BLKCODEEND   ; We skip the nex block of code to be copied in RAM
@@ -2850,7 +3028,7 @@ ENDCOPYTST47   JSR RAMDESTSTART ; Jump to ram for code execution
             ; 32-bit Fibonacci using library routines
             ; l2 = F(n), l1 = F(n-1), l0 = F(n-2)
             ; ---------------------------------------
-            LDA #0x48
+            LDA #0x81
             NOTA
             STA LEDPORT
 LOOPCNT     EQU 0x0100           ; Loop counter storage
@@ -2862,7 +3040,9 @@ FIBNUMB     EQU 0x1000           ; Output buffer for Fibonacci numbers
             ; Output buffer
             LDX #FIBNUMB
             JSR ?store32_l0      ; F(0)
+            INCX                 ; advance to next 32-bit slot
             JSR ?store32_l1      ; F(1)
+            INCX                 ; advance to next 32-bit slot
             ; Loop counter
             ; F(47)=2,971,215,073  fit in 32 bits
             ; F(48)=4,807,526,976  exceed 32 bits
@@ -2870,6 +3050,7 @@ FIBNUMB     EQU 0x1000           ; Output buffer for Fibonacci numbers
             STA LOOPCNT
 FIB32_LOOP  JSR ?add32_l2_l1_l0  ; l2 = l1 + l0
             JSR ?store32_l2      ; store F(n)
+            INCX                 ; advance to next 32-bit slot
             ; rotate registers
             JSR ?mov32_l0_l1     ; l0 = l1
             JSR ?mov32_l1_l2     ; l1 = l2
@@ -2879,9 +3060,11 @@ FIB32_LOOP  JSR ?add32_l2_l1_l0  ; l2 = l1 + l0
             STA LOOPCNT
             CMPA #0x00
             JNE FIB32_LOOP
-            ; End of fibonacy number cocmputation 
-            ;-----------------------------------------------
+            ; End of fibonacci number computation
             ; Verify Fibonacci numbers stored in memory
+            LDA #0x82
+            NOTA
+            STA LEDPORT             
             ; Memory layout:
             ;   FIBNUMB: F(0), F(1), F(2), ...
             ; Registers:
@@ -2889,24 +3072,93 @@ FIB32_LOOP  JSR ?add32_l2_l1_l0  ; l2 = l1 + l0
             ;   l1 = previous          (F(n-1))
             ;   l2 = current from mem  (F(n))
             ;-----------------------------------------------
-;FIB_VERIFY  LDX #FIBNUMB         ; pointer to first Fibonacci number
-;            ; Load first two Fibonacci numbers from memory
-;            JSR ?load32_l0       ; l0 = F(0)
-;            JSR ?load32_l1       ; l1 = F(1)
-;            ; Set loop counter = total_numbers - 2 (first two already loaded)
-;            LDA #0x0E            ; e.g., total 16 numbers → 16-2=14 iterations
-;            STA LOOPCNT
-;VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l2
-;            JSR ?add32_l3_l1_l0  ; Compute sum l0 + l1 → l3
-;            JSR ?cmp32_l3_l2     ; Compare computed sum with loaded number
-;            JNE FAIL
-;            JSR ?mov32_l0_l1     ; Rotate registers for next iteration
-;            JSR ?mov32_l1_l2
-;            LDA LOOPCNT          ; Decrement loop counter
-;            ADDA #0xFF         ; decrement
-;            STA LOOPCNT
-;            CMPA #0x00
-;            JNE VERIFY_LOOP
+FIB_VERIFY  LDX #FIBNUMB         ; pointer to first Fibonacci number
+            ; Load first two Fibonacci numbers from memory
+            JSR ?load32_l0       ; l0 = F(0)
+            INCX  
+            JSR ?load32_l1       ; l1 = F(1)
+            INCX  
+            ; Loop counter
+            ; F(47)=2,971,215,073  fit in 32 bits
+            ; F(48)=4,807,526,976  exceed 32 bits
+            LDA #0x2D   ; 47 - 2 = 45  iterations (0x2D)
+            STA LOOPCNT
+VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l2
+            INCX  
+            JSR ?add32_l3_l1_l0  ; Compute sum l0 + l1 → l3
+            JSR ?cmp32_l3_l2     ; Compare computed sum with loaded number
+            JNE FAIL
+            JSR ?mov32_l0_l1     ; Rotate registers for next iteration
+            JSR ?mov32_l1_l2
+            LDA LOOPCNT          ; Decrement loop counter
+            ADDA #0xFF         ; decrement
+            STA LOOPCNT
+            CMPA #0x00
+            JNE VERIFY_LOOP
+            ; End of fibonacci number verification
+
+
+            ; ---------------------------------------
+            ; 32-bit Factorial using library routines
+            ; ---------------------------------------
+;            LDA #0x83
+;            NOTA
+;            STA LEDPORT
+; Define factorial table in memory
+;FACTTAB     EQU 0x2000
+;COUNT       EQU 0x00FF   ; Counter storage
+;FACT_GEN:      LDX #FACTTAB
+;               ; 0! = 1
+;               LDA #1
+;               STA ?b0
+;               CLR ?b1
+;               CLR ?b2
+;               CLR ?b3
+;               JSR ?store32_l0
+
+;               LDA #1
+;               STA COUNT          ; n = 1
+
+;FACT_GEN_LOOP: LDA COUNT
+;               JSR ?mul32_l1_l0_u8   ; l1 = l0 * n
+;               JSR ?store32_l1
+;               JSR ?mov32_l0_l1
+
+;               INC COUNT
+;               LDA COUNT
+;               CMPA #13
+;               BNE FACT_GEN_LOOP
+
+;                RTS
+
+
+;fact[n] == fact[n-1] * n
+
+;FACT_VERIFY:      LDX #FACTTAB
+;
+;                  JSR ?load32_l0    ; 0!
+;                  JSR ?load32_l1    ; 1!
+
+;                  LDA #2
+;                  STA COUNT
+
+;FACT_VERIFY_LOOP: JSR ?load32_l2    ; fact[n]
+;                  LDA COUNT
+;                  JSR ?mul32_l3_l1_u8
+;                  JSR ?cmp32_l3_l2
+;                  JNE FAIL
+;
+;                  JSR ?mov32_l0_l1
+;                  JSR ?mov32_l1_l2
+
+;                  INC COUNT
+;                  LDA COUNT
+;                  CMPA #13
+;                  BNE FACT_VERIFY_LOOP
+
+;                  RTS
+
+
 
 
             JMP 0xE000  ; Loop from start of diag test
@@ -3063,7 +3315,6 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
                   INCX
                   LDA ?b0
                   STA (X)
-                  INCX
                   RTS
                   ; Store 32bits l1 using X register as pointer
 ?store32_l1       LDA ?b7
@@ -3077,7 +3328,6 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
                   INCX
                   LDA ?b4
                   STA (X)
-                  INCX
                   RTS
                   ; Store 32bits l2 using X register as pointer
 ?store32_l2       LDA ?b11
@@ -3091,7 +3341,6 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
                   INCX
                   LDA ?b8
                   STA (X)
-                  INCX
                   RTS
                   ; Store 32bits l3 using X register as pointer
 ?store32_l3       LDA ?b15
@@ -3105,7 +3354,6 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
                   INCX
                   LDA ?b12
                   STA (X)
-                  INCX
                   RTS
                   ; Move 32 bits from l0 to l1
 ?mov32_l1_l0      LDA ?b3
@@ -3270,23 +3518,23 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
 
                   ; Compare 32-bit registers
                   ; Result: sets E flag if equal, clears if different
-;?cmp32_l3_l2      LDA ?b8
-;                  CMPA ?b12      ; This instruction not available yet
-;                  JNE ?cmp32_not_equal
-;                  LDA ?b9
-;                  CMPA ?b13
-;                  JNE ?cmp32_not_equal
-;                  LDA ?b10
-;                  CMPA ?b14
-;                  JNE ?cmp32_not_equal
-;                  LDA ?b11
-;                  CMPA ?b15
-;                  JNE ?cmp32_not_equal
-;                  ; All bytes equal, E flag already set from last comparison
-;                  RTS
-;?cmp32_not_equal  LDA #0x00   ; Clear E flag    I dont have a direct way to clear E flag
-;                  STA ?b0
-;                  RTS
+?cmp32_l3_l2      LDA ?b8
+                  CMPA ?b12      ; This instruction not available yet
+                  JNE ?cmp32_not_equal
+                  LDA ?b9
+                  CMPA ?b13
+                  JNE ?cmp32_not_equal
+                  LDA ?b10
+                  CMPA ?b14
+                  JNE ?cmp32_not_equal
+                  LDA ?b11
+                  CMPA ?b15
+                  JNE ?cmp32_not_equal
+                  ; All bytes equal, E flag already set from last comparison
+                  RTS
+?cmp32_not_equal  LDA #0x00   ; Clear E flag    I dont have a direct way to clear E flag
+                  STA ?b0
+                  RTS
 
                   ; MUL 8-bit
                   ; w1 (b3,b2) <= b1 * b0
@@ -3327,10 +3575,66 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
                   JNE ?mul16_l1_w1_loop
                   RTS
 
+
+                  ; MUL 32-bit by 8-bit unsigned
+                  ; l1 = l0 * A   (A = 8-bit multiplier, A <= 12)
+                  ; l0 = (b3,b2,b1,b0)
+                  ; result -> l1 = (b7..b4)
+;?mul32_l1_l0_u8   ; ---- multiply LOW word ----
+;                  STA TMPN          ; save multiplier
+
+;                  LDA ?b0
+;                  STA ?b0           ; w0 low
+;                  LDA ?b1
+;                  STA ?b1
+
+;                  LDA TMPN
+;                  STA ?b2           ; w1 = n
+;                  LDA #0
+;                  STA ?b3
+
+;                  JSR ?mul16_l1_w1_w0   ; l1 = LO16 * n
+
+                  ; save low result
+;                  LDA ?b4
+;                  STA RES0
+;                  LDA ?b5
+;                  STA RES1
+
+                  ; ---- multiply HIGH word ----
+;                  LDA ?b2           ; restore high word of l0
+;                  STA ?b0
+;                  LDA ?b3
+;                  STA ?b1
+
+;                  LDA TMPN
+;                  STA ?b2
+;                  LDA #0
+;                  STA ?b3
+
+;                  JSR ?mul16_l1_w1_w0   ; l1 = HI16 * n
+
+                  ; ---- accumulate ----
+;                  LDA ?b4
+;                  ADDA RES1
+;                  STA ?b5
+;                  LDA ?b5
+;                  ADCA #0
+;                  STA ?b6
+;                  LDA ?b6
+;                  ADCA #0
+;                  STA ?b7
+
+;                  LDA RES0
+;                  STA ?b4
+
+;                  RTS
+
+
          ; --------------------------------------------------------------------
          ; Error routine
          ; --------------------------------------------------------------------
-         ORG/0xF800  ; Diagnostic Error routine   
+         ORG/0xFFB0  ; Diagnostic Error routine   
          ;STOP        ; Stop execution
 FAIL     JMP FAIL    ; Infinite Loop on error
          

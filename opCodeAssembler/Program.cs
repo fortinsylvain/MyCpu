@@ -1,6 +1,6 @@
 ﻿// Homebrew MyCPU assembler program
 // Author: Sylvain Fortin  sylfortin71@hotmail.com
-// Date: 31 december 2025
+// Date: 3 jan 2026
 // Documentation:
 // This program is an assembler that converts MyCPU mnemonics into opcodes
 // executable by the MyCPU micro-program.
@@ -940,6 +940,8 @@ namespace Assembler
                 new InstrTable { StringValue = "STA (0x****,X)", OpCode = 0x1D, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // STA (0x****,X) STA indexed indirect addressing
                 new InstrTable { StringValue = "STA (@,X)",      OpCode = 0x1D, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // STA (symbol,X)
                 new InstrTable { StringValue = "CLRX",           OpCode = 0x1E, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // CLRX Clear X register, set E flag
+                new InstrTable { StringValue = "CMPA 0x****",    OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // CMPA 0x****  Compare A with direct-addressed byte, Update Status E
+                new InstrTable { StringValue = "CMPA @",         OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // CMPA symbol
                 new InstrTable { StringValue = "ADCA 0x****",    OpCode = 0x28, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
                 new InstrTable { StringValue = "ADCA @",         OpCode = 0x28, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // ADCA symbol
                 new InstrTable { StringValue = "ADDA 0x****",    OpCode = 0x29, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADDA 0x****  Add Byte from Address into REG A Carry update
@@ -949,7 +951,7 @@ namespace Assembler
                 new InstrTable { StringValue = "JNE 0x****",     OpCode = 0x2B, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // JNE 0x****   JUMP IF NOT EQUAL (E=0)
                 new InstrTable { StringValue = "JNE @",          OpCode = 0x2B, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JNE symbol
                 new InstrTable { StringValue = "JEQ 0x****",     OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // JEQ 0x****   JUMP IF EQUAL (E=1)
-                new InstrTable { StringValue = "JEQ",            OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JEQ symbol
+                new InstrTable { StringValue = "JEQ @",          OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JEQ symbol
                 new InstrTable { StringValue = "CMPA #0x**",     OpCode = 0x2D, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // CMPA #0x**   COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
                 new InstrTable { StringValue = "ADCA #0x**",     OpCode = 0x2E, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // ADCA #0x**   REG A = REG A + IMMEDIATE BYTE + CARRY (C), Carry C Updated
                 new InstrTable { StringValue = "ADDA #0x**",     OpCode = 0x2F, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // ADDA #0x**   ADD IMMEDIATE BYTE VALUE TO REGISTER A  C UPDATED
@@ -957,7 +959,7 @@ namespace Assembler
                 new InstrTable { StringValue = "STA 0x****",     OpCode = 0x31, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // STA 0x****   STORE REG.A TO ADDRESSE
                 new InstrTable { StringValue = "STA @",          OpCode = 0x31, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // STA symbol
                 new InstrTable { StringValue = "JMP 0x****",     OpCode = 0x32, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // JMP 0x****   JUMP INCONDITIONAL TO ADDRESS
-                new InstrTable { StringValue = "JMP",            OpCode = 0x32, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JMP symbol
+                new InstrTable { StringValue = "JMP @",          OpCode = 0x32, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JMP symbol
                 new InstrTable { StringValue = "ANDA #0x**",     OpCode = 0x33, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // ANDA #0x**   REGISTER A AND LOGICAL WITH IMMEDIATE BYTE
             };
 
