@@ -942,6 +942,7 @@ namespace Assembler
                 new InstrTable { StringValue = "CLRX",           OpCode = 0x1E, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // CLRX Clear X register, set E flag
                 new InstrTable { StringValue = "CMPA 0x****",    OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // CMPA 0x****  Compare A with direct-addressed byte, Update Status E
                 new InstrTable { StringValue = "CMPA @",         OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // CMPA symbol
+                new InstrTable { StringValue = "DECA",           OpCode = 0x20, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // DECA         Decrement REGISTER A, E update, C not updated
                 new InstrTable { StringValue = "ADCA 0x****",    OpCode = 0x28, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
                 new InstrTable { StringValue = "ADCA @",         OpCode = 0x28, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // ADCA symbol
                 new InstrTable { StringValue = "ADDA 0x****",    OpCode = 0x29, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADDA 0x****  Add Byte from Address into REG A Carry update

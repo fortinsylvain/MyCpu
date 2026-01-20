@@ -1153,6 +1153,46 @@
 1F3B       3002               02H>UH       ; NEXT OP.
 1F3C       3800               00H>UL
 1F3D       C800               JMP          ; ***************************************************
+                              ORG/1000H    ; OP.20 DECA  Decrement REGISTER A
+2000       781F               1FH>AH       ;             C not updated, E updated
+2001       68FC               FCH>AL
+2002       2000               DATA>R0      ; READ REG. A
+2003       2E20               20H>R6       ; R0-1>R0  3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
+2004       2F08               08H>R7       
+2005       303A               3AH>UH       
+2006       3800               00H>UL
+2007       C800               JMP
+2008       5800               R0>DATA      ; Result in register A
+2009       3020               20H>UH       ; Jump if any bit is '1'
+200A       3821               21H>UL
+200B       5000               R0-0>A       
+200C       C83B               JMP_A=1
+200D       5001               R0-1>A
+200E       C83B               JMP_A=1
+200F       5002               R0-2>A
+2010       C83B               JMP_A=1
+2011       5003               R0-3>A
+2012       C83B               JMP_A=1
+2013       5004               R0-4>A
+2014       C83B               JMP_A=1
+2015       5005               R0-5>A
+2016       C83B               JMP_A=1
+2017       5006               R0-6>A
+2018       C83B               JMP_A=1
+2019       5007               R0-7>A
+201A       C83B               JMP_A=1
+201B       2901               01H>R1       ; All bits are '0', Set E Status
+201C       68FA               FAH>AL
+201D       5900               R1>DATA
+201E       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+201F       3800               00H>UL
+2020       C800               JMP
+2021       2900               00H>R1       ; Clear E Status
+2022       68FA               FAH>AL
+2023       5900               R1>DATA
+2024       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+2025       3800               00H>UL
+2026       C800               JMP          ; ***************************************************
                               ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 2800       2200               DATA>R2      ; Read MSB Address (MSB->R2)
 2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP

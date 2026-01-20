@@ -2013,6 +2013,114 @@ TSTOP1F  LDA #0x1F
          CMPA MSGTXT3+59
          JNE FAIL
          ; --------------------------------------------------------------------
+         ; OP.20 DECA  
+         ; DECREMENT REGISTER A
+         ; --------------------------------------------------------------------
+TSTOP20  LDA #0x20
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x01
+         DECA
+         CMPA #0x00
+         JNE FAIL
+         DECA
+         CMPA #0xFF
+         JNE FAIL
+         DECA
+         CMPA #0xFE
+         JNE FAIL
+         LDA #0x80
+         DECA
+         CMPA #0x7F
+         JNE FAIL
+         ; Test E flag
+         LDA #0x00   ; Clear E equal flag
+         STA 0x1FFA 
+         LDA #0x01
+         DECA
+         LDA 0x1FFA
+         CMPA #0x01 ; Check E flag is set
+         JNE FAIL
+         LDA #0x00
+         DECA
+         LDA 0x1FFA
+         CMPA #0x00 ; Check E flag is cleared
+         JNE FAIL
+         ; Check all bits for the E flag
+         LDA #0x81
+         DECA
+         LDA 0x1FFA
+         CMPA #0x00 ; Check E flag is cleared
+         JNE FAIL
+         LDA #0x41
+         DECA
+         LDA 0x1FFA
+         CMPA #0x00 ; Check E flag is cleared
+         JNE FAIL
+         LDA #0x21
+         DECA
+         LDA 0x1FFA
+         CMPA #0x00 ; Check E flag is cleared
+         JNE FAIL
+         LDA #0x11
+         DECA
+         LDA 0x1FFA
+         CMPA #0x00 ; Check E flag is cleared
+         JNE FAIL
+         LDA #0x09
+         DECA
+         LDA 0x1FFA
+         CMPA #0x00 ; Check E flag is cleared
+         JNE FAIL
+         LDA #0x05
+         DECA
+         LDA 0x1FFA
+         CMPA #0x00 ; Check E flag is cleared
+         JNE FAIL
+         LDA #0x03
+         DECA
+         LDA 0x1FFA
+         CMPA #0x00 ; Check E flag is cleared
+         JNE FAIL
+         LDA #0x02
+         DECA
+         LDA 0x1FFA
+         CMPA #0x00 ; Check E flag is cleared
+         JNE FAIL
+         ; Test all bits for DECA operation
+         LDA #0xFF
+         DECA
+         CMPA #0xFE
+         JNE FAIL
+         LDA #0x7F
+         DECA
+         CMPA #0x7E
+         JNE FAIL
+         LDA #0x3F
+         DECA
+         CMPA #0x3E
+         JNE FAIL
+         LDA #0x1F
+         DECA
+         CMPA #0x1E
+         JNE FAIL
+         LDA #0x0F
+         DECA
+         CMPA #0x0E
+         JNE FAIL
+         LDA #0x07
+         DECA
+         CMPA #0x06
+         JNE FAIL
+         LDA #0x03
+         DECA
+         CMPA #0x02
+         JNE FAIL
+         LDA #0x01
+         DECA
+         CMPA #0x00
+         JNE FAIL
+         ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
          ; --------------------------------------------------------------------
@@ -3054,7 +3162,7 @@ FIB32_LOOP  JSR ?add32_l2_l1_l0  ; l2 = l1 + l0
             ; rotate registers
             JSR ?mov32_l0_l1     ; l0 = l1
             JSR ?mov32_l1_l2     ; l1 = l2
-            ;  DEC LOOPCNT ; I dont have a decrament register A instruction for now
+            ;  DEC LOOPCNT ; I dont have a decrement register A instruction for now
             LDA LOOPCNT
             ADDA #0xFF
             STA LOOPCNT

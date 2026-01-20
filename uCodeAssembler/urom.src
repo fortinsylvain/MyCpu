@@ -1153,6 +1153,46 @@ R0>DATA
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
+ORG/1000H               ; OP.20 DECA  Decrement REGISTER A
+1FH>AH                  ;             C not updated, E updated
+FCH>AL
+DATA>R0                 ; READ REG. A
+20H>R6                  ; R0-1>R0  3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
+08H>R7                  
+3AH>UH                  
+00H>UL
+JMP
+R0>DATA                 ; Result in register A
+20H>UH                  ; Jump if any bit is '1'
+21H>UL
+R0-0>A                  
+JMP_A=1
+R0-1>A
+JMP_A=1
+R0-2>A
+JMP_A=1
+R0-3>A
+JMP_A=1
+R0-4>A
+JMP_A=1
+R0-5>A
+JMP_A=1
+R0-6>A
+JMP_A=1
+R0-7>A
+JMP_A=1
+01H>R1                  ; All bits are '0', Set E Status
+FAH>AL
+R1>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP
+00H>R1                  ; Clear E Status
+FAH>AL
+R1>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 DATA>R2                 ; Read MSB Address (MSB->R2)
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
