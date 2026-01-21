@@ -3162,9 +3162,9 @@ FIB32_LOOP  JSR ?add32_l2_l1_l0  ; l2 = l1 + l0
             ; rotate registers
             JSR ?mov32_l0_l1     ; l0 = l1
             JSR ?mov32_l1_l2     ; l1 = l2
-            ;  DEC LOOPCNT ; I dont have a decrement register A instruction for now
+            ;  DEC LOOPCNT    ; i dont have a DEC direct instruction for now
             LDA LOOPCNT
-            ADDA #0xFF
+            DECA
             STA LOOPCNT
             CMPA #0x00
             JNE FIB32_LOOP
