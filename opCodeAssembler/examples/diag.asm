@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 3 january 2026
+; Date : 24 january 2026
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
@@ -64,7 +64,14 @@ REG_A    EQU 0x1FFC  ; A       A Register
 IPH      EQU 0x1FFE  ; IPH	    Instruction Pointer MSB
 IPL      EQU 0x1FFF  ; IPL          "         "    LSB
 
-; Peripheral
+;--------------------------------------------
+; LCD Memory-Mapped I/O Addresses
+;--------------------------------------------
+LCD_CMD  EQU 0x7C00
+LCD_DATA EQU 0x7C01
+;--------------------------------------------
+; LED PORT
+;--------------------------------------------
 LEDPORT  EQU 0xC000  ; PORT for the LED
 
 ; Program start
@@ -2225,13 +2232,13 @@ TSTOP2A  LDA #0x2A
          CMPA #0x64     ; 'd'
          JNE FAIL
          LDA MSGTXT3-3
-         CMPA #0x72     ; 'l'
+         CMPA #0x6C     ; 'l'
          JNE FAIL
          LDA MSGTXT3-10
-         CMPA #0x65
+         CMPA #0x6C
          JNE FAIL
          LDA MSGTXT3-11
-         CMPA #0x48
+         CMPA #0x65
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.2B JNE 0x****  
@@ -3267,11 +3274,25 @@ VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l
 ;                  RTS
 
 
+         ; LCD TEST        
+         JSR LCD_Init
+         JSR LCD_Clear
+
+         LDX #MSGTXT2
+         JSR LCD_PrintString         
 
 
-            JMP 0xE000  ; Loop from start of diag test
+         JMP 0xE000  ; Loop from start of diag test
+; END OF MAIN PROGRAM
+
+         ; ---------------
+         ; Data Section
+         ; ---------------
+         ; Start of data section in EEPROM
+         
+         ; ASCII text table for test
 MSGTXT1        .ASCII "123ABC"
-MSGTXT2        .ASCII "Hello Word"
+MSGTXT2        .ASCII "Hello World"
 MSGTXT3        .ASCII "This is a text message to test ascii text table in assembler"
          
          ; ---------------------
@@ -3738,6 +3759,76 @@ MSGTXT3        .ASCII "This is a text message to test ascii text table in assemb
 
 ;                  RTS
 
+
+;--------------------------------------------
+; LCD Main Initialization Routine
+;--------------------------------------------
+LCD_Init    LDA #0xFF         ; Wait >40ms (simple busy loop)
+Delay40ms   DECA
+            JNE Delay40ms
+
+            ; Function set: 8-bit, 2 line, 5x8 font
+            ; <5> 1
+            ; <4> DL = 1  0: 4-bit inteface, 1:8-bit interface
+            ; <3> N = 1   0: 1 Line, 1: 2 Lines
+            ; <2> F = 0   0: FONT_5x8, 1: FONT_5x10
+            ; <1> -  -
+            ; <0> -  -
+            LDA #0x38
+            STA LCD_CMD
+
+            ; Wait >4.1ms
+            LDA #0xF0
+Delay4ms    DECA
+            JNE Delay4ms
+            
+            ; Display ON/OFF Control
+            ; Display ON, cursor OFF, blink OFF
+            ; <3> 1
+            ; <2> D = 1  Display ON/OFF Control 0:OFF, 1:ON
+            ; <1> C = 0  Cursor displayed 0:OFF, 1:ON
+            ; <0> B = 0  Blinking of cursor position character 0:OFF, 1:ON
+            LDA #0x0C
+            STA LCD_CMD
+
+            ; Entry mode set
+            ; Entry mode: left-to-right, no shift
+            ; <2> 1
+            ; <1> I/D = 1  Increment/Decrement of DDRAM address 1: Increment, 0: Decrement
+            ; <0> S = 0    
+            LDA #0x06
+            STA LCD_CMD
+            RTS
+
+;--------------------------------------------
+; Clear display
+;--------------------------------------------
+LCD_Clear   LDA #0x01      ; Clear display command; <0> = 1
+            STA LCD_CMD
+            LDA #0xFF      ; Wait >1.5ms (for clear command)
+DelayClear  DECA
+            JNE DelayClear
+            RTS
+
+;--------------------------------------------
+; Write a single character
+; Input: A = ASCII code
+;--------------------------------------------
+LCD_WriteChar  STA LCD_DATA
+               RTS
+
+;--------------------------------------------
+; Print null-terminated string
+; Input:
+;   X = address of string
+;--------------------------------------------
+LCD_PrintString   LDA (X)        ; A = *X
+                  CMPA #0x00     ; end of string?
+                  JEQ LCD_PrDone
+                  JSR LCD_WriteChar
+                  INCX           ; X++
+                  JRA LCD_PrintString
+LCD_PrDone        RTS
 
          ; --------------------------------------------------------------------
          ; Error routine

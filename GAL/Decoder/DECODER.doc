@@ -5,7 +5,7 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Tue Aug 12 23:21:10 2025
+Created         Sat Jan 24 13:29:16 2026
 Name            DECODER
 Partno          1
 Revision        1.0
@@ -19,6 +19,9 @@ Location        Montreal
                             Expanded Product Terms
 ===============================================================================
 
+DEC0_CS_N =>
+    A10 & A11 & A12 & A13 & A14 & !A15 & !E_N
+
 !EEPROM_CS_N =>
     A13 & A14 & A15
 
@@ -28,6 +31,9 @@ Location        Montreal
 !RAM_CS_N =>
     !A13 & !A14 & !A15 & RW
   # !A13 & !A14 & !A15 & !E_N & !RW
+
+DEC0_CS_N.oe  =>
+    1 
 
 EEPROM_CS_N.oe  =>
     1 
@@ -55,13 +61,14 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     A13                         5        V        -       -       -     
     A14                         6        V        -       -       -     
     A15                         7        V        -       -       -     
-    DEC0_CS_N                   23       V        -       -       -     
+    DEC0_CS_N                   23       V        1       8       1     
     DEC1_CS_N                   22       V        -       -       -     
     EEPROM_CS_N                 14       V        1       8       1     
     E_N                         8        V        -       -       -     
     LED_PORT_CLK                15       V        1       10      1     
     RAM_CS_N                    19       V        2       16      1     
     RW                          11       V        -       -       -     
+    DEC0_CS_N           oe      23       D        1       1       0     
     EEPROM_CS_N         oe      14       D        1       1       0     
     LED_PORT_CLK        oe      15       D        1       1       0     
     RAM_CS_N            oe      19       D        1       1       0     
@@ -83,9 +90,9 @@ SP
 AR 
  00000 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 
-Pin #23  05808 Mode  xx 
- 00044 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00088 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #23  05808 Mode  -- 
+ 00044 -------------------------------------------- 
+ 00088 ----x---x---x---x---x----x---x-------------- 
  00132 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00176 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00220 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 

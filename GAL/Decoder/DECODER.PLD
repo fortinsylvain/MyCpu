@@ -39,7 +39,6 @@ Pin 9  = A0;
 Pin 10 = A1;
 Pin 11 = RW;
 
-
 /** Output Pins **/
 Pin 14 = EEPROM_CS_N;
 Pin 15 = LED_PORT_CLK;
@@ -47,12 +46,24 @@ Pin 19 = RAM_CS_N;
 Pin 22 = DEC1_CS_N;
 Pin 23 = DEC0_CS_N;
 
+/*
+0x0000 - 0x1FFF   RAM
+0x7C00 - 0x7FFF   LCD
+0xC000 - 0xDFFF   LED_PORT
+0xE000 - 0xFFFF   EEPROM
+*/
 
 /** !RAM_CS_N     = (!E_N & !A15 & !A14 & !A13); **/
 /** For a read immediate CS_N but for a write use E_N **/
 !RAM_CS_N     = (RW & !A15 & !A14 & !A13) # (!RW & !E_N & !A15 & !A14 & !A13);
 
+DEC0_CS_N = (!E_N & !A15 & A14 & A13 & A12 & A11 & A10);
+
 !LED_PORT_CLK = (!E_N &  A15 &  A14 & !A13);
+
 /** !EEPROM_CS_N  = (!E_N &  A15 &  A14 &  A13);  **/
 !EEPROM_CS_N  = (A15 &  A14 &  A13);	/** Immediately activate the CS_N when address is in range to speed-up **/
+
+
+
 
