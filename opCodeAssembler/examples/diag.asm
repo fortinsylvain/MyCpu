@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 24 january 2026
+; Date : 1 february 2026
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
@@ -64,6 +64,9 @@ REG_A    EQU 0x1FFC  ; A       A Register
 IPH      EQU 0x1FFE  ; IPH	    Instruction Pointer MSB
 IPL      EQU 0x1FFF  ; IPL          "         "    LSB
 
+; Diagnostic program variable
+DIAGLOOPCOUNTER EQU 0x01E0  ; Loop counter for diagnostics
+
 ;--------------------------------------------
 ; LCD Memory-Mapped I/O Addresses
 ;--------------------------------------------
@@ -74,11 +77,13 @@ LCD_DATA EQU 0x7C01
 ;--------------------------------------------
 LEDPORT  EQU 0xC000  ; PORT for the LED
 
-; Program start
-         ORG/0xE000  ; EEPROM Start        
-START    LDA #0x00   ; Clear LED
+; Diagnostic program start
+         ORG/0xE000  ; EEPROM Start of the diagnostic program     
+START    LDA #0x00   ; Initialize diagnostic loop counter
+         STA DIAGLOOPCOUNTER
+LOOPDIAG LDA #0x00   ; Clear LED
          NOTA
-         STA LEDPORT ; Output to LED port
+         STA LEDPORT ; Output to LED port         
          ; --------------------------------------------------------------------
          ; Test Carry Status bit integrity
          ; --------------------------------------------------------------------
@@ -3273,16 +3278,37 @@ VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l
 
 ;                  RTS
 
-
          ; LCD TEST        
          JSR LCD_Init
          JSR LCD_Clear
-
+         LDX #0x0000    ; set cursor to first line and print message
+         JSR LCD_SetCursorPos
          LDX #MSGTXT2
-         JSR LCD_PrintString         
+         JSR LCD_PrintString
+         LDX #0x0100    ; set cursor to second line and print message
+         JSR LCD_SetCursorPos
+         LDX #MSGTXT4
+         JSR LCD_PrintString
+         ; make some movement on the lcd to show diagnostic still running
+         ; use 3 LSB of diagnostic counter to move an asterisk on second line
+         ; between position 8 and 15
+         LDA DIAGLOOPCOUNTER
+         ANDA #0x07          ; mask to 3 LSB (0..7)
+         ADDA #0x08          ; offset to position 8..15
+         STA XL              ; XL = column
+         LDA #0x01
+         STA XH              ; XH = line 1 (second line)
+         JSR LCD_SetCursorPos
+         LDA #0x2A           ; ASCII '*'
+         JSR LCD_WriteChar
+         ; End of LCD TEST
+         
+         ; increment diagnostic counter to indicate successful completion
+         LDA DIAGLOOPCOUNTER
+         ADDA #0x01
+         STA DIAGLOOPCOUNTER
 
-
-         JMP 0xE000  ; Loop from start of diag test
+         JMP LOOPDIAG         ; Diagnostic loop
 ; END OF MAIN PROGRAM
 
          ; ---------------
@@ -3294,6 +3320,7 @@ VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l
 MSGTXT1        .ASCII "123ABC"
 MSGTXT2        .ASCII "Hello World"
 MSGTXT3        .ASCII "This is a text message to test ascii text table in assembler"
+MSGTXT4        .ASCII "MyCPU"
          
          ; ---------------------
          ; Math library routines
@@ -3809,6 +3836,23 @@ LCD_Clear   LDA #0x01      ; Clear display command; <0> = 1
 DelayClear  DECA
             JNE DelayClear
             RTS
+
+;--------------------------------------------
+; Set LCD Cursor Position
+; Input:
+;   XH = line (0 or 1)
+;   XL = column (0..15)
+;--------------------------------------------
+LCD_SetCursorPos  LDA XH      
+                  CMPA #0x00
+                  JEQ LCD_Row0
+                  LDA #0x40         ; Row 1, DDRAM base address line 1
+                  JRA LCD_AddCol
+LCD_Row0          LDA #0x00         ; DDRAM base address line 0
+LCD_AddCol        ADDA XL           ; A = base + column
+                  ORA #0x80         ; Set DDRAM address command
+                  STA LCD_CMD
+                  RTS     
 
 ;--------------------------------------------
 ; Write a single character
