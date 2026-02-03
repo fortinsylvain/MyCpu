@@ -1193,6 +1193,60 @@ R1>DATA
 01H>UH                  ; Get Pointed OP Code by IP and Execute
 00H>UL
 JMP                     ; ***************************************************
+ORG/1080H               ; OP.21 TEQA #**H COMPARE A WITH IMMEDIATE VALUE, 
+DATA>R0                 ; Read Data       UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
+1FH>AH                  ; Read Reg. A     ELSE E = 0.
+FCH>AL
+DATA>R1
+R0-0>A
+XNOR R1-0
+R0-1>A
+XNOR R1-1
+R0-2>A
+XNOR R1-2
+R0-3>A
+XNOR R1-3
+R0-4>A
+XNOR R1-4
+R0-5>A
+XNOR R1-5
+R0-6>A
+XNOR R1-6
+R0-7>A
+XNOR R1-7
+Q>R0
+R0-0>A
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q7>A
+A>Q0                    ; Place Equal Status in bit position <0>
+00H>R1                  ; Put '0' in ALU input A
+R1-0>A
+A>Q1                    ; Set Q<7:1> to 0
+A>Q2                    ; To have a clean Equal Status Byte
+A>Q3
+A>Q4
+A>Q5
+A>Q6
+A>Q7
+Q>R0                    ; Move Q byte in R0
+1FH>AH
+FAH>AL
+R0>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 DATA>R2                 ; Read MSB Address (MSB->R2)
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
@@ -1337,57 +1391,58 @@ JMP
 02H>R4                  ;                                   | ADD. RETOUR
 00H>R5                  ;                                   | PROCHAIN OP.
 JMP                     ; ***************************************************
-ORG/1680H               ; OP.2D CMPA #**H COMPARE A WITH IMMEDIATE VALUE, 
-DATA>R0                 ; Read Data       UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
-1FH>AH                  ; Read Reg. A     ELSE E = 0.
+ORG/1680H               ; OP.2D CMPA #**H Compare A with immediate value (A-imm)
+DATA>R1                 ; Imm->R1                               E and C updated
+1FH>AH                  ; Read Reg A                   A - imm = A + (~imm) + 1
 FCH>AL
-DATA>R1
-R0-0>A
+DATA>R0                 ; A -> R0
+00H>R2                  ; Two's complement of immediate (R1 = ~R1)
+R2-0>A                  ; Clear ALU A
 XNOR R1-0
-R0-1>A
 XNOR R1-1
-R0-2>A
 XNOR R1-2
-R0-3>A
 XNOR R1-3
-R0-4>A
 XNOR R1-4
-R0-5>A
 XNOR R1-5
-R0-6>A
 XNOR R1-6
-R0-7>A
 XNOR R1-7
-Q>R0
-R0-0>A
-AND R0-1
+Q>R1
+01H>R2                  ; R2-0 used as Cin
+3FH>UH                  ; Cin:R2-0  | ADD. ROUTINE
+00H>UL                  ; R0+R1>R0  |
+2DH>R6                  ; Cout>R2-0 | RETURN ADDRESS
+15H>R7                  ; keep carry out R2
+JMP
+1FH>AH                  ; Save C
+FBH>AL
+R2>DATA
+R0-0>A                  ; Check R0 equal 0
+OR R0-1
 Q1>A
-AND R0-2
+OR R0-2
 Q2>A
-AND R0-3
+OR R0-3
 Q3>A
-AND R0-4
+OR R0-4
 Q4>A
-AND R0-5
+OR R0-5
 Q5>A
-AND R0-6
+OR R0-6
 Q6>A
-AND R0-7
+OR R0-7
 Q7>A
-A>Q0                    ; Place Equal Status in bit position <0>
-00H>R1                  ; Put '0' in ALU input A
-R1-0>A
-A>Q1                    ; Set Q<7:1> to 0
-A>Q2                    ; To have a clean Equal Status Byte
-A>Q3
-A>Q4
-A>Q5
-A>Q6
-A>Q7
-Q>R0                    ; Move Q byte in R0
-1FH>AH
-FAH>AL
-R0>DATA
+2DH>UH
+30H>UL
+JMP_A=1                 ; if any bit is 1 jump
+01H>R1                  ; E=1, Result is equal to 0
+FAH>AL   
+R1>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP
+00H>R1                  ; E=0, Result is not 0
+FAH>AL   
+R1>DATA
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************

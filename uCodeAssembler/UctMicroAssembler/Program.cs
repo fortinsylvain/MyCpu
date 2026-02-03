@@ -101,7 +101,7 @@ namespace UCT_Assembler
             int iErrorNumber = 0;
             int iLine = 0;
 
-            string[] TBL = new string[29];
+            string[] TBL = new string[30];
 
             TBL[0] = "";        // We do not use this location
             TBL[1] = "R*>UH";
@@ -146,10 +146,10 @@ namespace UCT_Assembler
             int iBitNumber=0;
 
             // Code Machine
-            int BS = 0;    // MSB 7:4
-            int CS = 0;    // MSB 3:0
-            int DS = 0;    // LSB 7:4
-            int ES = 0;    // LSB 3:0
+            int BS = 0;    // MSB 7:4    S C3 C2 C1
+            int CS = 0;    // MSB 3:0   C0 R2 R1 R0
+            int DS = 0;    // LSB 7:4   -  -  P2 P1
+            int ES = 0;    // LSB 3:0   P0 S2 S1 S0
 
             using (StreamReader inputFile = File.OpenText(fullPath))
             using (StreamWriter lstFile = File.CreateText(Path.Combine(repositoryPath, baseFileName + ".lst")))

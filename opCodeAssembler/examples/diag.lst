@@ -93,17 +93,17 @@ E00E 31 C0 00            STA LEDPORT ; Output to LED port
 E011 30 00               LDA #0x00
 E013 31 1F FB            STA CARRY   ; Write 0 to carry bit <0>
 E016 2A 1F FB            LDA CARRY   ; Read Carry Status
-E019 2D 00               CMPA #0x00
+E019 21 00               TEQA #0x00
 E01B 2B FF B0            JNE FAIL
 E01E 30 01               LDA #0x01
 E020 31 1F FB            STA CARRY   ; Write 1 to carry bit <0>
 E023 2A 1F FB            LDA CARRY   ; Read Carry Status
-E026 2D 01               CMPA #0x01
+E026 21 01               TEQA #0x01
 E028 2B FF B0            JNE FAIL
 E02B 30 00               LDA #0x00
 E02D 31 1F FB            STA CARRY   ; Write 0 to carry bit <0>
 E030 2A 1F FB            LDA CARRY   ; Read Carry Status
-E033 2D 00               CMPA #0x00
+E033 21 00               TEQA #0x00
 E035 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; Test Equal Status bit integrity
@@ -114,17 +114,17 @@ E03B 31 C0 00            STA LEDPORT ; Output to LED port
 E03E 30 00               LDA #0x00
 E040 31 1F FA            STA EQUAL   ; Write 0 to Equal Status bit <0>
 E043 2A 1F FA            LDA EQUAL   ; Read Equal Status
-E046 2D 00               CMPA #0x00
+E046 21 00               TEQA #0x00
 E048 2B FF B0            JNE FAIL
 E04B 30 01               LDA #0x01
 E04D 31 1F FA            STA EQUAL   ; Write 1 to Equal Status bit <0>
 E050 2A 1F FA            LDA EQUAL   ; Read Equal Status
-E053 2D 01               CMPA #0x01
+E053 21 01               TEQA #0x01
 E055 2B FF B0            JNE FAIL
 E058 30 00               LDA #0x00
 E05A 31 1F FA            STA EQUAL   ; Write 0 to Equal Status bit <0>
 E05D 2A 1F FA            LDA EQUAL   ; Read Equal Status
-E060 2D 00               CMPA #0x00
+E060 21 00               TEQA #0x00
 E062 2B FF B0            JNE FAIL
 
                          ; --------------------------------------------------------------------
@@ -136,11 +136,11 @@ E067 19                  NOTA
 E068 31 C0 00            STA LEDPORT ; Output to LED port
 E06B 30 00               LDA #0x00
 E06D 03                  INCA
-E06E 2D 01               CMPA #0x01
+E06E 21 01               TEQA #0x01
 E070 2B FF B0            JNE FAIL
 E073 30 01               LDA #0x01
 E075 03                  INCA
-E076 2D 02               CMPA #0x02
+E076 21 02               TEQA #0x02
 E078 2B FF B0            JNE FAIL
 E07B 30 7C               LDA #0x7C
 E07D 03                  INCA
@@ -153,26 +153,26 @@ E083 03                  INCA
 E084 03                  INCA
 E085 03                  INCA
 E086 03                  INCA
-E087 2D 86               CMPA #0x86
+E087 21 86               TEQA #0x86
 E089 2B FF B0            JNE FAIL
 E08C 30 FE               LDA #0xFE
 E08E 03                  INCA
-E08F 2D FF               CMPA #0xFF
+E08F 21 FF               TEQA #0xFF
 E091 2B FF B0            JNE FAIL
 E094 30 FF               LDA #0xFF
 E096 03                  INCA
-E097 2D 00               CMPA #0x00
+E097 21 00               TEQA #0x00
 E099 2B FF B0            JNE FAIL
 E09C 30 FF               LDA #0xFF
 E09E 03                  INCA
 E09F 03                  INCA
-E0A0 2D 01               CMPA #0x01
+E0A0 21 01               TEQA #0x01
 E0A2 2B FF B0            JNE FAIL
 E0A5 03                  INCA
 E0A6 03                  INCA
 E0A7 03                  INCA
 E0A8 03                  INCA
-E0A9 2D 05               CMPA #0x05
+E0A9 21 05               TEQA #0x05
 E0AB 2B FF B0            JNE FAIL
 E0AE 03                  INCA
 E0AF 03                  INCA
@@ -182,36 +182,36 @@ E0B2 03                  INCA
 E0B3 03                  INCA
 E0B4 03                  INCA
 E0B5 03                  INCA
-E0B6 2D 0D               CMPA #0x0D
+E0B6 21 0D               TEQA #0x0D
 E0B8 2B FF B0            JNE FAIL
 E0BB 30 00               LDA #0x00   ; Test Carry unchanged
 E0BD 31 1F FB            STA CARRY   ; Clear Carry 
 E0C0 30 FF               LDA #0xFF
 E0C2 03                  INCA
 E0C3 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-E0C6 2D 00               CMPA #0x00  ; Expecting C=0 and <7:1> = 0
+E0C6 21 00               TEQA #0x00  ; Expecting C=0 and <7:1> = 0
 E0C8 2B FF B0            JNE FAIL
 E0CB 30 01               LDA #0x01   ; Set Carry 
 E0CD 31 1F FB            STA CARRY   
 E0D0 30 EB               LDA #0xEB
 E0D2 03                  INCA
 E0D3 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-E0D6 2D 01               CMPA #0x01  ; Expecting C=1 and <7:1> = 0
+E0D6 21 01               TEQA #0x01  ; Expecting C=1 and <7:1> = 0
 E0D8 2B FF B0            JNE FAIL
 E0DB 30 FE               LDA #0xFE   ; Test Equal (Set when result is 0)
 E0DD 03                  INCA
 E0DE 2A 1F FA            LDA EQUAL   ; Read Equal status
-E0E1 2D 00               CMPA #0x00  ; Expecting E=0 and <7:1> = 0
+E0E1 21 00               TEQA #0x00  ; Expecting E=0 and <7:1> = 0
 E0E3 2B FF B0            JNE FAIL
 E0E6 30 FF               LDA #0xFF
 E0E8 03                  INCA
 E0E9 2A 1F FA            LDA EQUAL   ; Read Equal status
-E0EC 2D 01               CMPA #0x01  ; Expecting E=1 and <7:1> = 0
+E0EC 21 01               TEQA #0x01  ; Expecting E=1 and <7:1> = 0
 E0EE 2B FF B0            JNE FAIL
 E0F1 30 00               LDA #0x00
 E0F3 03                  INCA
 E0F4 2A 1F FA            LDA EQUAL
-E0F7 2D 00               CMPA #0x00  ; Expecting E=0 and <7:1> = 0
+E0F7 21 00               TEQA #0x00  ; Expecting E=0 and <7:1> = 0
 E0F9 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.04  LDX #0x****   Load X Register with 16 bits immediate value
@@ -221,32 +221,32 @@ E0FE 19                  NOTA
 E0FF 31 C0 00            STA LEDPORT ; Output to LED port
 E102 04 12 34            LDX #0x1234
 E105 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E108 2D 12               CMPA #0x12
+E108 21 12               TEQA #0x12
 E10A 2B FF B0            JNE FAIL
 E10D 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E110 2D 34               CMPA #0x34
+E110 21 34               TEQA #0x34
 E112 2B FF B0            JNE FAIL
 E115 04 AB CD            LDX #0xABCD
 E118 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E11B 2D AB               CMPA #0xAB
+E11B 21 AB               TEQA #0xAB
 E11D 2B FF B0            JNE FAIL
 E120 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E123 2D CD               CMPA #0xCD
+E123 21 CD               TEQA #0xCD
 E125 2B FF B0            JNE FAIL
                          ; Test using symbolic
 E128 04 00 0F            LDX #?b0    ; ?b0      EQU 0x000F
 E12B 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E12E 2D 00               CMPA #0x00
+E12E 21 00               TEQA #0x00
 E130 2B FF B0            JNE FAIL
 E133 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E136 2D 0F               CMPA #0x0F
+E136 21 0F               TEQA #0x0F
 E138 2B FF B0            JNE FAIL
 E13B 04 1F F0            LDX #SP     ; SP       EQU 0x1FF0
 E13E 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E141 2D 1F               CMPA #0x1F
+E141 21 1F               TEQA #0x1F
 E143 2B FF B0            JNE FAIL
 E146 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E149 2D F0               CMPA #0xF0
+E149 21 F0               TEQA #0xF0
 E14B 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.05  INCX   Increment Register X,  Carry Not Updated
@@ -257,51 +257,51 @@ E151 31 C0 00            STA LEDPORT ; Output to LED port
 E154 04 00 00            LDX #0x0000 ; Clear X register
 E157 05                  INCX        ; Increment X
 E158 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E15B 2D 01               CMPA #0x01
+E15B 21 01               TEQA #0x01
 E15D 2B FF B0            JNE FAIL
 E160 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E163 2D 00               CMPA #0x00
+E163 21 00               TEQA #0x00
 E165 2B FF B0            JNE FAIL
 E168 05                  INCX
 E169 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E16C 2D 02               CMPA #0x02
+E16C 21 02               TEQA #0x02
 E16E 2B FF B0            JNE FAIL
 E171 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E174 2D 00               CMPA #0x00
+E174 21 00               TEQA #0x00
 E176 2B FF B0            JNE FAIL
 
 E179 04 00 FF            LDX #0x00FF ; Test a carry set
 E17C 05                  INCX        ; Increment X
 E17D 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E180 2D 00               CMPA #0x00
+E180 21 00               TEQA #0x00
 E182 2B FF B0            JNE FAIL
 E185 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E188 2D 01               CMPA #0x01
+E188 21 01               TEQA #0x01
 E18A 2B FF B0            JNE FAIL
 E18D 05                  INCX        ; Increment X
 E18E 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E191 2D 01               CMPA #0x01
+E191 21 01               TEQA #0x01
 E193 2B FF B0            JNE FAIL
 E196 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E199 2D 01               CMPA #0x01
+E199 21 01               TEQA #0x01
 E19B 2B FF B0            JNE FAIL
 
 E19E 04 1E FF            LDX #0x1EFF
 E1A1 05                  INCX        ; Increment X
 E1A2 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E1A5 2D 00               CMPA #0x00
+E1A5 21 00               TEQA #0x00
 E1A7 2B FF B0            JNE FAIL
 E1AA 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E1AD 2D 1F               CMPA #0x1F
+E1AD 21 1F               TEQA #0x1F
 E1AF 2B FF B0            JNE FAIL
 
 E1B2 04 FF FF            LDX #0xFFFF
 E1B5 05                  INCX        ; Increment X
 E1B6 2A 1F F4            LDA XL      ; Read Reg X LSB into A
-E1B9 2D 00               CMPA #0x00
+E1B9 21 00               TEQA #0x00
 E1BB 2B FF B0            JNE FAIL
 E1BE 2A 1F F3            LDA XH      ; Read Reg X MSB into A
-E1C1 2D 00               CMPA #0x00
+E1C1 21 00               TEQA #0x00
 E1C3 2B FF B0            JNE FAIL
 
                          ; --------------------------------------------------------------------
@@ -363,19 +363,19 @@ E208 30 CA               LDA #0xCA
 E20A 31 01 FF            STA 0x01FF
 E20D 04 01 00            LDX #0x0100 ; Verify each locations
 E210 0A                  LDA (X)
-E211 2D 55               CMPA #0x55
+E211 21 55               TEQA #0x55
 E213 2B FF B0            JNE FAIL    ; Jump if result not good
 E216 04 01 01            LDX #0x0101
 E219 0A                  LDA (X)
-E21A 2D AA               CMPA #0xAA
+E21A 21 AA               TEQA #0xAA
 E21C 2B FF B0            JNE FAIL
 E21F 04 01 F0            LDX #0x01F0
 E222 0A                  LDA (X)
-E223 2D DE               CMPA #0xDE
+E223 21 DE               TEQA #0xDE
 E225 2B FF B0            JNE FAIL
 E228 04 01 FF            LDX #0x01FF
 E22B 0A                  LDA (X)
-E22C 2D CA               CMPA #0xCA
+E22C 21 CA               TEQA #0xCA
 E22E 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.0B STA (X) Store Reg A Indexed
@@ -684,37 +684,37 @@ E370 19                  NOTA
 E371 31 C0 00            STA LEDPORT ; Output to LED port
 E374 30 A5               LDA #0xA5
 E376 0D                  SRLA
-E377 2D 52               CMPA #0x52
+E377 21 52               TEQA #0x52
 E379 2B FF B0            JNE FAIL    ; Jump if result not good
 E37C 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E37F 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E37F 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E381 2B FF B0            JNE FAIL    ; Error if different
 E384 30 A5               LDA #0xA5
 E386 0D                  SRLA
 E387 0D                  SRLA
-E388 2D 29               CMPA #0x29
+E388 21 29               TEQA #0x29
 E38A 2B FF B0            JNE FAIL    ; Jump if result not good
 E38D 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E390 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E390 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E392 2B FF B0            JNE FAIL    ; Error if different
 E395 30 A5               LDA #0xA5
 E397 0D                  SRLA
 E398 0D                  SRLA
 E399 0D                  SRLA
-E39A 2D 14               CMPA #0x14
+E39A 21 14               TEQA #0x14
 E39C 2B FF B0            JNE FAIL    ; Jump if result not good
 E39F 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E3A2 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E3A2 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E3A4 2B FF B0            JNE FAIL    ; Error if different
 E3A7 30 A5               LDA #0xA5
 E3A9 0D                  SRLA
 E3AA 0D                  SRLA
 E3AB 0D                  SRLA
 E3AC 0D                  SRLA
-E3AD 2D 0A               CMPA #0x0A
+E3AD 21 0A               TEQA #0x0A
 E3AF 2B FF B0            JNE FAIL    ; Jump if result not good
 E3B2 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E3B5 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E3B5 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E3B7 2B FF B0            JNE FAIL    ; Error if different
 E3BA 30 A5               LDA #0xA5
 E3BC 0D                  SRLA
@@ -722,10 +722,10 @@ E3BD 0D                  SRLA
 E3BE 0D                  SRLA
 E3BF 0D                  SRLA
 E3C0 0D                  SRLA
-E3C1 2D 05               CMPA #0x05
+E3C1 21 05               TEQA #0x05
 E3C3 2B FF B0            JNE FAIL    ; Jump if result not good
 E3C6 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E3C9 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E3C9 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E3CB 2B FF B0            JNE FAIL    ; Error if different
 E3CE 30 A5               LDA #0xA5
 E3D0 0D                  SRLA
@@ -734,10 +734,10 @@ E3D2 0D                  SRLA
 E3D3 0D                  SRLA
 E3D4 0D                  SRLA
 E3D5 0D                  SRLA
-E3D6 2D 02               CMPA #0x02
+E3D6 21 02               TEQA #0x02
 E3D8 2B FF B0            JNE FAIL    ; Jump if result not good
 E3DB 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E3DE 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E3DE 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E3E0 2B FF B0            JNE FAIL    ; Error if different
 E3E3 30 A5               LDA #0xA5
 E3E5 0D                  SRLA
@@ -747,10 +747,10 @@ E3E8 0D                  SRLA
 E3E9 0D                  SRLA
 E3EA 0D                  SRLA
 E3EB 0D                  SRLA
-E3EC 2D 01               CMPA #0x01
+E3EC 21 01               TEQA #0x01
 E3EE 2B FF B0            JNE FAIL    ; Jump if result not good
 E3F1 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E3F4 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E3F4 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E3F6 2B FF B0            JNE FAIL    ; Error if different
 E3F9 30 A5               LDA #0xA5
 E3FB 0D                  SRLA
@@ -761,10 +761,10 @@ E3FF 0D                  SRLA
 E400 0D                  SRLA
 E401 0D                  SRLA
 E402 0D                  SRLA
-E403 2D 00               CMPA #0x00
+E403 21 00               TEQA #0x00
 E405 2B FF B0            JNE FAIL    ; Jump if result not good
 E408 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E40B 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E40B 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E40D 2B FF B0            JNE FAIL    ; Error if different
 E410 30 A5               LDA #0xA5
 E412 0D                  SRLA
@@ -776,10 +776,10 @@ E417 0D                  SRLA
 E418 0D                  SRLA
 E419 0D                  SRLA
 E41A 0D                  SRLA
-E41B 2D 00               CMPA #0x00
+E41B 21 00               TEQA #0x00
 E41D 2B FF B0            JNE FAIL    ; Jump if result not good
 E420 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E423 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E423 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E425 2B FF B0            JNE FAIL    ; Error if different
                          ; --------------------------------------------------------------------
                          ; OP.0E SLLA Shift Left Logical on Reg A
@@ -791,37 +791,37 @@ E42A 19                  NOTA
 E42B 31 C0 00            STA LEDPORT ; Output to LED port
 E42E 30 A5               LDA #0xA5
 E430 0E                  SLLA
-E431 2D 4A               CMPA #0x4A
+E431 21 4A               TEQA #0x4A
 E433 2B FF B0            JNE FAIL    ; Jump if result not good
 E436 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E439 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E439 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E43B 2B FF B0            JNE FAIL    ; Error if different
 E43E 30 A5               LDA #0xA5
 E440 0E                  SLLA
 E441 0E                  SLLA
-E442 2D 94               CMPA #0x94
+E442 21 94               TEQA #0x94
 E444 2B FF B0            JNE FAIL    ; Jump if result not good
 E447 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E44A 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E44A 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E44C 2B FF B0            JNE FAIL    ; Error if different
 E44F 30 A5               LDA #0xA5
 E451 0E                  SLLA
 E452 0E                  SLLA
 E453 0E                  SLLA
-E454 2D 28               CMPA #0x28
+E454 21 28               TEQA #0x28
 E456 2B FF B0            JNE FAIL    ; Jump if result not good
 E459 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E45C 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E45C 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E45E 2B FF B0            JNE FAIL    ; Error if different
 E461 30 A5               LDA #0xA5
 E463 0E                  SLLA
 E464 0E                  SLLA
 E465 0E                  SLLA
 E466 0E                  SLLA
-E467 2D 50               CMPA #0x50
+E467 21 50               TEQA #0x50
 E469 2B FF B0            JNE FAIL    ; Jump if result not good
 E46C 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E46F 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E46F 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E471 2B FF B0            JNE FAIL    ; Error if different
 E474 30 A5               LDA #0xA5
 E476 0E                  SLLA
@@ -829,10 +829,10 @@ E477 0E                  SLLA
 E478 0E                  SLLA
 E479 0E                  SLLA
 E47A 0E                  SLLA
-E47B 2D A0               CMPA #0xA0
+E47B 21 A0               TEQA #0xA0
 E47D 2B FF B0            JNE FAIL    ; Jump if result not good
 E480 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E483 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E483 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E485 2B FF B0            JNE FAIL    ; Error if different
 E488 30 A5               LDA #0xA5
 E48A 0E                  SLLA
@@ -841,10 +841,10 @@ E48C 0E                  SLLA
 E48D 0E                  SLLA
 E48E 0E                  SLLA
 E48F 0E                  SLAA
-E490 2D 40               CMPA #0x40
+E490 21 40               TEQA #0x40
 E492 2B FF B0            JNE FAIL    ; Jump if result not good
 E495 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E498 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E498 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E49A 2B FF B0            JNE FAIL    ; Error if different
 E49D 30 A5               LDA #0xA5
 E49F 0E                  SLLA
@@ -854,10 +854,10 @@ E4A2 0E                  SLLA
 E4A3 0E                  SLLA
 E4A4 0E                  SLAA
 E4A5 0E                  SLAA
-E4A6 2D 80               CMPA #0x80
+E4A6 21 80               TEQA #0x80
 E4A8 2B FF B0            JNE FAIL    ; Jump if result not good
 E4AB 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E4AE 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E4AE 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E4B0 2B FF B0            JNE FAIL    ; Error if different
 E4B3 30 A5               LDA #0xA5
 E4B5 0E                  SLLA
@@ -868,10 +868,10 @@ E4B9 0E                  SLLA
 E4BA 0E                  SLAA
 E4BB 0E                  SLAA
 E4BC 0E                  SLAA
-E4BD 2D 00               CMPA #0x00
+E4BD 21 00               TEQA #0x00
 E4BF 2B FF B0            JNE FAIL    ; Jump if result not good
 E4C2 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E4C5 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E4C5 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E4C7 2B FF B0            JNE FAIL    ; Error if different
 E4CA 30 A5               LDA #0xA5
 E4CC 0E                  SLLA
@@ -883,10 +883,10 @@ E4D1 0E                  SLAA
 E4D2 0E                  SLAA
 E4D3 0E                  SLAA
 E4D4 0E                  SLAA
-E4D5 2D 00               CMPA #0x00
+E4D5 21 00               TEQA #0x00
 E4D7 2B FF B0            JNE FAIL    ; Jump if result not good
 E4DA 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E4DD 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E4DD 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E4DF 2B FF B0            JNE FAIL    ; Error if different
                          ; --------------------------------------------------------------------
                          ; OP.0F 
@@ -915,62 +915,62 @@ E503 31 C0 00            STA LEDPORT ; Output to LED port
 E506 30 00               LDA #0x00   ; Clear Carry
 E508 31 1F FB            STA CARRY
 E50B 10                  RRCA
-E50C 2D 00               CMPA #0x00
+E50C 21 00               TEQA #0x00
 E50E 2B FF B0            JNE FAIL
 E511 30 00               LDA #0x00   ; Clear Carry
 E513 31 1F FB            STA CARRY
 E516 10                  RRCA
 E517 2A 1F FB            LDA CARRY
-E51A 2D 00               CMPA #0x00
+E51A 21 00               TEQA #0x00
 E51C 2B FF B0            JNE FAIL
 E51F 30 AA               LDA #0xAA   ; Test shifting
 E521 10                  RRCA
-E522 2D 55               CMPA #0x55
+E522 21 55               TEQA #0x55
 E524 2B FF B0            JNE FAIL
 E527 30 01               LDA #0x01   ; Test transfer of bit <0> to carry
 E529 10                  RRCA
 E52A 2A 1F FB            LDA CARRY
-E52D 2D 01               CMPA #0x01
+E52D 21 01               TEQA #0x01
 E52F 2B FF B0            JNE FAIL
 E532 30 00               LDA #0x00   ; Test A become 0 after shifting when carry is 0
 E534 31 1F FB            STA CARRY   ; insure carry is clear
 E537 30 01               LDA #0x01   ; set bit <0> to '1'
 E539 10                  RRCA
-E53A 2D 00               CMPA #0x00
+E53A 21 00               TEQA #0x00
 E53C 2B FF B0            JNE FAIL
 E53F 30 00               LDA #0x00   ; Test bit <0> goes to bit <7> after 2 RRCA
 E541 31 1F FB            STA CARRY   ; insure carry is clear
 E544 30 01               LDA #0x01
 E546 10                  RRCA
 E547 10                  RRCA
-E548 2D 80               CMPA #0x80
+E548 21 80               TEQA #0x80
 E54A 2B FF B0            JNE FAIL
 E54D 10                  RRCA        ; continue rotating this bit
-E54E 2D 40               CMPA #0x40
+E54E 21 40               TEQA #0x40
 E550 2B FF B0            JNE FAIL
 E553 10                  RRCA
-E554 2D 20               CMPA #0x20
+E554 21 20               TEQA #0x20
 E556 2B FF B0            JNE FAIL
 E559 10                  RRCA
-E55A 2D 10               CMPA #0x10
+E55A 21 10               TEQA #0x10
 E55C 2B FF B0            JNE FAIL
 E55F 10                  RRCA
-E560 2D 08               CMPA #0x08
+E560 21 08               TEQA #0x08
 E562 2B FF B0            JNE FAIL
 E565 10                  RRCA
-E566 2D 04               CMPA #0x04
+E566 21 04               TEQA #0x04
 E568 2B FF B0            JNE FAIL
 E56B 10                  RRCA
-E56C 2D 02               CMPA #0x02
+E56C 21 02               TEQA #0x02
 E56E 2B FF B0            JNE FAIL
 E571 10                  RRCA
-E572 2D 01               CMPA #0x01
+E572 21 01               TEQA #0x01
 E574 2B FF B0            JNE FAIL
 E577 10                  RRCA
-E578 2D 00               CMPA #0x00
+E578 21 00               TEQA #0x00
 E57A 2B FF B0            JNE FAIL
 E57D 10                  RRCA
-E57E 2D 80               CMPA #0x80
+E57E 21 80               TEQA #0x80
 E580 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.11  RCF   Reset Carry Flag   C <- 0
@@ -982,15 +982,15 @@ E589 30 01               LDA #0x01   ; Set carry flag to 1
 E58B 31 1F FB            STA CARRY
 E58E 11                  RCF         ; Reset Carry Flag 
 E58F 2A 1F FB            LDA CARRY   ; Check carry is now cleared
-E592 2D 00               CMPA #0x00
+E592 21 00               TEQA #0x00
 E594 2B FF B0            JNE FAIL
 E597 11                  RCF         ; Do again a Reset Carry Flag 
 E598 2A 1F FB            LDA CARRY   ; Check carry is still cleared
-E59B 2D 00               CMPA #0x00
+E59B 21 00               TEQA #0x00
 E59D 2B FF B0            JNE FAIL
 E5A0 30 A5               LDA #0xA5   ; Check register A is not affected by a Reset Carry Flag
 E5A2 11                  RCF         ; Reset Carry Flag
-E5A3 2D A5               CMPA #0xA5  ; If A value not same then fail
+E5A3 21 A5               TEQA #0xA5  ; If A value not same then fail
 E5A5 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.12  SCF   Set Carry Flag   C <- 1
@@ -1002,15 +1002,15 @@ E5AE 30 00               LDA #0x00   ; Clear carry flag
 E5B0 31 1F FB            STA CARRY
 E5B3 12                  SCF         ; Set Carry Flag 
 E5B4 2A 1F FB            LDA CARRY   ; Check carry is set
-E5B7 2D 01               CMPA #0x01
+E5B7 21 01               TEQA #0x01
 E5B9 2B FF B0            JNE FAIL
 E5BC 12                  SCF         ; Set Carry Flag again
 E5BD 2A 1F FB            LDA CARRY   ; Check carry is still set
-E5C0 2D 01               CMPA #0x01
+E5C0 21 01               TEQA #0x01
 E5C2 2B FF B0            JNE FAIL
 E5C5 30 BE               LDA #0xBE   ; Check register A is not affected by a Set Carry Flag
 E5C7 12                  SCF         ; Set Carry Flag
-E5C8 2D BE               CMPA #0xBE  ; If A value not same then fail
+E5C8 21 BE               TEQA #0xBE  ; If A value not same then fail
 E5CA 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.13  DECXL   Decrement XL   E updated
@@ -1021,61 +1021,61 @@ E5D0 31 C0 00            STA LEDPORT ; Output to LED port
 E5D3 04 FF FF            LDX #0xFFFF
 E5D6 13                  DECXL
 E5D7 2A 1F F3            LDA XH
-E5DA 2D FF               CMPA #0xFF
+E5DA 21 FF               TEQA #0xFF
 E5DC 2B FF B0            JNE FAIL
 E5DF 2A 1F F4            LDA XL
-E5E2 2D FE               CMPA #0xFE
+E5E2 21 FE               TEQA #0xFE
 E5E4 2B FF B0            JNE FAIL
 E5E7 13                  DECXL
 E5E8 2A 1F F3            LDA XH
-E5EB 2D FF               CMPA #0xFF
+E5EB 21 FF               TEQA #0xFF
 E5ED 2B FF B0            JNE FAIL
 E5F0 2A 1F F4            LDA XL
-E5F3 2D FD               CMPA #0xFD
+E5F3 21 FD               TEQA #0xFD
 E5F5 2B FF B0            JNE FAIL
 E5F8 04 A5 02            LDX #0xA502
 E5FB 13                  DECXL
 E5FC 2A 1F F3            LDA XH
-E5FF 2D A5               CMPA #0xA5
+E5FF 21 A5               TEQA #0xA5
 E601 2B FF B0            JNE FAIL
 E604 2A 1F F4            LDA XL
-E607 2D 01               CMPA #0x01
+E607 21 01               TEQA #0x01
 E609 2B FF B0            JNE FAIL
 E60C 13                  DECXL
 E60D 2A 1F F3            LDA XH
-E610 2D A5               CMPA #0xA5
+E610 21 A5               TEQA #0xA5
 E612 2B FF B0            JNE FAIL
 E615 2A 1F F4            LDA XL
-E618 2D 00               CMPA #0x00
+E618 21 00               TEQA #0x00
 E61A 2B FF B0            JNE FAIL
 E61D 13                  DECXL
 E61E 2A 1F F3            LDA XH
-E621 2D A5               CMPA #0xA5
+E621 21 A5               TEQA #0xA5
 E623 2B FF B0            JNE FAIL
 E626 2A 1F F4            LDA XL
-E629 2D FF               CMPA #0xFF
+E629 21 FF               TEQA #0xFF
 E62B 2B FF B0            JNE FAIL
 E62E 13                  DECXL 
 E62F 2A 1F F3            LDA XH
-E632 2D A5               CMPA #0xA5
+E632 21 A5               TEQA #0xA5
 E634 2B FF B0            JNE FAIL
 E637 2A 1F F4            LDA XL
-E63A 2D FE               CMPA #0xFE
+E63A 21 FE               TEQA #0xFE
 E63C 2B FF B0            JNE FAIL
 E63F 04 00 02            LDX #0x0002 ; Check E status
 E642 13                  DECXL
 E643 2A 1F FA            LDA EQUAL
-E646 2D 00               CMPA #0x00
+E646 21 00               TEQA #0x00
 E648 2B FF B0            JNE FAIL
 E64B 04 00 01            LDX #0x0001
 E64E 13                  DECXL
 E64F 2A 1F FA            LDA EQUAL
-E652 2D 01               CMPA #0x01
+E652 21 01               TEQA #0x01
 E654 2B FF B0            JNE FAIL
 E657 04 FF FF            LDX #0xFFFF
 E65A 13                  DECXL
 E65B 2A 1F FA            LDA EQUAL
-E65E 2D 00               CMPA #0x00
+E65E 21 00               TEQA #0x00
 E660 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.14  RRC 0x****   Rotate Right Logical Address location through Carry 
@@ -1089,26 +1089,26 @@ E66B 31 1F FB            STA CARRY
 E66E 31 00 0F            STA ?b0
 E671 14 00 0F            RRC ?b0
 E674 2A 00 0F            LDA ?b0
-E677 2D 00               CMPA #0x00
+E677 21 00               TEQA #0x00
 E679 2B FF B0            JNE FAIL
 E67C 30 00               LDA #0x00   ; Clear Carry
 E67E 31 1F FB            STA CARRY
 E681 31 00 0F            STA ?b0
 E684 14 00 0F            RRC ?b0
 E687 2A 1F FB            LDA CARRY
-E68A 2D 00               CMPA #0x00
+E68A 21 00               TEQA #0x00
 E68C 2B FF B0            JNE FAIL
 E68F 30 AA               LDA #0xAA   ; Test shifting
 E691 31 00 0F            STA ?b0
 E694 14 00 0F            RRC ?b0
 E697 2A 00 0F            LDA ?b0
-E69A 2D 55               CMPA #0x55
+E69A 21 55               TEQA #0x55
 E69C 2B FF B0            JNE FAIL
 E69F 30 01               LDA #0x01   ; Test transfer of bit <0> to carry
 E6A1 31 00 0F            STA ?b0
 E6A4 14 00 0F            RRC ?b0
 E6A7 2A 1F FB            LDA CARRY
-E6AA 2D 01               CMPA #0x01
+E6AA 21 01               TEQA #0x01
 E6AC 2B FF B0            JNE FAIL
 E6AF 30 00               LDA #0x00   ; Test A become 0 after shifting when carry is 0
 E6B1 31 1F FB            STA CARRY   ; insure carry is clear
@@ -1116,7 +1116,7 @@ E6B4 30 01               LDA #0x01   ; set bit <0> to '1'
 E6B6 31 00 0F            STA ?b0
 E6B9 14 00 0F            RRC ?b0
 E6BC 2A 00 0F            LDA ?b0
-E6BF 2D 00               CMPA #0x00
+E6BF 21 00               TEQA #0x00
 E6C1 2B FF B0            JNE FAIL
 E6C4 30 00               LDA #0x00   ; Test bit <0> goes to bit <7> after 2 RRCA
 E6C6 31 1F FB            STA CARRY   ; insure carry is clear
@@ -1125,43 +1125,43 @@ E6CB 31 00 0F            STA ?b0
 E6CE 14 00 0F            RRC ?b0
 E6D1 14 00 0F            RRC ?b0
 E6D4 2A 00 0F            LDA ?b0
-E6D7 2D 80               CMPA #0x80
+E6D7 21 80               TEQA #0x80
 E6D9 2B FF B0            JNE FAIL
 E6DC 14 00 0F            RRC ?b0     ; continue rotating this bit
 E6DF 2A 00 0F            LDA ?b0
-E6E2 2D 40               CMPA #0x40
+E6E2 21 40               TEQA #0x40
 E6E4 2B FF B0            JNE FAIL
 E6E7 14 00 0F            RRC ?b0
 E6EA 2A 00 0F            LDA ?b0
-E6ED 2D 20               CMPA #0x20
+E6ED 21 20               TEQA #0x20
 E6EF 2B FF B0            JNE FAIL
 E6F2 14 00 0F            RRC ?b0
 E6F5 2A 00 0F            LDA ?b0
-E6F8 2D 10               CMPA #0x10
+E6F8 21 10               TEQA #0x10
 E6FA 2B FF B0            JNE FAIL
 E6FD 14 00 0F            RRC ?b0
 E700 2A 00 0F            LDA ?b0
-E703 2D 08               CMPA #0x08
+E703 21 08               TEQA #0x08
 E705 2B FF B0            JNE FAIL
 E708 14 00 0F            RRC ?b0
 E70B 2A 00 0F            LDA ?b0
-E70E 2D 04               CMPA #0x04
+E70E 21 04               TEQA #0x04
 E710 2B FF B0            JNE FAIL
 E713 14 00 0F            RRC ?b0
 E716 2A 00 0F            LDA ?b0
-E719 2D 02               CMPA #0x02
+E719 21 02               TEQA #0x02
 E71B 2B FF B0            JNE FAIL
 E71E 14 00 0F            RRC ?b0
 E721 2A 00 0F            LDA ?b0
-E724 2D 01               CMPA #0x01
+E724 21 01               TEQA #0x01
 E726 2B FF B0            JNE FAIL
 E729 14 00 0F            RRC ?b0
 E72C 2A 00 0F            LDA ?b0
-E72F 2D 00               CMPA #0x00
+E72F 21 00               TEQA #0x00
 E731 2B FF B0            JNE FAIL
 E734 14 00 0F            RRC ?b0
 E737 2A 00 0F            LDA ?b0
-E73A 2D 80               CMPA #0x80
+E73A 21 80               TEQA #0x80
 E73C 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.15 SRL 0x****   Shift Right Logical on Address
@@ -1174,20 +1174,20 @@ E745 30 A5               LDA #0xA5
 E747 31 00 0F            STA ?b0
 E74A 15 00 0F            SRL ?b0
 E74D 2A 00 0F            LDA ?b0
-E750 2D 52               CMPA #0x52
+E750 21 52               TEQA #0x52
 E752 2B FF B0            JNE FAIL    ; Jump if result not good
 E755 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E758 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E758 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E75A 2B FF B0            JNE FAIL    ; Error if different
 E75D 30 A5               LDA #0xA5
 E75F 31 00 0F            STA ?b0
 E762 15 00 0F            SRL ?b0
 E765 15 00 0F            SRL ?b0
 E768 2A 00 0F            LDA ?b0
-E76B 2D 29               CMPA #0x29
+E76B 21 29               TEQA #0x29
 E76D 2B FF B0            JNE FAIL    ; Jump if result not good
 E770 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E773 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E773 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E775 2B FF B0            JNE FAIL    ; Error if different
 E778 30 A5               LDA #0xA5
 E77A 31 00 0F            STA ?b0
@@ -1195,10 +1195,10 @@ E77D 15 00 0F            SRL ?b0
 E780 15 00 0F            SRL ?b0
 E783 15 00 0F            SRL ?b0
 E786 2A 00 0F            LDA ?b0
-E789 2D 14               CMPA #0x14
+E789 21 14               TEQA #0x14
 E78B 2B FF B0            JNE FAIL    ; Jump if result not good
 E78E 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E791 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E791 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E793 2B FF B0            JNE FAIL    ; Error if different
 E796 30 A5               LDA #0xA5
 E798 31 00 0F            STA ?b0
@@ -1207,10 +1207,10 @@ E79E 15 00 0F            SRL ?b0
 E7A1 15 00 0F            SRL ?b0
 E7A4 15 00 0F            SRL ?b0
 E7A7 2A 00 0F            LDA ?b0
-E7AA 2D 0A               CMPA #0x0A
+E7AA 21 0A               TEQA #0x0A
 E7AC 2B FF B0            JNE FAIL    ; Jump if result not good
 E7AF 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E7B2 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E7B2 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E7B4 2B FF B0            JNE FAIL    ; Error if different
 E7B7 30 A5               LDA #0xA5
 E7B9 31 00 0F            STA ?b0
@@ -1220,10 +1220,10 @@ E7C2 15 00 0F            SRL ?b0
 E7C5 15 00 0F            SRL ?b0
 E7C8 15 00 0F            SRL ?b0
 E7CB 2A 00 0F            LDA ?b0
-E7CE 2D 05               CMPA #0x05
+E7CE 21 05               TEQA #0x05
 E7D0 2B FF B0            JNE FAIL    ; Jump if result not good
 E7D3 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E7D6 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E7D6 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E7D8 2B FF B0            JNE FAIL    ; Error if different
 E7DB 30 A5               LDA #0xA5
 E7DD 31 00 0F            STA ?b0
@@ -1234,10 +1234,10 @@ E7E9 15 00 0F            SRL ?b0
 E7EC 15 00 0F            SRL ?b0
 E7EF 15 00 0F            SRL ?b0
 E7F2 2A 00 0F            LDA ?b0
-E7F5 2D 02               CMPA #0x02
+E7F5 21 02               TEQA #0x02
 E7F7 2B FF B0            JNE FAIL    ; Jump if result not good
 E7FA 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E7FD 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E7FD 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E7FF 2B FF B0            JNE FAIL    ; Error if different
 E802 30 A5               LDA #0xA5
 E804 31 00 0F            STA ?b0
@@ -1249,10 +1249,10 @@ E813 15 00 0F            SRL ?b0
 E816 15 00 0F            SRL ?b0
 E819 15 00 0F            SRL ?b0
 E81C 2A 00 0F            LDA ?b0
-E81F 2D 01               CMPA #0x01
+E81F 21 01               TEQA #0x01
 E821 2B FF B0            JNE FAIL    ; Jump if result not good
 E824 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E827 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E827 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E829 2B FF B0            JNE FAIL    ; Error if different
 E82C 30 A5               LDA #0xA5
 E82E 31 00 0F            STA ?b0
@@ -1265,10 +1265,10 @@ E840 15 00 0F            SRL ?b0
 E843 15 00 0F            SRL ?b0
 E846 15 00 0F            SRL ?b0
 E849 2A 00 0F            LDA ?b0
-E84C 2D 00               CMPA #0x00
+E84C 21 00               TEQA #0x00
 E84E 2B FF B0            JNE FAIL    ; Jump if result not good
 E851 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E854 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+E854 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 E856 2B FF B0            JNE FAIL    ; Error if different
 E859 30 A5               LDA #0xA5
 E85B 31 00 0F            STA ?b0
@@ -1282,10 +1282,10 @@ E870 15 00 0F            SRL ?b0
 E873 15 00 0F            SRL ?b0
 E876 15 00 0F            SRL ?b0
 E879 2A 00 0F            LDA ?b0
-E87C 2D 00               CMPA #0x00
+E87C 21 00               TEQA #0x00
 E87E 2B FF B0            JNE FAIL    ; Jump if result not good
 E881 2A 1F FB            LDA CARRY   ; Read the Carry Status
-E884 2D 00               CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+E884 21 00               TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
 E886 2B FF B0            JNE FAIL    ; Error if different
                          ; --------------------------------------------------------------------
                          ; OP.16 STX 0x****   STORE X REGISTER TO ADDRESS
@@ -1296,34 +1296,34 @@ E88C 31 C0 00            STA LEDPORT ; Output to LED port
 E88F 04 12 34            LDX #0x1234 ; Test a STX using immediate Hex address value
 E892 16 00 00            STX 0x0000  
 E895 2A 00 00            LDA 0x0000
-E898 2D 12               CMPA #0x12
+E898 21 12               TEQA #0x12
 E89A 2B FF B0            JNE FAIL
 E89D 2A 00 01            LDA 0x0001
-E8A0 2D 34               CMPA #0x34
+E8A0 21 34               TEQA #0x34
 E8A2 2B FF B0            JNE FAIL
 E8A5 04 CA FE            LDX #0xCAFE ; Test a STX at address boundary requiring a carry to MSB
 E8A8 16 10 FF            STX 0x10FF  
 E8AB 2A 10 FF            LDA 0x10FF
-E8AE 2D CA               CMPA #0xCA
+E8AE 21 CA               TEQA #0xCA
 E8B0 2B FF B0            JNE FAIL
 E8B3 2A 11 00            LDA 0x1100
-E8B6 2D FE               CMPA #0xFE
+E8B6 21 FE               TEQA #0xFE
 E8B8 2B FF B0            JNE FAIL
 E8BB 04 BE EF            LDX #0xBEEF ; Test a STX on another boundary
 E8BE 16 12 FF            STX 0x12FF  
 E8C1 2A 12 FF            LDA 0x12FF
-E8C4 2D BE               CMPA #0xBE
+E8C4 21 BE               TEQA #0xBE
 E8C6 2B FF B0            JNE FAIL
 E8C9 2A 13 00            LDA 0x1300
-E8CC 2D EF               CMPA #0xEF
+E8CC 21 EF               TEQA #0xEF
 E8CE 2B FF B0            JNE FAIL
 E8D1 04 67 89            LDX #0x6789 ; Test a STX using symbolic address
 E8D4 16 00 0E            STX ?b1
 E8D7 2A 00 0E            LDA ?b1
-E8DA 2D 67               CMPA #0x67
+E8DA 21 67               TEQA #0x67
 E8DC 2B FF B0            JNE FAIL
 E8DF 2A 00 0F            LDA ?b0
-E8E2 2D 89               CMPA #0x89
+E8E2 21 89               TEQA #0x89
 E8E4 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.17 ORA #0x**   LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
@@ -2143,20 +2143,20 @@ EFE3 30 5F               LDA #0x5F   ; Store a value in RAM
 EFE5 31 01 23            STA 0x0123   
 EFE8 30 63               LDA #0x63
 EFEA 29 01 23            ADDA 0x0123 ; Add to A the byte at address location
-EFED 2D C2               CMPA #0xC2  ; Check the sum
+EFED 21 C2               TEQA #0xC2  ; Check the sum
 EFEF 2B FF B0            JNE FAIL    ; Jump if result not good
 EFF2 2A 1F FB            LDA CARRY   ; Read the Carry Status
-EFF5 2D 00               CMPA #0x00  ; No carry expected then C should be '0'
+EFF5 21 00               TEQA #0x00  ; No carry expected then C should be '0'
 EFF7 2B FF B0            JNE FAIL    ; Error if carry is set
 
 EFFA 30 AC               LDA #0xAC   ; Store another value in RAM
 EFFC 31 10 56            STA 0x1056   
 EFFF 30 D9               LDA #0xD9
 F001 29 10 56            ADDA 0x1056 ; Add to A the byte at address location
-F004 2D 85               CMPA #0x85  ; Check the sum LSB
+F004 21 85               TEQA #0x85  ; Check the sum LSB
 F006 2B FF B0            JNE FAIL    ; Jump if result not as expected
 F009 2A 1F FB            LDA CARRY   ; Read the Carry Status
-F00C 2D 01               CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+F00C 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
 F00E 2B FF B0            JNE FAIL    ; Error if different
                          ; --------------------------------------------------------------------
                          ; OP.2A LDA 0x****  
@@ -2255,13 +2255,13 @@ F0DC 30 2B      TSTOP2B  LDA #0x2B
 F0DE 19                  NOTA
 F0DF 31 C0 00            STA LEDPORT ; Output to LED port
 F0E2 30 6D               LDA #0x6D   ; Load a value in A
-F0E4 2D 6D               CMPA #0x6D  ; Compare with the same value
+F0E4 21 6D               TEQA #0x6D  ; Compare with the same value
 F0E6 2B FF B0            JNE FAIL    ; Error if values are different
 F0E9 30 10               LDA #0x10
-F0EB 2D 10               CMPA #0x10
+F0EB 21 10               TEQA #0x10
 F0ED 2B FF B0            JNE FAIL
 F0F0 30 01               LDA #0x01
-F0F2 2D 01               CMPA #0x01
+F0F2 21 01               TEQA #0x01
 F0F4 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.2C JEQ 0x****
@@ -2271,52 +2271,52 @@ F0F7 30 2C      TST2C    LDA #0x2C
 F0F9 19                  NOTA
 F0FA 31 C0 00            STA LEDPORT ; Output to LED port
 F0FD 30 7A               LDA #0x7A   ; Load a value in A
-F0FF 2D 28               CMPA #0x28  ; Compare with a different value
+F0FF 21 28               TEQA #0x28  ; Compare with a different value
 F101 2C FF B0            JEQ FAIL    ; If appear identical then it's and error
 F104 30 FE               LDA #0xFE   ; Again with adifference 
-F106 2D FF               CMPA #0xFF
+F106 21 FF               TEQA #0xFF
 F108 2C FF B0            JEQ FAIL 
 F10B 30 01               LDA #0x01   ; Another with difference
-F10D 2D 10               CMPA #0x10
+F10D 21 10               TEQA #0x10
 F10F 2C FF B0            JEQ FAIL
 F112 30 AB               LDA #0xAB   ; Now compare when values are identical
-F114 2D AB               CMPA #0xAB
+F114 21 AB               TEQA #0xAB
 F116 2C F1 1C            JEQ TST2C_1 ; Testing if equal?
 F119 32 FF B0            JMP FAIL    ; Result say both are not equal then it's a failure
 F11C 30 00      TST2C_1  LDA #0x00   ; Result say the values are identical so we are passing
-F11E 2D 00               CMPA #0x00
+F11E 21 00               TEQA #0x00
 F120 2C F1 26            JEQ TST2C_2 ; Testing if equal?
 F123 32 FF B0            JMP FAIL    ; if different then it's a failure
 F126 30 01      TST2C_2  LDA #0x01
-F128 2D 01               CMPA #0x01
+F128 21 01               TEQA #0x01
 F12A 2C F1 30            JEQ TST2C_3 ; Testing if equal?
 F12D 32 FF B0            JMP FAIL    ; if different then it's a failure
 F130 30 02      TST2C_3  LDA #0x02
-F132 2D 02               CMPA #0x02
+F132 21 02               TEQA #0x02
 F134 2C F1 3A            JEQ TST2C_4 ; Testing if equal?
 F137 32 FF B0            JMP FAIL    ; if different then it's a failure
 F13A 30 04      TST2C_4  LDA #0x04
-F13C 2D 04               CMPA #0x04
+F13C 21 04               TEQA #0x04
 F13E 2C F1 44            JEQ TST2C_5 ; Testing if equal?
 F141 32 FF B0            JMP FAIL    ; if different then it's a failure
 F144 30 08      TST2C_5  LDA #0x08
-F146 2D 08               CMPA #0x08
+F146 21 08               TEQA #0x08
 F148 2C F1 4E            JEQ TST2C_6 ; Testing if equal?
 F14B 32 FF B0            JMP FAIL    ; if different then it's a failure
 F14E 30 10      TST2C_6  LDA #0x10
-F150 2D 10               CMPA #0x10
+F150 21 10               TEQA #0x10
 F152 2C F1 58            JEQ TST2C_7 ; Testing if equal?
 F155 32 FF B0            JMP FAIL    ; if different then it's a failure
 F158 30 20      TST2C_7  LDA #0x20
-F15A 2D 20               CMPA #0x20
+F15A 21 20               TEQA #0x20
 F15C 2C F1 62            JEQ TST2C_8 ; Testing if equal?
 F15F 32 FF B0            JMP FAIL    ; if different then it's a failure         
 F162 30 40      TST2C_8  LDA #0x40
-F164 2D 40               CMPA #0x40
+F164 21 40               TEQA #0x40
 F166 2C F1 6C            JEQ TST2C_9 ; Testing if equal?
 F169 32 FF B0            JMP FAIL    ; if different then it's a failure         
 F16C 30 80      TST2C_9  LDA #0x80
-F16E 2D 80               CMPA #0x80
+F16E 21 80               TEQA #0x80
 F170 2C F1 76            JEQ TST2C_10 ; Testing if equal?
 F173 32 FF B0            JMP FAIL    ; if different then it's a failure         
 F176 09         TST2C_10 NOP
@@ -2330,12 +2330,12 @@ F17A 31 C0 00            STA LEDPORT ; Output to LED port
 F17D 30 12               LDA #0x12   ; Load a value in A
 F17F 2D 12               CMPA #0x12  ; Compare with identical value
 F181 2A 1F FA            LDA EQUAL   ; Inspect EQUAL STATUS 
-F184 2D 01               CMPA #0x01  ; Verify bit<0> E = '1' and all others bits <7:1> are '0'    
+F184 21 01               TEQA #0x01  ; Verify bit<0> E = '1' and all others bits <7:1> are '0'    
 F186 2B FF B0            JNE FAIL    ; If different then it's and error
 F189 30 AA               LDA #0xAA
 F18B 2D 55               CMPA #0x55  ; Compare with a different value
 F18D 2A 1F FA            LDA EQUAL   ; Inspect EQUAL STATUS
-F190 2D 00               CMPA #0x00  ; Verify bit<0> E = '0' and all others bits <7:1> are '0'    
+F190 21 00               TEQA #0x00  ; Verify bit<0> E = '0' and all others bits <7:1> are '0'    
 F192 2B FF B0            JNE FAIL    ; If different then it's and error
                          ; --------------------------------------------------------------------
                          ; OP.2E ADCA #0x**
@@ -2349,40 +2349,40 @@ F19B 30 00               LDA #0x00   ; Clear CARRY (C)
 F19D 31 1F FB            STA CARRY      
 F1A0 30 45               LDA #0x45
 F1A2 2E 5B               ADCA #0x5B
-F1A4 2D A0               CMPA #0xA0  ; Verify summ
+F1A4 21 A0               TEQA #0xA0  ; Verify summ
 F1A6 2B FF B0            JNE FAIL
 F1A9 2A 1F FB            LDA CARRY   ; Check carry
-F1AC 2D 00               CMPA #0x00  ; Should be clear
+F1AC 21 00               TEQA #0x00  ; Should be clear
 F1AE 2B FF B0            JNE FAIL
 
 F1B1 30 01               LDA #0x01   ; Set CARRY (C)
 F1B3 31 1F FB            STA CARRY
 F1B6 30 56               LDA #0x56
 F1B8 2E 6D               ADCA #0x6D
-F1BA 2D C4               CMPA #0xC4   ; Verify summ
+F1BA 21 C4               TEQA #0xC4   ; Verify summ
 F1BC 2B FF B0            JNE FAIL
 F1BF 2A 1F FB            LDA CARRY   ; Check carry
-F1C2 2D 00               CMPA #0x00  ; Should be clear
+F1C2 21 00               TEQA #0x00  ; Should be clear
 F1C4 2B FF B0            JNE FAIL
 
 F1C7 30 00               LDA #0x00   ; Clear CARRY (C)
 F1C9 31 1F FB            STA CARRY
 F1CC 30 7F               LDA #0x7F
 F1CE 2E DE               ADCA #0xDE
-F1D0 2D 5D               CMPA #0x5D  ; Verify summ
+F1D0 21 5D               TEQA #0x5D  ; Verify summ
 F1D2 2B FF B0            JNE FAIL
 F1D5 2A 1F FB            LDA CARRY   ; Check carry
-F1D8 2D 01               CMPA #0x01  ; Should be set
+F1D8 21 01               TEQA #0x01  ; Should be set
 F1DA 2B FF B0            JNE FAIL
 
 F1DD 30 01               LDA #0x01   ; Set CARRY (C)
 F1DF 31 1F FB            STA CARRY
 F1E2 30 FF               LDA #0xFF
 F1E4 2E FF               ADCA #0xFF
-F1E6 2D FF               CMPA #0xFF  ; Verify summ
+F1E6 21 FF               TEQA #0xFF  ; Verify summ
 F1E8 2B FF B0            JNE FAIL
 F1EB 2A 1F FB            LDA CARRY   ; Check carry
-F1EE 2D 01               CMPA #0x01  ; Should be set
+F1EE 21 01               TEQA #0x01  ; Should be set
 F1F0 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.2F ADDA #0x**
@@ -2393,31 +2393,31 @@ F1F5 19                  NOTA
 F1F6 31 C0 00            STA LEDPORT ; Output to LED port
 F1F9 30 23               LDA #0x23
 F1FB 2F 45               ADDA #0x45
-F1FD 2D 68               CMPA #0x68
+F1FD 21 68               TEQA #0x68
 F1FF 2B FF B0            JNE FAIL
 F202 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-F205 2D 00               CMPA #0x00  ; Expecting C=0
+F205 21 00               TEQA #0x00  ; Expecting C=0
 F207 2B FF B0            JNE FAIL
 F20A 30 8A               LDA #0x8A
 F20C 2F BD               ADDA #0xBD
-F20E 2D 47               CMPA #0x47   
+F20E 21 47               TEQA #0x47   
 F210 2B FF B0            JNE FAIL
 F213 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-F216 2D 01               CMPA #0x01  ; Expecting C=1
+F216 21 01               TEQA #0x01  ; Expecting C=1
 F218 2B FF B0            JNE FAIL
 F21B 30 01               LDA #0x01
 F21D 2F 02               ADDA #0x02
-F21F 2D 03               CMPA #0x03
+F21F 21 03               TEQA #0x03
 F221 2B FF B0            JNE FAIL
 F224 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-F227 2D 00               CMPA #0x00  ; Expecting C=0
+F227 21 00               TEQA #0x00  ; Expecting C=0
 F229 2B FF B0            JNE FAIL
 F22C 30 FF               LDA #0xFF
 F22E 2F FF               ADDA #0xFF
-F230 2D FE               CMPA #0xFE
+F230 21 FE               TEQA #0xFE
 F232 2B FF B0            JNE FAIL
 F235 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-F238 2D 01               CMPA #0x01   ; Expecting C=1
+F238 21 01               TEQA #0x01   ; Expecting C=1
 F23A 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.30 LDA #0x**  
@@ -2427,40 +2427,40 @@ F23D 30 30      TSTOP30  LDA #0x30
 F23F 19                  NOTA
 F240 31 C0 00            STA LEDPORT ; Output to LED port
 F243 30 00               LDA #0x00
-F245 2D 00               CMPA #0x00
+F245 21 00               TEQA #0x00
 F247 2B FF B0            JNE FAIL
 F24A 30 01               LDA #0x01
-F24C 2D 01               CMPA #0x01
+F24C 21 01               TEQA #0x01
 F24E 2B FF B0            JNE FAIL
 F251 30 02               LDA #0x02
-F253 2D 02               CMPA #0x02
+F253 21 02               TEQA #0x02
 F255 2B FF B0            JNE FAIL
 F258 30 04               LDA #0x04
-F25A 2D 04               CMPA #0x04
+F25A 21 04               TEQA #0x04
 F25C 2B FF B0            JNE FAIL
 F25F 30 08               LDA #0x08
-F261 2D 08               CMPA #0x08
+F261 21 08               TEQA #0x08
 F263 2B FF B0            JNE FAIL
 F266 30 10               LDA #0x10
-F268 2D 10               CMPA #0x10
+F268 21 10               TEQA #0x10
 F26A 2B FF B0            JNE FAIL
 F26D 30 20               LDA #0x20
-F26F 2D 20               CMPA #0x20
+F26F 21 20               TEQA #0x20
 F271 2B FF B0            JNE FAIL
 F274 30 40               LDA #0x40
-F276 2D 40               CMPA #0x40
+F276 21 40               TEQA #0x40
 F278 2B FF B0            JNE FAIL
 F27B 30 80               LDA #0x80
-F27D 2D 80               CMPA #0x80
+F27D 21 80               TEQA #0x80
 F27F 2B FF B0            JNE FAIL
 F282 30 55               LDA #0x55
-F284 2D 55               CMPA #0x55
+F284 21 55               TEQA #0x55
 F286 2B FF B0            JNE FAIL
 F289 30 AA               LDA #0xAA
-F28B 2D AA               CMPA #0xAA
+F28B 21 AA               TEQA #0xAA
 F28D 2B FF B0            JNE FAIL
 F290 30 FF               LDA #0xFF
-F292 2D FF               CMPA #0xFF
+F292 21 FF               TEQA #0xFF
 F294 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.31 STA 0x**** 
@@ -2500,49 +2500,49 @@ F2E0 31 10 00            STA 0x1000
 F2E3 30 44               LDA #0x44
 F2E5 31 17 00            STA 0x1700
 F2E8 2A 00 00            LDA 0x0000  ; Read from RAM and compare
-F2EB 2D 12               CMPA #0x12
+F2EB 21 12               TEQA #0x12
 F2ED 2B FF B0            JNE FAIL
 F2F0 2A 00 01            LDA 0x0001
-F2F3 2D 23               CMPA #0x23
+F2F3 21 23               TEQA #0x23
 F2F5 2B FF B0            JNE FAIL
 F2F8 2A 00 02            LDA 0x0002
-F2FB 2D 34               CMPA #0x34
+F2FB 21 34               TEQA #0x34
 F2FD 2B FF B0            JNE FAIL
 F300 2A 00 04            LDA 0x0004
-F303 2D 45               CMPA #0x45
+F303 21 45               TEQA #0x45
 F305 2B FF B0            JNE FAIL
 F308 2A 00 08            LDA 0x0008
-F30B 2D 56               CMPA #0x56
+F30B 21 56               TEQA #0x56
 F30D 2B FF B0            JNE FAIL
 F310 2A 00 10            LDA 0x0010
-F313 2D 67               CMPA #0x67
+F313 21 67               TEQA #0x67
 F315 2B FF B0            JNE FAIL
 F318 2A 00 20            LDA 0x0020
-F31B 2D 78               CMPA #0x78
+F31B 21 78               TEQA #0x78
 F31D 2B FF B0            JNE FAIL
 F320 2A 00 40            LDA 0x0040
-F323 2D 89               CMPA #0x89
+F323 21 89               TEQA #0x89
 F325 2B FF B0            JNE FAIL
 F328 2A 00 80            LDA 0x0080
-F32B 2D AB               CMPA #0xAB
+F32B 21 AB               TEQA #0xAB
 F32D 2B FF B0            JNE FAIL
 F330 2A 01 00            LDA 0x0100
-F333 2D BC               CMPA #0xBC
+F333 21 BC               TEQA #0xBC
 F335 2B FF B0            JNE FAIL
 F338 2A 02 00            LDA 0x0200
-F33B 2D CD               CMPA #0xCD
+F33B 21 CD               TEQA #0xCD
 F33D 2B FF B0            JNE FAIL
 F340 2A 04 00            LDA 0x0400
-F343 2D DE               CMPA #0xDE
+F343 21 DE               TEQA #0xDE
 F345 2B FF B0            JNE FAIL
 F348 2A 08 00            LDA 0x0800
-F34B 2D 22               CMPA #0x22
+F34B 21 22               TEQA #0x22
 F34D 2B FF B0            JNE FAIL
 F350 2A 10 00            LDA 0x1000
-F353 2D 33               CMPA #0x33
+F353 21 33               TEQA #0x33
 F355 2B FF B0            JNE FAIL
 F358 2A 17 00            LDA 0x1700
-F35B 2D 44               CMPA #0x44
+F35B 21 44               TEQA #0x44
 F35D 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.32 JMP 0x**** 
@@ -2560,27 +2560,27 @@ F362 19                  NOTA
 F363 31 C0 00            STA LEDPORT ; Output to LED port
 F366 30 FF               LDA #0xFF
 F368 33 52               ANDA #0x52
-F36A 2D 52               CMPA #0x52
+F36A 21 52               TEQA #0x52
 F36C 2B FF B0            JNE FAIL
 F36F 30 E7               LDA #0xE7
 F371 33 3C               ANDA #0x3C
-F373 2D 24               CMPA #0x24
+F373 21 24               TEQA #0x24
 F375 2B FF B0            JNE FAIL
 F378 30 00               LDA #0x00
 F37A 33 00               ANDA #0x00
-F37C 2D 00               CMPA #0x00
+F37C 21 00               TEQA #0x00
 F37E 2B FF B0            JNE FAIL
 F381 30 FF               LDA #0xFF
 F383 33 FF               ANDA #0xFF
-F385 2D FF               CMPA #0xFF
+F385 21 FF               TEQA #0xFF
 F387 2B FF B0            JNE FAIL
 F38A 30 FF               LDA #0xFF
 F38C 33 55               ANDA #0x55
-F38E 2D 55               CMPA #0x55
+F38E 21 55               TEQA #0x55
 F390 2B FF B0            JNE FAIL
 F393 30 FF               LDA #0xFF
 F395 33 00               ANDA #0x00
-F397 2D 00               CMPA #0x00
+F397 21 00               TEQA #0x00
 F399 2B FF B0            JNE FAIL
 
                          ; --------------------------------------------------------------------
@@ -2598,7 +2598,7 @@ F3A9 31 10 01            STA 0x1001
 F3AC 2A 10 00            LDA 0x1000  ; Load first number in A
 F3AF 29 10 01            ADDA 0x1001 ; Add second number to A
 F3B2 31 10 02            STA 0x1002  ; Store the summ
-F3B5 2D 01               CMPA #0x01  ; HEX   Decimal  Real Value (in 8 bit storage only)
+F3B5 21 01               TEQA #0x01  ; HEX   Decimal  Real Value (in 8 bit storage only)
 F3B7 2B FF B0            JNE FAIL    ; x01   1        1
 
 F3BA 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2608,7 +2608,7 @@ F3C3 31 10 01            STA 0x1001
 F3C6 2A 10 00            LDA 0x1000  ; Load first number in A
 F3C9 29 10 01            ADDA 0x1001 ; Add second number to A
 F3CC 31 10 02            STA 0x1002  ; Store the summ
-F3CF 2D 02               CMPA #0x02  ; HEX   Decimal  Real Value
+F3CF 21 02               TEQA #0x02  ; HEX   Decimal  Real Value
 F3D1 2B FF B0            JNE FAIL    ; x02   2        2
 
 F3D4 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2618,7 +2618,7 @@ F3DD 31 10 01            STA 0x1001
 F3E0 2A 10 00            LDA 0x1000  ; Load first number in A
 F3E3 29 10 01            ADDA 0x1001 ; Add second number to A
 F3E6 31 10 02            STA 0x1002  ; Store the summ
-F3E9 2D 03               CMPA #0x03  ; HEX   Decimal  Real Value
+F3E9 21 03               TEQA #0x03  ; HEX   Decimal  Real Value
 F3EB 2B FF B0            JNE FAIL    ; x03   3        3
 
 F3EE 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2628,7 +2628,7 @@ F3F7 31 10 01            STA 0x1001
 F3FA 2A 10 00            LDA 0x1000  ; Load first number in A
 F3FD 29 10 01            ADDA 0x1001 ; Add second number to A
 F400 31 10 02            STA 0x1002  ; Store the summ
-F403 2D 05               CMPA #0x05  ; HEX   Decimal  Real Value
+F403 21 05               TEQA #0x05  ; HEX   Decimal  Real Value
 F405 2B FF B0            JNE FAIL    ; x05   5        5
 
 F408 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2638,7 +2638,7 @@ F411 31 10 01            STA 0x1001
 F414 2A 10 00            LDA 0x1000  ; Load first number in A
 F417 29 10 01            ADDA 0x1001 ; Add second number to A
 F41A 31 10 02            STA 0x1002  ; Store the summ
-F41D 2D 08               CMPA #0x08  ; HEX   Decimal  Real Value
+F41D 21 08               TEQA #0x08  ; HEX   Decimal  Real Value
 F41F 2B FF B0            JNE FAIL    ; x08   8        8
 
 F422 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2648,7 +2648,7 @@ F42B 31 10 01            STA 0x1001
 F42E 2A 10 00            LDA 0x1000  ; Load first number in A
 F431 29 10 01            ADDA 0x1001 ; Add second number to A
 F434 31 10 02            STA 0x1002  ; Store the summ
-F437 2D 0D               CMPA #0x0D  ; HEX   Decimal  Real Value
+F437 21 0D               TEQA #0x0D  ; HEX   Decimal  Real Value
 F439 2B FF B0            JNE FAIL    ; x0D   13       13
 
 F43C 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2658,7 +2658,7 @@ F445 31 10 01            STA 0x1001
 F448 2A 10 00            LDA 0x1000  ; Load first number in A
 F44B 29 10 01            ADDA 0x1001 ; Add second number to A
 F44E 31 10 02            STA 0x1002  ; Store the summ
-F451 2D 15               CMPA #0x15  ; HEX   Decimal  Real Value
+F451 21 15               TEQA #0x15  ; HEX   Decimal  Real Value
 F453 2B FF B0            JNE FAIL    ; x15   21       21
 
 F456 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2668,7 +2668,7 @@ F45F 31 10 01            STA 0x1001
 F462 2A 10 00            LDA 0x1000  ; Load first number in A
 F465 29 10 01            ADDA 0x1001 ; Add second number to A
 F468 31 10 02            STA 0x1002  ; Store the summ
-F46B 2D 22               CMPA #0x22  ; HEX   Decimal  Real Value
+F46B 21 22               TEQA #0x22  ; HEX   Decimal  Real Value
 F46D 2B FF B0            JNE FAIL    ; x22   34       34
 
 F470 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2678,7 +2678,7 @@ F479 31 10 01            STA 0x1001
 F47C 2A 10 00            LDA 0x1000  ; Load first number in A
 F47F 29 10 01            ADDA 0x1001 ; Add second number to A
 F482 31 10 02            STA 0x1002  ; Store the summ
-F485 2D 37               CMPA #0x37  ; HEX   Decimal  Real Value
+F485 21 37               TEQA #0x37  ; HEX   Decimal  Real Value
 F487 2B FF B0            JNE FAIL    ; x37   55       55
 
 F48A 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2688,7 +2688,7 @@ F493 31 10 01            STA 0x1001
 F496 2A 10 00            LDA 0x1000  ; Load first number in A
 F499 29 10 01            ADDA 0x1001 ; Add second number to A
 F49C 31 10 02            STA 0x1002  ; Store the summ
-F49F 2D 59               CMPA #0x59  ; HEX   Decimal  Real Value
+F49F 21 59               TEQA #0x59  ; HEX   Decimal  Real Value
 F4A1 2B FF B0            JNE FAIL    ; x59   89       89
 
 F4A4 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2698,7 +2698,7 @@ F4AD 31 10 01            STA 0x1001
 F4B0 2A 10 00            LDA 0x1000  ; Load first number in A
 F4B3 29 10 01            ADDA 0x1001 ; Add second number to A
 F4B6 31 10 02            STA 0x1002  ; Store the summ
-F4B9 2D 90               CMPA #0x90  ; HEX   Decimal  Real Value
+F4B9 21 90               TEQA #0x90  ; HEX   Decimal  Real Value
 F4BB 2B FF B0            JNE FAIL    ; x90   144      144
 
 F4BE 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2708,7 +2708,7 @@ F4C7 31 10 01            STA 0x1001
 F4CA 2A 10 00            LDA 0x1000  ; Load first number in A
 F4CD 29 10 01            ADDA 0x1001 ; Add second number to A
 F4D0 31 10 02            STA 0x1002  ; Store the summ
-F4D3 2D E9               CMPA #0xE9  ; HEX   Decimal  Real Value
+F4D3 21 E9               TEQA #0xE9  ; HEX   Decimal  Real Value
 F4D5 2B FF B0            JNE FAIL    ; xE9   233      233
 
 F4D8 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2718,7 +2718,7 @@ F4E1 31 10 01            STA 0x1001
 F4E4 2A 10 00            LDA 0x1000  ; Load first number in A
 F4E7 29 10 01            ADDA 0x1001 ; Add second number to A
 F4EA 31 10 02            STA 0x1002  ; Store the summ
-F4ED 2D 79               CMPA #0x79  ; HEX   Decimal  Real Value
+F4ED 21 79               TEQA #0x79  ; HEX   Decimal  Real Value
 F4EF 2B FF B0            JNE FAIL    ; x79   121      377 - (256*1) = 121
 
 F4F2 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2728,7 +2728,7 @@ F4FB 31 10 01            STA 0x1001
 F4FE 2A 10 00            LDA 0x1000  ; Load first number in A
 F501 29 10 01            ADDA 0x1001 ; Add second number to A
 F504 31 10 02            STA 0x1002  ; Store the summ
-F507 2D 62               CMPA #0x62  ; HEX   Decimal  Real Value
+F507 21 62               TEQA #0x62  ; HEX   Decimal  Real Value
 F509 2B FF B0            JNE FAIL    ; x62   98       610 - (256*2) = 98
 
 F50C 2A 10 01            LDA 0x1001  ; Move second number to the first number
@@ -2738,7 +2738,7 @@ F515 31 10 01            STA 0x1001
 F518 2A 10 00            LDA 0x1000  ; Load first number in A
 F51B 29 10 01            ADDA 0x1001 ; Add second number to A
 F51E 31 10 02            STA 0x1002  ; Store the summ
-F521 2D DB               CMPA #0xDB  ; HEX   Decimal  Real Value
+F521 21 DB               TEQA #0xDB  ; HEX   Decimal  Real Value
 F523 2B FF B0            JNE FAIL    ; xDB   219      987 - (256*3) = 219         
                          ; --------------------------------------------------------------------      
                          ; END OF FIBONACCI TEST (method using direct addressing)
@@ -2753,7 +2753,7 @@ F529 31 C0 00            STA LEDPORT    ; Output to LED port
 F52C 30 05               LDA #0x05      ; Init a counter of iterations
 F52E 31 00 0F            STA ?b0
 F531 2A 00 0F   LOOPTST1 LDA ?b0        ; Read counter
-F534 2D 00               CMPA #0x00     ; Is it 0?
+F534 21 00               TEQA #0x00     ; Is it 0?
 F536 2C F5 40            JEQ LOOPTST2   ; Yes then it's the end fo the test
 F539 2F FF               ADDA #0xFF     ; Add -1 in complement 2 (equivalent to decrement)
 F53B 31 00 0F            STA ?b0        ; Save decremented count
@@ -2777,13 +2777,13 @@ F556 30 AD               LDA #0xAD
 F558 31 00 0D            STA ?b2
 F55B 06 FB F4            JSR ?add16_w0_w0_w1  ; w0 <= w0 + w1
 F55E 2A 00 0E            LDA ?b1              ; Expected w0 = 9D9C + C set
-F561 2D 9D               CMPA #0x9D
+F561 21 9D               TEQA #0x9D
 F563 2B FF B0            JNE FAIL
 F566 2A 00 0F            LDA ?b0
-F569 2D 9C               CMPA #0x9C
+F569 21 9C               TEQA #0x9C
 F56B 2B FF B0            JNE FAIL
 F56E 2A 1F FB            LDA CARRY
-F571 2D 01               CMPA #0x01
+F571 21 01               TEQA #0x01
 F573 2B FF B0            JNE FAIL
 
                          ; Test add32_l0_l0_l1  l0 <= l0 + l1
@@ -2808,19 +2808,19 @@ F59F 30 EF               LDA #0xEF
 F5A1 31 00 0B            STA ?b4
 F5A4 06 FC 07            JSR ?add32_l0_l0_l1  ; l0 <= l0 + l1
 F5A7 2A 00 0C            LDA ?b3              ; Expected l0 = 0x68598CDE + C set
-F5AA 2D 68               CMPA #0x68
+F5AA 21 68               TEQA #0x68
 F5AC 2B FF B0            JNE FAIL
 F5AF 2A 00 0D            LDA ?b2
-F5B2 2D 59               CMPA #0x59
+F5B2 21 59               TEQA #0x59
 F5B4 2B FF B0            JNE FAIL
 F5B7 2A 00 0E            LDA ?b1
-F5BA 2D 8C               CMPA #0x8C
+F5BA 21 8C               TEQA #0x8C
 F5BC 2B FF B0            JNE FAIL
 F5BF 2A 00 0F            LDA ?b0
-F5C2 2D DE               CMPA #0xDE
+F5C2 21 DE               TEQA #0xDE
 F5C4 2B FF B0            JNE FAIL
 F5C7 2A 1F FB            LDA CARRY
-F5CA 2D 01               CMPA #0x01
+F5CA 21 01               TEQA #0x01
 F5CC 2B FF B0            JNE FAIL
 
                          ; Test ?inc32_l0_l0   l0 <= l0 + 1
@@ -2838,29 +2838,29 @@ F5E6 31 00 0F            STA ?b0
 F5E9 06 FC 76            JSR ?inc32_l0_l0  ; l0 <= l0 + 1
                          ; Expected l0 = 0x00000000
 F5EC 2A 00 0C            LDA ?b3     ; Expected l0 = 0x00000000
-F5EF 2D 00               CMPA #0x00
+F5EF 21 00               TEQA #0x00
 F5F1 2B FF B0            JNE FAIL
 F5F4 2A 00 0D            LDA ?b2
-F5F7 2D 00               CMPA #0x00
+F5F7 21 00               TEQA #0x00
 F5F9 2B FF B0            JNE FAIL
 F5FC 2A 00 0E            LDA ?b1
-F5FF 2D 00               CMPA #0x00
+F5FF 21 00               TEQA #0x00
 F601 2B FF B0            JNE FAIL
 F604 2A 00 0F            LDA ?b0
-F607 2D 00               CMPA #0x00
+F607 21 00               TEQA #0x00
 F609 2B FF B0            JNE FAIL
 F60C 06 FC 76            JSR ?inc32_l0_l0  ; l0 <= l0 + 1
 F60F 2A 00 0C            LDA ?b3
-F612 2D 00               CMPA #0x00
+F612 21 00               TEQA #0x00
 F614 2B FF B0            JNE FAIL
 F617 2A 00 0D            LDA ?b2
-F61A 2D 00               CMPA #0x00
+F61A 21 00               TEQA #0x00
 F61C 2B FF B0            JNE FAIL
 F61F 2A 00 0E            LDA ?b1
-F622 2D 00               CMPA #0x00
+F622 21 00               TEQA #0x00
 F624 2B FF B0            JNE FAIL
 F627 2A 00 0F            LDA ?b0
-F62A 2D 01               CMPA #0x01
+F62A 21 01               TEQA #0x01
 F62C 2B FF B0            JNE FAIL
 F62F 06 FC 76            JSR ?inc32_l0_l0
 F632 06 FC 76            JSR ?inc32_l0_l0
@@ -2880,16 +2880,16 @@ F659 06 FC 76            JSR ?inc32_l0_l0
 F65C 06 FC 76            JSR ?inc32_l0_l0
 F65F 06 FC 76            JSR ?inc32_l0_l0
 F662 2A 00 0C            LDA ?b3
-F665 2D 00               CMPA #0x00
+F665 21 00               TEQA #0x00
 F667 2B FF B0            JNE FAIL
 F66A 2A 00 0D            LDA ?b2
-F66D 2D 00               CMPA #0x00
+F66D 21 00               TEQA #0x00
 F66F 2B FF B0            JNE FAIL
 F672 2A 00 0E            LDA ?b1
-F675 2D 00               CMPA #0x00
+F675 21 00               TEQA #0x00
 F677 2B FF B0            JNE FAIL
 F67A 2A 00 0F            LDA ?b0
-F67D 2D 12               CMPA #0x12
+F67D 21 12               TEQA #0x12
 F67F 2B FF B0            JNE FAIL
 
                          ; Test  MUL 8-bit
@@ -2903,10 +2903,10 @@ F68D 30 03               LDA #0x03
 F68F 31 00 0E            STA ?b1
 F692 06 FC C7            JSR ?mul8_w1_b1_b0
 F695 2A 00 0C            LDA ?b3
-F698 2D 00               CMPA #0x00
+F698 21 00               TEQA #0x00
 F69A 2B FF B0            JNE FAIL
 F69D 2A 00 0D            LDA ?b2
-F6A0 2D 06               CMPA #0x06
+F6A0 21 06               TEQA #0x06
 F6A2 2B FF B0            JNE FAIL
 
 F6A5 30 FF               LDA #0xFF   ; 255 * 255 = 65025 (0xFF * 0xFF = 0xFE01)
@@ -2914,10 +2914,10 @@ F6A7 31 00 0F            STA ?b0
 F6AA 31 00 0E            STA ?b1
 F6AD 06 FC C7            JSR ?mul8_w1_b1_b0
 F6B0 2A 00 0C            LDA ?b3
-F6B3 2D FE               CMPA #0xFE
+F6B3 21 FE               TEQA #0xFE
 F6B5 2B FF B0            JNE FAIL
 F6B8 2A 00 0D            LDA ?b2
-F6BB 2D 01               CMPA #0x01
+F6BB 21 01               TEQA #0x01
 F6BD 2B FF B0            JNE FAIL
 
 F6C0 30 AB               LDA #0xAB   ; 171 * 205 = 35055 (0xAB * 0xCD = 0x88EF)
@@ -2926,10 +2926,10 @@ F6C5 30 CD               LDA #0xCD
 F6C7 31 00 0E            STA ?b1
 F6CA 06 FC C7            JSR ?mul8_w1_b1_b0
 F6CD 2A 00 0C            LDA ?b3
-F6D0 2D 88               CMPA #0x88
+F6D0 21 88               TEQA #0x88
 F6D2 2B FF B0            JNE FAIL
 F6D5 2A 00 0D            LDA ?b2
-F6D8 2D EF               CMPA #0xEF
+F6D8 21 EF               TEQA #0xEF
 F6DA 2B FF B0            JNE FAIL
 
 F6DD 30 00               LDA #0x00   ; 0 * 0 = 0 (0x00 * 0x00 = 0x0000)
@@ -2937,10 +2937,10 @@ F6DF 31 00 0F            STA ?b0
 F6E2 31 00 0E            STA ?b1
 F6E5 06 FC C7            JSR ?mul8_w1_b1_b0
 F6E8 2A 00 0C            LDA ?b3
-F6EB 2D 00               CMPA #0x00
+F6EB 21 00               TEQA #0x00
 F6ED 2B FF B0            JNE FAIL
 F6F0 2A 00 0D            LDA ?b2
-F6F3 2D 00               CMPA #0x00
+F6F3 21 00               TEQA #0x00
 F6F5 2B FF B0            JNE FAIL
 
                          ; Test  MUL 16-bit
@@ -2958,16 +2958,16 @@ F706 31 00 0D            STA ?b2
 F709 31 00 0C            STA ?b3
 F70C 06 FC E8            JSR ?mul16_l1_w1_w0
 F70F 2A 00 08            LDA ?b7
-F712 2D 00               CMPA #0x00
+F712 21 00               TEQA #0x00
 F714 2B FF B0            JNE FAIL
 F717 2A 00 09            LDA ?b6
-F71A 2D 00               CMPA #0x00
+F71A 21 00               TEQA #0x00
 F71C 2B FF B0            JNE FAIL
 F71F 2A 00 0A            LDA ?b5
-F722 2D 00               CMPA #0x00
+F722 21 00               TEQA #0x00
 F724 2B FF B0            JNE FAIL
 F727 2A 00 0B            LDA ?b4
-F72A 2D 00               CMPA #0x00
+F72A 21 00               TEQA #0x00
 F72C 2B FF B0            JNE FAIL
 
 F72F 30 FF               LDA #0xFF   ; 65535 * 65535 = 4294836225  (0xFFFF * 0xFFFF = 0xFFFE0001)
@@ -2977,16 +2977,16 @@ F737 31 00 0D            STA ?b2
 F73A 31 00 0C            STA ?b3
 F73D 06 FC E8            JSR ?mul16_l1_w1_w0
 F740 2A 00 08            LDA ?b7
-F743 2D FF               CMPA #0xFF
+F743 21 FF               TEQA #0xFF
 F745 2B FF B0            JNE FAIL
 F748 2A 00 09            LDA ?b6
-F74B 2D FE               CMPA #0xFE
+F74B 21 FE               TEQA #0xFE
 F74D 2B FF B0            JNE FAIL
 F750 2A 00 0A            LDA ?b5
-F753 2D 00               CMPA #0x00
+F753 21 00               TEQA #0x00
 F755 2B FF B0            JNE FAIL
 F758 2A 00 0B            LDA ?b4
-F75B 2D 01               CMPA #0x01
+F75B 21 01               TEQA #0x01
 F75D 2B FF B0            JNE FAIL
 
 F760 30 31               LDA #0x31   ; 12345 * 54321 = 670592745  (0x3039 * 0xD431 = 0x27F86EE9)
@@ -2999,16 +2999,16 @@ F76F 30 30               LDA #0x30
 F771 31 00 0C            STA ?b3
 F774 06 FC E8            JSR ?mul16_l1_w1_w0   
 F777 2A 00 08            LDA ?b7
-F77A 2D 27               CMPA #0x27
+F77A 21 27               TEQA #0x27
 F77C 2B FF B0            JNE FAIL
 F77F 2A 00 09            LDA ?b6
-F782 2D F8               CMPA #0xF8
+F782 21 F8               TEQA #0xF8
 F784 2B FF B0            JNE FAIL
 F787 2A 00 0A            LDA ?b5
-F78A 2D 6E               CMPA #0x6E
+F78A 21 6E               TEQA #0x6E
 F78C 2B FF B0            JNE FAIL
 F78F 2A 00 0B            LDA ?b4
-F792 2D E9               CMPA #0xE9
+F792 21 E9               TEQA #0xE9
 F794 2B FF B0            JNE FAIL  
 
                          ; Test load32_l0, load32_l1, load32_l2, load32_l3
@@ -3023,16 +3023,16 @@ F7A6 16 15 02            STX 0x1502        ; Store test address
 F7A9 04 15 00            LDX #0x1500       ; Load address of test data
 F7AC 06 FA 73            JSR ?load32_l0    ; Load 32-bit value from memory to l0
 F7AF 2A 00 0C            LDA ?b3           ; Verify loaded value
-F7B2 2D 12               CMPA #0x12
+F7B2 21 12               TEQA #0x12
 F7B4 2B FF B0            JNE FAIL
 F7B7 2A 00 0D            LDA ?b2
-F7BA 2D 34               CMPA #0x34
+F7BA 21 34               TEQA #0x34
 F7BC 2B FF B0            JNE FAIL
 F7BF 2A 00 0E            LDA ?b1
-F7C2 2D 56               CMPA #0x56
+F7C2 21 56               TEQA #0x56
 F7C4 2B FF B0            JNE FAIL
 F7C7 2A 00 0F            LDA ?b0
-F7CA 2D 78               CMPA #0x78
+F7CA 21 78               TEQA #0x78
 F7CC 2B FF B0            JNE FAIL 
 F7CF 1A 15 03            CMPX #0x1503      ; also verify current X value
 F7D2 2B FF B0            JNE FAIL
@@ -3044,16 +3044,16 @@ F7DE 16 16 02            STX 0x1602        ; Store test address
 F7E1 04 16 00            LDX #0x1600       ; Load address of test data
 F7E4 06 FA 87            JSR ?load32_l1    ; Load 32-bit value from memory to l1
 F7E7 2A 00 08            LDA ?b7           ; Verify loaded value
-F7EA 2D AB               CMPA #0xAB
+F7EA 21 AB               TEQA #0xAB
 F7EC 2B FF B0            JNE FAIL
 F7EF 2A 00 09            LDA ?b6
-F7F2 2D CD               CMPA #0xCD
+F7F2 21 CD               TEQA #0xCD
 F7F4 2B FF B0            JNE FAIL
 F7F7 2A 00 0A            LDA ?b5
-F7FA 2D DE               CMPA #0xDE
+F7FA 21 DE               TEQA #0xDE
 F7FC 2B FF B0            JNE FAIL
 F7FF 2A 00 0B            LDA ?b4
-F802 2D AD               CMPA #0xAD
+F802 21 AD               TEQA #0xAD
 F804 2B FF B0            JNE FAIL 
 F807 1A 16 03            CMPX #0x1603      ; also verify current X value
 F80A 2B FF B0            JNE FAIL
@@ -3065,16 +3065,16 @@ F816 16 17 02            STX 0x1702        ; Store test address
 F819 04 17 00            LDX #0x1700       ; Load address of test data
 F81C 06 FA 9B            JSR ?load32_l2    ; Load 32-bit value from memory to l2
 F81F 2A 00 04            LDA ?b11          ; Verify loaded value
-F822 2D 1A               CMPA #0x1A
+F822 21 1A               TEQA #0x1A
 F824 2B FF B0            JNE FAIL
 F827 2A 00 05            LDA ?b10
-F82A 2D 2B               CMPA #0x2B
+F82A 21 2B               TEQA #0x2B
 F82C 2B FF B0            JNE FAIL
 F82F 2A 00 06            LDA ?b9
-F832 2D 3C               CMPA #0x3C
+F832 21 3C               TEQA #0x3C
 F834 2B FF B0            JNE FAIL
 F837 2A 00 07            LDA ?b8
-F83A 2D 4D               CMPA #0x4D
+F83A 21 4D               TEQA #0x4D
 F83C 2B FF B0            JNE FAIL 
 F83F 1A 17 03            CMPX #0x1703      ; also verify current X value
 F842 2B FF B0            JNE FAIL
@@ -3086,16 +3086,16 @@ F84E 16 18 02            STX 0x1802        ; Store test address
 F851 04 18 00            LDX #0x1800       ; Load address of test data
 F854 06 FA AF            JSR ?load32_l3    ; Load 32-bit value from memory to l3
 F857 2A 00 00            LDA ?b15          ; Verify loaded value
-F85A 2D 2F               CMPA #0x2F
+F85A 21 2F               TEQA #0x2F
 F85C 2B FF B0            JNE FAIL
 F85F 2A 00 01            LDA ?b14
-F862 2D 3E               CMPA #0x3E
+F862 21 3E               TEQA #0x3E
 F864 2B FF B0            JNE FAIL
 F867 2A 00 02            LDA ?b13
-F86A 2D 4D               CMPA #0x4D
+F86A 21 4D               TEQA #0x4D
 F86C 2B FF B0            JNE FAIL
 F86F 2A 00 03            LDA ?b12
-F872 2D 5C               CMPA #0x5C
+F872 21 5C               TEQA #0x5C
 F874 2B FF B0            JNE FAIL 
 F877 1A 18 03            CMPX #0x1803      ; also verify current X value
 F87A 2B FF B0            JNE FAIL         
@@ -3118,10 +3118,10 @@ F88B 30 AB                     LDA #0xAB
 F88D 31 00 0E                  STA ?b1
 F890 06 FC C7                  JSR ?mul8_w1_b1_b0
 F893 2A 00 0C                  LDA ?b3
-F896 2D 39                     CMPA #0x39
+F896 21 39                     TEQA #0x39
 F898 2B FF B0                  JNE FAIL
 F89B 2A 00 0D                  LDA ?b2
-F89E 2D 72                     CMPA #0x72
+F89E 21 72                     TEQA #0x72
 F8A0 2B FF B0                  JNE FAIL
 F8A3 07                        RTS
                                ; Copy the Block of code from EEPROM to RAM
@@ -3178,7 +3178,7 @@ F8F2 06 FB C2               JSR ?mov32_l1_l2     ; l1 = l2
 F8F5 2A 01 00               LDA LOOPCNT
 F8F8 20                     DECA
 F8F9 31 01 00               STA LOOPCNT
-F8FC 2D 00                  CMPA #0x00
+F8FC 21 00                  TEQA #0x00
 F8FE 2B F8 E8               JNE FIB32_LOOP
                             ; End of fibonacci number computation
                             ; Verify Fibonacci numbers stored in memory
@@ -3213,7 +3213,7 @@ F927 06 FB C2               JSR ?mov32_l1_l2
 F92A 2A 01 00               LDA LOOPCNT          ; Decrement loop counter
 F92D 2F FF                  ADDA #0xFF         ; decrement
 F92F 31 01 00               STA LOOPCNT
-F932 2D 00                  CMPA #0x00
+F932 21 00                  TEQA #0x00
 F934 2B F9 17               JNE VERIFY_LOOP
                             ; End of fibonacci number verification
 
@@ -3847,7 +3847,7 @@ FD45 07                     RTS
                 ;   XL = column (0..15)
                 ;--------------------------------------------
 FD46 2A 1F F3   LCD_SetCursorPos  LDA XH      
-FD49 2D 00                        CMPA #0x00
+FD49 21 00                        TEQA #0x00
 FD4B 2C FD 52                     JEQ LCD_Row0
 FD4E 30 40                        LDA #0x40         ; Row 1, DDRAM base address line 1
 FD50 0C 02                        JRA LCD_AddCol
@@ -3870,7 +3870,7 @@ FD60 07                        RTS
                 ;   X = address of string
                 ;--------------------------------------------
 FD61 0A         LCD_PrintString   LDA (X)        ; A = *X
-FD62 2D 00                        CMPA #0x00     ; end of string?
+FD62 21 00                        TEQA #0x00     ; end of string?
 FD64 2C FD 6D                     JEQ LCD_PrDone
 FD67 06 FD 5D                     JSR LCD_WriteChar
 FD6A 05                           INCX           ; X++

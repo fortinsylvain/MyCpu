@@ -93,17 +93,17 @@ TST01    LDA #0x01
          LDA #0x00
          STA CARRY   ; Write 0 to carry bit <0>
          LDA CARRY   ; Read Carry Status
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0x01
          STA CARRY   ; Write 1 to carry bit <0>
          LDA CARRY   ; Read Carry Status
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA #0x00
          STA CARRY   ; Write 0 to carry bit <0>
          LDA CARRY   ; Read Carry Status
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          ; --------------------------------------------------------------------
          ; Test Equal Status bit integrity
@@ -114,17 +114,17 @@ TST02    LDA #0x02
          LDA #0x00
          STA EQUAL   ; Write 0 to Equal Status bit <0>
          LDA EQUAL   ; Read Equal Status
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0x01
          STA EQUAL   ; Write 1 to Equal Status bit <0>
          LDA EQUAL   ; Read Equal Status
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA #0x00
          STA EQUAL   ; Write 0 to Equal Status bit <0>
          LDA EQUAL   ; Read Equal Status
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
 
          ; --------------------------------------------------------------------
@@ -136,11 +136,11 @@ TSTOP03  LDA #0x03
          STA LEDPORT ; Output to LED port
          LDA #0x00
          INCA
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA #0x01
          INCA
-         CMPA #0x02
+         TEQA #0x02
          JNE FAIL
          LDA #0x7C
          INCA
@@ -153,26 +153,26 @@ TSTOP03  LDA #0x03
          INCA
          INCA
          INCA
-         CMPA #0x86
+         TEQA #0x86
          JNE FAIL
          LDA #0xFE
          INCA
-         CMPA #0xFF
+         TEQA #0xFF
          JNE FAIL
          LDA #0xFF
          INCA
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0xFF
          INCA
          INCA
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          INCA
          INCA
          INCA
          INCA
-         CMPA #0x05
+         TEQA #0x05
          JNE FAIL
          INCA
          INCA
@@ -182,36 +182,36 @@ TSTOP03  LDA #0x03
          INCA
          INCA
          INCA
-         CMPA #0x0D
+         TEQA #0x0D
          JNE FAIL
          LDA #0x00   ; Test Carry unchanged
          STA CARRY   ; Clear Carry 
          LDA #0xFF
          INCA
          LDA CARRY   ; Read Carry bit <0>
-         CMPA #0x00  ; Expecting C=0 and <7:1> = 0
+         TEQA #0x00  ; Expecting C=0 and <7:1> = 0
          JNE FAIL
          LDA #0x01   ; Set Carry 
          STA CARRY   
          LDA #0xEB
          INCA
          LDA CARRY   ; Read Carry bit <0>
-         CMPA #0x01  ; Expecting C=1 and <7:1> = 0
+         TEQA #0x01  ; Expecting C=1 and <7:1> = 0
          JNE FAIL
          LDA #0xFE   ; Test Equal (Set when result is 0)
          INCA
          LDA EQUAL   ; Read Equal status
-         CMPA #0x00  ; Expecting E=0 and <7:1> = 0
+         TEQA #0x00  ; Expecting E=0 and <7:1> = 0
          JNE FAIL
          LDA #0xFF
          INCA
          LDA EQUAL   ; Read Equal status
-         CMPA #0x01  ; Expecting E=1 and <7:1> = 0
+         TEQA #0x01  ; Expecting E=1 and <7:1> = 0
          JNE FAIL
          LDA #0x00
          INCA
          LDA EQUAL
-         CMPA #0x00  ; Expecting E=0 and <7:1> = 0
+         TEQA #0x00  ; Expecting E=0 and <7:1> = 0
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.04  LDX #0x****   Load X Register with 16 bits immediate value
@@ -221,32 +221,32 @@ TSTOP04  LDA #0x04
          STA LEDPORT ; Output to LED port
          LDX #0x1234
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0x12
+         TEQA #0x12
          JNE FAIL
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0x34
+         TEQA #0x34
          JNE FAIL
          LDX #0xABCD
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0xAB
+         TEQA #0xAB
          JNE FAIL
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0xCD
+         TEQA #0xCD
          JNE FAIL
          ; Test using symbolic
          LDX #?b0    ; ?b0      EQU 0x000F
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0x0F
+         TEQA #0x0F
          JNE FAIL
          LDX #SP     ; SP       EQU 0x1FF0
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0x1F
+         TEQA #0x1F
          JNE FAIL
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0xF0
+         TEQA #0xF0
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.05  INCX   Increment Register X,  Carry Not Updated
@@ -257,51 +257,51 @@ TSTOP05  LDA #0x05
          LDX #0x0000 ; Clear X register
          INCX        ; Increment X
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          INCX
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0x02
+         TEQA #0x02
          JNE FAIL
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          
          LDX #0x00FF ; Test a carry set
          INCX        ; Increment X
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          INCX        ; Increment X
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          
          LDX #0x1EFF
          INCX        ; Increment X
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0x1F
+         TEQA #0x1F
          JNE FAIL
          
          LDX #0xFFFF
          INCX        ; Increment X
          LDA XL      ; Read Reg X LSB into A
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA XH      ; Read Reg X MSB into A
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
 
          ; --------------------------------------------------------------------
@@ -363,19 +363,19 @@ TSTOP0A  LDA #0x0A
          STA 0x01FF
          LDX #0x0100 ; Verify each locations
          LDA (X)
-         CMPA #0x55
+         TEQA #0x55
          JNE FAIL    ; Jump if result not good
          LDX #0x0101
          LDA (X)
-         CMPA #0xAA
+         TEQA #0xAA
          JNE FAIL
          LDX #0x01F0
          LDA (X)
-         CMPA #0xDE
+         TEQA #0xDE
          JNE FAIL
          LDX #0x01FF
          LDA (X)
-         CMPA #0xCA
+         TEQA #0xCA
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.0B STA (X) Store Reg A Indexed
@@ -684,48 +684,37 @@ TSTOP0D  LDA #0x0D
          STA LEDPORT ; Output to LED port
          LDA #0xA5
          SRLA
-         CMPA #0x52
+         TEQA #0x52
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SRLA
          SRLA
-         CMPA #0x29
+         TEQA #0x29
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
-         JNE FAIL    ; Error if different
-         LDA #0xA5
-         SRLA
-         SRLA
-         SRLA
-         CMPA #0x14
-         JNE FAIL    ; Jump if result not good
-         LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SRLA
          SRLA
          SRLA
-         SRLA
-         CMPA #0x0A
+         TEQA #0x14
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SRLA
          SRLA
          SRLA
          SRLA
-         SRLA
-         CMPA #0x05
+         TEQA #0x0A
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SRLA
@@ -733,11 +722,10 @@ TSTOP0D  LDA #0x0D
          SRLA
          SRLA
          SRLA
-         SRLA
-         CMPA #0x02
+         TEQA #0x05
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SRLA
@@ -746,11 +734,10 @@ TSTOP0D  LDA #0x0D
          SRLA
          SRLA
          SRLA
-         SRLA
-         CMPA #0x01
+         TEQA #0x02
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SRLA
@@ -760,11 +747,10 @@ TSTOP0D  LDA #0x0D
          SRLA
          SRLA
          SRLA
-         SRLA
-         CMPA #0x00
+         TEQA #0x01
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SRLA
@@ -775,11 +761,25 @@ TSTOP0D  LDA #0x0D
          SRLA
          SRLA
          SRLA
-         SRLA
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         SRLA
+         TEQA #0x00
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          ; --------------------------------------------------------------------
          ; OP.0E SLLA Shift Left Logical on Reg A
@@ -791,48 +791,37 @@ TSTOP0E  LDA #0x0E
          STA LEDPORT ; Output to LED port
          LDA #0xA5
          SLLA
-         CMPA #0x4A
+         TEQA #0x4A
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SLLA
          SLLA
-         CMPA #0x94
+         TEQA #0x94
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
-         JNE FAIL    ; Error if different
-         LDA #0xA5
-         SLLA
-         SLLA
-         SLLA
-         CMPA #0x28
-         JNE FAIL    ; Jump if result not good
-         LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SLLA
          SLLA
          SLLA
-         SLLA
-         CMPA #0x50
+         TEQA #0x28
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SLLA
          SLLA
          SLLA
          SLLA
-         SLLA
-         CMPA #0xA0
+         TEQA #0x50
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SLLA
@@ -840,11 +829,10 @@ TSTOP0E  LDA #0x0E
          SLLA
          SLLA
          SLLA
-         SLAA
-         CMPA #0x40
+         TEQA #0xA0
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SLLA
@@ -853,11 +841,10 @@ TSTOP0E  LDA #0x0E
          SLLA
          SLLA
          SLAA
-         SLAA
-         CMPA #0x80
+         TEQA #0x40
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SLLA
@@ -867,11 +854,10 @@ TSTOP0E  LDA #0x0E
          SLLA
          SLAA
          SLAA
-         SLAA
-         CMPA #0x00
+         TEQA #0x80
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          SLLA
@@ -882,11 +868,25 @@ TSTOP0E  LDA #0x0E
          SLAA
          SLAA
          SLAA
-         SLAA
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLLA
+         SLAA
+         SLAA
+         SLAA
+         SLAA
+         TEQA #0x00
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          ; --------------------------------------------------------------------
          ; OP.0F 
@@ -915,62 +915,62 @@ TSTOP10  LDA #0x10
          LDA #0x00   ; Clear Carry
          STA CARRY
          RRCA
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0x00   ; Clear Carry
          STA CARRY
          RRCA
          LDA CARRY
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0xAA   ; Test shifting
          RRCA
-         CMPA #0x55
+         TEQA #0x55
          JNE FAIL
          LDA #0x01   ; Test transfer of bit <0> to carry
          RRCA
          LDA CARRY
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA #0x00   ; Test A become 0 after shifting when carry is 0
          STA CARRY   ; insure carry is clear
          LDA #0x01   ; set bit <0> to '1'
          RRCA
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0x00   ; Test bit <0> goes to bit <7> after 2 RRCA
          STA CARRY   ; insure carry is clear
          LDA #0x01
          RRCA
          RRCA
-         CMPA #0x80
+         TEQA #0x80
          JNE FAIL
          RRCA        ; continue rotating this bit
-         CMPA #0x40
+         TEQA #0x40
          JNE FAIL
          RRCA
-         CMPA #0x20
+         TEQA #0x20
          JNE FAIL
          RRCA
-         CMPA #0x10
+         TEQA #0x10
          JNE FAIL
          RRCA
-         CMPA #0x08
+         TEQA #0x08
          JNE FAIL
          RRCA
-         CMPA #0x04
+         TEQA #0x04
          JNE FAIL
          RRCA
-         CMPA #0x02
+         TEQA #0x02
          JNE FAIL
          RRCA
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          RRCA
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          RRCA
-         CMPA #0x80
+         TEQA #0x80
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.11  RCF   Reset Carry Flag   C <- 0
@@ -982,15 +982,15 @@ TSTOP11  LDA #0x11
          STA CARRY
          RCF         ; Reset Carry Flag 
          LDA CARRY   ; Check carry is now cleared
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          RCF         ; Do again a Reset Carry Flag 
          LDA CARRY   ; Check carry is still cleared
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0xA5   ; Check register A is not affected by a Reset Carry Flag
          RCF         ; Reset Carry Flag
-         CMPA #0xA5  ; If A value not same then fail
+         TEQA #0xA5  ; If A value not same then fail
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.12  SCF   Set Carry Flag   C <- 1
@@ -1002,15 +1002,15 @@ TSTOP12  LDA #0x12
          STA CARRY
          SCF         ; Set Carry Flag 
          LDA CARRY   ; Check carry is set
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          SCF         ; Set Carry Flag again
          LDA CARRY   ; Check carry is still set
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA #0xBE   ; Check register A is not affected by a Set Carry Flag
          SCF         ; Set Carry Flag
-         CMPA #0xBE  ; If A value not same then fail
+         TEQA #0xBE  ; If A value not same then fail
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.13  DECXL   Decrement XL   E updated
@@ -1021,61 +1021,61 @@ TSTOP13  LDA #0x13
          LDX #0xFFFF
          DECXL
          LDA XH
-         CMPA #0xFF
+         TEQA #0xFF
          JNE FAIL
          LDA XL
-         CMPA #0xFE
+         TEQA #0xFE
          JNE FAIL
          DECXL
          LDA XH
-         CMPA #0xFF
+         TEQA #0xFF
          JNE FAIL
          LDA XL
-         CMPA #0xFD
+         TEQA #0xFD
          JNE FAIL
          LDX #0xA502
          DECXL
          LDA XH
-         CMPA #0xA5
+         TEQA #0xA5
          JNE FAIL
          LDA XL
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          DECXL
          LDA XH
-         CMPA #0xA5
+         TEQA #0xA5
          JNE FAIL
          LDA XL
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          DECXL
          LDA XH
-         CMPA #0xA5
+         TEQA #0xA5
          JNE FAIL
          LDA XL
-         CMPA #0xFF
+         TEQA #0xFF
          JNE FAIL
          DECXL 
          LDA XH
-         CMPA #0xA5
+         TEQA #0xA5
          JNE FAIL
          LDA XL
-         CMPA #0xFE
+         TEQA #0xFE
          JNE FAIL
          LDX #0x0002 ; Check E status
          DECXL
          LDA EQUAL
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDX #0x0001
          DECXL
          LDA EQUAL
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDX #0xFFFF
          DECXL
          LDA EQUAL
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.14  RRC 0x****   Rotate Right Logical Address location through Carry 
@@ -1089,26 +1089,26 @@ TSTOP14  LDA #0x14
          STA ?b0
          RRC ?b0
          LDA ?b0
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0x00   ; Clear Carry
          STA CARRY
          STA ?b0
          RRC ?b0
          LDA CARRY
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0xAA   ; Test shifting
          STA ?b0
          RRC ?b0
          LDA ?b0
-         CMPA #0x55
+         TEQA #0x55
          JNE FAIL
          LDA #0x01   ; Test transfer of bit <0> to carry
          STA ?b0
          RRC ?b0
          LDA CARRY
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA #0x00   ; Test A become 0 after shifting when carry is 0
          STA CARRY   ; insure carry is clear
@@ -1116,7 +1116,7 @@ TSTOP14  LDA #0x14
          STA ?b0
          RRC ?b0
          LDA ?b0
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0x00   ; Test bit <0> goes to bit <7> after 2 RRCA
          STA CARRY   ; insure carry is clear
@@ -1125,43 +1125,43 @@ TSTOP14  LDA #0x14
          RRC ?b0
          RRC ?b0
          LDA ?b0
-         CMPA #0x80
+         TEQA #0x80
          JNE FAIL
          RRC ?b0     ; continue rotating this bit
          LDA ?b0
-         CMPA #0x40
+         TEQA #0x40
          JNE FAIL
          RRC ?b0
          LDA ?b0
-         CMPA #0x20
+         TEQA #0x20
          JNE FAIL
          RRC ?b0
          LDA ?b0
-         CMPA #0x10
+         TEQA #0x10
          JNE FAIL
          RRC ?b0
          LDA ?b0
-         CMPA #0x08
+         TEQA #0x08
          JNE FAIL
          RRC ?b0
          LDA ?b0
-         CMPA #0x04
+         TEQA #0x04
          JNE FAIL
          RRC ?b0
          LDA ?b0
-         CMPA #0x02
+         TEQA #0x02
          JNE FAIL
          RRC ?b0
          LDA ?b0
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          RRC ?b0
          LDA ?b0
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          RRC ?b0
          LDA ?b0
-         CMPA #0x80
+         TEQA #0x80
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.15 SRL 0x****   Shift Right Logical on Address
@@ -1174,20 +1174,20 @@ TSTOP15  LDA #0x15
          STA ?b0
          SRL ?b0
          LDA ?b0
-         CMPA #0x52
+         TEQA #0x52
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          STA ?b0
          SRL ?b0
          SRL ?b0
          LDA ?b0
-         CMPA #0x29
+         TEQA #0x29
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          STA ?b0
@@ -1195,22 +1195,10 @@ TSTOP15  LDA #0x15
          SRL ?b0
          SRL ?b0
          LDA ?b0
-         CMPA #0x14
+         TEQA #0x14
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
-         JNE FAIL    ; Error if different
-         LDA #0xA5
-         STA ?b0
-         SRL ?b0
-         SRL ?b0
-         SRL ?b0
-         SRL ?b0
-         LDA ?b0
-         CMPA #0x0A
-         JNE FAIL    ; Jump if result not good
-         LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          STA ?b0
@@ -1218,12 +1206,11 @@ TSTOP15  LDA #0x15
          SRL ?b0
          SRL ?b0
          SRL ?b0
-         SRL ?b0
          LDA ?b0
-         CMPA #0x05
+         TEQA #0x0A
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          STA ?b0
@@ -1232,12 +1219,11 @@ TSTOP15  LDA #0x15
          SRL ?b0
          SRL ?b0
          SRL ?b0
-         SRL ?b0
          LDA ?b0
-         CMPA #0x02
+         TEQA #0x05
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          STA ?b0
@@ -1247,12 +1233,11 @@ TSTOP15  LDA #0x15
          SRL ?b0
          SRL ?b0
          SRL ?b0
-         SRL ?b0
          LDA ?b0
-         CMPA #0x01
+         TEQA #0x02
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          STA ?b0
@@ -1263,12 +1248,11 @@ TSTOP15  LDA #0x15
          SRL ?b0
          SRL ?b0
          SRL ?b0
-         SRL ?b0
          LDA ?b0
-         CMPA #0x00
+         TEQA #0x01
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          LDA #0xA5
          STA ?b0
@@ -1280,12 +1264,28 @@ TSTOP15  LDA #0x15
          SRL ?b0
          SRL ?b0
          SRL ?b0
-         SRL ?b0
          LDA ?b0
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         JNE FAIL    ; Error if different
+         LDA #0xA5
+         STA ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         SRL ?b0
+         LDA ?b0
+         TEQA #0x00
+         JNE FAIL    ; Jump if result not good
+         LDA CARRY   ; Read the Carry Status
+         TEQA #0x00  ; The Carry Status bit is expected to be '0' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          ; --------------------------------------------------------------------
          ; OP.16 STX 0x****   STORE X REGISTER TO ADDRESS
@@ -1296,34 +1296,34 @@ TSTOP16  LDA #0x16
          LDX #0x1234 ; Test a STX using immediate Hex address value
          STX 0x0000  
          LDA 0x0000
-         CMPA #0x12
+         TEQA #0x12
          JNE FAIL
          LDA 0x0001
-         CMPA #0x34
+         TEQA #0x34
          JNE FAIL
          LDX #0xCAFE ; Test a STX at address boundary requiring a carry to MSB
          STX 0x10FF  
          LDA 0x10FF
-         CMPA #0xCA
+         TEQA #0xCA
          JNE FAIL
          LDA 0x1100
-         CMPA #0xFE
+         TEQA #0xFE
          JNE FAIL
          LDX #0xBEEF ; Test a STX on another boundary
          STX 0x12FF  
          LDA 0x12FF
-         CMPA #0xBE
+         TEQA #0xBE
          JNE FAIL
          LDA 0x1300
-         CMPA #0xEF
+         TEQA #0xEF
          JNE FAIL
          LDX #0x6789 ; Test a STX using symbolic address
          STX ?b1
          LDA ?b1
-         CMPA #0x67
+         TEQA #0x67
          JNE FAIL
          LDA ?b0
-         CMPA #0x89
+         TEQA #0x89
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.17 ORA #0x**   LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
@@ -2143,20 +2143,20 @@ TSTOP29  LDA #0x29
          STA 0x0123   
          LDA #0x63
          ADDA 0x0123 ; Add to A the byte at address location
-         CMPA #0xC2  ; Check the sum
+         TEQA #0xC2  ; Check the sum
          JNE FAIL    ; Jump if result not good
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x00  ; No carry expected then C should be '0'
+         TEQA #0x00  ; No carry expected then C should be '0'
          JNE FAIL    ; Error if carry is set
 
          LDA #0xAC   ; Store another value in RAM
          STA 0x1056   
          LDA #0xD9
          ADDA 0x1056 ; Add to A the byte at address location
-         CMPA #0x85  ; Check the sum LSB
+         TEQA #0x85  ; Check the sum LSB
          JNE FAIL    ; Jump if result not as expected
          LDA CARRY   ; Read the Carry Status
-         CMPA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+         TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
          JNE FAIL    ; Error if different
          ; --------------------------------------------------------------------
          ; OP.2A LDA 0x****  
@@ -2255,13 +2255,13 @@ TSTOP2B  LDA #0x2B
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0x6D   ; Load a value in A
-         CMPA #0x6D  ; Compare with the same value
+         TEQA #0x6D  ; Compare with the same value
          JNE FAIL    ; Error if values are different
          LDA #0x10
-         CMPA #0x10
+         TEQA #0x10
          JNE FAIL
          LDA #0x01
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.2C JEQ 0x****
@@ -2271,52 +2271,52 @@ TST2C    LDA #0x2C
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0x7A   ; Load a value in A
-         CMPA #0x28  ; Compare with a different value
+         TEQA #0x28  ; Compare with a different value
          JEQ FAIL    ; If appear identical then it's and error
          LDA #0xFE   ; Again with adifference 
-         CMPA #0xFF
+         TEQA #0xFF
          JEQ FAIL 
          LDA #0x01   ; Another with difference
-         CMPA #0x10
+         TEQA #0x10
          JEQ FAIL
          LDA #0xAB   ; Now compare when values are identical
-         CMPA #0xAB
+         TEQA #0xAB
          JEQ TST2C_1 ; Testing if equal?
          JMP FAIL    ; Result say both are not equal then it's a failure
 TST2C_1  LDA #0x00   ; Result say the values are identical so we are passing
-         CMPA #0x00
+         TEQA #0x00
          JEQ TST2C_2 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure
 TST2C_2  LDA #0x01
-         CMPA #0x01
+         TEQA #0x01
          JEQ TST2C_3 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure
 TST2C_3  LDA #0x02
-         CMPA #0x02
+         TEQA #0x02
          JEQ TST2C_4 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure
 TST2C_4  LDA #0x04
-         CMPA #0x04
+         TEQA #0x04
          JEQ TST2C_5 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure
 TST2C_5  LDA #0x08
-         CMPA #0x08
+         TEQA #0x08
          JEQ TST2C_6 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure
 TST2C_6  LDA #0x10
-         CMPA #0x10
+         TEQA #0x10
          JEQ TST2C_7 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure
 TST2C_7  LDA #0x20
-         CMPA #0x20
+         TEQA #0x20
          JEQ TST2C_8 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure         
 TST2C_8  LDA #0x40
-         CMPA #0x40
+         TEQA #0x40
          JEQ TST2C_9 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure         
 TST2C_9  LDA #0x80
-         CMPA #0x80
+         TEQA #0x80
          JEQ TST2C_10 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure         
 TST2C_10 NOP
@@ -2330,12 +2330,12 @@ TSTOP2D  LDA #0x2D
          LDA #0x12   ; Load a value in A
          CMPA #0x12  ; Compare with identical value
          LDA EQUAL   ; Inspect EQUAL STATUS 
-         CMPA #0x01  ; Verify bit<0> E = '1' and all others bits <7:1> are '0'    
+         TEQA #0x01  ; Verify bit<0> E = '1' and all others bits <7:1> are '0'    
          JNE FAIL    ; If different then it's and error
          LDA #0xAA
          CMPA #0x55  ; Compare with a different value
          LDA EQUAL   ; Inspect EQUAL STATUS
-         CMPA #0x00  ; Verify bit<0> E = '0' and all others bits <7:1> are '0'    
+         TEQA #0x00  ; Verify bit<0> E = '0' and all others bits <7:1> are '0'    
          JNE FAIL    ; If different then it's and error
          ; --------------------------------------------------------------------
          ; OP.2E ADCA #0x**
@@ -2349,40 +2349,40 @@ TSTOP2E  LDA #0x2E
          STA CARRY      
          LDA #0x45
          ADCA #0x5B
-         CMPA #0xA0  ; Verify summ
+         TEQA #0xA0  ; Verify summ
          JNE FAIL
          LDA CARRY   ; Check carry
-         CMPA #0x00  ; Should be clear
+         TEQA #0x00  ; Should be clear
          JNE FAIL
          
          LDA #0x01   ; Set CARRY (C)
          STA CARRY
          LDA #0x56
          ADCA #0x6D
-         CMPA #0xC4   ; Verify summ
+         TEQA #0xC4   ; Verify summ
          JNE FAIL
          LDA CARRY   ; Check carry
-         CMPA #0x00  ; Should be clear
+         TEQA #0x00  ; Should be clear
          JNE FAIL
          
          LDA #0x00   ; Clear CARRY (C)
          STA CARRY
          LDA #0x7F
          ADCA #0xDE
-         CMPA #0x5D  ; Verify summ
+         TEQA #0x5D  ; Verify summ
          JNE FAIL
          LDA CARRY   ; Check carry
-         CMPA #0x01  ; Should be set
+         TEQA #0x01  ; Should be set
          JNE FAIL
          
          LDA #0x01   ; Set CARRY (C)
          STA CARRY
          LDA #0xFF
          ADCA #0xFF
-         CMPA #0xFF  ; Verify summ
+         TEQA #0xFF  ; Verify summ
          JNE FAIL
          LDA CARRY   ; Check carry
-         CMPA #0x01  ; Should be set
+         TEQA #0x01  ; Should be set
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.2F ADDA #0x**
@@ -2393,31 +2393,31 @@ TSTOP2F  LDA #0x2F
          STA LEDPORT ; Output to LED port
          LDA #0x23
          ADDA #0x45
-         CMPA #0x68
+         TEQA #0x68
          JNE FAIL
          LDA CARRY   ; Read Carry bit <0>
-         CMPA #0x00  ; Expecting C=0
+         TEQA #0x00  ; Expecting C=0
          JNE FAIL
          LDA #0x8A
          ADDA #0xBD
-         CMPA #0x47   
+         TEQA #0x47   
          JNE FAIL
          LDA CARRY   ; Read Carry bit <0>
-         CMPA #0x01  ; Expecting C=1
+         TEQA #0x01  ; Expecting C=1
          JNE FAIL
          LDA #0x01
          ADDA #0x02
-         CMPA #0x03
+         TEQA #0x03
          JNE FAIL
          LDA CARRY   ; Read Carry bit <0>
-         CMPA #0x00  ; Expecting C=0
+         TEQA #0x00  ; Expecting C=0
          JNE FAIL
          LDA #0xFF
          ADDA #0xFF
-         CMPA #0xFE
+         TEQA #0xFE
          JNE FAIL
          LDA CARRY   ; Read Carry bit <0>
-         CMPA #0x01   ; Expecting C=1
+         TEQA #0x01   ; Expecting C=1
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.30 LDA #0x**  
@@ -2427,40 +2427,40 @@ TSTOP30  LDA #0x30
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0x00
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0x01
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA #0x02
-         CMPA #0x02
+         TEQA #0x02
          JNE FAIL
          LDA #0x04
-         CMPA #0x04
+         TEQA #0x04
          JNE FAIL
          LDA #0x08
-         CMPA #0x08
+         TEQA #0x08
          JNE FAIL
          LDA #0x10
-         CMPA #0x10
+         TEQA #0x10
          JNE FAIL
          LDA #0x20
-         CMPA #0x20
+         TEQA #0x20
          JNE FAIL
          LDA #0x40
-         CMPA #0x40
+         TEQA #0x40
          JNE FAIL
          LDA #0x80
-         CMPA #0x80
+         TEQA #0x80
          JNE FAIL
          LDA #0x55
-         CMPA #0x55
+         TEQA #0x55
          JNE FAIL
          LDA #0xAA
-         CMPA #0xAA
+         TEQA #0xAA
          JNE FAIL
          LDA #0xFF
-         CMPA #0xFF
+         TEQA #0xFF
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.31 STA 0x**** 
@@ -2500,49 +2500,49 @@ TSTOP31  LDA #0x31
          LDA #0x44
          STA 0x1700
          LDA 0x0000  ; Read from RAM and compare
-         CMPA #0x12
+         TEQA #0x12
          JNE FAIL
          LDA 0x0001
-         CMPA #0x23
+         TEQA #0x23
          JNE FAIL
          LDA 0x0002
-         CMPA #0x34
+         TEQA #0x34
          JNE FAIL
          LDA 0x0004
-         CMPA #0x45
+         TEQA #0x45
          JNE FAIL
          LDA 0x0008
-         CMPA #0x56
+         TEQA #0x56
          JNE FAIL
          LDA 0x0010
-         CMPA #0x67
+         TEQA #0x67
          JNE FAIL
          LDA 0x0020
-         CMPA #0x78
+         TEQA #0x78
          JNE FAIL
          LDA 0x0040
-         CMPA #0x89
+         TEQA #0x89
          JNE FAIL
          LDA 0x0080
-         CMPA #0xAB
+         TEQA #0xAB
          JNE FAIL
          LDA 0x0100
-         CMPA #0xBC
+         TEQA #0xBC
          JNE FAIL
          LDA 0x0200
-         CMPA #0xCD
+         TEQA #0xCD
          JNE FAIL
          LDA 0x0400
-         CMPA #0xDE
+         TEQA #0xDE
          JNE FAIL
          LDA 0x0800
-         CMPA #0x22
+         TEQA #0x22
          JNE FAIL
          LDA 0x1000
-         CMPA #0x33
+         TEQA #0x33
          JNE FAIL
          LDA 0x1700
-         CMPA #0x44
+         TEQA #0x44
          JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.32 JMP 0x**** 
@@ -2560,27 +2560,27 @@ TSTOP33  LDA #0x33
          STA LEDPORT ; Output to LED port
          LDA #0xFF
          ANDA #0x52
-         CMPA #0x52
+         TEQA #0x52
          JNE FAIL
          LDA #0xE7
          ANDA #0x3C
-         CMPA #0x24
+         TEQA #0x24
          JNE FAIL
          LDA #0x00
          ANDA #0x00
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0xFF
          ANDA #0xFF
-         CMPA #0xFF
+         TEQA #0xFF
          JNE FAIL
          LDA #0xFF
          ANDA #0x55
-         CMPA #0x55
+         TEQA #0x55
          JNE FAIL
          LDA #0xFF
          ANDA #0x00
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
 
          ; --------------------------------------------------------------------
@@ -2598,7 +2598,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x01  ; HEX   Decimal  Real Value (in 8 bit storage only)
+         TEQA #0x01  ; HEX   Decimal  Real Value (in 8 bit storage only)
          JNE FAIL    ; x01   1        1
          
          LDA 0x1001  ; Move second number to the first number
@@ -2608,7 +2608,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x02  ; HEX   Decimal  Real Value
+         TEQA #0x02  ; HEX   Decimal  Real Value
          JNE FAIL    ; x02   2        2
          
          LDA 0x1001  ; Move second number to the first number
@@ -2618,7 +2618,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x03  ; HEX   Decimal  Real Value
+         TEQA #0x03  ; HEX   Decimal  Real Value
          JNE FAIL    ; x03   3        3
          
          LDA 0x1001  ; Move second number to the first number
@@ -2628,7 +2628,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x05  ; HEX   Decimal  Real Value
+         TEQA #0x05  ; HEX   Decimal  Real Value
          JNE FAIL    ; x05   5        5
          
          LDA 0x1001  ; Move second number to the first number
@@ -2638,7 +2638,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x08  ; HEX   Decimal  Real Value
+         TEQA #0x08  ; HEX   Decimal  Real Value
          JNE FAIL    ; x08   8        8
 
          LDA 0x1001  ; Move second number to the first number
@@ -2648,7 +2648,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x0D  ; HEX   Decimal  Real Value
+         TEQA #0x0D  ; HEX   Decimal  Real Value
          JNE FAIL    ; x0D   13       13
 
          LDA 0x1001  ; Move second number to the first number
@@ -2658,7 +2658,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x15  ; HEX   Decimal  Real Value
+         TEQA #0x15  ; HEX   Decimal  Real Value
          JNE FAIL    ; x15   21       21
 
          LDA 0x1001  ; Move second number to the first number
@@ -2668,7 +2668,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x22  ; HEX   Decimal  Real Value
+         TEQA #0x22  ; HEX   Decimal  Real Value
          JNE FAIL    ; x22   34       34
 
          LDA 0x1001  ; Move second number to the first number
@@ -2678,7 +2678,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x37  ; HEX   Decimal  Real Value
+         TEQA #0x37  ; HEX   Decimal  Real Value
          JNE FAIL    ; x37   55       55
 
          LDA 0x1001  ; Move second number to the first number
@@ -2688,7 +2688,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x59  ; HEX   Decimal  Real Value
+         TEQA #0x59  ; HEX   Decimal  Real Value
          JNE FAIL    ; x59   89       89
 
          LDA 0x1001  ; Move second number to the first number
@@ -2698,7 +2698,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x90  ; HEX   Decimal  Real Value
+         TEQA #0x90  ; HEX   Decimal  Real Value
          JNE FAIL    ; x90   144      144
 
          LDA 0x1001  ; Move second number to the first number
@@ -2708,7 +2708,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0xE9  ; HEX   Decimal  Real Value
+         TEQA #0xE9  ; HEX   Decimal  Real Value
          JNE FAIL    ; xE9   233      233
 
          LDA 0x1001  ; Move second number to the first number
@@ -2718,7 +2718,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x79  ; HEX   Decimal  Real Value
+         TEQA #0x79  ; HEX   Decimal  Real Value
          JNE FAIL    ; x79   121      377 - (256*1) = 121
 
          LDA 0x1001  ; Move second number to the first number
@@ -2728,7 +2728,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0x62  ; HEX   Decimal  Real Value
+         TEQA #0x62  ; HEX   Decimal  Real Value
          JNE FAIL    ; x62   98       610 - (256*2) = 98
 
          LDA 0x1001  ; Move second number to the first number
@@ -2738,7 +2738,7 @@ TSTFB1   LDA #0x40
          LDA 0x1000  ; Load first number in A
          ADDA 0x1001 ; Add second number to A
          STA 0x1002  ; Store the summ
-         CMPA #0xDB  ; HEX   Decimal  Real Value
+         TEQA #0xDB  ; HEX   Decimal  Real Value
          JNE FAIL    ; xDB   219      987 - (256*3) = 219         
          ; --------------------------------------------------------------------      
          ; END OF FIBONACCI TEST (method using direct addressing)
@@ -2753,7 +2753,7 @@ LOOPTST  LDA #0x41
          LDA #0x05      ; Init a counter of iterations
          STA ?b0
 LOOPTST1 LDA ?b0        ; Read counter
-         CMPA #0x00     ; Is it 0?
+         TEQA #0x00     ; Is it 0?
          JEQ LOOPTST2   ; Yes then it's the end fo the test
          ADDA #0xFF     ; Add -1 in complement 2 (equivalent to decrement)
          STA ?b0        ; Save decremented count
@@ -2777,13 +2777,13 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b2
          JSR ?add16_w0_w0_w1  ; w0 <= w0 + w1
          LDA ?b1              ; Expected w0 = 9D9C + C set
-         CMPA #0x9D
+         TEQA #0x9D
          JNE FAIL
          LDA ?b0
-         CMPA #0x9C
+         TEQA #0x9C
          JNE FAIL
          LDA CARRY
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
 
          ; Test add32_l0_l0_l1  l0 <= l0 + l1
@@ -2808,19 +2808,19 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b4
          JSR ?add32_l0_l0_l1  ; l0 <= l0 + l1
          LDA ?b3              ; Expected l0 = 0x68598CDE + C set
-         CMPA #0x68
+         TEQA #0x68
          JNE FAIL
          LDA ?b2
-         CMPA #0x59
+         TEQA #0x59
          JNE FAIL
          LDA ?b1
-         CMPA #0x8C
+         TEQA #0x8C
          JNE FAIL
          LDA ?b0
-         CMPA #0xDE
+         TEQA #0xDE
          JNE FAIL
          LDA CARRY
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
 
          ; Test ?inc32_l0_l0   l0 <= l0 + 1
@@ -2838,29 +2838,29 @@ LOOPTST2 NOP            ; End of decrement loop
          JSR ?inc32_l0_l0  ; l0 <= l0 + 1
          ; Expected l0 = 0x00000000
          LDA ?b3     ; Expected l0 = 0x00000000
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b2
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b1
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b0
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          JSR ?inc32_l0_l0  ; l0 <= l0 + 1
          LDA ?b3
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b2
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b1
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b0
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          JSR ?inc32_l0_l0
          JSR ?inc32_l0_l0
@@ -2880,16 +2880,16 @@ LOOPTST2 NOP            ; End of decrement loop
          JSR ?inc32_l0_l0
          JSR ?inc32_l0_l0
          LDA ?b3
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b2
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b1
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b0
-         CMPA #0x12
+         TEQA #0x12
          JNE FAIL
 
          ; Test  MUL 8-bit
@@ -2903,10 +2903,10 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b1
          JSR ?mul8_w1_b1_b0
          LDA ?b3
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b2
-         CMPA #0x06
+         TEQA #0x06
          JNE FAIL
 
          LDA #0xFF   ; 255 * 255 = 65025 (0xFF * 0xFF = 0xFE01)
@@ -2914,10 +2914,10 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b1
          JSR ?mul8_w1_b1_b0
          LDA ?b3
-         CMPA #0xFE
+         TEQA #0xFE
          JNE FAIL
          LDA ?b2
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
 
          LDA #0xAB   ; 171 * 205 = 35055 (0xAB * 0xCD = 0x88EF)
@@ -2926,10 +2926,10 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b1
          JSR ?mul8_w1_b1_b0
          LDA ?b3
-         CMPA #0x88
+         TEQA #0x88
          JNE FAIL
          LDA ?b2
-         CMPA #0xEF
+         TEQA #0xEF
          JNE FAIL
 
          LDA #0x00   ; 0 * 0 = 0 (0x00 * 0x00 = 0x0000)
@@ -2937,10 +2937,10 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b1
          JSR ?mul8_w1_b1_b0
          LDA ?b3
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b2
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
 
          ; Test  MUL 16-bit
@@ -2958,16 +2958,16 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b3
          JSR ?mul16_l1_w1_w0
          LDA ?b7
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b6
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b5
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b4
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
 
          LDA #0xFF   ; 65535 * 65535 = 4294836225  (0xFFFF * 0xFFFF = 0xFFFE0001)
@@ -2977,16 +2977,16 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b3
          JSR ?mul16_l1_w1_w0
          LDA ?b7
-         CMPA #0xFF
+         TEQA #0xFF
          JNE FAIL
          LDA ?b6
-         CMPA #0xFE
+         TEQA #0xFE
          JNE FAIL
          LDA ?b5
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA ?b4
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
 
          LDA #0x31   ; 12345 * 54321 = 670592745  (0x3039 * 0xD431 = 0x27F86EE9)
@@ -2999,16 +2999,16 @@ LOOPTST2 NOP            ; End of decrement loop
          STA ?b3
          JSR ?mul16_l1_w1_w0   
          LDA ?b7
-         CMPA #0x27
+         TEQA #0x27
          JNE FAIL
          LDA ?b6
-         CMPA #0xF8
+         TEQA #0xF8
          JNE FAIL
          LDA ?b5
-         CMPA #0x6E
+         TEQA #0x6E
          JNE FAIL
          LDA ?b4
-         CMPA #0xE9
+         TEQA #0xE9
          JNE FAIL  
 
          ; Test load32_l0, load32_l1, load32_l2, load32_l3
@@ -3023,16 +3023,16 @@ LOOPTST2 NOP            ; End of decrement loop
          LDX #0x1500       ; Load address of test data
          JSR ?load32_l0    ; Load 32-bit value from memory to l0
          LDA ?b3           ; Verify loaded value
-         CMPA #0x12
+         TEQA #0x12
          JNE FAIL
          LDA ?b2
-         CMPA #0x34
+         TEQA #0x34
          JNE FAIL
          LDA ?b1
-         CMPA #0x56
+         TEQA #0x56
          JNE FAIL
          LDA ?b0
-         CMPA #0x78
+         TEQA #0x78
          JNE FAIL 
          CMPX #0x1503      ; also verify current X value
          JNE FAIL
@@ -3044,16 +3044,16 @@ LOOPTST2 NOP            ; End of decrement loop
          LDX #0x1600       ; Load address of test data
          JSR ?load32_l1    ; Load 32-bit value from memory to l1
          LDA ?b7           ; Verify loaded value
-         CMPA #0xAB
+         TEQA #0xAB
          JNE FAIL
          LDA ?b6
-         CMPA #0xCD
+         TEQA #0xCD
          JNE FAIL
          LDA ?b5
-         CMPA #0xDE
+         TEQA #0xDE
          JNE FAIL
          LDA ?b4
-         CMPA #0xAD
+         TEQA #0xAD
          JNE FAIL 
          CMPX #0x1603      ; also verify current X value
          JNE FAIL
@@ -3065,16 +3065,16 @@ LOOPTST2 NOP            ; End of decrement loop
          LDX #0x1700       ; Load address of test data
          JSR ?load32_l2    ; Load 32-bit value from memory to l2
          LDA ?b11          ; Verify loaded value
-         CMPA #0x1A
+         TEQA #0x1A
          JNE FAIL
          LDA ?b10
-         CMPA #0x2B
+         TEQA #0x2B
          JNE FAIL
          LDA ?b9
-         CMPA #0x3C
+         TEQA #0x3C
          JNE FAIL
          LDA ?b8
-         CMPA #0x4D
+         TEQA #0x4D
          JNE FAIL 
          CMPX #0x1703      ; also verify current X value
          JNE FAIL
@@ -3086,16 +3086,16 @@ LOOPTST2 NOP            ; End of decrement loop
          LDX #0x1800       ; Load address of test data
          JSR ?load32_l3    ; Load 32-bit value from memory to l3
          LDA ?b15          ; Verify loaded value
-         CMPA #0x2F
+         TEQA #0x2F
          JNE FAIL
          LDA ?b14
-         CMPA #0x3E
+         TEQA #0x3E
          JNE FAIL
          LDA ?b13
-         CMPA #0x4D
+         TEQA #0x4D
          JNE FAIL
          LDA ?b12
-         CMPA #0x5C
+         TEQA #0x5C
          JNE FAIL 
          CMPX #0x1803      ; also verify current X value
          JNE FAIL         
@@ -3118,10 +3118,10 @@ BLKCODESTART   LDA #0x56   ; 86 * 171 = 14706   (0x56 * 0xAB = 0x3972)
                STA ?b1
                JSR ?mul8_w1_b1_b0
                LDA ?b3
-               CMPA #0x39
+               TEQA #0x39
                JNE FAIL
                LDA ?b2
-               CMPA #0x72
+               TEQA #0x72
                JNE FAIL
                RTS
                ; Copy the Block of code from EEPROM to RAM
@@ -3178,7 +3178,7 @@ FIB32_LOOP  JSR ?add32_l2_l1_l0  ; l2 = l1 + l0
             LDA LOOPCNT
             DECA
             STA LOOPCNT
-            CMPA #0x00
+            TEQA #0x00
             JNE FIB32_LOOP
             ; End of fibonacci number computation
             ; Verify Fibonacci numbers stored in memory
@@ -3213,7 +3213,7 @@ VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l
             LDA LOOPCNT          ; Decrement loop counter
             ADDA #0xFF         ; decrement
             STA LOOPCNT
-            CMPA #0x00
+            TEQA #0x00
             JNE VERIFY_LOOP
             ; End of fibonacci number verification
 
@@ -3844,7 +3844,7 @@ DelayClear  DECA
 ;   XL = column (0..15)
 ;--------------------------------------------
 LCD_SetCursorPos  LDA XH      
-                  CMPA #0x00
+                  TEQA #0x00
                   JEQ LCD_Row0
                   LDA #0x40         ; Row 1, DDRAM base address line 1
                   JRA LCD_AddCol
@@ -3867,7 +3867,7 @@ LCD_WriteChar  STA LCD_DATA
 ;   X = address of string
 ;--------------------------------------------
 LCD_PrintString   LDA (X)        ; A = *X
-                  CMPA #0x00     ; end of string?
+                  TEQA #0x00     ; end of string?
                   JEQ LCD_PrDone
                   JSR LCD_WriteChar
                   INCX           ; X++
