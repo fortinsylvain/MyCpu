@@ -1,7 +1,7 @@
                 ; -----------------------------------------------------------------
                 ; Homebrew MyCPU diagnostic program
                 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-                ; Date : 1 february 2026
+                ; Date : 3 february 2026
                 ; Documentation : diag.asm is a test program that verifying every 
                 ;                 assembler instructions of MyCPU.
                 ; Memory map of the computer
@@ -1937,613 +1937,884 @@ EE26 2D 01               CMPA #0x01
 EE28 2B FF B0            JNE FAIL
                          ; -----------------------------------------------------
                          ; OP.1F CMPA 0x**** 
-                         ; Compare A with direct-addressed byte, Update Status E
+                         ; Compare A with direct-addressed byte
+                         ; A - Direct Addressing, A unchanged, E and C updated
                          ; -----------------------------------------------------
 EE2B 30 1F      TSTOP1F  LDA #0x1F
 EE2D 19                  NOTA
 EE2E 31 C0 00            STA LEDPORT ; Output to LED port
 EE31 30 5A               LDA #0x5A   ; Store a value in RAM
 EE33 31 02 00            STA 0x0200   
-EE36 30 5A               LDA #0x5A
-EE38 1F 02 00            CMPA 0x0200 ; Compare with same value
-EE3B 2B FF B0            JNE FAIL    ; Jump if result not good
+EE36 30 5A               LDA #0x5A   ; -- Compare with same value --
+EE38 1F 02 00            CMPA 0x0200 
+EE3B 2B FF B0            JNE FAIL    ; Jump if result say not equal
 EE3E 2A 1F FA            LDA EQUAL   ; Read E flag and check it is set
-EE41 2D 01               CMPA #0x01  
+EE41 21 01               TEQA #0x01
 EE43 2B FF B0            JNE FAIL
-EE46 30 3C               LDA #0x3C
-EE48 1F 02 00            CMPA 0x0200 ; Compare with lower value
-EE4B 2C FF B0            JEQ FAIL    ; Jump if result indicates equality
-EE4E 2A 1F FA            LDA EQUAL  ; Read E flag and check it is cleared
-EE51 2D 00               CMPA #0x00  
-EE53 2B FF B0            JNE FAIL
-EE56 30 7E               LDA #0x7E
-EE58 1F 02 00            CMPA 0x0200 ; Compare with higher value
-EE5B 2C FF B0            JEQ FAIL    ; Jump if result indicates equality
-EE5E 2A 1F FA            LDA EQUAL   ; Read E flag and check it is cleared
-EE61 2D 00               CMPA #0x00  
-EE63 2B FF B0            JNE FAIL 
-EE66 30 00               LDA #0x00
-EE68 31 15 67            STA 0x1567
-EE6B 30 FF               LDA #0xFF
-EE6D 31 17 89            STA 0x1789
-EE70 30 00               LDA #0x00
-EE72 1F 15 67            CMPA 0x1567
-EE75 2B FF B0            JNE FAIL
-EE78 2A 1F FA            LDA EQUAL
-EE7B 2D 01               CMPA #0x01
-EE7D 2B FF B0            JNE FAIL
-EE80 30 FF               LDA #0xFF
-EE82 1F 17 89            CMPA 0x1789
-EE85 2B FF B0            JNE FAIL
-EE88 2A 1F FA            LDA EQUAL
-EE8B 2D 01               CMPA #0x01
-EE8D 2B FF B0            JNE FAIL 
-EE90 30 AA               LDA #0xAA
-EE92 1F 15 67            CMPA 0x1567
-EE95 2C FF B0            JEQ FAIL
-EE98 2A 1F FA            LDA EQUAL
-EE9B 2D 00               CMPA #0x00
+EE46 2A 1F FB            LDA CARRY   ; Read Carry flag and check it is set
+EE49 21 01               TEQA #0x01
+EE4B 2B FF B0            JNE FAIL
+EE4E 30 3C               LDA #0x3C   ; -- Compare with A < Memory --
+EE50 1F 02 00            CMPA 0x0200 
+EE53 2C FF B0            JEQ FAIL    ; Jump if result indicates equality
+EE56 2A 1F FA            LDA EQUAL   ; Read E flag and check it is cleared
+EE59 21 00               TEQA #0x00
+EE5B 2B FF B0            JNE FAIL
+EE5E 2A 1F FB            LDA CARRY   ; Read Carry flag and check it is cleared
+EE61 21 00               TEQA #0x00
+EE63 2B FF B0            JNE FAIL
+EE66 30 7E               LDA #0x7E   ; -- Compare with A > Memory --
+EE68 1F 02 00            CMPA 0x0200 
+EE6B 2C FF B0            JEQ FAIL    ; Jump if result indicates equality
+EE6E 2A 1F FA            LDA EQUAL   ; Read E flag and check it is cleared
+EE71 2D 00               CMPA #0x00  
+EE73 2B FF B0            JNE FAIL
+EE76 2A 1F FB            LDA CARRY   ; Read Carry flag and check it is set
+EE79 21 01               TEQA #0x01
+EE7B 2B FF B0            JNE FAIL
+                         ; Test all bits for CMPA operation
+EE7E 30 00               LDA #0x00
+EE80 31 15 67            STA 0x1567
+EE83 30 FF               LDA #0xFF
+EE85 31 17 89            STA 0x1789
+EE88 30 00               LDA #0x00
+EE8A 1F 15 67            CMPA 0x1567
+EE8D 2B FF B0            JNE FAIL
+EE90 2A 1F FA            LDA EQUAL
+EE93 21 01               TEQA #0x01
+EE95 2B FF B0            JNE FAIL
+EE98 30 FF               LDA #0xFF
+EE9A 1F 17 89            CMPA 0x1789
 EE9D 2B FF B0            JNE FAIL
-EEA0 30 55               LDA #0x55
-EEA2 1F 17 89            CMPA 0x1789
-EEA5 2C FF B0            JEQ FAIL
-EEA8 2A 1F FA            LDA EQUAL
-EEAB 2D 00               CMPA #0x00
-EEAD 2B FF B0            JNE FAIL
-                         ; Test with symbolic address
-EEB0 30 41               LDA #0x41      ; 'A'
-EEB2 1F F9 77            CMPA MSGTXT1   ; '1' 
-EEB5 2C FF B0            JEQ FAIL
-EEB8 30 31               LDA #0x31      ; '1'
-EEBA 1F F9 77            CMPA MSGTXT1   ; '1'
-EEBD 2B FF B0            JNE FAIL
-EEC0 30 57               LDA #0x57      ; 'W'
-EEC2 1F F9 84            CMPA MSGTXT2+6 ; 'W'
+EEA0 2A 1F FA            LDA EQUAL
+EEA3 21 01               TEQA #0x01
+EEA5 2B FF B0            JNE FAIL 
+EEA8 30 AA               LDA #0xAA
+EEAA 1F 15 67            CMPA 0x1567
+EEAD 2C FF B0            JEQ FAIL
+EEB0 2A 1F FA            LDA EQUAL
+EEB3 21 00               TEQA #0x00
+EEB5 2B FF B0            JNE FAIL
+EEB8 30 55               LDA #0x55
+EEBA 1F 17 89            CMPA 0x1789
+EEBD 2C FF B0            JEQ FAIL
+EEC0 2A 1F FA            LDA EQUAL
+EEC3 21 00               TEQA #0x00
 EEC5 2B FF B0            JNE FAIL
-EEC8 30 54               LDA #0x54
-EECA 1F F9 8A            CMPA MSGTXT3   ; 'T'
-EECD 2B FF B0            JNE FAIL
-EED0 30 68               LDA #0x68
-EED2 1F F9 8B            CMPA MSGTXT3+1 ; 'h'
+                         ; Test with symbolic address
+EEC8 30 41               LDA #0x41      ; 'A'
+EECA 1F FB 99            CMPA MSGTXT1   ; '1' 
+EECD 2C FF B0            JEQ FAIL
+EED0 30 31               LDA #0x31      ; '1'
+EED2 1F FB 99            CMPA MSGTXT1   ; '1'
 EED5 2B FF B0            JNE FAIL
-EED8 30 69               LDA #0x69
-EEDA 1F F9 8C            CMPA MSGTXT3+2 ; 'i'
+EED8 30 57               LDA #0x57      ; 'W'
+EEDA 1F FB A6            CMPA MSGTXT2+6 ; 'W'
 EEDD 2B FF B0            JNE FAIL
-EEE0 30 73               LDA #0x73
-EEE2 1F F9 8D            CMPA MSGTXT3+3 ; 's'
+EEE0 30 54               LDA #0x54
+EEE2 1F FB AC            CMPA MSGTXT3   ; 'T'
 EEE5 2B FF B0            JNE FAIL
-EEE8 30 20               LDA #0x20
-EEEA 1F F9 8E            CMPA MSGTXT3+4 ; ' '
+EEE8 30 68               LDA #0x68
+EEEA 1F FB AD            CMPA MSGTXT3+1 ; 'h'
 EEED 2B FF B0            JNE FAIL
 EEF0 30 69               LDA #0x69
-EEF2 1F F9 8F            CMPA MSGTXT3+5 ; 'i'
+EEF2 1F FB AE            CMPA MSGTXT3+2 ; 'i'
 EEF5 2B FF B0            JNE FAIL
 EEF8 30 73               LDA #0x73
-EEFA 1F F9 90            CMPA MSGTXT3+6 ; 's'
+EEFA 1F FB AF            CMPA MSGTXT3+3 ; 's'
 EEFD 2B FF B0            JNE FAIL
-EF00 30 72               LDA #0x72      ; 'r'
-EF02 1F F9 C5            CMPA MSGTXT3+59
+EF00 30 20               LDA #0x20
+EF02 1F FB B0            CMPA MSGTXT3+4 ; ' '
 EF05 2B FF B0            JNE FAIL
+EF08 30 69               LDA #0x69
+EF0A 1F FB B1            CMPA MSGTXT3+5 ; 'i'
+EF0D 2B FF B0            JNE FAIL
+EF10 30 73               LDA #0x73
+EF12 1F FB B2            CMPA MSGTXT3+6 ; 's'
+EF15 2B FF B0            JNE FAIL
+EF18 30 72               LDA #0x72      ; 'r'
+EF1A 1F FB E7            CMPA MSGTXT3+59
+EF1D 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.20 DECA  
                          ; DECREMENT REGISTER A
                          ; --------------------------------------------------------------------
-EF08 30 20      TSTOP20  LDA #0x20
-EF0A 19                  NOTA
-EF0B 31 C0 00            STA LEDPORT ; Output to LED port
-EF0E 30 01               LDA #0x01
-EF10 20                  DECA
-EF11 2D 00               CMPA #0x00
-EF13 2B FF B0            JNE FAIL
-EF16 20                  DECA
-EF17 2D FF               CMPA #0xFF
-EF19 2B FF B0            JNE FAIL
-EF1C 20                  DECA
-EF1D 2D FE               CMPA #0xFE
-EF1F 2B FF B0            JNE FAIL
-EF22 30 80               LDA #0x80
-EF24 20                  DECA
-EF25 2D 7F               CMPA #0x7F
-EF27 2B FF B0            JNE FAIL
-                         ; Test E flag
-EF2A 30 00               LDA #0x00   ; Clear E equal flag
-EF2C 31 1F FA            STA 0x1FFA 
-EF2F 30 01               LDA #0x01
-EF31 20                  DECA
-EF32 2A 1F FA            LDA 0x1FFA
-EF35 2D 01               CMPA #0x01 ; Check E flag is set
+EF20 30 20      TSTOP20  LDA #0x20
+EF22 19                  NOTA
+EF23 31 C0 00            STA LEDPORT ; Output to LED port
+EF26 30 01               LDA #0x01
+EF28 20                  DECA
+EF29 2D 00               CMPA #0x00
+EF2B 2B FF B0            JNE FAIL
+EF2E 20                  DECA
+EF2F 2D FF               CMPA #0xFF
+EF31 2B FF B0            JNE FAIL
+EF34 20                  DECA
+EF35 2D FE               CMPA #0xFE
 EF37 2B FF B0            JNE FAIL
-EF3A 30 00               LDA #0x00
+EF3A 30 80               LDA #0x80
 EF3C 20                  DECA
-EF3D 2A 1F FA            LDA 0x1FFA
-EF40 2D 00               CMPA #0x00 ; Check E flag is cleared
-EF42 2B FF B0            JNE FAIL
+EF3D 2D 7F               CMPA #0x7F
+EF3F 2B FF B0            JNE FAIL
+                         ; Test E flag
+EF42 30 00               LDA #0x00   ; Clear E equal flag
+EF44 31 1F FA            STA 0x1FFA 
+EF47 30 01               LDA #0x01
+EF49 20                  DECA
+EF4A 2A 1F FA            LDA 0x1FFA
+EF4D 2D 01               CMPA #0x01 ; Check E flag is set
+EF4F 2B FF B0            JNE FAIL
+EF52 30 00               LDA #0x00
+EF54 20                  DECA
+EF55 2A 1F FA            LDA 0x1FFA
+EF58 2D 00               CMPA #0x00 ; Check E flag is cleared
+EF5A 2B FF B0            JNE FAIL
                          ; Check all bits for the E flag
-EF45 30 81               LDA #0x81
-EF47 20                  DECA
-EF48 2A 1F FA            LDA 0x1FFA
-EF4B 2D 00               CMPA #0x00 ; Check E flag is cleared
-EF4D 2B FF B0            JNE FAIL
-EF50 30 41               LDA #0x41
-EF52 20                  DECA
-EF53 2A 1F FA            LDA 0x1FFA
-EF56 2D 00               CMPA #0x00 ; Check E flag is cleared
-EF58 2B FF B0            JNE FAIL
-EF5B 30 21               LDA #0x21
-EF5D 20                  DECA
-EF5E 2A 1F FA            LDA 0x1FFA
-EF61 2D 00               CMPA #0x00 ; Check E flag is cleared
-EF63 2B FF B0            JNE FAIL
-EF66 30 11               LDA #0x11
-EF68 20                  DECA
-EF69 2A 1F FA            LDA 0x1FFA
-EF6C 2D 00               CMPA #0x00 ; Check E flag is cleared
-EF6E 2B FF B0            JNE FAIL
-EF71 30 09               LDA #0x09
-EF73 20                  DECA
-EF74 2A 1F FA            LDA 0x1FFA
-EF77 2D 00               CMPA #0x00 ; Check E flag is cleared
-EF79 2B FF B0            JNE FAIL
-EF7C 30 05               LDA #0x05
-EF7E 20                  DECA
-EF7F 2A 1F FA            LDA 0x1FFA
-EF82 2D 00               CMPA #0x00 ; Check E flag is cleared
-EF84 2B FF B0            JNE FAIL
-EF87 30 03               LDA #0x03
-EF89 20                  DECA
-EF8A 2A 1F FA            LDA 0x1FFA
-EF8D 2D 00               CMPA #0x00 ; Check E flag is cleared
-EF8F 2B FF B0            JNE FAIL
-EF92 30 02               LDA #0x02
-EF94 20                  DECA
-EF95 2A 1F FA            LDA 0x1FFA
-EF98 2D 00               CMPA #0x00 ; Check E flag is cleared
-EF9A 2B FF B0            JNE FAIL
-                         ; Test all bits for DECA operation
-EF9D 30 FF               LDA #0xFF
-EF9F 20                  DECA
-EFA0 2D FE               CMPA #0xFE
-EFA2 2B FF B0            JNE FAIL
-EFA5 30 7F               LDA #0x7F
-EFA7 20                  DECA
-EFA8 2D 7E               CMPA #0x7E
-EFAA 2B FF B0            JNE FAIL
-EFAD 30 3F               LDA #0x3F
-EFAF 20                  DECA
-EFB0 2D 3E               CMPA #0x3E
+EF5D 30 81               LDA #0x81
+EF5F 20                  DECA
+EF60 2A 1F FA            LDA 0x1FFA
+EF63 2D 00               CMPA #0x00 ; Check E flag is cleared
+EF65 2B FF B0            JNE FAIL
+EF68 30 41               LDA #0x41
+EF6A 20                  DECA
+EF6B 2A 1F FA            LDA 0x1FFA
+EF6E 2D 00               CMPA #0x00 ; Check E flag is cleared
+EF70 2B FF B0            JNE FAIL
+EF73 30 21               LDA #0x21
+EF75 20                  DECA
+EF76 2A 1F FA            LDA 0x1FFA
+EF79 2D 00               CMPA #0x00 ; Check E flag is cleared
+EF7B 2B FF B0            JNE FAIL
+EF7E 30 11               LDA #0x11
+EF80 20                  DECA
+EF81 2A 1F FA            LDA 0x1FFA
+EF84 2D 00               CMPA #0x00 ; Check E flag is cleared
+EF86 2B FF B0            JNE FAIL
+EF89 30 09               LDA #0x09
+EF8B 20                  DECA
+EF8C 2A 1F FA            LDA 0x1FFA
+EF8F 2D 00               CMPA #0x00 ; Check E flag is cleared
+EF91 2B FF B0            JNE FAIL
+EF94 30 05               LDA #0x05
+EF96 20                  DECA
+EF97 2A 1F FA            LDA 0x1FFA
+EF9A 2D 00               CMPA #0x00 ; Check E flag is cleared
+EF9C 2B FF B0            JNE FAIL
+EF9F 30 03               LDA #0x03
+EFA1 20                  DECA
+EFA2 2A 1F FA            LDA 0x1FFA
+EFA5 2D 00               CMPA #0x00 ; Check E flag is cleared
+EFA7 2B FF B0            JNE FAIL
+EFAA 30 02               LDA #0x02
+EFAC 20                  DECA
+EFAD 2A 1F FA            LDA 0x1FFA
+EFB0 2D 00               CMPA #0x00 ; Check E flag is cleared
 EFB2 2B FF B0            JNE FAIL
-EFB5 30 1F               LDA #0x1F
+                         ; Test all bits for DECA operation
+EFB5 30 FF               LDA #0xFF
 EFB7 20                  DECA
-EFB8 2D 1E               CMPA #0x1E
+EFB8 2D FE               CMPA #0xFE
 EFBA 2B FF B0            JNE FAIL
-EFBD 30 0F               LDA #0x0F
+EFBD 30 7F               LDA #0x7F
 EFBF 20                  DECA
-EFC0 2D 0E               CMPA #0x0E
+EFC0 2D 7E               CMPA #0x7E
 EFC2 2B FF B0            JNE FAIL
-EFC5 30 07               LDA #0x07
+EFC5 30 3F               LDA #0x3F
 EFC7 20                  DECA
-EFC8 2D 06               CMPA #0x06
+EFC8 2D 3E               CMPA #0x3E
 EFCA 2B FF B0            JNE FAIL
-EFCD 30 03               LDA #0x03
+EFCD 30 1F               LDA #0x1F
 EFCF 20                  DECA
-EFD0 2D 02               CMPA #0x02
+EFD0 2D 1E               CMPA #0x1E
 EFD2 2B FF B0            JNE FAIL
-EFD5 30 01               LDA #0x01
+EFD5 30 0F               LDA #0x0F
 EFD7 20                  DECA
-EFD8 2D 00               CMPA #0x00
+EFD8 2D 0E               CMPA #0x0E
 EFDA 2B FF B0            JNE FAIL
+EFDD 30 07               LDA #0x07
+EFDF 20                  DECA
+EFE0 2D 06               CMPA #0x06
+EFE2 2B FF B0            JNE FAIL
+EFE5 30 03               LDA #0x03
+EFE7 20                  DECA
+EFE8 2D 02               CMPA #0x02
+EFEA 2B FF B0            JNE FAIL
+EFED 30 01               LDA #0x01
+EFEF 20                  DECA
+EFF0 2D 00               CMPA #0x00
+EFF2 2B FF B0            JNE FAIL
+                         ; --------------------------------------------------------------------
+                         ; OP.21 TEQA #0x**  
+                         ; TEST EQUAL A with imm, A preserved, E updated, C preserved
+                         ; --------------------------------------------------------------------
+EFF5 30 21      TSTOP21  LDA #0x21
+EFF7 19                  NOTA
+EFF8 31 C0 00            STA LEDPORT ; Output to LED port
+EFFB 30 00               LDA #0x00   ; Clear Carry flag first
+EFFD 31 1F FB            STA CARRY
+F000 30 5A               LDA #0x5A
+F002 21 5A               TEQA #0x5A
+F004 2B FF B0            JNE FAIL
+F007 2A 1F FA            LDA EQUAL
+F00A 21 01               TEQA #0x01
+F00C 2B FF B0            JNE FAIL
+F00F 2A 1F FB            LDA CARRY   ; Test Carry flag still cleared
+F012 21 00               TEQA #0x00
+F014 2B FF B0            JNE FAIL
+                         ; Now do the same using a set carry flag
+F017 30 01               LDA #0x01
+F019 31 1F FB            STA CARRY
+F01C 30 BD               LDA #0xBD
+F01E 21 BD               TEQA #0xBD
+F020 2B FF B0            JNE FAIL
+F023 2A 1F FA            LDA EQUAL
+F026 21 01               TEQA #0x01
+F028 2B FF B0            JNE FAIL
+F02B 2A 1F FB            LDA CARRY   ; Test Carry flag still set
+F02E 21 01               TEQA #0x01
+F030 2B FF B0            JNE FAIL
+                         ; Now test for not equal
+F033 30 00               LDA #0x00   ; Clear Carry flag first
+F035 31 1F FB            STA CARRY
+F038 30 3C               LDA #0x3C
+F03A 21 4D               TEQA #0x4D
+F03C 2C FF B0            JEQ FAIL
+F03F 2A 1F FA            LDA EQUAL
+F042 21 00               TEQA #0x00
+F044 2B FF B0            JNE FAIL
+F047 2A 1F FB            LDA CARRY   ; Test Carry flag still cleared
+F04A 21 00               TEQA #0x00
+F04C 2B FF B0            JNE FAIL
+                         ; Now do the same using a set carry flag
+F04F 30 01               LDA #0x01
+F051 31 1F FB            STA CARRY
+F054 30 7E               LDA #0x7E      
+F056 21 6F               TEQA #0x6F
+F058 2C FF B0            JEQ FAIL
+F05B 2A 1F FA            LDA EQUAL
+F05E 21 00               TEQA #0x00
+F060 2B FF B0            JNE FAIL
+F063 2A 1F FB            LDA CARRY   ; Test Carry flag still set
+F066 21 01               TEQA #0x01
+F068 2B FF B0            JNE FAIL
+                         ; Test all bits for TEQA operation
+F06B 30 FF               LDA #0xFF
+F06D 21 FF               TEQA #0xFF
+F06F 2B FF B0            JNE FAIL
+F072 2A 1F FA            LDA EQUAL
+F075 21 01               TEQA #0x01
+F077 2B FF B0            JNE FAIL
+F07A 30 00               LDA #0x00
+F07C 21 00               TEQA #0x00
+F07E 2B FF B0            JNE FAIL
+F081 2A 1F FA            LDA EQUAL
+F084 21 01               TEQA #0x01
+F086 2B FF B0            JNE FAIL
+F089 30 AA               LDA #0xAA
+F08B 21 AA               TEQA #0xAA
+F08D 2B FF B0            JNE FAIL
+F090 2A 1F FA            LDA EQUAL
+F093 21 01               TEQA #0x01
+F095 2B FF B0            JNE FAIL
+F098 30 55               LDA #0x55
+F09A 21 55               TEQA #0x55
+F09C 2B FF B0            JNE FAIL
+F09F 2A 1F FA            LDA EQUAL
+F0A2 21 01               TEQA #0x01
+F0A4 2B FF B0            JNE FAIL
+                         ; --------------------------------------------------------------------
+                         ; OP.22 TEQA 0x****  
+                         ; TEST EQUAL A with MEM, A preserved, E updated, C preserved
+                         ; --------------------------------------------------------------------
+F0A7 30 22      TSTOP22  LDA #0x22
+F0A9 19                  NOTA
+F0AA 31 C0 00            STA LEDPORT ; Output to LED port
+F0AD 30 00               LDA #0x00   ; Clear Carry flag first
+F0AF 31 1F FB            STA CARRY
+F0B2 30 5A               LDA #0x5A   ; Store a value in RAM
+F0B4 31 02 00            STA 0x0200   
+F0B7 30 5A               LDA #0x5A   ; -- Compare with same value --
+F0B9 22 02 00            TEQA 0x0200
+F0BC 2B FF B0            JNE FAIL    ; Jump if result say not equal
+F0BF 2A 1F FA            LDA EQUAL   ; Read E flag and check it is set
+F0C2 21 01               TEQA #0x01
+F0C4 2B FF B0            JNE FAIL
+F0C7 2A 1F FB            LDA CARRY   ; Read Carry flag and check it is still cleared
+F0CA 21 00               TEQA #0x00
+F0CC 2B FF B0            JNE FAIL
+                         ; Now do the same using a set carry flag
+F0CF 30 01               LDA #0x01   ; set Carry flag
+F0D1 31 1F FB            STA CARRY
+F0D4 30 BD               LDA #0xBD
+F0D6 31 05 00            STA 0x0500
+F0D9 22 05 00            TEQA 0x0500
+F0DC 2B FF B0            JNE FAIL
+F0DF 2A 1F FA            LDA EQUAL
+F0E2 21 01               TEQA #0x01
+F0E4 2B FF B0            JNE FAIL
+F0E7 2A 1F FB            LDA CARRY   ; Test Carry flag still set
+F0EA 21 01               TEQA #0x01
+F0EC 2B FF B0            JNE FAIL
+                         ; Now test for not equal
+F0EF 30 00               LDA #0x00   ; Clear Carry flag first
+F0F1 31 1F FB            STA CARRY
+F0F4 30 3C               LDA #0x3C
+F0F6 31 06 00            STA 0x0600
+F0F9 30 4D               LDA #0x4D
+F0FB 22 06 00            TEQA 0x0600
+F0FE 2C FF B0            JEQ FAIL
+F101 2A 1F FA            LDA EQUAL
+F104 21 00               TEQA #0x00
+F106 2B FF B0            JNE FAIL
+F109 2A 1F FB            LDA CARRY   ; Test Carry flag still cleared
+F10C 21 00               TEQA #0x00
+F10E 2B FF B0            JNE FAIL
+                         ; Now do the same using a set carry flag
+F111 30 01               LDA #0x01
+F113 31 1F FB            STA CARRY
+F116 30 7E               LDA #0x7E      
+F118 31 07 00            STA 0x0700
+F11B 30 6F               LDA #0x6F
+F11D 22 07 00            TEQA 0x0700
+F120 2C FF B0            JEQ FAIL
+F123 2A 1F FA            LDA EQUAL
+F126 21 00               TEQA #0x00
+F128 2B FF B0            JNE FAIL
+F12B 2A 1F FB            LDA CARRY   ; Test Carry flag still set
+F12E 21 01               TEQA #0x01
+F130 2B FF B0            JNE FAIL
+                         ; Test all bits for TEQA operation
+F133 30 FF               LDA #0xFF
+F135 31 08 00            STA 0x0800
+F138 22 08 00            TEQA 0x0800
+F13B 2B FF B0            JNE FAIL
+F13E 2A 1F FA            LDA EQUAL
+F141 21 01               TEQA #0x01
+F143 2B FF B0            JNE FAIL
+F146 30 00               LDA #0x00
+F148 31 09 00            STA 0x0900
+F14B 22 09 00            TEQA 0x0900
+F14E 2B FF B0            JNE FAIL
+F151 2A 1F FA            LDA EQUAL
+F154 21 01               TEQA #0x01
+F156 2B FF B0            JNE FAIL
+F159 30 AA               LDA #0xAA
+F15B 31 0A 00            STA 0x0A00
+F15E 22 0A 00            TEQA 0x0A00
+F161 2B FF B0            JNE FAIL
+F164 2A 1F FA            LDA EQUAL
+F167 21 01               TEQA #0x01
+F169 2B FF B0            JNE FAIL
+F16C 30 55               LDA #0x55
+F16E 31 0B 00            STA 0x0B00
+F171 22 0B 00            TEQA 0x0B00
+F174 2B FF B0            JNE FAIL
+F177 2A 1F FA            LDA EQUAL
+F17A 21 01               TEQA #0x01
+F17C 2B FF B0            JNE FAIL
+                         ; Test with symbolic address
+F17F 30 31               LDA #0x31      ; '1'
+F181 22 FB 99            TEQA MSGTXT1
+F184 2B FF B0            JNE FAIL
+F187 30 32               LDA #0x32      ; '2'
+F189 22 FB 9A            TEQA MSGTXT1+1
+F18C 2B FF B0            JNE FAIL
+F18F 30 33               LDA #0x33      ; '3'
+F191 22 FB 9B            TEQA MSGTXT1+2
+F194 2B FF B0            JNE FAIL
+F197 30 41               LDA #0x41      ; 'A'
+F199 22 FB 9C            TEQA MSGTXT1+3
+F19C 2B FF B0            JNE FAIL     
+                         ; --------------------------------------------------------------------
+                         ; OP.23 JRUGE Jump Relative Unsigned Greater or Equal (Condition C = 1)
+                         ; --------------------------------------------------------------------
+F19F 30 23      TSTOP23  LDA #0x23
+F1A1 19                  NOTA
+F1A2 31 C0 00            STA LEDPORT    ; Output to LED port
+F1A5 30 C4               LDA #0xC4      ; -- Test when equal (C=1)
+F1A7 2D C4               CMPA #0xC4
+F1A9 23 03               JRUGE TSTOP23A ; Jump if A >= 0xC4
+F1AB 32 FF B0            JMP FAIL       ; Error if jump not taken
+F1AE 2A 1F FB   TSTOP23A LDA CARRY
+F1B1 21 01               TEQA #0x01     ; Check Carry Set
+F1B3 2B FF B0            JNE FAIL
+F1B6 30 3A               LDA #0x3A      ; -- Test when A < value (C=0)
+F1B8 2D 4B               CMPA #0x4B
+F1BA 23 1B               JRUGE TSTOP23X ; Error if jump taken
+F1BC 2A 1F FB            LDA CARRY
+F1BF 21 00               TEQA #0x00     ; Check Carry Cleared
+F1C1 2B FF B0            JNE FAIL
+F1C4 30 EF               LDA #0xEF      ;-- test when A > value (C=1)
+F1C6 2D BE               CMPA #0xBE
+F1C8 23 03               JRUGE TSTOP23B ; Jump if A >= 0xBE
+F1CA 32 FF B0            JMP FAIL       ; Error if jump not taken
+F1CD 2A 1F FB   TSTOP23B LDA CARRY
+F1D0 21 01               TEQA #0x01     ; Check Carry Set
+F1D2 2B FF B0            JNE FAIL
+                         ; Test all bits for JRUGE operation
+                ;         LDA #0x00
+                ;         CMPA #0x00
+                ;         JRUGE TSTOP23C
+                ;         JMP FAIL
+                ;TSTOP23C LDA CARRY
+                ;         TEQA #0x01
+                ;         JNE FAIL
+                ;         LDA #0x7F
+                ;         CMPA #0xFF
+                ;         JRUGE TSTOP23X
+                ;         LDA CARRY
+                ;         TEQA #0x00
+                ;         JNE FAIL
+                ;         LDA #0x80
+                ;         CMPA #0x7F
+                ;         JRUGE TSTOP23D
+                ;         JMP FAIL
+                ;TSTOP23D LDA CARRY
+                ;         TEQA #0x01
+                ;         JNE FAIL
+                ;         LDA #0xFF
+                ;         CMPA #0x00
+                ;         JRUGE TSTOP23E
+                ;         JMP FAIL
+                ;TSTOP23E LDA CARRY
+                ;         TEQA #0x01
+                ;         JNE FAIL
+F1D5 0C 03               JRA TSTOP23Z
+F1D7 32 FF B0   TSTOP23X JMP FAIL
+F1DA 09         TSTOP23Z NOP         
                          ; --------------------------------------------------------------------
                          ; OP.29 ADDA 0x****  
                          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
                          ; --------------------------------------------------------------------
-EFDD 30 29      TSTOP29  LDA #0x29
-EFDF 19                  NOTA
-EFE0 31 C0 00            STA LEDPORT ; Output to LED port
-EFE3 30 5F               LDA #0x5F   ; Store a value in RAM
-EFE5 31 01 23            STA 0x0123   
-EFE8 30 63               LDA #0x63
-EFEA 29 01 23            ADDA 0x0123 ; Add to A the byte at address location
-EFED 21 C2               TEQA #0xC2  ; Check the sum
-EFEF 2B FF B0            JNE FAIL    ; Jump if result not good
-EFF2 2A 1F FB            LDA CARRY   ; Read the Carry Status
-EFF5 21 00               TEQA #0x00  ; No carry expected then C should be '0'
-EFF7 2B FF B0            JNE FAIL    ; Error if carry is set
+F1DB 30 29      TSTOP29  LDA #0x29
+F1DD 19                  NOTA
+F1DE 31 C0 00            STA LEDPORT ; Output to LED port
+F1E1 30 5F               LDA #0x5F   ; Store a value in RAM
+F1E3 31 01 23            STA 0x0123   
+F1E6 30 63               LDA #0x63
+F1E8 29 01 23            ADDA 0x0123 ; Add to A the byte at address location
+F1EB 21 C2               TEQA #0xC2  ; Check the sum
+F1ED 2B FF B0            JNE FAIL    ; Jump if result not good
+F1F0 2A 1F FB            LDA CARRY   ; Read the Carry Status
+F1F3 21 00               TEQA #0x00  ; No carry expected then C should be '0'
+F1F5 2B FF B0            JNE FAIL    ; Error if carry is set
 
-EFFA 30 AC               LDA #0xAC   ; Store another value in RAM
-EFFC 31 10 56            STA 0x1056   
-EFFF 30 D9               LDA #0xD9
-F001 29 10 56            ADDA 0x1056 ; Add to A the byte at address location
-F004 21 85               TEQA #0x85  ; Check the sum LSB
-F006 2B FF B0            JNE FAIL    ; Jump if result not as expected
-F009 2A 1F FB            LDA CARRY   ; Read the Carry Status
-F00C 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
-F00E 2B FF B0            JNE FAIL    ; Error if different
+F1F8 30 AC               LDA #0xAC   ; Store another value in RAM
+F1FA 31 10 56            STA 0x1056   
+F1FD 30 D9               LDA #0xD9
+F1FF 29 10 56            ADDA 0x1056 ; Add to A the byte at address location
+F202 21 85               TEQA #0x85  ; Check the sum LSB
+F204 2B FF B0            JNE FAIL    ; Jump if result not as expected
+F207 2A 1F FB            LDA CARRY   ; Read the Carry Status
+F20A 21 01               TEQA #0x01  ; The Carry Status bit is expected to be '1' with <7:1> set to '0'
+F20C 2B FF B0            JNE FAIL    ; Error if different
                          ; --------------------------------------------------------------------
                          ; OP.2A LDA 0x****  
                          ; LOAD A WITH BYTE AT ADDRESS (Direct Addressing)
                          ; --------------------------------------------------------------------
-F011 30 2A      TSTOP2A  LDA #0x2A
-F013 19                  NOTA
-F014 31 C0 00            STA LEDPORT ; Output to LED port
-F017 30 AA               LDA #0xAA   ; Load immediate in register A
-F019 2D AA               CMPA #0xAA
-F01B 2B FF B0            JNE FAIL
-F01E 30 01               LDA #0x01
-F020 2D 01               CMPA #0x01
-F022 2B FF B0            JNE FAIL
-F025 30 02               LDA #0x02
-F027 2D 02               CMPA #0x02
-F029 2B FF B0            JNE FAIL
-F02C 30 04               LDA #0x04
-F02E 2D 04               CMPA #0x04
-F030 2B FF B0            JNE FAIL
-F033 30 08               LDA #0x08
-F035 2D 08               CMPA #0x08
-F037 2B FF B0            JNE FAIL
-F03A 30 10               LDA #0x10
-F03C 2D 10               CMPA #0x10
-F03E 2B FF B0            JNE FAIL
-F041 30 20               LDA #0x20
-F043 2D 20               CMPA #0x20
-F045 2B FF B0            JNE FAIL
-F048 30 40               LDA #0x40
-F04A 2D 40               CMPA #0x40
-F04C 2B FF B0            JNE FAIL
-F04F 30 80               LDA #0x80
-F051 2D 80               CMPA #0x80
-F053 2B FF B0            JNE FAIL
-F056 30 55               LDA #0x55
-F058 2D 55               CMPA #0x55
-F05A 2B FF B0            JNE FAIL
-F05D 30 FF               LDA #0xFF
-F05F 2D FF               CMPA #0xFF
-F061 2B FF B0            JNE FAIL
+F20F 30 2A      TSTOP2A  LDA #0x2A
+F211 19                  NOTA
+F212 31 C0 00            STA LEDPORT ; Output to LED port
+F215 30 AA               LDA #0xAA   ; Load immediate in register A
+F217 2D AA               CMPA #0xAA
+F219 2B FF B0            JNE FAIL
+F21C 30 01               LDA #0x01
+F21E 2D 01               CMPA #0x01
+F220 2B FF B0            JNE FAIL
+F223 30 02               LDA #0x02
+F225 2D 02               CMPA #0x02
+F227 2B FF B0            JNE FAIL
+F22A 30 04               LDA #0x04
+F22C 2D 04               CMPA #0x04
+F22E 2B FF B0            JNE FAIL
+F231 30 08               LDA #0x08
+F233 2D 08               CMPA #0x08
+F235 2B FF B0            JNE FAIL
+F238 30 10               LDA #0x10
+F23A 2D 10               CMPA #0x10
+F23C 2B FF B0            JNE FAIL
+F23F 30 20               LDA #0x20
+F241 2D 20               CMPA #0x20
+F243 2B FF B0            JNE FAIL
+F246 30 40               LDA #0x40
+F248 2D 40               CMPA #0x40
+F24A 2B FF B0            JNE FAIL
+F24D 30 80               LDA #0x80
+F24F 2D 80               CMPA #0x80
+F251 2B FF B0            JNE FAIL
+F254 30 55               LDA #0x55
+F256 2D 55               CMPA #0x55
+F258 2B FF B0            JNE FAIL
+F25B 30 FF               LDA #0xFF
+F25D 2D FF               CMPA #0xFF
+F25F 2B FF B0            JNE FAIL
                          ; Now test symbolic with positive offset
-F064 2A F9 77            LDA MSGTXT1
-F067 2D 31               CMPA #0x31     ; '1'
-F069 2B FF B0            JNE FAIL
-F06C 2A F9 78            LDA MSGTXT1+1
-F06F 2D 32               CMPA #0x32     ; '2'
-F071 2B FF B0            JNE FAIL
-F074 2A F9 79            LDA MSGTXT1+2
-F077 2D 33               CMPA #0x33     ; '3'
-F079 2B FF B0            JNE FAIL
-F07C 2A F9 7A            LDA MSGTXT1+3
-F07F 2D 41               CMPA #0x41     ; 'A'
-F081 2B FF B0            JNE FAIL
-F084 2A F9 7B            LDA MSGTXT1+4
-F087 2D 42               CMPA #0x42     ; 'B'
-F089 2B FF B0            JNE FAIL
-F08C 2A F9 7C            LDA MSGTXT1+5
-F08F 2D 43               CMPA #0x43     ; 'C'
-F091 2B FF B0            JNE FAIL
-F094 2A F9 7D            LDA MSGTXT1+6
-F097 2D 00               CMPA #0x00     ; null terminator
-F099 2B FF B0            JNE FAIL
-F09C 2A F9 81            LDA MSGTXT1+10
-F09F 2D 6C               CMPA #0x6C
-F0A1 2B FF B0            JNE FAIL
-F0A4 2A F9 82            LDA MSGTXT1+11
-F0A7 2D 6F               CMPA #0x6F
-F0A9 2B FF B0            JNE FAIL
+F262 2A FB 99            LDA MSGTXT1
+F265 2D 31               CMPA #0x31     ; '1'
+F267 2B FF B0            JNE FAIL
+F26A 2A FB 9A            LDA MSGTXT1+1
+F26D 2D 32               CMPA #0x32     ; '2'
+F26F 2B FF B0            JNE FAIL
+F272 2A FB 9B            LDA MSGTXT1+2
+F275 2D 33               CMPA #0x33     ; '3'
+F277 2B FF B0            JNE FAIL
+F27A 2A FB 9C            LDA MSGTXT1+3
+F27D 2D 41               CMPA #0x41     ; 'A'
+F27F 2B FF B0            JNE FAIL
+F282 2A FB 9D            LDA MSGTXT1+4
+F285 2D 42               CMPA #0x42     ; 'B'
+F287 2B FF B0            JNE FAIL
+F28A 2A FB 9E            LDA MSGTXT1+5
+F28D 2D 43               CMPA #0x43     ; 'C'
+F28F 2B FF B0            JNE FAIL
+F292 2A FB 9F            LDA MSGTXT1+6
+F295 2D 00               CMPA #0x00     ; null terminator
+F297 2B FF B0            JNE FAIL
+F29A 2A FB A3            LDA MSGTXT1+10
+F29D 2D 6C               CMPA #0x6C
+F29F 2B FF B0            JNE FAIL
+F2A2 2A FB A4            LDA MSGTXT1+11
+F2A5 2D 6F               CMPA #0x6F
+F2A7 2B FF B0            JNE FAIL
                          ; Now test symbolic with negative offset
-F0AC 2A F9 8A            LDA MSGTXT3
-F0AF 2D 54               CMPA #0x54     ; 'T'
-F0B1 2B FF B0            JNE FAIL
-F0B4 2A F9 89            LDA MSGTXT3-1
-F0B7 2D 00               CMPA #0x00     ; null terminator
-F0B9 2B FF B0            JNE FAIL
-F0BC 2A F9 88            LDA MSGTXT3-2
-F0BF 2D 64               CMPA #0x64     ; 'd'
-F0C1 2B FF B0            JNE FAIL
-F0C4 2A F9 87            LDA MSGTXT3-3
-F0C7 2D 6C               CMPA #0x6C     ; 'l'
-F0C9 2B FF B0            JNE FAIL
-F0CC 2A F9 80            LDA MSGTXT3-10
-F0CF 2D 6C               CMPA #0x6C
-F0D1 2B FF B0            JNE FAIL
-F0D4 2A F9 7F            LDA MSGTXT3-11
-F0D7 2D 65               CMPA #0x65
-F0D9 2B FF B0            JNE FAIL
+F2AA 2A FB AC            LDA MSGTXT3
+F2AD 2D 54               CMPA #0x54     ; 'T'
+F2AF 2B FF B0            JNE FAIL
+F2B2 2A FB AB            LDA MSGTXT3-1
+F2B5 2D 00               CMPA #0x00     ; null terminator
+F2B7 2B FF B0            JNE FAIL
+F2BA 2A FB AA            LDA MSGTXT3-2
+F2BD 2D 64               CMPA #0x64     ; 'd'
+F2BF 2B FF B0            JNE FAIL
+F2C2 2A FB A9            LDA MSGTXT3-3
+F2C5 2D 6C               CMPA #0x6C     ; 'l'
+F2C7 2B FF B0            JNE FAIL
+F2CA 2A FB A2            LDA MSGTXT3-10
+F2CD 2D 6C               CMPA #0x6C
+F2CF 2B FF B0            JNE FAIL
+F2D2 2A FB A1            LDA MSGTXT3-11
+F2D5 2D 65               CMPA #0x65
+F2D7 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.2B JNE 0x****  
                          ; JUMP IF E=0
                          ; Only a partial validation because i do not have symbolic address
                          ; processing in the assembler program.
                          ; --------------------------------------------------------------------
-F0DC 30 2B      TSTOP2B  LDA #0x2B
-F0DE 19                  NOTA
-F0DF 31 C0 00            STA LEDPORT ; Output to LED port
-F0E2 30 6D               LDA #0x6D   ; Load a value in A
-F0E4 21 6D               TEQA #0x6D  ; Compare with the same value
-F0E6 2B FF B0            JNE FAIL    ; Error if values are different
-F0E9 30 10               LDA #0x10
-F0EB 21 10               TEQA #0x10
-F0ED 2B FF B0            JNE FAIL
-F0F0 30 01               LDA #0x01
-F0F2 21 01               TEQA #0x01
-F0F4 2B FF B0            JNE FAIL
+F2DA 30 2B      TSTOP2B  LDA #0x2B
+F2DC 19                  NOTA
+F2DD 31 C0 00            STA LEDPORT ; Output to LED port
+F2E0 30 6D               LDA #0x6D   ; Load a value in A
+F2E2 21 6D               TEQA #0x6D  ; Compare with the same value
+F2E4 2B FF B0            JNE FAIL    ; Error if values are different
+F2E7 30 10               LDA #0x10
+F2E9 21 10               TEQA #0x10
+F2EB 2B FF B0            JNE FAIL
+F2EE 30 01               LDA #0x01
+F2F0 21 01               TEQA #0x01
+F2F2 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.2C JEQ 0x****
                          ; JUMP IF E=1
                          ; --------------------------------------------------------------------
-F0F7 30 2C      TST2C    LDA #0x2C
-F0F9 19                  NOTA
-F0FA 31 C0 00            STA LEDPORT ; Output to LED port
-F0FD 30 7A               LDA #0x7A   ; Load a value in A
-F0FF 21 28               TEQA #0x28  ; Compare with a different value
-F101 2C FF B0            JEQ FAIL    ; If appear identical then it's and error
-F104 30 FE               LDA #0xFE   ; Again with adifference 
-F106 21 FF               TEQA #0xFF
-F108 2C FF B0            JEQ FAIL 
-F10B 30 01               LDA #0x01   ; Another with difference
-F10D 21 10               TEQA #0x10
-F10F 2C FF B0            JEQ FAIL
-F112 30 AB               LDA #0xAB   ; Now compare when values are identical
-F114 21 AB               TEQA #0xAB
-F116 2C F1 1C            JEQ TST2C_1 ; Testing if equal?
-F119 32 FF B0            JMP FAIL    ; Result say both are not equal then it's a failure
-F11C 30 00      TST2C_1  LDA #0x00   ; Result say the values are identical so we are passing
-F11E 21 00               TEQA #0x00
-F120 2C F1 26            JEQ TST2C_2 ; Testing if equal?
-F123 32 FF B0            JMP FAIL    ; if different then it's a failure
-F126 30 01      TST2C_2  LDA #0x01
-F128 21 01               TEQA #0x01
-F12A 2C F1 30            JEQ TST2C_3 ; Testing if equal?
-F12D 32 FF B0            JMP FAIL    ; if different then it's a failure
-F130 30 02      TST2C_3  LDA #0x02
-F132 21 02               TEQA #0x02
-F134 2C F1 3A            JEQ TST2C_4 ; Testing if equal?
-F137 32 FF B0            JMP FAIL    ; if different then it's a failure
-F13A 30 04      TST2C_4  LDA #0x04
-F13C 21 04               TEQA #0x04
-F13E 2C F1 44            JEQ TST2C_5 ; Testing if equal?
-F141 32 FF B0            JMP FAIL    ; if different then it's a failure
-F144 30 08      TST2C_5  LDA #0x08
-F146 21 08               TEQA #0x08
-F148 2C F1 4E            JEQ TST2C_6 ; Testing if equal?
-F14B 32 FF B0            JMP FAIL    ; if different then it's a failure
-F14E 30 10      TST2C_6  LDA #0x10
-F150 21 10               TEQA #0x10
-F152 2C F1 58            JEQ TST2C_7 ; Testing if equal?
-F155 32 FF B0            JMP FAIL    ; if different then it's a failure
-F158 30 20      TST2C_7  LDA #0x20
-F15A 21 20               TEQA #0x20
-F15C 2C F1 62            JEQ TST2C_8 ; Testing if equal?
-F15F 32 FF B0            JMP FAIL    ; if different then it's a failure         
-F162 30 40      TST2C_8  LDA #0x40
-F164 21 40               TEQA #0x40
-F166 2C F1 6C            JEQ TST2C_9 ; Testing if equal?
-F169 32 FF B0            JMP FAIL    ; if different then it's a failure         
-F16C 30 80      TST2C_9  LDA #0x80
-F16E 21 80               TEQA #0x80
-F170 2C F1 76            JEQ TST2C_10 ; Testing if equal?
-F173 32 FF B0            JMP FAIL    ; if different then it's a failure         
-F176 09         TST2C_10 NOP
+F2F5 30 2C      TST2C    LDA #0x2C
+F2F7 19                  NOTA
+F2F8 31 C0 00            STA LEDPORT ; Output to LED port
+F2FB 30 7A               LDA #0x7A   ; Load a value in A
+F2FD 21 28               TEQA #0x28  ; Compare with a different value
+F2FF 2C FF B0            JEQ FAIL    ; If appear identical then it's and error
+F302 30 FE               LDA #0xFE   ; Again with adifference 
+F304 21 FF               TEQA #0xFF
+F306 2C FF B0            JEQ FAIL 
+F309 30 01               LDA #0x01   ; Another with difference
+F30B 21 10               TEQA #0x10
+F30D 2C FF B0            JEQ FAIL
+F310 30 AB               LDA #0xAB   ; Now compare when values are identical
+F312 21 AB               TEQA #0xAB
+F314 2C F3 1A            JEQ TST2C_1 ; Testing if equal?
+F317 32 FF B0            JMP FAIL    ; Result say both are not equal then it's a failure
+F31A 30 00      TST2C_1  LDA #0x00   ; Result say the values are identical so we are passing
+F31C 21 00               TEQA #0x00
+F31E 2C F3 24            JEQ TST2C_2 ; Testing if equal?
+F321 32 FF B0            JMP FAIL    ; if different then it's a failure
+F324 30 01      TST2C_2  LDA #0x01
+F326 21 01               TEQA #0x01
+F328 2C F3 2E            JEQ TST2C_3 ; Testing if equal?
+F32B 32 FF B0            JMP FAIL    ; if different then it's a failure
+F32E 30 02      TST2C_3  LDA #0x02
+F330 21 02               TEQA #0x02
+F332 2C F3 38            JEQ TST2C_4 ; Testing if equal?
+F335 32 FF B0            JMP FAIL    ; if different then it's a failure
+F338 30 04      TST2C_4  LDA #0x04
+F33A 21 04               TEQA #0x04
+F33C 2C F3 42            JEQ TST2C_5 ; Testing if equal?
+F33F 32 FF B0            JMP FAIL    ; if different then it's a failure
+F342 30 08      TST2C_5  LDA #0x08
+F344 21 08               TEQA #0x08
+F346 2C F3 4C            JEQ TST2C_6 ; Testing if equal?
+F349 32 FF B0            JMP FAIL    ; if different then it's a failure
+F34C 30 10      TST2C_6  LDA #0x10
+F34E 21 10               TEQA #0x10
+F350 2C F3 56            JEQ TST2C_7 ; Testing if equal?
+F353 32 FF B0            JMP FAIL    ; if different then it's a failure
+F356 30 20      TST2C_7  LDA #0x20
+F358 21 20               TEQA #0x20
+F35A 2C F3 60            JEQ TST2C_8 ; Testing if equal?
+F35D 32 FF B0            JMP FAIL    ; if different then it's a failure         
+F360 30 40      TST2C_8  LDA #0x40
+F362 21 40               TEQA #0x40
+F364 2C F3 6A            JEQ TST2C_9 ; Testing if equal?
+F367 32 FF B0            JMP FAIL    ; if different then it's a failure         
+F36A 30 80      TST2C_9  LDA #0x80
+F36C 21 80               TEQA #0x80
+F36E 2C F3 74            JEQ TST2C_10 ; Testing if equal?
+F371 32 FF B0            JMP FAIL    ; if different then it's a failure         
+F374 09         TST2C_10 NOP
                          ; --------------------------------------------------------------------
                          ; OP.2D CMPA #0x**
-                         ; COMPARE A WITH IMMEDIATE VALUE    EQUAL STATUS BIT (E) UPDATED
+                         ; Compare A with Imm (A-Imm)    A unchanged, E and C are updated
+                         ; Note: CMPA → updates E and C  but  TEQA → updates E
                          ; --------------------------------------------------------------------
-F177 30 2D      TSTOP2D  LDA #0x2D
-F179 19                  NOTA
-F17A 31 C0 00            STA LEDPORT ; Output to LED port
-F17D 30 12               LDA #0x12   ; Load a value in A
-F17F 2D 12               CMPA #0x12  ; Compare with identical value
-F181 2A 1F FA            LDA EQUAL   ; Inspect EQUAL STATUS 
-F184 21 01               TEQA #0x01  ; Verify bit<0> E = '1' and all others bits <7:1> are '0'    
-F186 2B FF B0            JNE FAIL    ; If different then it's and error
-F189 30 AA               LDA #0xAA
-F18B 2D 55               CMPA #0x55  ; Compare with a different value
-F18D 2A 1F FA            LDA EQUAL   ; Inspect EQUAL STATUS
-F190 21 00               TEQA #0x00  ; Verify bit<0> E = '0' and all others bits <7:1> are '0'    
-F192 2B FF B0            JNE FAIL    ; If different then it's and error
+F375 30 2D      TSTOP2D  LDA #0x2D
+F377 19                  NOTA
+F378 31 C0 00            STA LEDPORT ; Output to LED port
+F37B 30 CA               LDA #0xCA   ;  -- Compare with identical value --
+F37D 2D CA               CMPA #0xCA
+                         ;TEQA #0xCA  ; Verify A is unchanged  CAN'T DO THIS IT WILL OVERWRITE E
+                         ;JNE FAIL
+F37F 2A 1F FA            LDA EQUAL   ; Inspect EQUAL STATUS 
+F382 21 01               TEQA #0x01  ; Verify bit<0> E = '1' and all others bits <7:1> are '0'
+F384 2B FF B0            JNE FAIL
+F387 2A 1F FB            LDA CARRY   ; Inspect CARRY STATUS
+F38A 21 01               TEQA #0x01  ; Verify bit<0> C = '1' and all others bits <7:1> are '0'
+F38C 2B FF B0            JNE FAIL
+F38F 30 B5               LDA #0xB5   ;  -- Compare with different value (A > Imm) --
+F391 2D 4D               CMPA #0x4D
+                         ;TEQA #0xB5  ; Verify A is unchanged  CAN'T DO THIS IT WILL OVERWRITE E
+                         ;JNE FAIL
+F393 2A 1F FA            LDA EQUAL   ; Inspect EQUAL STATUS
+F396 21 00               TEQA #0x00  ; Verify bit<0> E = '0'
+F398 2B FF B0            JNE FAIL
+F39B 2A 1F FB            LDA CARRY   ; Inspect CARRY STATUS
+F39E 21 01               TEQA #0x01  ; Verify bit<0> C = '1'
+F3A0 2B FF B0            JNE FAIL
+F3A3 30 5B               LDA #0x5B   ;  -- Compare with different value (A < Imm) --
+F3A5 2D EE               CMPA #0xEE
+                         ;TEQA #0x5B  ; Verify A is unchanged  CAN'T DO THIS IT WILL OVERWRITE E
+                         ;JNE FAIL
+F3A7 2A 1F FA            LDA EQUAL   ; Inspect EQUAL STATUS
+F3AA 21 00               TEQA #0x00  ; Verify bit<0> E = '0'
+F3AC 2B FF B0            JNE FAIL
+F3AF 2A 1F FB            LDA CARRY   ; Inspect CARRY STATUS
+F3B2 21 00               TEQA #0x00  ; Verify bit<0> C = '0'
+F3B4 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.2E ADCA #0x**
                          ; REG A = REG A + IMMEDIATE BYTE + CARRY (C)   
                          ; CARRY STATUS (C) IS UPDATED
                          ; --------------------------------------------------------------------
-F195 30 2E      TSTOP2E  LDA #0x2E
-F197 19                  NOTA
-F198 31 C0 00            STA LEDPORT ; Output to LED port
-F19B 30 00               LDA #0x00   ; Clear CARRY (C)
-F19D 31 1F FB            STA CARRY      
-F1A0 30 45               LDA #0x45
-F1A2 2E 5B               ADCA #0x5B
-F1A4 21 A0               TEQA #0xA0  ; Verify summ
-F1A6 2B FF B0            JNE FAIL
-F1A9 2A 1F FB            LDA CARRY   ; Check carry
-F1AC 21 00               TEQA #0x00  ; Should be clear
-F1AE 2B FF B0            JNE FAIL
+F3B7 30 2E      TSTOP2E  LDA #0x2E
+F3B9 19                  NOTA
+F3BA 31 C0 00            STA LEDPORT ; Output to LED port
+F3BD 30 00               LDA #0x00   ; Clear CARRY (C)
+F3BF 31 1F FB            STA CARRY      
+F3C2 30 45               LDA #0x45
+F3C4 2E 5B               ADCA #0x5B
+F3C6 21 A0               TEQA #0xA0  ; Verify summ
+F3C8 2B FF B0            JNE FAIL
+F3CB 2A 1F FB            LDA CARRY   ; Check carry
+F3CE 21 00               TEQA #0x00  ; Should be clear
+F3D0 2B FF B0            JNE FAIL
 
-F1B1 30 01               LDA #0x01   ; Set CARRY (C)
-F1B3 31 1F FB            STA CARRY
-F1B6 30 56               LDA #0x56
-F1B8 2E 6D               ADCA #0x6D
-F1BA 21 C4               TEQA #0xC4   ; Verify summ
-F1BC 2B FF B0            JNE FAIL
-F1BF 2A 1F FB            LDA CARRY   ; Check carry
-F1C2 21 00               TEQA #0x00  ; Should be clear
-F1C4 2B FF B0            JNE FAIL
+F3D3 30 01               LDA #0x01   ; Set CARRY (C)
+F3D5 31 1F FB            STA CARRY
+F3D8 30 56               LDA #0x56
+F3DA 2E 6D               ADCA #0x6D
+F3DC 21 C4               TEQA #0xC4   ; Verify summ
+F3DE 2B FF B0            JNE FAIL
+F3E1 2A 1F FB            LDA CARRY   ; Check carry
+F3E4 21 00               TEQA #0x00  ; Should be clear
+F3E6 2B FF B0            JNE FAIL
 
-F1C7 30 00               LDA #0x00   ; Clear CARRY (C)
-F1C9 31 1F FB            STA CARRY
-F1CC 30 7F               LDA #0x7F
-F1CE 2E DE               ADCA #0xDE
-F1D0 21 5D               TEQA #0x5D  ; Verify summ
-F1D2 2B FF B0            JNE FAIL
-F1D5 2A 1F FB            LDA CARRY   ; Check carry
-F1D8 21 01               TEQA #0x01  ; Should be set
-F1DA 2B FF B0            JNE FAIL
+F3E9 30 00               LDA #0x00   ; Clear CARRY (C)
+F3EB 31 1F FB            STA CARRY
+F3EE 30 7F               LDA #0x7F
+F3F0 2E DE               ADCA #0xDE
+F3F2 21 5D               TEQA #0x5D  ; Verify summ
+F3F4 2B FF B0            JNE FAIL
+F3F7 2A 1F FB            LDA CARRY   ; Check carry
+F3FA 21 01               TEQA #0x01  ; Should be set
+F3FC 2B FF B0            JNE FAIL
 
-F1DD 30 01               LDA #0x01   ; Set CARRY (C)
-F1DF 31 1F FB            STA CARRY
-F1E2 30 FF               LDA #0xFF
-F1E4 2E FF               ADCA #0xFF
-F1E6 21 FF               TEQA #0xFF  ; Verify summ
-F1E8 2B FF B0            JNE FAIL
-F1EB 2A 1F FB            LDA CARRY   ; Check carry
-F1EE 21 01               TEQA #0x01  ; Should be set
-F1F0 2B FF B0            JNE FAIL
+F3FF 30 01               LDA #0x01   ; Set CARRY (C)
+F401 31 1F FB            STA CARRY
+F404 30 FF               LDA #0xFF
+F406 2E FF               ADCA #0xFF
+F408 21 FF               TEQA #0xFF  ; Verify summ
+F40A 2B FF B0            JNE FAIL
+F40D 2A 1F FB            LDA CARRY   ; Check carry
+F410 21 01               TEQA #0x01  ; Should be set
+F412 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.2F ADDA #0x**
                          ; ACCA+M>ACCA     C UPDATED
                          ; --------------------------------------------------------------------
-F1F3 30 2F      TSTOP2F  LDA #0x2F
-F1F5 19                  NOTA
-F1F6 31 C0 00            STA LEDPORT ; Output to LED port
-F1F9 30 23               LDA #0x23
-F1FB 2F 45               ADDA #0x45
-F1FD 21 68               TEQA #0x68
-F1FF 2B FF B0            JNE FAIL
-F202 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-F205 21 00               TEQA #0x00  ; Expecting C=0
-F207 2B FF B0            JNE FAIL
-F20A 30 8A               LDA #0x8A
-F20C 2F BD               ADDA #0xBD
-F20E 21 47               TEQA #0x47   
-F210 2B FF B0            JNE FAIL
-F213 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-F216 21 01               TEQA #0x01  ; Expecting C=1
-F218 2B FF B0            JNE FAIL
-F21B 30 01               LDA #0x01
-F21D 2F 02               ADDA #0x02
-F21F 21 03               TEQA #0x03
-F221 2B FF B0            JNE FAIL
-F224 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-F227 21 00               TEQA #0x00  ; Expecting C=0
-F229 2B FF B0            JNE FAIL
-F22C 30 FF               LDA #0xFF
-F22E 2F FF               ADDA #0xFF
-F230 21 FE               TEQA #0xFE
-F232 2B FF B0            JNE FAIL
-F235 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
-F238 21 01               TEQA #0x01   ; Expecting C=1
-F23A 2B FF B0            JNE FAIL
+F415 30 2F      TSTOP2F  LDA #0x2F
+F417 19                  NOTA
+F418 31 C0 00            STA LEDPORT ; Output to LED port
+F41B 30 23               LDA #0x23
+F41D 2F 45               ADDA #0x45
+F41F 21 68               TEQA #0x68
+F421 2B FF B0            JNE FAIL
+F424 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
+F427 21 00               TEQA #0x00  ; Expecting C=0
+F429 2B FF B0            JNE FAIL
+F42C 30 8A               LDA #0x8A
+F42E 2F BD               ADDA #0xBD
+F430 21 47               TEQA #0x47   
+F432 2B FF B0            JNE FAIL
+F435 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
+F438 21 01               TEQA #0x01  ; Expecting C=1
+F43A 2B FF B0            JNE FAIL
+F43D 30 01               LDA #0x01
+F43F 2F 02               ADDA #0x02
+F441 21 03               TEQA #0x03
+F443 2B FF B0            JNE FAIL
+F446 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
+F449 21 00               TEQA #0x00  ; Expecting C=0
+F44B 2B FF B0            JNE FAIL
+F44E 30 FF               LDA #0xFF
+F450 2F FF               ADDA #0xFF
+F452 21 FE               TEQA #0xFE
+F454 2B FF B0            JNE FAIL
+F457 2A 1F FB            LDA CARRY   ; Read Carry bit <0>
+F45A 21 01               TEQA #0x01   ; Expecting C=1
+F45C 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.30 LDA #0x**  
                          ; LOAD IMMEDIATE VALUE IN REGISTER A
                          ; --------------------------------------------------------------------
-F23D 30 30      TSTOP30  LDA #0x30
-F23F 19                  NOTA
-F240 31 C0 00            STA LEDPORT ; Output to LED port
-F243 30 00               LDA #0x00
-F245 21 00               TEQA #0x00
-F247 2B FF B0            JNE FAIL
-F24A 30 01               LDA #0x01
-F24C 21 01               TEQA #0x01
-F24E 2B FF B0            JNE FAIL
-F251 30 02               LDA #0x02
-F253 21 02               TEQA #0x02
-F255 2B FF B0            JNE FAIL
-F258 30 04               LDA #0x04
-F25A 21 04               TEQA #0x04
-F25C 2B FF B0            JNE FAIL
-F25F 30 08               LDA #0x08
-F261 21 08               TEQA #0x08
-F263 2B FF B0            JNE FAIL
-F266 30 10               LDA #0x10
-F268 21 10               TEQA #0x10
-F26A 2B FF B0            JNE FAIL
-F26D 30 20               LDA #0x20
-F26F 21 20               TEQA #0x20
-F271 2B FF B0            JNE FAIL
-F274 30 40               LDA #0x40
-F276 21 40               TEQA #0x40
-F278 2B FF B0            JNE FAIL
-F27B 30 80               LDA #0x80
-F27D 21 80               TEQA #0x80
-F27F 2B FF B0            JNE FAIL
-F282 30 55               LDA #0x55
-F284 21 55               TEQA #0x55
-F286 2B FF B0            JNE FAIL
-F289 30 AA               LDA #0xAA
-F28B 21 AA               TEQA #0xAA
-F28D 2B FF B0            JNE FAIL
-F290 30 FF               LDA #0xFF
-F292 21 FF               TEQA #0xFF
-F294 2B FF B0            JNE FAIL
+F45F 30 30      TSTOP30  LDA #0x30
+F461 19                  NOTA
+F462 31 C0 00            STA LEDPORT ; Output to LED port
+F465 30 00               LDA #0x00
+F467 21 00               TEQA #0x00
+F469 2B FF B0            JNE FAIL
+F46C 30 01               LDA #0x01
+F46E 21 01               TEQA #0x01
+F470 2B FF B0            JNE FAIL
+F473 30 02               LDA #0x02
+F475 21 02               TEQA #0x02
+F477 2B FF B0            JNE FAIL
+F47A 30 04               LDA #0x04
+F47C 21 04               TEQA #0x04
+F47E 2B FF B0            JNE FAIL
+F481 30 08               LDA #0x08
+F483 21 08               TEQA #0x08
+F485 2B FF B0            JNE FAIL
+F488 30 10               LDA #0x10
+F48A 21 10               TEQA #0x10
+F48C 2B FF B0            JNE FAIL
+F48F 30 20               LDA #0x20
+F491 21 20               TEQA #0x20
+F493 2B FF B0            JNE FAIL
+F496 30 40               LDA #0x40
+F498 21 40               TEQA #0x40
+F49A 2B FF B0            JNE FAIL
+F49D 30 80               LDA #0x80
+F49F 21 80               TEQA #0x80
+F4A1 2B FF B0            JNE FAIL
+F4A4 30 55               LDA #0x55
+F4A6 21 55               TEQA #0x55
+F4A8 2B FF B0            JNE FAIL
+F4AB 30 AA               LDA #0xAA
+F4AD 21 AA               TEQA #0xAA
+F4AF 2B FF B0            JNE FAIL
+F4B2 30 FF               LDA #0xFF
+F4B4 21 FF               TEQA #0xFF
+F4B6 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.31 STA 0x**** 
                          ; STORE REG.A TO ADDRESSE
                          ; --------------------------------------------------------------------
-F297 30 31      TSTOP31  LDA #0x31
-F299 19                  NOTA
-F29A 31 C0 00            STA LEDPORT ; Output to LED port
-F29D 30 12               LDA #0x12   ; Write to RAM
-F29F 31 00 00            STA 0x0000
-F2A2 30 23               LDA #0x23
-F2A4 31 00 01            STA 0x0001
-F2A7 30 34               LDA #0x34
-F2A9 31 00 02            STA 0x0002
-F2AC 30 45               LDA #0x45
-F2AE 31 00 04            STA 0x0004
-F2B1 30 56               LDA #0x56
-F2B3 31 00 08            STA 0x0008
-F2B6 30 67               LDA #0x67
-F2B8 31 00 10            STA 0x0010
-F2BB 30 78               LDA #0x78
-F2BD 31 00 20            STA 0x0020
-F2C0 30 89               LDA #0x89
-F2C2 31 00 40            STA 0x0040
-F2C5 30 AB               LDA #0xAB
-F2C7 31 00 80            STA 0x0080
-F2CA 30 BC               LDA #0xBC
-F2CC 31 01 00            STA 0x0100
-F2CF 30 CD               LDA #0xCD
-F2D1 31 02 00            STA 0x0200
-F2D4 30 DE               LDA #0xDE
-F2D6 31 04 00            STA 0x0400
-F2D9 30 22               LDA #0x22
-F2DB 31 08 00            STA 0x0800
-F2DE 30 33               LDA #0x33
-F2E0 31 10 00            STA 0x1000
-F2E3 30 44               LDA #0x44
-F2E5 31 17 00            STA 0x1700
-F2E8 2A 00 00            LDA 0x0000  ; Read from RAM and compare
-F2EB 21 12               TEQA #0x12
-F2ED 2B FF B0            JNE FAIL
-F2F0 2A 00 01            LDA 0x0001
-F2F3 21 23               TEQA #0x23
-F2F5 2B FF B0            JNE FAIL
-F2F8 2A 00 02            LDA 0x0002
-F2FB 21 34               TEQA #0x34
-F2FD 2B FF B0            JNE FAIL
-F300 2A 00 04            LDA 0x0004
-F303 21 45               TEQA #0x45
-F305 2B FF B0            JNE FAIL
-F308 2A 00 08            LDA 0x0008
-F30B 21 56               TEQA #0x56
-F30D 2B FF B0            JNE FAIL
-F310 2A 00 10            LDA 0x0010
-F313 21 67               TEQA #0x67
-F315 2B FF B0            JNE FAIL
-F318 2A 00 20            LDA 0x0020
-F31B 21 78               TEQA #0x78
-F31D 2B FF B0            JNE FAIL
-F320 2A 00 40            LDA 0x0040
-F323 21 89               TEQA #0x89
-F325 2B FF B0            JNE FAIL
-F328 2A 00 80            LDA 0x0080
-F32B 21 AB               TEQA #0xAB
-F32D 2B FF B0            JNE FAIL
-F330 2A 01 00            LDA 0x0100
-F333 21 BC               TEQA #0xBC
-F335 2B FF B0            JNE FAIL
-F338 2A 02 00            LDA 0x0200
-F33B 21 CD               TEQA #0xCD
-F33D 2B FF B0            JNE FAIL
-F340 2A 04 00            LDA 0x0400
-F343 21 DE               TEQA #0xDE
-F345 2B FF B0            JNE FAIL
-F348 2A 08 00            LDA 0x0800
-F34B 21 22               TEQA #0x22
-F34D 2B FF B0            JNE FAIL
-F350 2A 10 00            LDA 0x1000
-F353 21 33               TEQA #0x33
-F355 2B FF B0            JNE FAIL
-F358 2A 17 00            LDA 0x1700
-F35B 21 44               TEQA #0x44
-F35D 2B FF B0            JNE FAIL
+F4B9 30 31      TSTOP31  LDA #0x31
+F4BB 19                  NOTA
+F4BC 31 C0 00            STA LEDPORT ; Output to LED port
+F4BF 30 12               LDA #0x12   ; Write to RAM
+F4C1 31 00 00            STA 0x0000
+F4C4 30 23               LDA #0x23
+F4C6 31 00 01            STA 0x0001
+F4C9 30 34               LDA #0x34
+F4CB 31 00 02            STA 0x0002
+F4CE 30 45               LDA #0x45
+F4D0 31 00 04            STA 0x0004
+F4D3 30 56               LDA #0x56
+F4D5 31 00 08            STA 0x0008
+F4D8 30 67               LDA #0x67
+F4DA 31 00 10            STA 0x0010
+F4DD 30 78               LDA #0x78
+F4DF 31 00 20            STA 0x0020
+F4E2 30 89               LDA #0x89
+F4E4 31 00 40            STA 0x0040
+F4E7 30 AB               LDA #0xAB
+F4E9 31 00 80            STA 0x0080
+F4EC 30 BC               LDA #0xBC
+F4EE 31 01 00            STA 0x0100
+F4F1 30 CD               LDA #0xCD
+F4F3 31 02 00            STA 0x0200
+F4F6 30 DE               LDA #0xDE
+F4F8 31 04 00            STA 0x0400
+F4FB 30 22               LDA #0x22
+F4FD 31 08 00            STA 0x0800
+F500 30 33               LDA #0x33
+F502 31 10 00            STA 0x1000
+F505 30 44               LDA #0x44
+F507 31 17 00            STA 0x1700
+F50A 2A 00 00            LDA 0x0000  ; Read from RAM and compare
+F50D 21 12               TEQA #0x12
+F50F 2B FF B0            JNE FAIL
+F512 2A 00 01            LDA 0x0001
+F515 21 23               TEQA #0x23
+F517 2B FF B0            JNE FAIL
+F51A 2A 00 02            LDA 0x0002
+F51D 21 34               TEQA #0x34
+F51F 2B FF B0            JNE FAIL
+F522 2A 00 04            LDA 0x0004
+F525 21 45               TEQA #0x45
+F527 2B FF B0            JNE FAIL
+F52A 2A 00 08            LDA 0x0008
+F52D 21 56               TEQA #0x56
+F52F 2B FF B0            JNE FAIL
+F532 2A 00 10            LDA 0x0010
+F535 21 67               TEQA #0x67
+F537 2B FF B0            JNE FAIL
+F53A 2A 00 20            LDA 0x0020
+F53D 21 78               TEQA #0x78
+F53F 2B FF B0            JNE FAIL
+F542 2A 00 40            LDA 0x0040
+F545 21 89               TEQA #0x89
+F547 2B FF B0            JNE FAIL
+F54A 2A 00 80            LDA 0x0080
+F54D 21 AB               TEQA #0xAB
+F54F 2B FF B0            JNE FAIL
+F552 2A 01 00            LDA 0x0100
+F555 21 BC               TEQA #0xBC
+F557 2B FF B0            JNE FAIL
+F55A 2A 02 00            LDA 0x0200
+F55D 21 CD               TEQA #0xCD
+F55F 2B FF B0            JNE FAIL
+F562 2A 04 00            LDA 0x0400
+F565 21 DE               TEQA #0xDE
+F567 2B FF B0            JNE FAIL
+F56A 2A 08 00            LDA 0x0800
+F56D 21 22               TEQA #0x22
+F56F 2B FF B0            JNE FAIL
+F572 2A 10 00            LDA 0x1000
+F575 21 33               TEQA #0x33
+F577 2B FF B0            JNE FAIL
+F57A 2A 17 00            LDA 0x1700
+F57D 21 44               TEQA #0x44
+F57F 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.32 JMP 0x**** 
                          ; JUMP INCONDITIONAL TO ADDRESS
@@ -2555,191 +2826,191 @@ F35D 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
                          ; OP.33 ANDA #0x**  REGISTER A AND LOGICAL IMMEDIATE BYTE
                          ; --------------------------------------------------------------------
-F360 30 33      TSTOP33  LDA #0x33
-F362 19                  NOTA
-F363 31 C0 00            STA LEDPORT ; Output to LED port
-F366 30 FF               LDA #0xFF
-F368 33 52               ANDA #0x52
-F36A 21 52               TEQA #0x52
-F36C 2B FF B0            JNE FAIL
-F36F 30 E7               LDA #0xE7
-F371 33 3C               ANDA #0x3C
-F373 21 24               TEQA #0x24
-F375 2B FF B0            JNE FAIL
-F378 30 00               LDA #0x00
-F37A 33 00               ANDA #0x00
-F37C 21 00               TEQA #0x00
-F37E 2B FF B0            JNE FAIL
-F381 30 FF               LDA #0xFF
-F383 33 FF               ANDA #0xFF
-F385 21 FF               TEQA #0xFF
-F387 2B FF B0            JNE FAIL
-F38A 30 FF               LDA #0xFF
-F38C 33 55               ANDA #0x55
-F38E 21 55               TEQA #0x55
-F390 2B FF B0            JNE FAIL
-F393 30 FF               LDA #0xFF
-F395 33 00               ANDA #0x00
-F397 21 00               TEQA #0x00
-F399 2B FF B0            JNE FAIL
+F582 30 33      TSTOP33  LDA #0x33
+F584 19                  NOTA
+F585 31 C0 00            STA LEDPORT ; Output to LED port
+F588 30 FF               LDA #0xFF
+F58A 33 52               ANDA #0x52
+F58C 21 52               TEQA #0x52
+F58E 2B FF B0            JNE FAIL
+F591 30 E7               LDA #0xE7
+F593 33 3C               ANDA #0x3C
+F595 21 24               TEQA #0x24
+F597 2B FF B0            JNE FAIL
+F59A 30 00               LDA #0x00
+F59C 33 00               ANDA #0x00
+F59E 21 00               TEQA #0x00
+F5A0 2B FF B0            JNE FAIL
+F5A3 30 FF               LDA #0xFF
+F5A5 33 FF               ANDA #0xFF
+F5A7 21 FF               TEQA #0xFF
+F5A9 2B FF B0            JNE FAIL
+F5AC 30 FF               LDA #0xFF
+F5AE 33 55               ANDA #0x55
+F5B0 21 55               TEQA #0x55
+F5B2 2B FF B0            JNE FAIL
+F5B5 30 FF               LDA #0xFF
+F5B7 33 00               ANDA #0x00
+F5B9 21 00               TEQA #0x00
+F5BB 2B FF B0            JNE FAIL
 
                          ; --------------------------------------------------------------------
                          ; FIBONACCI TEST
                          ; first method using direct addressing
                          ; --------------------------------------------------------------------         
-F39C 30 40      TSTFB1   LDA #0x40
-F39E 19                  NOTA
-F39F 31 C0 00            STA LEDPORT ; Output to LED port
+F5BE 30 40      TSTFB1   LDA #0x40
+F5C0 19                  NOTA
+F5C1 31 C0 00            STA LEDPORT ; Output to LED port
                                      ;
-F3A2 30 00               LDA #0x00   ; Init first number with 00H
-F3A4 31 10 00            STA 0x1000
-F3A7 30 01               LDA #0x01   ; Init second number with 01H
-F3A9 31 10 01            STA 0x1001
-F3AC 2A 10 00            LDA 0x1000  ; Load first number in A
-F3AF 29 10 01            ADDA 0x1001 ; Add second number to A
-F3B2 31 10 02            STA 0x1002  ; Store the summ
-F3B5 21 01               TEQA #0x01  ; HEX   Decimal  Real Value (in 8 bit storage only)
-F3B7 2B FF B0            JNE FAIL    ; x01   1        1
+F5C4 30 00               LDA #0x00   ; Init first number with 00H
+F5C6 31 10 00            STA 0x1000
+F5C9 30 01               LDA #0x01   ; Init second number with 01H
+F5CB 31 10 01            STA 0x1001
+F5CE 2A 10 00            LDA 0x1000  ; Load first number in A
+F5D1 29 10 01            ADDA 0x1001 ; Add second number to A
+F5D4 31 10 02            STA 0x1002  ; Store the summ
+F5D7 21 01               TEQA #0x01  ; HEX   Decimal  Real Value (in 8 bit storage only)
+F5D9 2B FF B0            JNE FAIL    ; x01   1        1
 
-F3BA 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F3BD 31 10 00            STA 0x1000
-F3C0 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F3C3 31 10 01            STA 0x1001
-F3C6 2A 10 00            LDA 0x1000  ; Load first number in A
-F3C9 29 10 01            ADDA 0x1001 ; Add second number to A
-F3CC 31 10 02            STA 0x1002  ; Store the summ
-F3CF 21 02               TEQA #0x02  ; HEX   Decimal  Real Value
-F3D1 2B FF B0            JNE FAIL    ; x02   2        2
+F5DC 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F5DF 31 10 00            STA 0x1000
+F5E2 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F5E5 31 10 01            STA 0x1001
+F5E8 2A 10 00            LDA 0x1000  ; Load first number in A
+F5EB 29 10 01            ADDA 0x1001 ; Add second number to A
+F5EE 31 10 02            STA 0x1002  ; Store the summ
+F5F1 21 02               TEQA #0x02  ; HEX   Decimal  Real Value
+F5F3 2B FF B0            JNE FAIL    ; x02   2        2
 
-F3D4 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F3D7 31 10 00            STA 0x1000
-F3DA 2A 10 02            LDA 0x1002   ; Move summ to the second number
-F3DD 31 10 01            STA 0x1001
-F3E0 2A 10 00            LDA 0x1000  ; Load first number in A
-F3E3 29 10 01            ADDA 0x1001 ; Add second number to A
-F3E6 31 10 02            STA 0x1002  ; Store the summ
-F3E9 21 03               TEQA #0x03  ; HEX   Decimal  Real Value
-F3EB 2B FF B0            JNE FAIL    ; x03   3        3
+F5F6 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F5F9 31 10 00            STA 0x1000
+F5FC 2A 10 02            LDA 0x1002   ; Move summ to the second number
+F5FF 31 10 01            STA 0x1001
+F602 2A 10 00            LDA 0x1000  ; Load first number in A
+F605 29 10 01            ADDA 0x1001 ; Add second number to A
+F608 31 10 02            STA 0x1002  ; Store the summ
+F60B 21 03               TEQA #0x03  ; HEX   Decimal  Real Value
+F60D 2B FF B0            JNE FAIL    ; x03   3        3
 
-F3EE 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F3F1 31 10 00            STA 0x1000
-F3F4 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F3F7 31 10 01            STA 0x1001
-F3FA 2A 10 00            LDA 0x1000  ; Load first number in A
-F3FD 29 10 01            ADDA 0x1001 ; Add second number to A
-F400 31 10 02            STA 0x1002  ; Store the summ
-F403 21 05               TEQA #0x05  ; HEX   Decimal  Real Value
-F405 2B FF B0            JNE FAIL    ; x05   5        5
+F610 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F613 31 10 00            STA 0x1000
+F616 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F619 31 10 01            STA 0x1001
+F61C 2A 10 00            LDA 0x1000  ; Load first number in A
+F61F 29 10 01            ADDA 0x1001 ; Add second number to A
+F622 31 10 02            STA 0x1002  ; Store the summ
+F625 21 05               TEQA #0x05  ; HEX   Decimal  Real Value
+F627 2B FF B0            JNE FAIL    ; x05   5        5
 
-F408 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F40B 31 10 00            STA 0x1000
-F40E 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F411 31 10 01            STA 0x1001
-F414 2A 10 00            LDA 0x1000  ; Load first number in A
-F417 29 10 01            ADDA 0x1001 ; Add second number to A
-F41A 31 10 02            STA 0x1002  ; Store the summ
-F41D 21 08               TEQA #0x08  ; HEX   Decimal  Real Value
-F41F 2B FF B0            JNE FAIL    ; x08   8        8
+F62A 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F62D 31 10 00            STA 0x1000
+F630 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F633 31 10 01            STA 0x1001
+F636 2A 10 00            LDA 0x1000  ; Load first number in A
+F639 29 10 01            ADDA 0x1001 ; Add second number to A
+F63C 31 10 02            STA 0x1002  ; Store the summ
+F63F 21 08               TEQA #0x08  ; HEX   Decimal  Real Value
+F641 2B FF B0            JNE FAIL    ; x08   8        8
 
-F422 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F425 31 10 00            STA 0x1000
-F428 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F42B 31 10 01            STA 0x1001
-F42E 2A 10 00            LDA 0x1000  ; Load first number in A
-F431 29 10 01            ADDA 0x1001 ; Add second number to A
-F434 31 10 02            STA 0x1002  ; Store the summ
-F437 21 0D               TEQA #0x0D  ; HEX   Decimal  Real Value
-F439 2B FF B0            JNE FAIL    ; x0D   13       13
+F644 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F647 31 10 00            STA 0x1000
+F64A 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F64D 31 10 01            STA 0x1001
+F650 2A 10 00            LDA 0x1000  ; Load first number in A
+F653 29 10 01            ADDA 0x1001 ; Add second number to A
+F656 31 10 02            STA 0x1002  ; Store the summ
+F659 21 0D               TEQA #0x0D  ; HEX   Decimal  Real Value
+F65B 2B FF B0            JNE FAIL    ; x0D   13       13
 
-F43C 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F43F 31 10 00            STA 0x1000
-F442 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F445 31 10 01            STA 0x1001
-F448 2A 10 00            LDA 0x1000  ; Load first number in A
-F44B 29 10 01            ADDA 0x1001 ; Add second number to A
-F44E 31 10 02            STA 0x1002  ; Store the summ
-F451 21 15               TEQA #0x15  ; HEX   Decimal  Real Value
-F453 2B FF B0            JNE FAIL    ; x15   21       21
+F65E 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F661 31 10 00            STA 0x1000
+F664 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F667 31 10 01            STA 0x1001
+F66A 2A 10 00            LDA 0x1000  ; Load first number in A
+F66D 29 10 01            ADDA 0x1001 ; Add second number to A
+F670 31 10 02            STA 0x1002  ; Store the summ
+F673 21 15               TEQA #0x15  ; HEX   Decimal  Real Value
+F675 2B FF B0            JNE FAIL    ; x15   21       21
 
-F456 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F459 31 10 00            STA 0x1000
-F45C 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F45F 31 10 01            STA 0x1001
-F462 2A 10 00            LDA 0x1000  ; Load first number in A
-F465 29 10 01            ADDA 0x1001 ; Add second number to A
-F468 31 10 02            STA 0x1002  ; Store the summ
-F46B 21 22               TEQA #0x22  ; HEX   Decimal  Real Value
-F46D 2B FF B0            JNE FAIL    ; x22   34       34
+F678 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F67B 31 10 00            STA 0x1000
+F67E 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F681 31 10 01            STA 0x1001
+F684 2A 10 00            LDA 0x1000  ; Load first number in A
+F687 29 10 01            ADDA 0x1001 ; Add second number to A
+F68A 31 10 02            STA 0x1002  ; Store the summ
+F68D 21 22               TEQA #0x22  ; HEX   Decimal  Real Value
+F68F 2B FF B0            JNE FAIL    ; x22   34       34
 
-F470 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F473 31 10 00            STA 0x1000
-F476 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F479 31 10 01            STA 0x1001
-F47C 2A 10 00            LDA 0x1000  ; Load first number in A
-F47F 29 10 01            ADDA 0x1001 ; Add second number to A
-F482 31 10 02            STA 0x1002  ; Store the summ
-F485 21 37               TEQA #0x37  ; HEX   Decimal  Real Value
-F487 2B FF B0            JNE FAIL    ; x37   55       55
+F692 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F695 31 10 00            STA 0x1000
+F698 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F69B 31 10 01            STA 0x1001
+F69E 2A 10 00            LDA 0x1000  ; Load first number in A
+F6A1 29 10 01            ADDA 0x1001 ; Add second number to A
+F6A4 31 10 02            STA 0x1002  ; Store the summ
+F6A7 21 37               TEQA #0x37  ; HEX   Decimal  Real Value
+F6A9 2B FF B0            JNE FAIL    ; x37   55       55
 
-F48A 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F48D 31 10 00            STA 0x1000
-F490 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F493 31 10 01            STA 0x1001
-F496 2A 10 00            LDA 0x1000  ; Load first number in A
-F499 29 10 01            ADDA 0x1001 ; Add second number to A
-F49C 31 10 02            STA 0x1002  ; Store the summ
-F49F 21 59               TEQA #0x59  ; HEX   Decimal  Real Value
-F4A1 2B FF B0            JNE FAIL    ; x59   89       89
+F6AC 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F6AF 31 10 00            STA 0x1000
+F6B2 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F6B5 31 10 01            STA 0x1001
+F6B8 2A 10 00            LDA 0x1000  ; Load first number in A
+F6BB 29 10 01            ADDA 0x1001 ; Add second number to A
+F6BE 31 10 02            STA 0x1002  ; Store the summ
+F6C1 21 59               TEQA #0x59  ; HEX   Decimal  Real Value
+F6C3 2B FF B0            JNE FAIL    ; x59   89       89
 
-F4A4 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F4A7 31 10 00            STA 0x1000
-F4AA 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F4AD 31 10 01            STA 0x1001
-F4B0 2A 10 00            LDA 0x1000  ; Load first number in A
-F4B3 29 10 01            ADDA 0x1001 ; Add second number to A
-F4B6 31 10 02            STA 0x1002  ; Store the summ
-F4B9 21 90               TEQA #0x90  ; HEX   Decimal  Real Value
-F4BB 2B FF B0            JNE FAIL    ; x90   144      144
+F6C6 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F6C9 31 10 00            STA 0x1000
+F6CC 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F6CF 31 10 01            STA 0x1001
+F6D2 2A 10 00            LDA 0x1000  ; Load first number in A
+F6D5 29 10 01            ADDA 0x1001 ; Add second number to A
+F6D8 31 10 02            STA 0x1002  ; Store the summ
+F6DB 21 90               TEQA #0x90  ; HEX   Decimal  Real Value
+F6DD 2B FF B0            JNE FAIL    ; x90   144      144
 
-F4BE 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F4C1 31 10 00            STA 0x1000
-F4C4 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F4C7 31 10 01            STA 0x1001
-F4CA 2A 10 00            LDA 0x1000  ; Load first number in A
-F4CD 29 10 01            ADDA 0x1001 ; Add second number to A
-F4D0 31 10 02            STA 0x1002  ; Store the summ
-F4D3 21 E9               TEQA #0xE9  ; HEX   Decimal  Real Value
-F4D5 2B FF B0            JNE FAIL    ; xE9   233      233
+F6E0 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F6E3 31 10 00            STA 0x1000
+F6E6 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F6E9 31 10 01            STA 0x1001
+F6EC 2A 10 00            LDA 0x1000  ; Load first number in A
+F6EF 29 10 01            ADDA 0x1001 ; Add second number to A
+F6F2 31 10 02            STA 0x1002  ; Store the summ
+F6F5 21 E9               TEQA #0xE9  ; HEX   Decimal  Real Value
+F6F7 2B FF B0            JNE FAIL    ; xE9   233      233
 
-F4D8 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F4DB 31 10 00            STA 0x1000
-F4DE 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F4E1 31 10 01            STA 0x1001
-F4E4 2A 10 00            LDA 0x1000  ; Load first number in A
-F4E7 29 10 01            ADDA 0x1001 ; Add second number to A
-F4EA 31 10 02            STA 0x1002  ; Store the summ
-F4ED 21 79               TEQA #0x79  ; HEX   Decimal  Real Value
-F4EF 2B FF B0            JNE FAIL    ; x79   121      377 - (256*1) = 121
+F6FA 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F6FD 31 10 00            STA 0x1000
+F700 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F703 31 10 01            STA 0x1001
+F706 2A 10 00            LDA 0x1000  ; Load first number in A
+F709 29 10 01            ADDA 0x1001 ; Add second number to A
+F70C 31 10 02            STA 0x1002  ; Store the summ
+F70F 21 79               TEQA #0x79  ; HEX   Decimal  Real Value
+F711 2B FF B0            JNE FAIL    ; x79   121      377 - (256*1) = 121
 
-F4F2 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F4F5 31 10 00            STA 0x1000
-F4F8 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F4FB 31 10 01            STA 0x1001
-F4FE 2A 10 00            LDA 0x1000  ; Load first number in A
-F501 29 10 01            ADDA 0x1001 ; Add second number to A
-F504 31 10 02            STA 0x1002  ; Store the summ
-F507 21 62               TEQA #0x62  ; HEX   Decimal  Real Value
-F509 2B FF B0            JNE FAIL    ; x62   98       610 - (256*2) = 98
+F714 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F717 31 10 00            STA 0x1000
+F71A 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F71D 31 10 01            STA 0x1001
+F720 2A 10 00            LDA 0x1000  ; Load first number in A
+F723 29 10 01            ADDA 0x1001 ; Add second number to A
+F726 31 10 02            STA 0x1002  ; Store the summ
+F729 21 62               TEQA #0x62  ; HEX   Decimal  Real Value
+F72B 2B FF B0            JNE FAIL    ; x62   98       610 - (256*2) = 98
 
-F50C 2A 10 01            LDA 0x1001  ; Move second number to the first number
-F50F 31 10 00            STA 0x1000
-F512 2A 10 02            LDA 0x1002  ; Move summ to the second number
-F515 31 10 01            STA 0x1001
-F518 2A 10 00            LDA 0x1000  ; Load first number in A
-F51B 29 10 01            ADDA 0x1001 ; Add second number to A
-F51E 31 10 02            STA 0x1002  ; Store the summ
-F521 21 DB               TEQA #0xDB  ; HEX   Decimal  Real Value
-F523 2B FF B0            JNE FAIL    ; xDB   219      987 - (256*3) = 219         
+F72E 2A 10 01            LDA 0x1001  ; Move second number to the first number
+F731 31 10 00            STA 0x1000
+F734 2A 10 02            LDA 0x1002  ; Move summ to the second number
+F737 31 10 01            STA 0x1001
+F73A 2A 10 00            LDA 0x1000  ; Load first number in A
+F73D 29 10 01            ADDA 0x1001 ; Add second number to A
+F740 31 10 02            STA 0x1002  ; Store the summ
+F743 21 DB               TEQA #0xDB  ; HEX   Decimal  Real Value
+F745 2B FF B0            JNE FAIL    ; xDB   219      987 - (256*3) = 219         
                          ; --------------------------------------------------------------------      
                          ; END OF FIBONACCI TEST (method using direct addressing)
                          ; --------------------------------------------------------------------          
@@ -2747,358 +3018,358 @@ F523 2B FF B0            JNE FAIL    ; xDB   219      987 - (256*3) = 219
                          ; ---------
                          ; Loop test
                          ; ---------
-F526 30 41      LOOPTST  LDA #0x41
-F528 19                  NOTA
-F529 31 C0 00            STA LEDPORT    ; Output to LED port
-F52C 30 05               LDA #0x05      ; Init a counter of iterations
-F52E 31 00 0F            STA ?b0
-F531 2A 00 0F   LOOPTST1 LDA ?b0        ; Read counter
-F534 21 00               TEQA #0x00     ; Is it 0?
-F536 2C F5 40            JEQ LOOPTST2   ; Yes then it's the end fo the test
-F539 2F FF               ADDA #0xFF     ; Add -1 in complement 2 (equivalent to decrement)
-F53B 31 00 0F            STA ?b0        ; Save decremented count
-F53E 0C F1               JRA LOOPTST1
-F540 09         LOOPTST2 NOP            ; End of decrement loop         
+F748 30 41      LOOPTST  LDA #0x41
+F74A 19                  NOTA
+F74B 31 C0 00            STA LEDPORT    ; Output to LED port
+F74E 30 05               LDA #0x05      ; Init a counter of iterations
+F750 31 00 0F            STA ?b0
+F753 2A 00 0F   LOOPTST1 LDA ?b0        ; Read counter
+F756 21 00               TEQA #0x00     ; Is it 0?
+F758 2C F7 62            JEQ LOOPTST2   ; Yes then it's the end fo the test
+F75B 2F FF               ADDA #0xFF     ; Add -1 in complement 2 (equivalent to decrement)
+F75D 31 00 0F            STA ?b0        ; Save decremented count
+F760 0C F1               JRA LOOPTST1
+F762 09         LOOPTST2 NOP            ; End of decrement loop         
 
                          ; -----------------
                          ; Math Library Test
                          ; -----------------
                          ; Test add16_w0_w0_w1  w0 <= w0 + w1
-F541 30 42               LDA #0x42
-F543 19                  NOTA
-F544 31 C0 00            STA LEDPORT ; Output to LED port
-F547 30 BE               LDA #0xBE   ; w0 = 0xBEEF
-F549 31 00 0E            STA ?b1
-F54C 30 EF               LDA #0xEF
-F54E 31 00 0F            STA ?b0
-F551 30 DE               LDA #0xDE   ; w1 = 0xDEAD
-F553 31 00 0C            STA ?b3
-F556 30 AD               LDA #0xAD
-F558 31 00 0D            STA ?b2
-F55B 06 FB F4            JSR ?add16_w0_w0_w1  ; w0 <= w0 + w1
-F55E 2A 00 0E            LDA ?b1              ; Expected w0 = 9D9C + C set
-F561 21 9D               TEQA #0x9D
-F563 2B FF B0            JNE FAIL
-F566 2A 00 0F            LDA ?b0
-F569 21 9C               TEQA #0x9C
-F56B 2B FF B0            JNE FAIL
-F56E 2A 1F FB            LDA CARRY
-F571 21 01               TEQA #0x01
-F573 2B FF B0            JNE FAIL
+F763 30 42               LDA #0x42
+F765 19                  NOTA
+F766 31 C0 00            STA LEDPORT ; Output to LED port
+F769 30 BE               LDA #0xBE   ; w0 = 0xBEEF
+F76B 31 00 0E            STA ?b1
+F76E 30 EF               LDA #0xEF
+F770 31 00 0F            STA ?b0
+F773 30 DE               LDA #0xDE   ; w1 = 0xDEAD
+F775 31 00 0C            STA ?b3
+F778 30 AD               LDA #0xAD
+F77A 31 00 0D            STA ?b2
+F77D 06 FE 16            JSR ?add16_w0_w0_w1  ; w0 <= w0 + w1
+F780 2A 00 0E            LDA ?b1              ; Expected w0 = 9D9C + C set
+F783 21 9D               TEQA #0x9D
+F785 2B FF B0            JNE FAIL
+F788 2A 00 0F            LDA ?b0
+F78B 21 9C               TEQA #0x9C
+F78D 2B FF B0            JNE FAIL
+F790 2A 1F FB            LDA CARRY
+F793 21 01               TEQA #0x01
+F795 2B FF B0            JNE FAIL
 
                          ; Test add32_l0_l0_l1  l0 <= l0 + l1
-F576 30 43               LDA #0x43
-F578 19                  NOTA
-F579 31 C0 00            STA LEDPORT ; Output to LED port
-F57C 30 89               LDA #0x89   ; l0 = 0x89ABCDEF
-F57E 31 00 0C            STA ?b3
-F581 30 AB               LDA #0xAB
-F583 31 00 0D            STA ?b2
-F586 30 CD               LDA #0xCD
-F588 31 00 0E            STA ?b1
-F58B 30 EF               LDA #0xEF
-F58D 31 00 0F            STA ?b0
-F590 30 DE               LDA #0xDE   ; l1 = DEADBEEF
-F592 31 00 08            STA ?b7
-F595 30 AD               LDA #0xAD
-F597 31 00 09            STA ?b6
-F59A 30 BE               LDA #0xBE
-F59C 31 00 0A            STA ?b5
-F59F 30 EF               LDA #0xEF
-F5A1 31 00 0B            STA ?b4
-F5A4 06 FC 07            JSR ?add32_l0_l0_l1  ; l0 <= l0 + l1
-F5A7 2A 00 0C            LDA ?b3              ; Expected l0 = 0x68598CDE + C set
-F5AA 21 68               TEQA #0x68
-F5AC 2B FF B0            JNE FAIL
-F5AF 2A 00 0D            LDA ?b2
-F5B2 21 59               TEQA #0x59
-F5B4 2B FF B0            JNE FAIL
-F5B7 2A 00 0E            LDA ?b1
-F5BA 21 8C               TEQA #0x8C
-F5BC 2B FF B0            JNE FAIL
-F5BF 2A 00 0F            LDA ?b0
-F5C2 21 DE               TEQA #0xDE
-F5C4 2B FF B0            JNE FAIL
-F5C7 2A 1F FB            LDA CARRY
-F5CA 21 01               TEQA #0x01
-F5CC 2B FF B0            JNE FAIL
+F798 30 43               LDA #0x43
+F79A 19                  NOTA
+F79B 31 C0 00            STA LEDPORT ; Output to LED port
+F79E 30 89               LDA #0x89   ; l0 = 0x89ABCDEF
+F7A0 31 00 0C            STA ?b3
+F7A3 30 AB               LDA #0xAB
+F7A5 31 00 0D            STA ?b2
+F7A8 30 CD               LDA #0xCD
+F7AA 31 00 0E            STA ?b1
+F7AD 30 EF               LDA #0xEF
+F7AF 31 00 0F            STA ?b0
+F7B2 30 DE               LDA #0xDE   ; l1 = DEADBEEF
+F7B4 31 00 08            STA ?b7
+F7B7 30 AD               LDA #0xAD
+F7B9 31 00 09            STA ?b6
+F7BC 30 BE               LDA #0xBE
+F7BE 31 00 0A            STA ?b5
+F7C1 30 EF               LDA #0xEF
+F7C3 31 00 0B            STA ?b4
+F7C6 06 FE 29            JSR ?add32_l0_l0_l1  ; l0 <= l0 + l1
+F7C9 2A 00 0C            LDA ?b3              ; Expected l0 = 0x68598CDE + C set
+F7CC 21 68               TEQA #0x68
+F7CE 2B FF B0            JNE FAIL
+F7D1 2A 00 0D            LDA ?b2
+F7D4 21 59               TEQA #0x59
+F7D6 2B FF B0            JNE FAIL
+F7D9 2A 00 0E            LDA ?b1
+F7DC 21 8C               TEQA #0x8C
+F7DE 2B FF B0            JNE FAIL
+F7E1 2A 00 0F            LDA ?b0
+F7E4 21 DE               TEQA #0xDE
+F7E6 2B FF B0            JNE FAIL
+F7E9 2A 1F FB            LDA CARRY
+F7EC 21 01               TEQA #0x01
+F7EE 2B FF B0            JNE FAIL
 
                          ; Test ?inc32_l0_l0   l0 <= l0 + 1
-F5CF 30 44               LDA #0x44
-F5D1 19                  NOTA
-F5D2 31 C0 00            STA LEDPORT ; Output to LED port
-F5D5 30 FF               LDA #0xFF   ; l0 = 0xFFFFFFFF
-F5D7 31 00 0C            STA ?b3
-F5DA 30 FF               LDA #0xFF
-F5DC 31 00 0D            STA ?b2
-F5DF 30 FF               LDA #0xFF
-F5E1 31 00 0E            STA ?b1
-F5E4 30 FF               LDA #0xFF
-F5E6 31 00 0F            STA ?b0
-F5E9 06 FC 76            JSR ?inc32_l0_l0  ; l0 <= l0 + 1
+F7F1 30 44               LDA #0x44
+F7F3 19                  NOTA
+F7F4 31 C0 00            STA LEDPORT ; Output to LED port
+F7F7 30 FF               LDA #0xFF   ; l0 = 0xFFFFFFFF
+F7F9 31 00 0C            STA ?b3
+F7FC 30 FF               LDA #0xFF
+F7FE 31 00 0D            STA ?b2
+F801 30 FF               LDA #0xFF
+F803 31 00 0E            STA ?b1
+F806 30 FF               LDA #0xFF
+F808 31 00 0F            STA ?b0
+F80B 06 FE 98            JSR ?inc32_l0_l0  ; l0 <= l0 + 1
                          ; Expected l0 = 0x00000000
-F5EC 2A 00 0C            LDA ?b3     ; Expected l0 = 0x00000000
-F5EF 21 00               TEQA #0x00
-F5F1 2B FF B0            JNE FAIL
-F5F4 2A 00 0D            LDA ?b2
-F5F7 21 00               TEQA #0x00
-F5F9 2B FF B0            JNE FAIL
-F5FC 2A 00 0E            LDA ?b1
-F5FF 21 00               TEQA #0x00
-F601 2B FF B0            JNE FAIL
-F604 2A 00 0F            LDA ?b0
-F607 21 00               TEQA #0x00
-F609 2B FF B0            JNE FAIL
-F60C 06 FC 76            JSR ?inc32_l0_l0  ; l0 <= l0 + 1
-F60F 2A 00 0C            LDA ?b3
-F612 21 00               TEQA #0x00
-F614 2B FF B0            JNE FAIL
-F617 2A 00 0D            LDA ?b2
-F61A 21 00               TEQA #0x00
-F61C 2B FF B0            JNE FAIL
-F61F 2A 00 0E            LDA ?b1
-F622 21 00               TEQA #0x00
-F624 2B FF B0            JNE FAIL
-F627 2A 00 0F            LDA ?b0
-F62A 21 01               TEQA #0x01
-F62C 2B FF B0            JNE FAIL
-F62F 06 FC 76            JSR ?inc32_l0_l0
-F632 06 FC 76            JSR ?inc32_l0_l0
-F635 06 FC 76            JSR ?inc32_l0_l0
-F638 06 FC 76            JSR ?inc32_l0_l0
-F63B 06 FC 76            JSR ?inc32_l0_l0
-F63E 06 FC 76            JSR ?inc32_l0_l0
-F641 06 FC 76            JSR ?inc32_l0_l0
-F644 06 FC 76            JSR ?inc32_l0_l0
-F647 06 FC 76            JSR ?inc32_l0_l0
-F64A 06 FC 76            JSR ?inc32_l0_l0
-F64D 06 FC 76            JSR ?inc32_l0_l0
-F650 06 FC 76            JSR ?inc32_l0_l0
-F653 06 FC 76            JSR ?inc32_l0_l0
-F656 06 FC 76            JSR ?inc32_l0_l0
-F659 06 FC 76            JSR ?inc32_l0_l0
-F65C 06 FC 76            JSR ?inc32_l0_l0
-F65F 06 FC 76            JSR ?inc32_l0_l0
-F662 2A 00 0C            LDA ?b3
-F665 21 00               TEQA #0x00
-F667 2B FF B0            JNE FAIL
-F66A 2A 00 0D            LDA ?b2
-F66D 21 00               TEQA #0x00
-F66F 2B FF B0            JNE FAIL
-F672 2A 00 0E            LDA ?b1
-F675 21 00               TEQA #0x00
-F677 2B FF B0            JNE FAIL
-F67A 2A 00 0F            LDA ?b0
-F67D 21 12               TEQA #0x12
-F67F 2B FF B0            JNE FAIL
+F80E 2A 00 0C            LDA ?b3     ; Expected l0 = 0x00000000
+F811 21 00               TEQA #0x00
+F813 2B FF B0            JNE FAIL
+F816 2A 00 0D            LDA ?b2
+F819 21 00               TEQA #0x00
+F81B 2B FF B0            JNE FAIL
+F81E 2A 00 0E            LDA ?b1
+F821 21 00               TEQA #0x00
+F823 2B FF B0            JNE FAIL
+F826 2A 00 0F            LDA ?b0
+F829 21 00               TEQA #0x00
+F82B 2B FF B0            JNE FAIL
+F82E 06 FE 98            JSR ?inc32_l0_l0  ; l0 <= l0 + 1
+F831 2A 00 0C            LDA ?b3
+F834 21 00               TEQA #0x00
+F836 2B FF B0            JNE FAIL
+F839 2A 00 0D            LDA ?b2
+F83C 21 00               TEQA #0x00
+F83E 2B FF B0            JNE FAIL
+F841 2A 00 0E            LDA ?b1
+F844 21 00               TEQA #0x00
+F846 2B FF B0            JNE FAIL
+F849 2A 00 0F            LDA ?b0
+F84C 21 01               TEQA #0x01
+F84E 2B FF B0            JNE FAIL
+F851 06 FE 98            JSR ?inc32_l0_l0
+F854 06 FE 98            JSR ?inc32_l0_l0
+F857 06 FE 98            JSR ?inc32_l0_l0
+F85A 06 FE 98            JSR ?inc32_l0_l0
+F85D 06 FE 98            JSR ?inc32_l0_l0
+F860 06 FE 98            JSR ?inc32_l0_l0
+F863 06 FE 98            JSR ?inc32_l0_l0
+F866 06 FE 98            JSR ?inc32_l0_l0
+F869 06 FE 98            JSR ?inc32_l0_l0
+F86C 06 FE 98            JSR ?inc32_l0_l0
+F86F 06 FE 98            JSR ?inc32_l0_l0
+F872 06 FE 98            JSR ?inc32_l0_l0
+F875 06 FE 98            JSR ?inc32_l0_l0
+F878 06 FE 98            JSR ?inc32_l0_l0
+F87B 06 FE 98            JSR ?inc32_l0_l0
+F87E 06 FE 98            JSR ?inc32_l0_l0
+F881 06 FE 98            JSR ?inc32_l0_l0
+F884 2A 00 0C            LDA ?b3
+F887 21 00               TEQA #0x00
+F889 2B FF B0            JNE FAIL
+F88C 2A 00 0D            LDA ?b2
+F88F 21 00               TEQA #0x00
+F891 2B FF B0            JNE FAIL
+F894 2A 00 0E            LDA ?b1
+F897 21 00               TEQA #0x00
+F899 2B FF B0            JNE FAIL
+F89C 2A 00 0F            LDA ?b0
+F89F 21 12               TEQA #0x12
+F8A1 2B FF B0            JNE FAIL
 
                          ; Test  MUL 8-bit
                          ; mul8_w1_b1_b0   w1 (b3,b2) <= b1 * b0
-F682 30 45               LDA #0x45
-F684 19                  NOTA
-F685 31 C0 00            STA LEDPORT ; Output to LED port
-F688 30 02               LDA #0x02   ; 3 * 2 = 6
-F68A 31 00 0F            STA ?b0
-F68D 30 03               LDA #0x03
-F68F 31 00 0E            STA ?b1
-F692 06 FC C7            JSR ?mul8_w1_b1_b0
-F695 2A 00 0C            LDA ?b3
-F698 21 00               TEQA #0x00
-F69A 2B FF B0            JNE FAIL
-F69D 2A 00 0D            LDA ?b2
-F6A0 21 06               TEQA #0x06
-F6A2 2B FF B0            JNE FAIL
+F8A4 30 45               LDA #0x45
+F8A6 19                  NOTA
+F8A7 31 C0 00            STA LEDPORT ; Output to LED port
+F8AA 30 02               LDA #0x02   ; 3 * 2 = 6
+F8AC 31 00 0F            STA ?b0
+F8AF 30 03               LDA #0x03
+F8B1 31 00 0E            STA ?b1
+F8B4 06 FE E9            JSR ?mul8_w1_b1_b0
+F8B7 2A 00 0C            LDA ?b3
+F8BA 21 00               TEQA #0x00
+F8BC 2B FF B0            JNE FAIL
+F8BF 2A 00 0D            LDA ?b2
+F8C2 21 06               TEQA #0x06
+F8C4 2B FF B0            JNE FAIL
 
-F6A5 30 FF               LDA #0xFF   ; 255 * 255 = 65025 (0xFF * 0xFF = 0xFE01)
-F6A7 31 00 0F            STA ?b0
-F6AA 31 00 0E            STA ?b1
-F6AD 06 FC C7            JSR ?mul8_w1_b1_b0
-F6B0 2A 00 0C            LDA ?b3
-F6B3 21 FE               TEQA #0xFE
-F6B5 2B FF B0            JNE FAIL
-F6B8 2A 00 0D            LDA ?b2
-F6BB 21 01               TEQA #0x01
-F6BD 2B FF B0            JNE FAIL
+F8C7 30 FF               LDA #0xFF   ; 255 * 255 = 65025 (0xFF * 0xFF = 0xFE01)
+F8C9 31 00 0F            STA ?b0
+F8CC 31 00 0E            STA ?b1
+F8CF 06 FE E9            JSR ?mul8_w1_b1_b0
+F8D2 2A 00 0C            LDA ?b3
+F8D5 21 FE               TEQA #0xFE
+F8D7 2B FF B0            JNE FAIL
+F8DA 2A 00 0D            LDA ?b2
+F8DD 21 01               TEQA #0x01
+F8DF 2B FF B0            JNE FAIL
 
-F6C0 30 AB               LDA #0xAB   ; 171 * 205 = 35055 (0xAB * 0xCD = 0x88EF)
-F6C2 31 00 0F            STA ?b0
-F6C5 30 CD               LDA #0xCD
-F6C7 31 00 0E            STA ?b1
-F6CA 06 FC C7            JSR ?mul8_w1_b1_b0
-F6CD 2A 00 0C            LDA ?b3
-F6D0 21 88               TEQA #0x88
-F6D2 2B FF B0            JNE FAIL
-F6D5 2A 00 0D            LDA ?b2
-F6D8 21 EF               TEQA #0xEF
-F6DA 2B FF B0            JNE FAIL
+F8E2 30 AB               LDA #0xAB   ; 171 * 205 = 35055 (0xAB * 0xCD = 0x88EF)
+F8E4 31 00 0F            STA ?b0
+F8E7 30 CD               LDA #0xCD
+F8E9 31 00 0E            STA ?b1
+F8EC 06 FE E9            JSR ?mul8_w1_b1_b0
+F8EF 2A 00 0C            LDA ?b3
+F8F2 21 88               TEQA #0x88
+F8F4 2B FF B0            JNE FAIL
+F8F7 2A 00 0D            LDA ?b2
+F8FA 21 EF               TEQA #0xEF
+F8FC 2B FF B0            JNE FAIL
 
-F6DD 30 00               LDA #0x00   ; 0 * 0 = 0 (0x00 * 0x00 = 0x0000)
-F6DF 31 00 0F            STA ?b0
-F6E2 31 00 0E            STA ?b1
-F6E5 06 FC C7            JSR ?mul8_w1_b1_b0
-F6E8 2A 00 0C            LDA ?b3
-F6EB 21 00               TEQA #0x00
-F6ED 2B FF B0            JNE FAIL
-F6F0 2A 00 0D            LDA ?b2
-F6F3 21 00               TEQA #0x00
-F6F5 2B FF B0            JNE FAIL
+F8FF 30 00               LDA #0x00   ; 0 * 0 = 0 (0x00 * 0x00 = 0x0000)
+F901 31 00 0F            STA ?b0
+F904 31 00 0E            STA ?b1
+F907 06 FE E9            JSR ?mul8_w1_b1_b0
+F90A 2A 00 0C            LDA ?b3
+F90D 21 00               TEQA #0x00
+F90F 2B FF B0            JNE FAIL
+F912 2A 00 0D            LDA ?b2
+F915 21 00               TEQA #0x00
+F917 2B FF B0            JNE FAIL
 
                          ; Test  MUL 16-bit
                          ; Total time for 3 multiplications 140ms @ 2 MHz
                          ; 46ms per 16bit mult (21.7 multiplications per second)
                          ; l1 <= w1 * w0      (b7,b6,b5,b4) = (b3,b2) * (b1,b0)
-F6F8 30 46               LDA #0x46
-F6FA 19                  NOTA
-F6FB 31 C0 00            STA LEDPORT ; Output to LED port
+F91A 30 46               LDA #0x46
+F91C 19                  NOTA
+F91D 31 C0 00            STA LEDPORT ; Output to LED port
 
-F6FE 30 00               LDA #0x00   ; 0 * 0 = 0 (0x0000 * 0x0000 = 0x00000000)
-F700 31 00 0F            STA ?b0
-F703 31 00 0E            STA ?b1
-F706 31 00 0D            STA ?b2
-F709 31 00 0C            STA ?b3
-F70C 06 FC E8            JSR ?mul16_l1_w1_w0
-F70F 2A 00 08            LDA ?b7
-F712 21 00               TEQA #0x00
-F714 2B FF B0            JNE FAIL
-F717 2A 00 09            LDA ?b6
-F71A 21 00               TEQA #0x00
-F71C 2B FF B0            JNE FAIL
-F71F 2A 00 0A            LDA ?b5
-F722 21 00               TEQA #0x00
-F724 2B FF B0            JNE FAIL
-F727 2A 00 0B            LDA ?b4
-F72A 21 00               TEQA #0x00
-F72C 2B FF B0            JNE FAIL
+F920 30 00               LDA #0x00   ; 0 * 0 = 0 (0x0000 * 0x0000 = 0x00000000)
+F922 31 00 0F            STA ?b0
+F925 31 00 0E            STA ?b1
+F928 31 00 0D            STA ?b2
+F92B 31 00 0C            STA ?b3
+F92E 06 FF 0A            JSR ?mul16_l1_w1_w0
+F931 2A 00 08            LDA ?b7
+F934 21 00               TEQA #0x00
+F936 2B FF B0            JNE FAIL
+F939 2A 00 09            LDA ?b6
+F93C 21 00               TEQA #0x00
+F93E 2B FF B0            JNE FAIL
+F941 2A 00 0A            LDA ?b5
+F944 21 00               TEQA #0x00
+F946 2B FF B0            JNE FAIL
+F949 2A 00 0B            LDA ?b4
+F94C 21 00               TEQA #0x00
+F94E 2B FF B0            JNE FAIL
 
-F72F 30 FF               LDA #0xFF   ; 65535 * 65535 = 4294836225  (0xFFFF * 0xFFFF = 0xFFFE0001)
-F731 31 00 0F            STA ?b0
-F734 31 00 0E            STA ?b1
-F737 31 00 0D            STA ?b2
-F73A 31 00 0C            STA ?b3
-F73D 06 FC E8            JSR ?mul16_l1_w1_w0
-F740 2A 00 08            LDA ?b7
-F743 21 FF               TEQA #0xFF
-F745 2B FF B0            JNE FAIL
-F748 2A 00 09            LDA ?b6
-F74B 21 FE               TEQA #0xFE
-F74D 2B FF B0            JNE FAIL
-F750 2A 00 0A            LDA ?b5
-F753 21 00               TEQA #0x00
-F755 2B FF B0            JNE FAIL
-F758 2A 00 0B            LDA ?b4
-F75B 21 01               TEQA #0x01
-F75D 2B FF B0            JNE FAIL
+F951 30 FF               LDA #0xFF   ; 65535 * 65535 = 4294836225  (0xFFFF * 0xFFFF = 0xFFFE0001)
+F953 31 00 0F            STA ?b0
+F956 31 00 0E            STA ?b1
+F959 31 00 0D            STA ?b2
+F95C 31 00 0C            STA ?b3
+F95F 06 FF 0A            JSR ?mul16_l1_w1_w0
+F962 2A 00 08            LDA ?b7
+F965 21 FF               TEQA #0xFF
+F967 2B FF B0            JNE FAIL
+F96A 2A 00 09            LDA ?b6
+F96D 21 FE               TEQA #0xFE
+F96F 2B FF B0            JNE FAIL
+F972 2A 00 0A            LDA ?b5
+F975 21 00               TEQA #0x00
+F977 2B FF B0            JNE FAIL
+F97A 2A 00 0B            LDA ?b4
+F97D 21 01               TEQA #0x01
+F97F 2B FF B0            JNE FAIL
 
-F760 30 31               LDA #0x31   ; 12345 * 54321 = 670592745  (0x3039 * 0xD431 = 0x27F86EE9)
-F762 31 00 0F            STA ?b0
-F765 30 D4               LDA #0xD4
-F767 31 00 0E            STA ?b1
-F76A 30 39               LDA #0x39
-F76C 31 00 0D            STA ?b2
-F76F 30 30               LDA #0x30
-F771 31 00 0C            STA ?b3
-F774 06 FC E8            JSR ?mul16_l1_w1_w0   
-F777 2A 00 08            LDA ?b7
-F77A 21 27               TEQA #0x27
-F77C 2B FF B0            JNE FAIL
-F77F 2A 00 09            LDA ?b6
-F782 21 F8               TEQA #0xF8
-F784 2B FF B0            JNE FAIL
-F787 2A 00 0A            LDA ?b5
-F78A 21 6E               TEQA #0x6E
-F78C 2B FF B0            JNE FAIL
-F78F 2A 00 0B            LDA ?b4
-F792 21 E9               TEQA #0xE9
-F794 2B FF B0            JNE FAIL  
+F982 30 31               LDA #0x31   ; 12345 * 54321 = 670592745  (0x3039 * 0xD431 = 0x27F86EE9)
+F984 31 00 0F            STA ?b0
+F987 30 D4               LDA #0xD4
+F989 31 00 0E            STA ?b1
+F98C 30 39               LDA #0x39
+F98E 31 00 0D            STA ?b2
+F991 30 30               LDA #0x30
+F993 31 00 0C            STA ?b3
+F996 06 FF 0A            JSR ?mul16_l1_w1_w0   
+F999 2A 00 08            LDA ?b7
+F99C 21 27               TEQA #0x27
+F99E 2B FF B0            JNE FAIL
+F9A1 2A 00 09            LDA ?b6
+F9A4 21 F8               TEQA #0xF8
+F9A6 2B FF B0            JNE FAIL
+F9A9 2A 00 0A            LDA ?b5
+F9AC 21 6E               TEQA #0x6E
+F9AE 2B FF B0            JNE FAIL
+F9B1 2A 00 0B            LDA ?b4
+F9B4 21 E9               TEQA #0xE9
+F9B6 2B FF B0            JNE FAIL  
 
                          ; Test load32_l0, load32_l1, load32_l2, load32_l3
-F797 30 47               LDA #0x47
-F799 19                  NOTA
-F79A 31 C0 00            STA LEDPORT ; Output to LED port
+F9B9 30 47               LDA #0x47
+F9BB 19                  NOTA
+F9BC 31 C0 00            STA LEDPORT ; Output to LED port
                          ; Test load32_l0
-F79D 04 12 34            LDX #0x1234
-F7A0 16 15 00            STX 0x1500        ; Store test address
-F7A3 04 56 78            LDX #0x5678
-F7A6 16 15 02            STX 0x1502        ; Store test address
-F7A9 04 15 00            LDX #0x1500       ; Load address of test data
-F7AC 06 FA 73            JSR ?load32_l0    ; Load 32-bit value from memory to l0
-F7AF 2A 00 0C            LDA ?b3           ; Verify loaded value
-F7B2 21 12               TEQA #0x12
-F7B4 2B FF B0            JNE FAIL
-F7B7 2A 00 0D            LDA ?b2
-F7BA 21 34               TEQA #0x34
-F7BC 2B FF B0            JNE FAIL
-F7BF 2A 00 0E            LDA ?b1
-F7C2 21 56               TEQA #0x56
-F7C4 2B FF B0            JNE FAIL
-F7C7 2A 00 0F            LDA ?b0
-F7CA 21 78               TEQA #0x78
-F7CC 2B FF B0            JNE FAIL 
-F7CF 1A 15 03            CMPX #0x1503      ; also verify current X value
-F7D2 2B FF B0            JNE FAIL
+F9BF 04 12 34            LDX #0x1234
+F9C2 16 15 00            STX 0x1500        ; Store test address
+F9C5 04 56 78            LDX #0x5678
+F9C8 16 15 02            STX 0x1502        ; Store test address
+F9CB 04 15 00            LDX #0x1500       ; Load address of test data
+F9CE 06 FC 95            JSR ?load32_l0    ; Load 32-bit value from memory to l0
+F9D1 2A 00 0C            LDA ?b3           ; Verify loaded value
+F9D4 21 12               TEQA #0x12
+F9D6 2B FF B0            JNE FAIL
+F9D9 2A 00 0D            LDA ?b2
+F9DC 21 34               TEQA #0x34
+F9DE 2B FF B0            JNE FAIL
+F9E1 2A 00 0E            LDA ?b1
+F9E4 21 56               TEQA #0x56
+F9E6 2B FF B0            JNE FAIL
+F9E9 2A 00 0F            LDA ?b0
+F9EC 21 78               TEQA #0x78
+F9EE 2B FF B0            JNE FAIL 
+F9F1 1A 15 03            CMPX #0x1503      ; also verify current X value
+F9F4 2B FF B0            JNE FAIL
                          ; Test load32_l1
-F7D5 04 AB CD            LDX #0xABCD
-F7D8 16 16 00            STX 0x1600        ; Store test address
-F7DB 04 DE AD            LDX #0xDEAD
-F7DE 16 16 02            STX 0x1602        ; Store test address
-F7E1 04 16 00            LDX #0x1600       ; Load address of test data
-F7E4 06 FA 87            JSR ?load32_l1    ; Load 32-bit value from memory to l1
-F7E7 2A 00 08            LDA ?b7           ; Verify loaded value
-F7EA 21 AB               TEQA #0xAB
-F7EC 2B FF B0            JNE FAIL
-F7EF 2A 00 09            LDA ?b6
-F7F2 21 CD               TEQA #0xCD
-F7F4 2B FF B0            JNE FAIL
-F7F7 2A 00 0A            LDA ?b5
-F7FA 21 DE               TEQA #0xDE
-F7FC 2B FF B0            JNE FAIL
-F7FF 2A 00 0B            LDA ?b4
-F802 21 AD               TEQA #0xAD
-F804 2B FF B0            JNE FAIL 
-F807 1A 16 03            CMPX #0x1603      ; also verify current X value
-F80A 2B FF B0            JNE FAIL
+F9F7 04 AB CD            LDX #0xABCD
+F9FA 16 16 00            STX 0x1600        ; Store test address
+F9FD 04 DE AD            LDX #0xDEAD
+FA00 16 16 02            STX 0x1602        ; Store test address
+FA03 04 16 00            LDX #0x1600       ; Load address of test data
+FA06 06 FC A9            JSR ?load32_l1    ; Load 32-bit value from memory to l1
+FA09 2A 00 08            LDA ?b7           ; Verify loaded value
+FA0C 21 AB               TEQA #0xAB
+FA0E 2B FF B0            JNE FAIL
+FA11 2A 00 09            LDA ?b6
+FA14 21 CD               TEQA #0xCD
+FA16 2B FF B0            JNE FAIL
+FA19 2A 00 0A            LDA ?b5
+FA1C 21 DE               TEQA #0xDE
+FA1E 2B FF B0            JNE FAIL
+FA21 2A 00 0B            LDA ?b4
+FA24 21 AD               TEQA #0xAD
+FA26 2B FF B0            JNE FAIL 
+FA29 1A 16 03            CMPX #0x1603      ; also verify current X value
+FA2C 2B FF B0            JNE FAIL
                          ; Test load32_l2
-F80D 04 1A 2B            LDX #0x1A2B
-F810 16 17 00            STX 0x1700        ; Store test address
-F813 04 3C 4D            LDX #0x3C4D
-F816 16 17 02            STX 0x1702        ; Store test address
-F819 04 17 00            LDX #0x1700       ; Load address of test data
-F81C 06 FA 9B            JSR ?load32_l2    ; Load 32-bit value from memory to l2
-F81F 2A 00 04            LDA ?b11          ; Verify loaded value
-F822 21 1A               TEQA #0x1A
-F824 2B FF B0            JNE FAIL
-F827 2A 00 05            LDA ?b10
-F82A 21 2B               TEQA #0x2B
-F82C 2B FF B0            JNE FAIL
-F82F 2A 00 06            LDA ?b9
-F832 21 3C               TEQA #0x3C
-F834 2B FF B0            JNE FAIL
-F837 2A 00 07            LDA ?b8
-F83A 21 4D               TEQA #0x4D
-F83C 2B FF B0            JNE FAIL 
-F83F 1A 17 03            CMPX #0x1703      ; also verify current X value
-F842 2B FF B0            JNE FAIL
+FA2F 04 1A 2B            LDX #0x1A2B
+FA32 16 17 00            STX 0x1700        ; Store test address
+FA35 04 3C 4D            LDX #0x3C4D
+FA38 16 17 02            STX 0x1702        ; Store test address
+FA3B 04 17 00            LDX #0x1700       ; Load address of test data
+FA3E 06 FC BD            JSR ?load32_l2    ; Load 32-bit value from memory to l2
+FA41 2A 00 04            LDA ?b11          ; Verify loaded value
+FA44 21 1A               TEQA #0x1A
+FA46 2B FF B0            JNE FAIL
+FA49 2A 00 05            LDA ?b10
+FA4C 21 2B               TEQA #0x2B
+FA4E 2B FF B0            JNE FAIL
+FA51 2A 00 06            LDA ?b9
+FA54 21 3C               TEQA #0x3C
+FA56 2B FF B0            JNE FAIL
+FA59 2A 00 07            LDA ?b8
+FA5C 21 4D               TEQA #0x4D
+FA5E 2B FF B0            JNE FAIL 
+FA61 1A 17 03            CMPX #0x1703      ; also verify current X value
+FA64 2B FF B0            JNE FAIL
                          ; Test load32_l3
-F845 04 2F 3E            LDX #0x2F3E
-F848 16 18 00            STX 0x1800        ; Store test address
-F84B 04 4D 5C            LDX #0x4D5C
-F84E 16 18 02            STX 0x1802        ; Store test address
-F851 04 18 00            LDX #0x1800       ; Load address of test data
-F854 06 FA AF            JSR ?load32_l3    ; Load 32-bit value from memory to l3
-F857 2A 00 00            LDA ?b15          ; Verify loaded value
-F85A 21 2F               TEQA #0x2F
-F85C 2B FF B0            JNE FAIL
-F85F 2A 00 01            LDA ?b14
-F862 21 3E               TEQA #0x3E
-F864 2B FF B0            JNE FAIL
-F867 2A 00 02            LDA ?b13
-F86A 21 4D               TEQA #0x4D
-F86C 2B FF B0            JNE FAIL
-F86F 2A 00 03            LDA ?b12
-F872 21 5C               TEQA #0x5C
-F874 2B FF B0            JNE FAIL 
-F877 1A 18 03            CMPX #0x1803      ; also verify current X value
-F87A 2B FF B0            JNE FAIL         
+FA67 04 2F 3E            LDX #0x2F3E
+FA6A 16 18 00            STX 0x1800        ; Store test address
+FA6D 04 4D 5C            LDX #0x4D5C
+FA70 16 18 02            STX 0x1802        ; Store test address
+FA73 04 18 00            LDX #0x1800       ; Load address of test data
+FA76 06 FC D1            JSR ?load32_l3    ; Load 32-bit value from memory to l3
+FA79 2A 00 00            LDA ?b15          ; Verify loaded value
+FA7C 21 2F               TEQA #0x2F
+FA7E 2B FF B0            JNE FAIL
+FA81 2A 00 01            LDA ?b14
+FA84 21 3E               TEQA #0x3E
+FA86 2B FF B0            JNE FAIL
+FA89 2A 00 02            LDA ?b13
+FA8C 21 4D               TEQA #0x4D
+FA8E 2B FF B0            JNE FAIL
+FA91 2A 00 03            LDA ?b12
+FA94 21 5C               TEQA #0x5C
+FA96 2B FF B0            JNE FAIL 
+FA99 1A 18 03            CMPX #0x1803      ; also verify current X value
+FA9C 2B FF B0            JNE FAIL         
 
                          ; ---------------------
                          ; END Math Library Test
@@ -3107,84 +3378,84 @@ F87A 2B FF B0            JNE FAIL
                                ; TEST EXECUTION FROM RAM
                                ; Copy a block of code from EEPROM to RAM
                                ; then call to execute this block in RAM. Resume execution from EEPROM
-F87D 30 80                     LDA #0x80
-F87F 19                        NOTA
-F880 31 C0 00                  STA LEDPORT ; Output to LED port
-F883 32 F8 A4                  JMP BLKCODEEND   ; We skip the nex block of code to be copied in RAM
+FA9F 30 80                     LDA #0x80
+FAA1 19                        NOTA
+FAA2 31 C0 00                  STA LEDPORT ; Output to LED port
+FAA5 32 FA C6                  JMP BLKCODEEND   ; We skip the nex block of code to be copied in RAM
                                ; Simple 8 bit multiplication test code
-F886 30 56      BLKCODESTART   LDA #0x56   ; 86 * 171 = 14706   (0x56 * 0xAB = 0x3972)
-F888 31 00 0F                  STA ?b0
-F88B 30 AB                     LDA #0xAB
-F88D 31 00 0E                  STA ?b1
-F890 06 FC C7                  JSR ?mul8_w1_b1_b0
-F893 2A 00 0C                  LDA ?b3
-F896 21 39                     TEQA #0x39
-F898 2B FF B0                  JNE FAIL
-F89B 2A 00 0D                  LDA ?b2
-F89E 21 72                     TEQA #0x72
-F8A0 2B FF B0                  JNE FAIL
-F8A3 07                        RTS
+FAA8 30 56      BLKCODESTART   LDA #0x56   ; 86 * 171 = 14706   (0x56 * 0xAB = 0x3972)
+FAAA 31 00 0F                  STA ?b0
+FAAD 30 AB                     LDA #0xAB
+FAAF 31 00 0E                  STA ?b1
+FAB2 06 FE E9                  JSR ?mul8_w1_b1_b0
+FAB5 2A 00 0C                  LDA ?b3
+FAB8 21 39                     TEQA #0x39
+FABA 2B FF B0                  JNE FAIL
+FABD 2A 00 0D                  LDA ?b2
+FAC0 21 72                     TEQA #0x72
+FAC2 2B FF B0                  JNE FAIL
+FAC5 07                        RTS
                                ; Copy the Block of code from EEPROM to RAM
-F8A4 04 F8 86   BLKCODEEND     LDX #BLKCODESTART ; Load address of BLKCODESTART
-F8A7 16 00 0E                  STX ?b1           ; Store this adddress in ?b1:?b0
+FAC6 04 FA A8   BLKCODEEND     LDX #BLKCODESTART ; Load address of BLKCODESTART
+FAC9 16 00 0E                  STX ?b1           ; Store this adddress in ?b1:?b0
                 RAMDESTSTART   EQU 0x1000
-F8AA 04 10 00                  LDX #RAMDESTSTART ; Load address of RAM destination
-F8AD 16 00 0C                  STX ?b3           ; Store this adddress in ?b3:?b2
+FACC 04 10 00                  LDX #RAMDESTSTART ; Load address of RAM destination
+FACF 16 00 0C                  STX ?b3           ; Store this adddress in ?b3:?b2
                                ; copy a byte from source to destination
-F8B0 1B 0E      LOOPTST47      LDX ?b1           ; Load X with source address in ?b1:?b0
-F8B2 1A F8 A4                  CMPX #BLKCODEEND  ; Check if last byte copied
-F8B5 2C F8 C6                  JEQ ENDCOPYTST47  ; if yes then quit copy loop
-F8B8 0A                        LDA (X)           ; Load byte pointed by X
-F8B9 05                        INCX
-F8BA 16 00 0E                  STX ?b1
-F8BD 1B 0C                     LDX ?b3           ; Load X with destination address in ?b3:?b2
-F8BF 0B                        STA (X)           ; Store byte to address pointed by X
-F8C0 05                        INCX
-F8C1 16 00 0C                  STX ?b3
-F8C4 0C EA                     JRA LOOPTST47
-F8C6 06 10 00   ENDCOPYTST47   JSR RAMDESTSTART ; Jump to ram for code execution
+FAD2 1B 0E      LOOPTST47      LDX ?b1           ; Load X with source address in ?b1:?b0
+FAD4 1A FA C6                  CMPX #BLKCODEEND  ; Check if last byte copied
+FAD7 2C FA E8                  JEQ ENDCOPYTST47  ; if yes then quit copy loop
+FADA 0A                        LDA (X)           ; Load byte pointed by X
+FADB 05                        INCX
+FADC 16 00 0E                  STX ?b1
+FADF 1B 0C                     LDX ?b3           ; Load X with destination address in ?b3:?b2
+FAE1 0B                        STA (X)           ; Store byte to address pointed by X
+FAE2 05                        INCX
+FAE3 16 00 0C                  STX ?b3
+FAE6 0C EA                     JRA LOOPTST47
+FAE8 06 10 00   ENDCOPYTST47   JSR RAMDESTSTART ; Jump to ram for code execution
 
                             ; ---------------------------------------
                             ; 32-bit Fibonacci using library routines
                             ; l2 = F(n), l1 = F(n-1), l0 = F(n-2)
                             ; ---------------------------------------
-F8C9 30 81                  LDA #0x81
-F8CB 19                     NOTA
-F8CC 31 C0 00               STA LEDPORT
+FAEB 30 81                  LDA #0x81
+FAED 19                     NOTA
+FAEE 31 C0 00               STA LEDPORT
                 LOOPCNT     EQU 0x0100           ; Loop counter storage
                 FIBNUMB     EQU 0x1000           ; Output buffer for Fibonacci numbers
                             ; Initialize Fibonacci state
-F8CF 06 F9 CD               JSR ?clear32_l0      ; F(0) = 0
-F8D2 06 FA 62               JSR ?set32_l1_to_1   ; F(1) = 1
-F8D5 06 F9 EB               JSR ?clear32_l2
+FAF1 06 FB EF               JSR ?clear32_l0      ; F(0) = 0
+FAF4 06 FC 84               JSR ?set32_l1_to_1   ; F(1) = 1
+FAF7 06 FC 0D               JSR ?clear32_l2
                             ; Output buffer
-F8D8 04 10 00               LDX #FIBNUMB
-F8DB 06 FA C3               JSR ?store32_l0      ; F(0)
-F8DE 05                     INCX                 ; advance to next 32-bit slot
-F8DF 06 FA D7               JSR ?store32_l1      ; F(1)
-F8E2 05                     INCX                 ; advance to next 32-bit slot
+FAFA 04 10 00               LDX #FIBNUMB
+FAFD 06 FC E5               JSR ?store32_l0      ; F(0)
+FB00 05                     INCX                 ; advance to next 32-bit slot
+FB01 06 FC F9               JSR ?store32_l1      ; F(1)
+FB04 05                     INCX                 ; advance to next 32-bit slot
                             ; Loop counter
                             ; F(47)=2,971,215,073  fit in 32 bits
                             ; F(48)=4,807,526,976  exceed 32 bits
-F8E3 30 2D                  LDA #0x2D   ; 47 - 2 = 45  iterations (0x2D)
-F8E5 31 01 00               STA LOOPCNT
-F8E8 06 FC 2C   FIB32_LOOP  JSR ?add32_l2_l1_l0  ; l2 = l1 + l0
-F8EB 06 FA EB               JSR ?store32_l2      ; store F(n)
-F8EE 05                     INCX                 ; advance to next 32-bit slot
+FB05 30 2D                  LDA #0x2D   ; 47 - 2 = 45  iterations (0x2D)
+FB07 31 01 00               STA LOOPCNT
+FB0A 06 FE 4E   FIB32_LOOP  JSR ?add32_l2_l1_l0  ; l2 = l1 + l0
+FB0D 06 FD 0D               JSR ?store32_l2      ; store F(n)
+FB10 05                     INCX                 ; advance to next 32-bit slot
                             ; rotate registers
-F8EF 06 FB 5E               JSR ?mov32_l0_l1     ; l0 = l1
-F8F2 06 FB C2               JSR ?mov32_l1_l2     ; l1 = l2
+FB11 06 FD 80               JSR ?mov32_l0_l1     ; l0 = l1
+FB14 06 FD E4               JSR ?mov32_l1_l2     ; l1 = l2
                             ;  DEC LOOPCNT    ; i dont have a DEC direct instruction for now
-F8F5 2A 01 00               LDA LOOPCNT
-F8F8 20                     DECA
-F8F9 31 01 00               STA LOOPCNT
-F8FC 21 00                  TEQA #0x00
-F8FE 2B F8 E8               JNE FIB32_LOOP
+FB17 2A 01 00               LDA LOOPCNT
+FB1A 20                     DECA
+FB1B 31 01 00               STA LOOPCNT
+FB1E 21 00                  TEQA #0x00
+FB20 2B FB 0A               JNE FIB32_LOOP
                             ; End of fibonacci number computation
                             ; Verify Fibonacci numbers stored in memory
-F901 30 82                  LDA #0x82
-F903 19                     NOTA
-F904 31 C0 00               STA LEDPORT             
+FB23 30 82                  LDA #0x82
+FB25 19                     NOTA
+FB26 31 C0 00               STA LEDPORT             
                             ; Memory layout:
                             ;   FIBNUMB: F(0), F(1), F(2), ...
                             ; Registers:
@@ -3192,29 +3463,29 @@ F904 31 C0 00               STA LEDPORT
                             ;   l1 = previous          (F(n-1))
                             ;   l2 = current from mem  (F(n))
                             ;-----------------------------------------------
-F907 04 10 00   FIB_VERIFY  LDX #FIBNUMB         ; pointer to first Fibonacci number
+FB29 04 10 00   FIB_VERIFY  LDX #FIBNUMB         ; pointer to first Fibonacci number
                             ; Load first two Fibonacci numbers from memory
-F90A 06 FA 73               JSR ?load32_l0       ; l0 = F(0)
-F90D 05                     INCX  
-F90E 06 FA 87               JSR ?load32_l1       ; l1 = F(1)
-F911 05                     INCX  
+FB2C 06 FC 95               JSR ?load32_l0       ; l0 = F(0)
+FB2F 05                     INCX  
+FB30 06 FC A9               JSR ?load32_l1       ; l1 = F(1)
+FB33 05                     INCX  
                             ; Loop counter
                             ; F(47)=2,971,215,073  fit in 32 bits
                             ; F(48)=4,807,526,976  exceed 32 bits
-F912 30 2D                  LDA #0x2D   ; 47 - 2 = 45  iterations (0x2D)
-F914 31 01 00               STA LOOPCNT
-F917 06 FA 9B   VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l2
-F91A 05                     INCX  
-F91B 06 FC 51               JSR ?add32_l3_l1_l0  ; Compute sum l0 + l1 → l3
-F91E 06 FC 9C               JSR ?cmp32_l3_l2     ; Compare computed sum with loaded number
-F921 2B FF B0               JNE FAIL
-F924 06 FB 5E               JSR ?mov32_l0_l1     ; Rotate registers for next iteration
-F927 06 FB C2               JSR ?mov32_l1_l2
-F92A 2A 01 00               LDA LOOPCNT          ; Decrement loop counter
-F92D 2F FF                  ADDA #0xFF         ; decrement
-F92F 31 01 00               STA LOOPCNT
-F932 21 00                  TEQA #0x00
-F934 2B F9 17               JNE VERIFY_LOOP
+FB34 30 2D                  LDA #0x2D   ; 47 - 2 = 45  iterations (0x2D)
+FB36 31 01 00               STA LOOPCNT
+FB39 06 FC BD   VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l2
+FB3C 05                     INCX  
+FB3D 06 FE 73               JSR ?add32_l3_l1_l0  ; Compute sum l0 + l1 → l3
+FB40 06 FE BE               JSR ?cmp32_l3_l2     ; Compare computed sum with loaded number
+FB43 2B FF B0               JNE FAIL
+FB46 06 FD 80               JSR ?mov32_l0_l1     ; Rotate registers for next iteration
+FB49 06 FD E4               JSR ?mov32_l1_l2
+FB4C 2A 01 00               LDA LOOPCNT          ; Decrement loop counter
+FB4F 2F FF                  ADDA #0xFF         ; decrement
+FB51 31 01 00               STA LOOPCNT
+FB54 21 00                  TEQA #0x00
+FB56 2B FB 39               JNE VERIFY_LOOP
                             ; End of fibonacci number verification
 
 
@@ -3279,36 +3550,36 @@ F934 2B F9 17               JNE VERIFY_LOOP
                 ;                  RTS
 
                          ; LCD TEST        
-F937 06 FD 1E            JSR LCD_Init
-F93A 06 FD 3A            JSR LCD_Clear
-F93D 04 00 00            LDX #0x0000    ; set cursor to first line and print message
-F940 06 FD 46            JSR LCD_SetCursorPos
-F943 04 F9 7E            LDX #MSGTXT2
-F946 06 FD 61            JSR LCD_PrintString
-F949 04 01 00            LDX #0x0100    ; set cursor to second line and print message
-F94C 06 FD 46            JSR LCD_SetCursorPos
-F94F 04 F9 C7            LDX #MSGTXT4
-F952 06 FD 61            JSR LCD_PrintString
+FB59 06 FF 40            JSR LCD_Init
+FB5C 06 FF 5C            JSR LCD_Clear
+FB5F 04 00 00            LDX #0x0000    ; set cursor to first line and print message
+FB62 06 FF 68            JSR LCD_SetCursorPos
+FB65 04 FB A0            LDX #MSGTXT2
+FB68 06 FF 83            JSR LCD_PrintString
+FB6B 04 01 00            LDX #0x0100    ; set cursor to second line and print message
+FB6E 06 FF 68            JSR LCD_SetCursorPos
+FB71 04 FB E9            LDX #MSGTXT4
+FB74 06 FF 83            JSR LCD_PrintString
                          ; make some movement on the lcd to show diagnostic still running
                          ; use 3 LSB of diagnostic counter to move an asterisk on second line
                          ; between position 8 and 15
-F955 2A 01 E0            LDA DIAGLOOPCOUNTER
-F958 33 07               ANDA #0x07          ; mask to 3 LSB (0..7)
-F95A 2F 08               ADDA #0x08          ; offset to position 8..15
-F95C 31 1F F4            STA XL              ; XL = column
-F95F 30 01               LDA #0x01
-F961 31 1F F3            STA XH              ; XH = line 1 (second line)
-F964 06 FD 46            JSR LCD_SetCursorPos
-F967 30 2A               LDA #0x2A           ; ASCII '*'
-F969 06 FD 5D            JSR LCD_WriteChar
+FB77 2A 01 E0            LDA DIAGLOOPCOUNTER
+FB7A 33 07               ANDA #0x07          ; mask to 3 LSB (0..7)
+FB7C 2F 08               ADDA #0x08          ; offset to position 8..15
+FB7E 31 1F F4            STA XL              ; XL = column
+FB81 30 01               LDA #0x01
+FB83 31 1F F3            STA XH              ; XH = line 1 (second line)
+FB86 06 FF 68            JSR LCD_SetCursorPos
+FB89 30 2A               LDA #0x2A           ; ASCII '*'
+FB8B 06 FF 7F            JSR LCD_WriteChar
                          ; End of LCD TEST
 
                          ; increment diagnostic counter to indicate successful completion
-F96C 2A 01 E0            LDA DIAGLOOPCOUNTER
-F96F 2F 01               ADDA #0x01
-F971 31 01 E0            STA DIAGLOOPCOUNTER
+FB8E 2A 01 E0            LDA DIAGLOOPCOUNTER
+FB91 2F 01               ADDA #0x01
+FB93 31 01 E0            STA DIAGLOOPCOUNTER
 
-F974 32 E0 05            JMP LOOPDIAG         ; Diagnostic loop
+FB96 32 E0 05            JMP LOOPDIAG         ; Diagnostic loop
                 ; END OF MAIN PROGRAM
 
                          ; ---------------
@@ -3317,13 +3588,13 @@ F974 32 E0 05            JMP LOOPDIAG         ; Diagnostic loop
                          ; Start of data section in EEPROM
 
                          ; ASCII text table for test
-F977 31 32 33 41 42 43 00                             MSGTXT1        .ASCII "123ABC"
-F97E 48 65 6C 6C 6F 20 57 6F 72 6C 64 00              MSGTXT2        .ASCII "Hello World"
-F98A 54 68 69 73 20 69 73 20 61 20 74 65 78 74 20 6D  
+FB99 31 32 33 41 42 43 00                             MSGTXT1        .ASCII "123ABC"
+FBA0 48 65 6C 6C 6F 20 57 6F 72 6C 64 00              MSGTXT2        .ASCII "Hello World"
+FBAC 54 68 69 73 20 69 73 20 61 20 74 65 78 74 20 6D  
      65 73 73 61 67 65 20 74 6F 20 74 65 73 74 20 61  
      73 63 69 69 20 74 65 78 74 20 74 61 62 6C 65 20  
      69 6E 20 61 73 73 65 6D 62 6C 65 72 00           MSGTXT3        .ASCII "This is a text message to test ascii text table in assembler"
-F9C7 4D 79 43 50 55 00                                MSGTXT4        .ASCII "MyCPU"
+FBE9 4D 79 43 50 55 00                                MSGTXT4        .ASCII "MyCPU"
 
                          ; ---------------------
                          ; Math library routines
@@ -3335,404 +3606,404 @@ F9C7 4D 79 43 50 55 00                                MSGTXT4        .ASCII "MyC
                 ;         ?l3         |         ?l2       |       ?l1       |       ?l0       | 32 bits
                 ;-----------------------------------------------------------------------------
                                   ; Clear 32bits
-F9CD 30 00      ?clear32_l0       LDA #0x00
-F9CF 31 00 0F                     STA ?b0
-F9D2 31 00 0E                     STA ?b1
-F9D5 31 00 0D                     STA ?b2
-F9D8 31 00 0C                     STA ?b3
-F9DB 07                           RTS
-F9DC 30 00      ?clear32_l1       LDA #0x00
-F9DE 31 00 0B                     STA ?b4
-F9E1 31 00 0A                     STA ?b5
-F9E4 31 00 09                     STA ?b6
-F9E7 31 00 08                     STA ?b7
-F9EA 07                           RTS   
-F9EB 30 00      ?clear32_l2       LDA #0x00
-F9ED 31 00 07                     STA ?b8
-F9F0 31 00 06                     STA ?b9
-F9F3 31 00 05                     STA ?b10
-F9F6 31 00 04                     STA ?b11
-F9F9 07                           RTS
-F9FA 30 00      ?clear32_l3       LDA #0x00
-F9FC 31 00 03                     STA ?b12
-F9FF 31 00 02                     STA ?b13
-FA02 31 00 01                     STA ?b14
-FA05 31 00 00                     STA ?b15
-FA08 07                           RTS
+FBEF 30 00      ?clear32_l0       LDA #0x00
+FBF1 31 00 0F                     STA ?b0
+FBF4 31 00 0E                     STA ?b1
+FBF7 31 00 0D                     STA ?b2
+FBFA 31 00 0C                     STA ?b3
+FBFD 07                           RTS
+FBFE 30 00      ?clear32_l1       LDA #0x00
+FC00 31 00 0B                     STA ?b4
+FC03 31 00 0A                     STA ?b5
+FC06 31 00 09                     STA ?b6
+FC09 31 00 08                     STA ?b7
+FC0C 07                           RTS   
+FC0D 30 00      ?clear32_l2       LDA #0x00
+FC0F 31 00 07                     STA ?b8
+FC12 31 00 06                     STA ?b9
+FC15 31 00 05                     STA ?b10
+FC18 31 00 04                     STA ?b11
+FC1B 07                           RTS
+FC1C 30 00      ?clear32_l3       LDA #0x00
+FC1E 31 00 03                     STA ?b12
+FC21 31 00 02                     STA ?b13
+FC24 31 00 01                     STA ?b14
+FC27 31 00 00                     STA ?b15
+FC2A 07                           RTS
                                   ; Clear 16bits
-FA09 30 00      ?clear16_w0       LDA #0x00
-FA0B 31 00 0F                     STA ?b0
-FA0E 31 00 0E                     STA ?b1
-FA11 07                           RTS
-FA12 30 00      ?clear16_w1       LDA #0x00
-FA14 31 00 0D                     STA ?b2
-FA17 31 00 0C                     STA ?b3
-FA1A 07                           RTS
-FA1B 30 00      ?clear16_w2       LDA #0x00
-FA1D 31 00 0B                     STA ?b4
-FA20 31 00 0A                     STA ?b5
-FA23 07                           RTS
-FA24 30 00      ?clear16_w3       LDA #0x00
-FA26 31 00 09                     STA ?b6
-FA29 31 00 08                     STA ?b7
-FA2C 07                           RTS
-FA2D 30 00      ?clear16_w4       LDA #0x00
-FA2F 31 00 07                     STA ?b8
-FA32 31 00 06                     STA ?b9     
-FA35 07                           RTS
-FA36 30 00      ?clear16_w5       LDA #0x00
-FA38 31 00 05                     STA ?b10
-FA3B 31 00 04                     STA ?b11
-FA3E 07                           RTS
-FA3F 30 00      ?clear16_w6       LDA #0x00
-FA41 31 00 03                     STA ?b12
-FA44 31 00 02                     STA ?b13
-FA47 07                           RTS
-FA48 30 00      ?clear16_w7       LDA #0x00
-FA4A 31 00 01                     STA ?b14
-FA4D 31 00 00                     STA ?b15
-FA50 07                           RTS
+FC2B 30 00      ?clear16_w0       LDA #0x00
+FC2D 31 00 0F                     STA ?b0
+FC30 31 00 0E                     STA ?b1
+FC33 07                           RTS
+FC34 30 00      ?clear16_w1       LDA #0x00
+FC36 31 00 0D                     STA ?b2
+FC39 31 00 0C                     STA ?b3
+FC3C 07                           RTS
+FC3D 30 00      ?clear16_w2       LDA #0x00
+FC3F 31 00 0B                     STA ?b4
+FC42 31 00 0A                     STA ?b5
+FC45 07                           RTS
+FC46 30 00      ?clear16_w3       LDA #0x00
+FC48 31 00 09                     STA ?b6
+FC4B 31 00 08                     STA ?b7
+FC4E 07                           RTS
+FC4F 30 00      ?clear16_w4       LDA #0x00
+FC51 31 00 07                     STA ?b8
+FC54 31 00 06                     STA ?b9     
+FC57 07                           RTS
+FC58 30 00      ?clear16_w5       LDA #0x00
+FC5A 31 00 05                     STA ?b10
+FC5D 31 00 04                     STA ?b11
+FC60 07                           RTS
+FC61 30 00      ?clear16_w6       LDA #0x00
+FC63 31 00 03                     STA ?b12
+FC66 31 00 02                     STA ?b13
+FC69 07                           RTS
+FC6A 30 00      ?clear16_w7       LDA #0x00
+FC6C 31 00 01                     STA ?b14
+FC6F 31 00 00                     STA ?b15
+FC72 07                           RTS
                                   ; Set 32bits to 1
-FA51 30 01      ?set32_l0_to_1    LDA #0x01
-FA53 31 00 0F                     STA ?b0
-FA56 30 00                        LDA #0x00
-FA58 31 00 0E                     STA ?b1
-FA5B 31 00 0D                     STA ?b2
-FA5E 31 00 0C                     STA ?b3
-FA61 07                           RTS
-FA62 30 01      ?set32_l1_to_1    LDA #0x01
-FA64 31 00 0B                     STA ?b4
+FC73 30 01      ?set32_l0_to_1    LDA #0x01
+FC75 31 00 0F                     STA ?b0
+FC78 30 00                        LDA #0x00
+FC7A 31 00 0E                     STA ?b1
+FC7D 31 00 0D                     STA ?b2
+FC80 31 00 0C                     STA ?b3
+FC83 07                           RTS
+FC84 30 01      ?set32_l1_to_1    LDA #0x01
+FC86 31 00 0B                     STA ?b4
                                   ;CLR ?b5    ; I dont have a page 0 clear instruction yet
                                   ;CLR ?b6
                                   ;CLR ?b7
-FA67 30 00                        LDA #0x00
-FA69 31 00 0A                     STA ?b5
-FA6C 31 00 09                     STA ?b6
-FA6F 31 00 08                     STA ?b7
-FA72 07                           RTS                  
+FC89 30 00                        LDA #0x00
+FC8B 31 00 0A                     STA ?b5
+FC8E 31 00 09                     STA ?b6
+FC91 31 00 08                     STA ?b7
+FC94 07                           RTS                  
                                   ; Load 32bits l0 using X register as pointer
-FA73 0A         ?load32_l0        LDA (X)
-FA74 31 00 0C                     STA ?b3
-FA77 05                           INCX
-FA78 0A                           LDA (X)
-FA79 31 00 0D                     STA ?b2
-FA7C 05                           INCX
-FA7D 0A                           LDA (X)
-FA7E 31 00 0E                     STA ?b1
-FA81 05                           INCX
-FA82 0A                           LDA (X)
-FA83 31 00 0F                     STA ?b0
-FA86 07                           RTS
+FC95 0A         ?load32_l0        LDA (X)
+FC96 31 00 0C                     STA ?b3
+FC99 05                           INCX
+FC9A 0A                           LDA (X)
+FC9B 31 00 0D                     STA ?b2
+FC9E 05                           INCX
+FC9F 0A                           LDA (X)
+FCA0 31 00 0E                     STA ?b1
+FCA3 05                           INCX
+FCA4 0A                           LDA (X)
+FCA5 31 00 0F                     STA ?b0
+FCA8 07                           RTS
                                   ; Load 32bits l1 using X register as pointer
-FA87 0A         ?load32_l1        LDA (X)
-FA88 31 00 08                     STA ?b7
-FA8B 05                           INCX
-FA8C 0A                           LDA (X)
-FA8D 31 00 09                     STA ?b6
-FA90 05                           INCX
-FA91 0A                           LDA (X)
-FA92 31 00 0A                     STA ?b5
-FA95 05                           INCX
-FA96 0A                           LDA (X)
-FA97 31 00 0B                     STA ?b4
-FA9A 07                           RTS
+FCA9 0A         ?load32_l1        LDA (X)
+FCAA 31 00 08                     STA ?b7
+FCAD 05                           INCX
+FCAE 0A                           LDA (X)
+FCAF 31 00 09                     STA ?b6
+FCB2 05                           INCX
+FCB3 0A                           LDA (X)
+FCB4 31 00 0A                     STA ?b5
+FCB7 05                           INCX
+FCB8 0A                           LDA (X)
+FCB9 31 00 0B                     STA ?b4
+FCBC 07                           RTS
                                   ; Load 32bits l2 using X register as pointer
-FA9B 0A         ?load32_l2        LDA (X)
-FA9C 31 00 04                     STA ?b11
-FA9F 05                           INCX
-FAA0 0A                           LDA (X)
-FAA1 31 00 05                     STA ?b10
-FAA4 05                           INCX
-FAA5 0A                           LDA (X)
-FAA6 31 00 06                     STA ?b9
-FAA9 05                           INCX
-FAAA 0A                           LDA (X)
-FAAB 31 00 07                     STA ?b8
-FAAE 07                           RTS
+FCBD 0A         ?load32_l2        LDA (X)
+FCBE 31 00 04                     STA ?b11
+FCC1 05                           INCX
+FCC2 0A                           LDA (X)
+FCC3 31 00 05                     STA ?b10
+FCC6 05                           INCX
+FCC7 0A                           LDA (X)
+FCC8 31 00 06                     STA ?b9
+FCCB 05                           INCX
+FCCC 0A                           LDA (X)
+FCCD 31 00 07                     STA ?b8
+FCD0 07                           RTS
                                   ; Load 32bits l3 using X register as pointer
-FAAF 0A         ?load32_l3        LDA (X)
-FAB0 31 00 00                     STA ?b15
-FAB3 05                           INCX
-FAB4 0A                           LDA (X)
-FAB5 31 00 01                     STA ?b14
-FAB8 05                           INCX
-FAB9 0A                           LDA (X)
-FABA 31 00 02                     STA ?b13
-FABD 05                           INCX
-FABE 0A                           LDA (X)
-FABF 31 00 03                     STA ?b12
-FAC2 07                           RTS                   
+FCD1 0A         ?load32_l3        LDA (X)
+FCD2 31 00 00                     STA ?b15
+FCD5 05                           INCX
+FCD6 0A                           LDA (X)
+FCD7 31 00 01                     STA ?b14
+FCDA 05                           INCX
+FCDB 0A                           LDA (X)
+FCDC 31 00 02                     STA ?b13
+FCDF 05                           INCX
+FCE0 0A                           LDA (X)
+FCE1 31 00 03                     STA ?b12
+FCE4 07                           RTS                   
                                   ; Store 32bits l0 using X register as pointer
-FAC3 2A 00 0C   ?store32_l0       LDA ?b3
-FAC6 0B                           STA (X)
-FAC7 05                           INCX
-FAC8 2A 00 0D                     LDA ?b2
-FACB 0B                           STA (X)
-FACC 05                           INCX
-FACD 2A 00 0E                     LDA ?b1
-FAD0 0B                           STA (X)
-FAD1 05                           INCX
-FAD2 2A 00 0F                     LDA ?b0
-FAD5 0B                           STA (X)
-FAD6 07                           RTS
+FCE5 2A 00 0C   ?store32_l0       LDA ?b3
+FCE8 0B                           STA (X)
+FCE9 05                           INCX
+FCEA 2A 00 0D                     LDA ?b2
+FCED 0B                           STA (X)
+FCEE 05                           INCX
+FCEF 2A 00 0E                     LDA ?b1
+FCF2 0B                           STA (X)
+FCF3 05                           INCX
+FCF4 2A 00 0F                     LDA ?b0
+FCF7 0B                           STA (X)
+FCF8 07                           RTS
                                   ; Store 32bits l1 using X register as pointer
-FAD7 2A 00 08   ?store32_l1       LDA ?b7
-FADA 0B                           STA (X)
-FADB 05                           INCX
-FADC 2A 00 09                     LDA ?b6
-FADF 0B                           STA (X)
-FAE0 05                           INCX
-FAE1 2A 00 0A                     LDA ?b5
-FAE4 0B                           STA (X)
-FAE5 05                           INCX
-FAE6 2A 00 0B                     LDA ?b4
-FAE9 0B                           STA (X)
-FAEA 07                           RTS
+FCF9 2A 00 08   ?store32_l1       LDA ?b7
+FCFC 0B                           STA (X)
+FCFD 05                           INCX
+FCFE 2A 00 09                     LDA ?b6
+FD01 0B                           STA (X)
+FD02 05                           INCX
+FD03 2A 00 0A                     LDA ?b5
+FD06 0B                           STA (X)
+FD07 05                           INCX
+FD08 2A 00 0B                     LDA ?b4
+FD0B 0B                           STA (X)
+FD0C 07                           RTS
                                   ; Store 32bits l2 using X register as pointer
-FAEB 2A 00 04   ?store32_l2       LDA ?b11
-FAEE 0B                           STA (X)
-FAEF 05                           INCX
-FAF0 2A 00 05                     LDA ?b10
-FAF3 0B                           STA (X)
-FAF4 05                           INCX
-FAF5 2A 00 06                     LDA ?b9
-FAF8 0B                           STA (X)
-FAF9 05                           INCX
-FAFA 2A 00 07                     LDA ?b8
-FAFD 0B                           STA (X)
-FAFE 07                           RTS
+FD0D 2A 00 04   ?store32_l2       LDA ?b11
+FD10 0B                           STA (X)
+FD11 05                           INCX
+FD12 2A 00 05                     LDA ?b10
+FD15 0B                           STA (X)
+FD16 05                           INCX
+FD17 2A 00 06                     LDA ?b9
+FD1A 0B                           STA (X)
+FD1B 05                           INCX
+FD1C 2A 00 07                     LDA ?b8
+FD1F 0B                           STA (X)
+FD20 07                           RTS
                                   ; Store 32bits l3 using X register as pointer
-FAFF 2A 00 00   ?store32_l3       LDA ?b15
-FB02 0B                           STA (X)
-FB03 05                           INCX
-FB04 2A 00 01                     LDA ?b14
-FB07 0B                           STA (X)  
-FB08 05                           INCX
-FB09 2A 00 02                     LDA ?b13
-FB0C 0B                           STA (X)
-FB0D 05                           INCX
-FB0E 2A 00 03                     LDA ?b12
-FB11 0B                           STA (X)
-FB12 07                           RTS
+FD21 2A 00 00   ?store32_l3       LDA ?b15
+FD24 0B                           STA (X)
+FD25 05                           INCX
+FD26 2A 00 01                     LDA ?b14
+FD29 0B                           STA (X)  
+FD2A 05                           INCX
+FD2B 2A 00 02                     LDA ?b13
+FD2E 0B                           STA (X)
+FD2F 05                           INCX
+FD30 2A 00 03                     LDA ?b12
+FD33 0B                           STA (X)
+FD34 07                           RTS
                                   ; Move 32 bits from l0 to l1
-FB13 2A 00 0C   ?mov32_l1_l0      LDA ?b3
-FB16 31 00 08                     STA ?b7
-FB19 2A 00 0D                     LDA ?b2
-FB1C 31 00 09                     STA ?b6
-FB1F 2A 00 0E                     LDA ?b1
-FB22 31 00 0A                     STA ?b5
-FB25 2A 00 0F                     LDA ?b0
-FB28 31 00 0B                     STA ?b4
-FB2B 07                           RTS
+FD35 2A 00 0C   ?mov32_l1_l0      LDA ?b3
+FD38 31 00 08                     STA ?b7
+FD3B 2A 00 0D                     LDA ?b2
+FD3E 31 00 09                     STA ?b6
+FD41 2A 00 0E                     LDA ?b1
+FD44 31 00 0A                     STA ?b5
+FD47 2A 00 0F                     LDA ?b0
+FD4A 31 00 0B                     STA ?b4
+FD4D 07                           RTS
                                   ; Move 32 bits from l0 to l2
-FB2C 2A 00 0C   ?mov32_l2_l0      LDA ?b3
-FB2F 31 00 04                     STA ?b11
-FB32 2A 00 0D                     LDA ?b2
-FB35 31 00 05                     STA ?b10
-FB38 2A 00 0E                     LDA ?b1
-FB3B 31 00 06                     STA ?b9
-FB3E 2A 00 0F                     LDA ?b0
-FB41 31 00 07                     STA ?b8
-FB44 07                           RTS
+FD4E 2A 00 0C   ?mov32_l2_l0      LDA ?b3
+FD51 31 00 04                     STA ?b11
+FD54 2A 00 0D                     LDA ?b2
+FD57 31 00 05                     STA ?b10
+FD5A 2A 00 0E                     LDA ?b1
+FD5D 31 00 06                     STA ?b9
+FD60 2A 00 0F                     LDA ?b0
+FD63 31 00 07                     STA ?b8
+FD66 07                           RTS
                                   ; Move 32 bits from l0 to l3
-FB45 2A 00 0C   ?mov32_l3_l0      LDA ?b3
-FB48 31 00 00                     STA ?b15
-FB4B 2A 00 0D                     LDA ?b2
-FB4E 31 00 01                     STA ?b14
-FB51 2A 00 0E                     LDA ?b1
-FB54 31 00 02                     STA ?b13
-FB57 2A 00 0F                     LDA ?b0
-FB5A 31 00 03                     STA ?b12
-FB5D 07                           RTS
+FD67 2A 00 0C   ?mov32_l3_l0      LDA ?b3
+FD6A 31 00 00                     STA ?b15
+FD6D 2A 00 0D                     LDA ?b2
+FD70 31 00 01                     STA ?b14
+FD73 2A 00 0E                     LDA ?b1
+FD76 31 00 02                     STA ?b13
+FD79 2A 00 0F                     LDA ?b0
+FD7C 31 00 03                     STA ?b12
+FD7F 07                           RTS
                                   ; Move 32 bits from l1 to l0
-FB5E 2A 00 08   ?mov32_l0_l1      LDA ?b7
-FB61 31 00 0C                     STA ?b3
-FB64 2A 00 09                     LDA ?b6
-FB67 31 00 0D                     STA ?b2
-FB6A 2A 00 0A                     LDA ?b5
-FB6D 31 00 0E                     STA ?b1
-FB70 2A 00 0B                     LDA ?b4
-FB73 31 00 0F                     STA ?b0
-FB76 07                           RTS
+FD80 2A 00 08   ?mov32_l0_l1      LDA ?b7
+FD83 31 00 0C                     STA ?b3
+FD86 2A 00 09                     LDA ?b6
+FD89 31 00 0D                     STA ?b2
+FD8C 2A 00 0A                     LDA ?b5
+FD8F 31 00 0E                     STA ?b1
+FD92 2A 00 0B                     LDA ?b4
+FD95 31 00 0F                     STA ?b0
+FD98 07                           RTS
                                   ; Move 32 bits from l1 to l2
-FB77 2A 00 08   ?mov32_l2_l1      LDA ?b7
-FB7A 31 00 04                     STA ?b11
-FB7D 2A 00 09                     LDA ?b6
-FB80 31 00 05                     STA ?b10
-FB83 2A 00 0A                     LDA ?b5
-FB86 31 00 06                     STA ?b9
-FB89 2A 00 0B                     LDA ?b4
-FB8C 31 00 07                     STA ?b8
-FB8F 07                           RTS
+FD99 2A 00 08   ?mov32_l2_l1      LDA ?b7
+FD9C 31 00 04                     STA ?b11
+FD9F 2A 00 09                     LDA ?b6
+FDA2 31 00 05                     STA ?b10
+FDA5 2A 00 0A                     LDA ?b5
+FDA8 31 00 06                     STA ?b9
+FDAB 2A 00 0B                     LDA ?b4
+FDAE 31 00 07                     STA ?b8
+FDB1 07                           RTS
                                   ; Move 32 bits from l1 to l3
-FB90 2A 00 08   ?mov32_l3_l1      LDA ?b7
-FB93 31 00 00                     STA ?b15
-FB96 2A 00 09                     LDA ?b6
-FB99 31 00 01                     STA ?b14
-FB9C 2A 00 0A                     LDA ?b5
-FB9F 31 00 02                     STA ?b13
-FBA2 2A 00 0B                     LDA ?b4
-FBA5 31 00 03                     STA ?b12
-FBA8 07                           RTS
+FDB2 2A 00 08   ?mov32_l3_l1      LDA ?b7
+FDB5 31 00 00                     STA ?b15
+FDB8 2A 00 09                     LDA ?b6
+FDBB 31 00 01                     STA ?b14
+FDBE 2A 00 0A                     LDA ?b5
+FDC1 31 00 02                     STA ?b13
+FDC4 2A 00 0B                     LDA ?b4
+FDC7 31 00 03                     STA ?b12
+FDCA 07                           RTS
                                   ; Move 32 bits from l2 to l0
-FBA9 2A 00 04   ?mov32_l0_l2      LDA ?b11
-FBAC 31 00 0C                     STA ?b3
-FBAF 2A 00 05                     LDA ?b10
-FBB2 31 00 0D                     STA ?b2
-FBB5 2A 00 06                     LDA ?b9
-FBB8 31 00 0E                     STA ?b1
-FBBB 2A 00 07                     LDA ?b8
-FBBE 31 00 0F                     STA ?b0
-FBC1 07                           RTS
+FDCB 2A 00 04   ?mov32_l0_l2      LDA ?b11
+FDCE 31 00 0C                     STA ?b3
+FDD1 2A 00 05                     LDA ?b10
+FDD4 31 00 0D                     STA ?b2
+FDD7 2A 00 06                     LDA ?b9
+FDDA 31 00 0E                     STA ?b1
+FDDD 2A 00 07                     LDA ?b8
+FDE0 31 00 0F                     STA ?b0
+FDE3 07                           RTS
                                   ; Move 32 bits from l2 to l1
-FBC2 2A 00 04   ?mov32_l1_l2      LDA ?b11
-FBC5 31 00 08                     STA ?b7
-FBC8 2A 00 05                     LDA ?b10
-FBCB 31 00 09                     STA ?b6
-FBCE 2A 00 06                     LDA ?b9
-FBD1 31 00 0A                     STA ?b5
-FBD4 2A 00 07                     LDA ?b8
-FBD7 31 00 0B                     STA ?b4
-FBDA 07                           RTS
+FDE4 2A 00 04   ?mov32_l1_l2      LDA ?b11
+FDE7 31 00 08                     STA ?b7
+FDEA 2A 00 05                     LDA ?b10
+FDED 31 00 09                     STA ?b6
+FDF0 2A 00 06                     LDA ?b9
+FDF3 31 00 0A                     STA ?b5
+FDF6 2A 00 07                     LDA ?b8
+FDF9 31 00 0B                     STA ?b4
+FDFC 07                           RTS
                                   ; Move 32 bits from l2 to l3
-FBDB 2A 00 04   ?mov32_l3_l2      LDA ?b11
-FBDE 31 00 00                     STA ?b15
-FBE1 2A 00 05                     LDA ?b10
-FBE4 31 00 01                     STA ?b14
-FBE7 2A 00 06                     LDA ?b9
-FBEA 31 00 02                     STA ?b13
-FBED 2A 00 07                     LDA ?b8
-FBF0 31 00 03                     STA ?b12
-FBF3 07                           RTS
+FDFD 2A 00 04   ?mov32_l3_l2      LDA ?b11
+FE00 31 00 00                     STA ?b15
+FE03 2A 00 05                     LDA ?b10
+FE06 31 00 01                     STA ?b14
+FE09 2A 00 06                     LDA ?b9
+FE0C 31 00 02                     STA ?b13
+FE0F 2A 00 07                     LDA ?b8
+FE12 31 00 03                     STA ?b12
+FE15 07                           RTS
                                   ; Addition on 16 bits  
                                   ; w0 <= w0 + w1
-FBF4 2A 00 0F   ?add16_w0_w0_w1   LDA ?b0  
-FBF7 29 00 0D                     ADDA ?b2
-FBFA 31 00 0F                     STA ?b0
-FBFD 2A 00 0E                     LDA ?b1
-FC00 28 00 0C                     ADCA ?b3
-FC03 31 00 0E                     STA ?b1
-FC06 07                           RTS
+FE16 2A 00 0F   ?add16_w0_w0_w1   LDA ?b0  
+FE19 29 00 0D                     ADDA ?b2
+FE1C 31 00 0F                     STA ?b0
+FE1F 2A 00 0E                     LDA ?b1
+FE22 28 00 0C                     ADCA ?b3
+FE25 31 00 0E                     STA ?b1
+FE28 07                           RTS
                                   ; Addition on 32 bits
                                   ; l0 <= l0 + l1
-FC07 2A 00 0F   ?add32_l0_l0_l1   LDA ?b0  
-FC0A 29 00 0B                     ADDA ?b4
-FC0D 31 00 0F                     STA ?b0
-FC10 2A 00 0E                     LDA ?b1
-FC13 28 00 0A                     ADCA ?b5
-FC16 31 00 0E                     STA ?b1
-FC19 2A 00 0D                     LDA ?b2
-FC1C 28 00 09                     ADCA ?b6
-FC1F 31 00 0D                     STA ?b2
-FC22 2A 00 0C                     LDA ?b3
-FC25 28 00 08                     ADCA ?b7
-FC28 31 00 0C                     STA ?b3
-FC2B 07                           RTS
+FE29 2A 00 0F   ?add32_l0_l0_l1   LDA ?b0  
+FE2C 29 00 0B                     ADDA ?b4
+FE2F 31 00 0F                     STA ?b0
+FE32 2A 00 0E                     LDA ?b1
+FE35 28 00 0A                     ADCA ?b5
+FE38 31 00 0E                     STA ?b1
+FE3B 2A 00 0D                     LDA ?b2
+FE3E 28 00 09                     ADCA ?b6
+FE41 31 00 0D                     STA ?b2
+FE44 2A 00 0C                     LDA ?b3
+FE47 28 00 08                     ADCA ?b7
+FE4A 31 00 0C                     STA ?b3
+FE4D 07                           RTS
                                   ; l2 <= l1 + l0
-FC2C 2A 00 0F   ?add32_l2_l1_l0   LDA ?b0  
-FC2F 29 00 0B                     ADDA ?b4
-FC32 31 00 07                     STA ?b8
-FC35 2A 00 0E                     LDA ?b1
-FC38 28 00 0A                     ADCA ?b5
-FC3B 31 00 06                     STA ?b9
-FC3E 2A 00 0D                     LDA ?b2
-FC41 28 00 09                     ADCA ?b6
-FC44 31 00 05                     STA ?b10
-FC47 2A 00 0C                     LDA ?b3
-FC4A 28 00 08                     ADCA ?b7
-FC4D 31 00 04                     STA ?b11
-FC50 07                           RTS
+FE4E 2A 00 0F   ?add32_l2_l1_l0   LDA ?b0  
+FE51 29 00 0B                     ADDA ?b4
+FE54 31 00 07                     STA ?b8
+FE57 2A 00 0E                     LDA ?b1
+FE5A 28 00 0A                     ADCA ?b5
+FE5D 31 00 06                     STA ?b9
+FE60 2A 00 0D                     LDA ?b2
+FE63 28 00 09                     ADCA ?b6
+FE66 31 00 05                     STA ?b10
+FE69 2A 00 0C                     LDA ?b3
+FE6C 28 00 08                     ADCA ?b7
+FE6F 31 00 04                     STA ?b11
+FE72 07                           RTS
                                   ; l3 <= l1 + l0
-FC51 2A 00 0F   ?add32_l3_l1_l0   LDA ?b0
-FC54 29 00 0B                     ADDA ?b4
-FC57 31 00 03                     STA ?b12
-FC5A 2A 00 0E                     LDA ?b1
-FC5D 28 00 0A                     ADCA ?b5
-FC60 31 00 02                     STA ?b13
-FC63 2A 00 0D                     LDA ?b2
-FC66 28 00 09                     ADCA ?b6
-FC69 31 00 01                     STA ?b14
-FC6C 2A 00 0C                     LDA ?b3
-FC6F 28 00 08                     ADCA ?b7
-FC72 31 00 00                     STA ?b15
-FC75 07                           RTS                  
+FE73 2A 00 0F   ?add32_l3_l1_l0   LDA ?b0
+FE76 29 00 0B                     ADDA ?b4
+FE79 31 00 03                     STA ?b12
+FE7C 2A 00 0E                     LDA ?b1
+FE7F 28 00 0A                     ADCA ?b5
+FE82 31 00 02                     STA ?b13
+FE85 2A 00 0D                     LDA ?b2
+FE88 28 00 09                     ADCA ?b6
+FE8B 31 00 01                     STA ?b14
+FE8E 2A 00 0C                     LDA ?b3
+FE91 28 00 08                     ADCA ?b7
+FE94 31 00 00                     STA ?b15
+FE97 07                           RTS                  
                                   ; INC 32 bit
                                   ; l0 <= l0 + 1
-FC76 2A 00 0F   ?inc32_l0_l0      LDA ?b0
-FC79 03                           INCA
-FC7A 31 00 0F                     STA ?b0
-FC7D 2B FC 9B                     JNE ?inc32_0x_0x_JP
-FC80 2A 00 0E                     LDA ?b1
-FC83 03                           INCA
-FC84 31 00 0E                     STA ?b1
-FC87 2B FC 9B                     JNE ?inc32_0x_0x_JP
-FC8A 2A 00 0D                     LDA ?b2
-FC8D 03                           INCA
-FC8E 31 00 0D                     STA ?b2
-FC91 2B FC 9B                     JNE ?inc32_0x_0x_JP
-FC94 2A 00 0C                     LDA ?b3
-FC97 03                           INCA
-FC98 31 00 0C                     STA ?b3
-FC9B 07         ?inc32_0x_0x_JP   RTS
+FE98 2A 00 0F   ?inc32_l0_l0      LDA ?b0
+FE9B 03                           INCA
+FE9C 31 00 0F                     STA ?b0
+FE9F 2B FE BD                     JNE ?inc32_0x_0x_JP
+FEA2 2A 00 0E                     LDA ?b1
+FEA5 03                           INCA
+FEA6 31 00 0E                     STA ?b1
+FEA9 2B FE BD                     JNE ?inc32_0x_0x_JP
+FEAC 2A 00 0D                     LDA ?b2
+FEAF 03                           INCA
+FEB0 31 00 0D                     STA ?b2
+FEB3 2B FE BD                     JNE ?inc32_0x_0x_JP
+FEB6 2A 00 0C                     LDA ?b3
+FEB9 03                           INCA
+FEBA 31 00 0C                     STA ?b3
+FEBD 07         ?inc32_0x_0x_JP   RTS
 
                                   ; Compare 32-bit registers
                                   ; Result: sets E flag if equal, clears if different
-FC9C 2A 00 07   ?cmp32_l3_l2      LDA ?b8
-FC9F 1F 00 03                     CMPA ?b12      ; This instruction not available yet
-FCA2 2B FC C1                     JNE ?cmp32_not_equal
-FCA5 2A 00 06                     LDA ?b9
-FCA8 1F 00 02                     CMPA ?b13
-FCAB 2B FC C1                     JNE ?cmp32_not_equal
-FCAE 2A 00 05                     LDA ?b10
-FCB1 1F 00 01                     CMPA ?b14
-FCB4 2B FC C1                     JNE ?cmp32_not_equal
-FCB7 2A 00 04                     LDA ?b11
-FCBA 1F 00 00                     CMPA ?b15
-FCBD 2B FC C1                     JNE ?cmp32_not_equal
+FEBE 2A 00 07   ?cmp32_l3_l2      LDA ?b8
+FEC1 1F 00 03                     CMPA ?b12      ; This instruction not available yet
+FEC4 2B FE E3                     JNE ?cmp32_not_equal
+FEC7 2A 00 06                     LDA ?b9
+FECA 1F 00 02                     CMPA ?b13
+FECD 2B FE E3                     JNE ?cmp32_not_equal
+FED0 2A 00 05                     LDA ?b10
+FED3 1F 00 01                     CMPA ?b14
+FED6 2B FE E3                     JNE ?cmp32_not_equal
+FED9 2A 00 04                     LDA ?b11
+FEDC 1F 00 00                     CMPA ?b15
+FEDF 2B FE E3                     JNE ?cmp32_not_equal
                                   ; All bytes equal, E flag already set from last comparison
-FCC0 07                           RTS
-FCC1 30 00      ?cmp32_not_equal  LDA #0x00   ; Clear E flag    I dont have a direct way to clear E flag
-FCC3 31 00 0F                     STA ?b0
-FCC6 07                           RTS
+FEE2 07                           RTS
+FEE3 30 00      ?cmp32_not_equal  LDA #0x00   ; Clear E flag    I dont have a direct way to clear E flag
+FEE5 31 00 0F                     STA ?b0
+FEE8 07                           RTS
 
                                   ; MUL 8-bit
                                   ; w1 (b3,b2) <= b1 * b0
-FCC7 30 00      ?mul8_w1_b1_b0    LDA #0x00   ; Only clear ?b3
-FCC9 31 00 0C                     STA ?b3
-FCCC 04 00 08                     LDX #0x0008 ; Loop counter (8 bits)
-FCCF 15 00 0F   ?mul8_w1_b1_loop  SRL ?b0     ; Shift right ?b0 (check LSB)
-FCD2 0F 09                        JRNC ?mul8_skip_add  ; Conditional relative jump if not Carry ( If LSB was 0, skip addition)
-FCD4 2A 00 0C                     LDA ?b3
-FCD7 29 00 0E                     ADDA ?b1    ; Add multiplicand
-FCDA 31 00 0C                     STA ?b3     ; Store back
-FCDD 14 00 0C   ?mul8_skip_add    RRC ?b3     ; Shift right ?b3 ?b2   C -> 7 6 5 4 3 2 1 0 -> C
-FCE0 14 00 0D                     RRC ?b2     ;                       C -> 7 6 5 4 3 2 1 0 -> C
-FCE3 13                           DECXL       ; Decrement loop counter
-FCE4 2B FC CF                     JNE ?mul8_w1_b1_loop
-FCE7 07                           RTS
+FEE9 30 00      ?mul8_w1_b1_b0    LDA #0x00   ; Only clear ?b3
+FEEB 31 00 0C                     STA ?b3
+FEEE 04 00 08                     LDX #0x0008 ; Loop counter (8 bits)
+FEF1 15 00 0F   ?mul8_w1_b1_loop  SRL ?b0     ; Shift right ?b0 (check LSB)
+FEF4 0F 09                        JRNC ?mul8_skip_add  ; Conditional relative jump if not Carry ( If LSB was 0, skip addition)
+FEF6 2A 00 0C                     LDA ?b3
+FEF9 29 00 0E                     ADDA ?b1    ; Add multiplicand
+FEFC 31 00 0C                     STA ?b3     ; Store back
+FEFF 14 00 0C   ?mul8_skip_add    RRC ?b3     ; Shift right ?b3 ?b2   C -> 7 6 5 4 3 2 1 0 -> C
+FF02 14 00 0D                     RRC ?b2     ;                       C -> 7 6 5 4 3 2 1 0 -> C
+FF05 13                           DECXL       ; Decrement loop counter
+FF06 2B FE F1                     JNE ?mul8_w1_b1_loop
+FF09 07                           RTS
 
                                   ; MUL 16-bit
                                   ; l1 <= w1 * w0      (b7,b6,b5,b4) = (b3,b2) * (b1,b0)
-FCE8 30 00      ?mul16_l1_w1_w0   LDA #0x00   ; Only clear ?b7 and ?b6
-FCEA 31 00 08                     STA ?b7
-FCED 31 00 09                     STA ?b6
-FCF0 04 00 10                     LDX #0x0010 ; Loop counter (16 bits)
-FCF3 15 00 0E   ?mul16_l1_w1_loop SRL ?b1     ; Shift right ?w0 (check LSB)  '0' -> 7 6 5 4 3 2 1 0 -> C
-FCF6 14 00 0F                     RRC ?b0     ; C  -> 7 6 5 4 3 2 1 0 -> C
-FCF9 0F 12                        JRNC ?mul16_skip_add  ; Conditional relative jump if not Carry ( If LSB was 0, skip addition)
-FCFB 2A 00 09                     LDA ?b6
-FCFE 29 00 0D                     ADDA ?b2    ; Add multiplicand
-FD01 31 00 09                     STA ?b6     ; Store back
-FD04 2A 00 08                     LDA ?b7
-FD07 28 00 0C                     ADCA ?b3
-FD0A 31 00 08                     STA ?b7
-FD0D 14 00 08   ?mul16_skip_add   RRC ?b7     ; Shift right ?b7 ?b6 ?b5 ?b4   C -> 7 6 5 4 3 2 1 0 -> C 
-FD10 14 00 09                     RRC ?b6     ;                               C -> 7 6 5 4 3 2 1 0 -> C
-FD13 14 00 0A                     RRC ?b5
-FD16 14 00 0B                     RRC ?b4
-FD19 13                           DECXL       ; Decrement loop counter
-FD1A 2B FC F3                     JNE ?mul16_l1_w1_loop
-FD1D 07                           RTS
+FF0A 30 00      ?mul16_l1_w1_w0   LDA #0x00   ; Only clear ?b7 and ?b6
+FF0C 31 00 08                     STA ?b7
+FF0F 31 00 09                     STA ?b6
+FF12 04 00 10                     LDX #0x0010 ; Loop counter (16 bits)
+FF15 15 00 0E   ?mul16_l1_w1_loop SRL ?b1     ; Shift right ?w0 (check LSB)  '0' -> 7 6 5 4 3 2 1 0 -> C
+FF18 14 00 0F                     RRC ?b0     ; C  -> 7 6 5 4 3 2 1 0 -> C
+FF1B 0F 12                        JRNC ?mul16_skip_add  ; Conditional relative jump if not Carry ( If LSB was 0, skip addition)
+FF1D 2A 00 09                     LDA ?b6
+FF20 29 00 0D                     ADDA ?b2    ; Add multiplicand
+FF23 31 00 09                     STA ?b6     ; Store back
+FF26 2A 00 08                     LDA ?b7
+FF29 28 00 0C                     ADCA ?b3
+FF2C 31 00 08                     STA ?b7
+FF2F 14 00 08   ?mul16_skip_add   RRC ?b7     ; Shift right ?b7 ?b6 ?b5 ?b4   C -> 7 6 5 4 3 2 1 0 -> C 
+FF32 14 00 09                     RRC ?b6     ;                               C -> 7 6 5 4 3 2 1 0 -> C
+FF35 14 00 0A                     RRC ?b5
+FF38 14 00 0B                     RRC ?b4
+FF3B 13                           DECXL       ; Decrement loop counter
+FF3C 2B FF 15                     JNE ?mul16_l1_w1_loop
+FF3F 07                           RTS
 
 
                                   ; MUL 32-bit by 8-bit unsigned
@@ -3793,9 +4064,9 @@ FD1D 07                           RTS
                 ;--------------------------------------------
                 ; LCD Main Initialization Routine
                 ;--------------------------------------------
-FD1E 30 FF      LCD_Init    LDA #0xFF         ; Wait >40ms (simple busy loop)
-FD20 20         Delay40ms   DECA
-FD21 2B FD 20               JNE Delay40ms
+FF40 30 FF      LCD_Init    LDA #0xFF         ; Wait >40ms (simple busy loop)
+FF42 20         Delay40ms   DECA
+FF43 2B FF 42               JNE Delay40ms
 
                             ; Function set: 8-bit, 2 line, 5x8 font
                             ; <5> 1
@@ -3804,13 +4075,13 @@ FD21 2B FD 20               JNE Delay40ms
                             ; <2> F = 0   0: FONT_5x8, 1: FONT_5x10
                             ; <1> -  -
                             ; <0> -  -
-FD24 30 38                  LDA #0x38
-FD26 31 7C 00               STA LCD_CMD
+FF46 30 38                  LDA #0x38
+FF48 31 7C 00               STA LCD_CMD
 
                             ; Wait >4.1ms
-FD29 30 F0                  LDA #0xF0
-FD2B 20         Delay4ms    DECA
-FD2C 2B FD 2B               JNE Delay4ms
+FF4B 30 F0                  LDA #0xF0
+FF4D 20         Delay4ms    DECA
+FF4E 2B FF 4D               JNE Delay4ms
 
                             ; Display ON/OFF Control
                             ; Display ON, cursor OFF, blink OFF
@@ -3818,27 +4089,27 @@ FD2C 2B FD 2B               JNE Delay4ms
                             ; <2> D = 1  Display ON/OFF Control 0:OFF, 1:ON
                             ; <1> C = 0  Cursor displayed 0:OFF, 1:ON
                             ; <0> B = 0  Blinking of cursor position character 0:OFF, 1:ON
-FD2F 30 0C                  LDA #0x0C
-FD31 31 7C 00               STA LCD_CMD
+FF51 30 0C                  LDA #0x0C
+FF53 31 7C 00               STA LCD_CMD
 
                             ; Entry mode set
                             ; Entry mode: left-to-right, no shift
                             ; <2> 1
                             ; <1> I/D = 1  Increment/Decrement of DDRAM address 1: Increment, 0: Decrement
                             ; <0> S = 0    
-FD34 30 06                  LDA #0x06
-FD36 31 7C 00               STA LCD_CMD
-FD39 07                     RTS
+FF56 30 06                  LDA #0x06
+FF58 31 7C 00               STA LCD_CMD
+FF5B 07                     RTS
 
                 ;--------------------------------------------
                 ; Clear display
                 ;--------------------------------------------
-FD3A 30 01      LCD_Clear   LDA #0x01      ; Clear display command; <0> = 1
-FD3C 31 7C 00               STA LCD_CMD
-FD3F 30 FF                  LDA #0xFF      ; Wait >1.5ms (for clear command)
-FD41 20         DelayClear  DECA
-FD42 2B FD 41               JNE DelayClear
-FD45 07                     RTS
+FF5C 30 01      LCD_Clear   LDA #0x01      ; Clear display command; <0> = 1
+FF5E 31 7C 00               STA LCD_CMD
+FF61 30 FF                  LDA #0xFF      ; Wait >1.5ms (for clear command)
+FF63 20         DelayClear  DECA
+FF64 2B FF 63               JNE DelayClear
+FF67 07                     RTS
 
                 ;--------------------------------------------
                 ; Set LCD Cursor Position
@@ -3846,36 +4117,36 @@ FD45 07                     RTS
                 ;   XH = line (0 or 1)
                 ;   XL = column (0..15)
                 ;--------------------------------------------
-FD46 2A 1F F3   LCD_SetCursorPos  LDA XH      
-FD49 21 00                        TEQA #0x00
-FD4B 2C FD 52                     JEQ LCD_Row0
-FD4E 30 40                        LDA #0x40         ; Row 1, DDRAM base address line 1
-FD50 0C 02                        JRA LCD_AddCol
-FD52 30 00      LCD_Row0          LDA #0x00         ; DDRAM base address line 0
-FD54 29 1F F4   LCD_AddCol        ADDA XL           ; A = base + column
-FD57 17 80                        ORA #0x80         ; Set DDRAM address command
-FD59 31 7C 00                     STA LCD_CMD
-FD5C 07                           RTS     
+FF68 2A 1F F3   LCD_SetCursorPos  LDA XH      
+FF6B 21 00                        TEQA #0x00
+FF6D 2C FF 74                     JEQ LCD_Row0
+FF70 30 40                        LDA #0x40         ; Row 1, DDRAM base address line 1
+FF72 0C 02                        JRA LCD_AddCol
+FF74 30 00      LCD_Row0          LDA #0x00         ; DDRAM base address line 0
+FF76 29 1F F4   LCD_AddCol        ADDA XL           ; A = base + column
+FF79 17 80                        ORA #0x80         ; Set DDRAM address command
+FF7B 31 7C 00                     STA LCD_CMD
+FF7E 07                           RTS     
 
                 ;--------------------------------------------
                 ; Write a single character
                 ; Input: A = ASCII code
                 ;--------------------------------------------
-FD5D 31 7C 01   LCD_WriteChar  STA LCD_DATA
-FD60 07                        RTS
+FF7F 31 7C 01   LCD_WriteChar  STA LCD_DATA
+FF82 07                        RTS
 
                 ;--------------------------------------------
                 ; Print null-terminated string
                 ; Input:
                 ;   X = address of string
                 ;--------------------------------------------
-FD61 0A         LCD_PrintString   LDA (X)        ; A = *X
-FD62 21 00                        TEQA #0x00     ; end of string?
-FD64 2C FD 6D                     JEQ LCD_PrDone
-FD67 06 FD 5D                     JSR LCD_WriteChar
-FD6A 05                           INCX           ; X++
-FD6B 0C F4                        JRA LCD_PrintString
-FD6D 07         LCD_PrDone        RTS
+FF83 0A         LCD_PrintString   LDA (X)        ; A = *X
+FF84 21 00                        TEQA #0x00     ; end of string?
+FF86 2C FF 8F                     JEQ LCD_PrDone
+FF89 06 FF 7F                     JSR LCD_WriteChar
+FF8C 05                           INCX           ; X++
+FF8D 0C F4                        JRA LCD_PrintString
+FF8F 07         LCD_PrDone        RTS
 
                          ; --------------------------------------------------------------------
                          ; Error routine
@@ -4028,101 +4299,108 @@ TSTOP1C             EAA0
 TSTOP1D             EC25
 TSTOP1E             EDE3
 TSTOP1F             EE2B
-TSTOP20             EF08
-TSTOP29             EFDD
-TSTOP2A             F011
-TSTOP2B             F0DC
-TST2C               F0F7
-TST2C_1             F11C
-TST2C_2             F126
-TST2C_3             F130
-TST2C_4             F13A
-TST2C_5             F144
-TST2C_6             F14E
-TST2C_7             F158
-TST2C_8             F162
-TST2C_9             F16C
-TST2C_10            F176
-TSTOP2D             F177
-TSTOP2E             F195
-TSTOP2F             F1F3
-TSTOP30             F23D
-TSTOP31             F297
-TSTOP33             F360
-TSTFB1              F39C
-LOOPTST             F526
-LOOPTST1            F531
-LOOPTST2            F540
-BLKCODESTART        F886
-BLKCODEEND          F8A4
+TSTOP20             EF20
+TSTOP21             EFF5
+TSTOP22             F0A7
+TSTOP23             F19F
+TSTOP23A            F1AE
+TSTOP23B            F1CD
+TSTOP23X            F1D7
+TSTOP23Z            F1DA
+TSTOP29             F1DB
+TSTOP2A             F20F
+TSTOP2B             F2DA
+TST2C               F2F5
+TST2C_1             F31A
+TST2C_2             F324
+TST2C_3             F32E
+TST2C_4             F338
+TST2C_5             F342
+TST2C_6             F34C
+TST2C_7             F356
+TST2C_8             F360
+TST2C_9             F36A
+TST2C_10            F374
+TSTOP2D             F375
+TSTOP2E             F3B7
+TSTOP2F             F415
+TSTOP30             F45F
+TSTOP31             F4B9
+TSTOP33             F582
+TSTFB1              F5BE
+LOOPTST             F748
+LOOPTST1            F753
+LOOPTST2            F762
+BLKCODESTART        FAA8
+BLKCODEEND          FAC6
 RAMDESTSTART        1000
-LOOPTST47           F8B0
-ENDCOPYTST47        F8C6
+LOOPTST47           FAD2
+ENDCOPYTST47        FAE8
 LOOPCNT             0100
 FIBNUMB             1000
-FIB32_LOOP          F8E8
-FIB_VERIFY          F907
-VERIFY_LOOP         F917
-MSGTXT1             F977
-MSGTXT2             F97E
-MSGTXT3             F98A
-MSGTXT4             F9C7
-?clear32_l0         F9CD
-?clear32_l1         F9DC
-?clear32_l2         F9EB
-?clear32_l3         F9FA
-?clear16_w0         FA09
-?clear16_w1         FA12
-?clear16_w2         FA1B
-?clear16_w3         FA24
-?clear16_w4         FA2D
-?clear16_w5         FA36
-?clear16_w6         FA3F
-?clear16_w7         FA48
-?set32_l0_to_1      FA51
-?set32_l1_to_1      FA62
-?load32_l0          FA73
-?load32_l1          FA87
-?load32_l2          FA9B
-?load32_l3          FAAF
-?store32_l0         FAC3
-?store32_l1         FAD7
-?store32_l2         FAEB
-?store32_l3         FAFF
-?mov32_l1_l0        FB13
-?mov32_l2_l0        FB2C
-?mov32_l3_l0        FB45
-?mov32_l0_l1        FB5E
-?mov32_l2_l1        FB77
-?mov32_l3_l1        FB90
-?mov32_l0_l2        FBA9
-?mov32_l1_l2        FBC2
-?mov32_l3_l2        FBDB
-?add16_w0_w0_w1     FBF4
-?add32_l0_l0_l1     FC07
-?add32_l2_l1_l0     FC2C
-?add32_l3_l1_l0     FC51
-?inc32_l0_l0        FC76
-?inc32_0x_0x_JP     FC9B
-?cmp32_l3_l2        FC9C
-?cmp32_not_equal    FCC1
-?mul8_w1_b1_b0      FCC7
-?mul8_w1_b1_loop    FCCF
-?mul8_skip_add      FCDD
-?mul16_l1_w1_w0     FCE8
-?mul16_l1_w1_loop   FCF3
-?mul16_skip_add     FD0D
-LCD_Init            FD1E
-Delay40ms           FD20
-Delay4ms            FD2B
-LCD_Clear           FD3A
-DelayClear          FD41
-LCD_SetCursorPos    FD46
-LCD_Row0            FD52
-LCD_AddCol          FD54
-LCD_WriteChar       FD5D
-LCD_PrintString     FD61
-LCD_PrDone          FD6D
+FIB32_LOOP          FB0A
+FIB_VERIFY          FB29
+VERIFY_LOOP         FB39
+MSGTXT1             FB99
+MSGTXT2             FBA0
+MSGTXT3             FBAC
+MSGTXT4             FBE9
+?clear32_l0         FBEF
+?clear32_l1         FBFE
+?clear32_l2         FC0D
+?clear32_l3         FC1C
+?clear16_w0         FC2B
+?clear16_w1         FC34
+?clear16_w2         FC3D
+?clear16_w3         FC46
+?clear16_w4         FC4F
+?clear16_w5         FC58
+?clear16_w6         FC61
+?clear16_w7         FC6A
+?set32_l0_to_1      FC73
+?set32_l1_to_1      FC84
+?load32_l0          FC95
+?load32_l1          FCA9
+?load32_l2          FCBD
+?load32_l3          FCD1
+?store32_l0         FCE5
+?store32_l1         FCF9
+?store32_l2         FD0D
+?store32_l3         FD21
+?mov32_l1_l0        FD35
+?mov32_l2_l0        FD4E
+?mov32_l3_l0        FD67
+?mov32_l0_l1        FD80
+?mov32_l2_l1        FD99
+?mov32_l3_l1        FDB2
+?mov32_l0_l2        FDCB
+?mov32_l1_l2        FDE4
+?mov32_l3_l2        FDFD
+?add16_w0_w0_w1     FE16
+?add32_l0_l0_l1     FE29
+?add32_l2_l1_l0     FE4E
+?add32_l3_l1_l0     FE73
+?inc32_l0_l0        FE98
+?inc32_0x_0x_JP     FEBD
+?cmp32_l3_l2        FEBE
+?cmp32_not_equal    FEE3
+?mul8_w1_b1_b0      FEE9
+?mul8_w1_b1_loop    FEF1
+?mul8_skip_add      FEFF
+?mul16_l1_w1_w0     FF0A
+?mul16_l1_w1_loop   FF15
+?mul16_skip_add     FF2F
+LCD_Init            FF40
+Delay40ms           FF42
+Delay4ms            FF4D
+LCD_Clear           FF5C
+DelayClear          FF63
+LCD_SetCursorPos    FF68
+LCD_Row0            FF74
+LCD_AddCol          FF76
+LCD_WriteChar       FF7F
+LCD_PrintString     FF83
+LCD_PrDone          FF8F
 FAIL                FFB0
 TJSR1               FFC0
 TJSR2               FFC3

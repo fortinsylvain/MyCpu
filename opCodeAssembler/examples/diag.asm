@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 1 february 2026
+; Date : 3 february 2026
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
@@ -1937,31 +1937,42 @@ TSTOP1E  LDA #0x1E
          JNE FAIL
          ; -----------------------------------------------------
          ; OP.1F CMPA 0x**** 
-         ; Compare A with direct-addressed byte, Update Status E
+         ; Compare A with direct-addressed byte
+         ; A - Direct Addressing, A unchanged, E and C updated
          ; -----------------------------------------------------
 TSTOP1F  LDA #0x1F
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0x5A   ; Store a value in RAM
          STA 0x0200   
-         LDA #0x5A
-         CMPA 0x0200 ; Compare with same value
-         JNE FAIL    ; Jump if result not good
+         LDA #0x5A   ; -- Compare with same value --
+         CMPA 0x0200 
+         JNE FAIL    ; Jump if result say not equal
          LDA EQUAL   ; Read E flag and check it is set
-         CMPA #0x01  
+         TEQA #0x01
          JNE FAIL
-         LDA #0x3C
-         CMPA 0x0200 ; Compare with lower value
+         LDA CARRY   ; Read Carry flag and check it is set
+         TEQA #0x01
+         JNE FAIL
+         LDA #0x3C   ; -- Compare with A < Memory --
+         CMPA 0x0200 
          JEQ FAIL    ; Jump if result indicates equality
-         LDA EQUAL  ; Read E flag and check it is cleared
-         CMPA #0x00  
+         LDA EQUAL   ; Read E flag and check it is cleared
+         TEQA #0x00
          JNE FAIL
-         LDA #0x7E
-         CMPA 0x0200 ; Compare with higher value
+         LDA CARRY   ; Read Carry flag and check it is cleared
+         TEQA #0x00
+         JNE FAIL
+         LDA #0x7E   ; -- Compare with A > Memory --
+         CMPA 0x0200 
          JEQ FAIL    ; Jump if result indicates equality
          LDA EQUAL   ; Read E flag and check it is cleared
          CMPA #0x00  
-         JNE FAIL 
+         JNE FAIL
+         LDA CARRY   ; Read Carry flag and check it is set
+         TEQA #0x01
+         JNE FAIL
+         ; Test all bits for CMPA operation
          LDA #0x00
          STA 0x1567
          LDA #0xFF
@@ -1970,25 +1981,25 @@ TSTOP1F  LDA #0x1F
          CMPA 0x1567
          JNE FAIL
          LDA EQUAL
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL
          LDA #0xFF
          CMPA 0x1789
          JNE FAIL
          LDA EQUAL
-         CMPA #0x01
+         TEQA #0x01
          JNE FAIL 
          LDA #0xAA
          CMPA 0x1567
          JEQ FAIL
          LDA EQUAL
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          LDA #0x55
          CMPA 0x1789
          JEQ FAIL
          LDA EQUAL
-         CMPA #0x00
+         TEQA #0x00
          JNE FAIL
          ; Test with symbolic address
          LDA #0x41      ; 'A'
@@ -2132,6 +2143,245 @@ TSTOP20  LDA #0x20
          DECA
          CMPA #0x00
          JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.21 TEQA #0x**  
+         ; TEST EQUAL A with imm, A preserved, E updated, C preserved
+         ; --------------------------------------------------------------------
+TSTOP21  LDA #0x21
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00   ; Clear Carry flag first
+         STA CARRY
+         LDA #0x5A
+         TEQA #0x5A
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         LDA CARRY   ; Test Carry flag still cleared
+         TEQA #0x00
+         JNE FAIL
+         ; Now do the same using a set carry flag
+         LDA #0x01
+         STA CARRY
+         LDA #0xBD
+         TEQA #0xBD
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         LDA CARRY   ; Test Carry flag still set
+         TEQA #0x01
+         JNE FAIL
+         ; Now test for not equal
+         LDA #0x00   ; Clear Carry flag first
+         STA CARRY
+         LDA #0x3C
+         TEQA #0x4D
+         JEQ FAIL
+         LDA EQUAL
+         TEQA #0x00
+         JNE FAIL
+         LDA CARRY   ; Test Carry flag still cleared
+         TEQA #0x00
+         JNE FAIL
+         ; Now do the same using a set carry flag
+         LDA #0x01
+         STA CARRY
+         LDA #0x7E      
+         TEQA #0x6F
+         JEQ FAIL
+         LDA EQUAL
+         TEQA #0x00
+         JNE FAIL
+         LDA CARRY   ; Test Carry flag still set
+         TEQA #0x01
+         JNE FAIL
+         ; Test all bits for TEQA operation
+         LDA #0xFF
+         TEQA #0xFF
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         LDA #0x00
+         TEQA #0x00
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         LDA #0xAA
+         TEQA #0xAA
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         LDA #0x55
+         TEQA #0x55
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.22 TEQA 0x****  
+         ; TEST EQUAL A with MEM, A preserved, E updated, C preserved
+         ; --------------------------------------------------------------------
+TSTOP22  LDA #0x22
+         NOTA
+         STA LEDPORT ; Output to LED port
+         LDA #0x00   ; Clear Carry flag first
+         STA CARRY
+         LDA #0x5A   ; Store a value in RAM
+         STA 0x0200   
+         LDA #0x5A   ; -- Compare with same value --
+         TEQA 0x0200
+         JNE FAIL    ; Jump if result say not equal
+         LDA EQUAL   ; Read E flag and check it is set
+         TEQA #0x01
+         JNE FAIL
+         LDA CARRY   ; Read Carry flag and check it is still cleared
+         TEQA #0x00
+         JNE FAIL
+         ; Now do the same using a set carry flag
+         LDA #0x01   ; set Carry flag
+         STA CARRY
+         LDA #0xBD
+         STA 0x0500
+         TEQA 0x0500
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         LDA CARRY   ; Test Carry flag still set
+         TEQA #0x01
+         JNE FAIL
+         ; Now test for not equal
+         LDA #0x00   ; Clear Carry flag first
+         STA CARRY
+         LDA #0x3C
+         STA 0x0600
+         LDA #0x4D
+         TEQA 0x0600
+         JEQ FAIL
+         LDA EQUAL
+         TEQA #0x00
+         JNE FAIL
+         LDA CARRY   ; Test Carry flag still cleared
+         TEQA #0x00
+         JNE FAIL
+         ; Now do the same using a set carry flag
+         LDA #0x01
+         STA CARRY
+         LDA #0x7E      
+         STA 0x0700
+         LDA #0x6F
+         TEQA 0x0700
+         JEQ FAIL
+         LDA EQUAL
+         TEQA #0x00
+         JNE FAIL
+         LDA CARRY   ; Test Carry flag still set
+         TEQA #0x01
+         JNE FAIL
+         ; Test all bits for TEQA operation
+         LDA #0xFF
+         STA 0x0800
+         TEQA 0x0800
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         LDA #0x00
+         STA 0x0900
+         TEQA 0x0900
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         LDA #0xAA
+         STA 0x0A00
+         TEQA 0x0A00
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         LDA #0x55
+         STA 0x0B00
+         TEQA 0x0B00
+         JNE FAIL
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         ; Test with symbolic address
+         LDA #0x31      ; '1'
+         TEQA MSGTXT1
+         JNE FAIL
+         LDA #0x32      ; '2'
+         TEQA MSGTXT1+1
+         JNE FAIL
+         LDA #0x33      ; '3'
+         TEQA MSGTXT1+2
+         JNE FAIL
+         LDA #0x41      ; 'A'
+         TEQA MSGTXT1+3
+         JNE FAIL     
+         ; --------------------------------------------------------------------
+         ; OP.23 JRUGE Jump Relative Unsigned Greater or Equal (Condition C = 1)
+         ; --------------------------------------------------------------------
+TSTOP23  LDA #0x23
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         LDA #0xC4      ; -- Test when equal (C=1)
+         CMPA #0xC4
+         JRUGE TSTOP23A ; Jump if A >= 0xC4
+         JMP FAIL       ; Error if jump not taken
+TSTOP23A LDA CARRY
+         TEQA #0x01     ; Check Carry Set
+         JNE FAIL
+         LDA #0x3A      ; -- Test when A < value (C=0)
+         CMPA #0x4B
+         JRUGE TSTOP23X ; Error if jump taken
+         LDA CARRY
+         TEQA #0x00     ; Check Carry Cleared
+         JNE FAIL
+         LDA #0xEF      ;-- test when A > value (C=1)
+         CMPA #0xBE
+         JRUGE TSTOP23B ; Jump if A >= 0xBE
+         JMP FAIL       ; Error if jump not taken
+TSTOP23B LDA CARRY
+         TEQA #0x01     ; Check Carry Set
+         JNE FAIL
+         ; Test all bits for JRUGE operation
+;         LDA #0x00
+;         CMPA #0x00
+;         JRUGE TSTOP23C
+;         JMP FAIL
+;TSTOP23C LDA CARRY
+;         TEQA #0x01
+;         JNE FAIL
+;         LDA #0x7F
+;         CMPA #0xFF
+;         JRUGE TSTOP23X
+;         LDA CARRY
+;         TEQA #0x00
+;         JNE FAIL
+;         LDA #0x80
+;         CMPA #0x7F
+;         JRUGE TSTOP23D
+;         JMP FAIL
+;TSTOP23D LDA CARRY
+;         TEQA #0x01
+;         JNE FAIL
+;         LDA #0xFF
+;         CMPA #0x00
+;         JRUGE TSTOP23E
+;         JMP FAIL
+;TSTOP23E LDA CARRY
+;         TEQA #0x01
+;         JNE FAIL
+         JRA TSTOP23Z
+TSTOP23X JMP FAIL
+TSTOP23Z NOP         
          ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
@@ -2322,21 +2572,42 @@ TST2C_9  LDA #0x80
 TST2C_10 NOP
          ; --------------------------------------------------------------------
          ; OP.2D CMPA #0x**
-         ; COMPARE A WITH IMMEDIATE VALUE    EQUAL STATUS BIT (E) UPDATED
+         ; Compare A with Imm (A-Imm)    A unchanged, E and C are updated
+         ; Note: CMPA → updates E and C  but  TEQA → updates E
          ; --------------------------------------------------------------------
 TSTOP2D  LDA #0x2D
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x12   ; Load a value in A
-         CMPA #0x12  ; Compare with identical value
+         LDA #0xCA   ;  -- Compare with identical value --
+         CMPA #0xCA
+         ;TEQA #0xCA  ; Verify A is unchanged  CAN'T DO THIS IT WILL OVERWRITE E
+         ;JNE FAIL
          LDA EQUAL   ; Inspect EQUAL STATUS 
-         TEQA #0x01  ; Verify bit<0> E = '1' and all others bits <7:1> are '0'    
-         JNE FAIL    ; If different then it's and error
-         LDA #0xAA
-         CMPA #0x55  ; Compare with a different value
+         TEQA #0x01  ; Verify bit<0> E = '1' and all others bits <7:1> are '0'
+         JNE FAIL
+         LDA CARRY   ; Inspect CARRY STATUS
+         TEQA #0x01  ; Verify bit<0> C = '1' and all others bits <7:1> are '0'
+         JNE FAIL
+         LDA #0xB5   ;  -- Compare with different value (A > Imm) --
+         CMPA #0x4D
+         ;TEQA #0xB5  ; Verify A is unchanged  CAN'T DO THIS IT WILL OVERWRITE E
+         ;JNE FAIL
          LDA EQUAL   ; Inspect EQUAL STATUS
-         TEQA #0x00  ; Verify bit<0> E = '0' and all others bits <7:1> are '0'    
-         JNE FAIL    ; If different then it's and error
+         TEQA #0x00  ; Verify bit<0> E = '0'
+         JNE FAIL
+         LDA CARRY   ; Inspect CARRY STATUS
+         TEQA #0x01  ; Verify bit<0> C = '1'
+         JNE FAIL
+         LDA #0x5B   ;  -- Compare with different value (A < Imm) --
+         CMPA #0xEE
+         ;TEQA #0x5B  ; Verify A is unchanged  CAN'T DO THIS IT WILL OVERWRITE E
+         ;JNE FAIL
+         LDA EQUAL   ; Inspect EQUAL STATUS
+         TEQA #0x00  ; Verify bit<0> E = '0'
+         JNE FAIL
+         LDA CARRY   ; Inspect CARRY STATUS
+         TEQA #0x00  ; Verify bit<0> C = '0'
+         JNE FAIL
          ; --------------------------------------------------------------------
          ; OP.2E ADCA #0x**
          ; REG A = REG A + IMMEDIATE BYTE + CARRY (C)   

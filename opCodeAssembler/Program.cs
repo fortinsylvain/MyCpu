@@ -18,6 +18,7 @@
 using Assembler;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -145,6 +146,9 @@ namespace Assembler
             // we have 12 bit address (A12-A0)
             const int iEpromSize = 8192;
             int[] aEeprom = new int[iEpromSize];
+            bool[] aEepromUsed = new bool[iEpromSize];
+            string[] aEepromOwner = new string[iEpromSize]; // optional but recommended
+            Array.Clear(aEepromUsed, 0, iEpromSize);
 
             int iErrorNumber = 0;
             int iErrorNumberPass1 = 0;
@@ -943,7 +947,10 @@ namespace Assembler
                 new InstrTable { StringValue = "CMPA 0x****",    OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // CMPA 0x****  Compare A with direct-addressed byte, Update Status E
                 new InstrTable { StringValue = "CMPA @",         OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // CMPA symbol
                 new InstrTable { StringValue = "DECA",           OpCode = 0x20, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // DECA         Decrement REGISTER A, E update, C not updated
-                new InstrTable { StringValue = "TEQA #0x**",     OpCode = 0x21, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // TEQA #0x**    Test if A = imm, E update, C not updated
+                new InstrTable { StringValue = "TEQA #0x**",     OpCode = 0x21, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // TEQA #0x**   Test if A = imm, A preserved, E updated, C preserved
+                new InstrTable { StringValue = "TEQA 0x****",    OpCode = 0x22, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // TEQA 0x****  Test if A = MEM, A preserved, E updated, C preserved
+                new InstrTable { StringValue = "TEQA @",         OpCode = 0x22, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // TEQA symbol
+                new InstrTable { StringValue = "JRUGE @",        OpCode = 0x23, NbByte = 1, Sym = OperandMode.Relative, Offset = 6 },  // JRUGT symbol Unsigned Greater or Equal (>=) Condition C = 1
                 new InstrTable { StringValue = "ADCA 0x****",    OpCode = 0x28, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
                 new InstrTable { StringValue = "ADCA @",         OpCode = 0x28, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // ADCA symbol
                 new InstrTable { StringValue = "ADDA 0x****",    OpCode = 0x29, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADDA 0x****  Add Byte from Address into REG A Carry update
@@ -954,7 +961,7 @@ namespace Assembler
                 new InstrTable { StringValue = "JNE @",          OpCode = 0x2B, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JNE symbol
                 new InstrTable { StringValue = "JEQ 0x****",     OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // JEQ 0x****   JUMP IF EQUAL (E=1)
                 new InstrTable { StringValue = "JEQ @",          OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JEQ symbol
-                new InstrTable { StringValue = "CMPA #0x**",     OpCode = 0x2D, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // CMPA #0x**   COMPARE REGISTER A WITH IMMEDIATE BYTE, E=1 equal, E=0 different
+                new InstrTable { StringValue = "CMPA #0x**",     OpCode = 0x2D, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // CMPA #0x**   Compare A with Imm (A-Imm), E and C updated 
                 new InstrTable { StringValue = "ADCA #0x**",     OpCode = 0x2E, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // ADCA #0x**   REG A = REG A + IMMEDIATE BYTE + CARRY (C), Carry C Updated
                 new InstrTable { StringValue = "ADDA #0x**",     OpCode = 0x2F, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // ADDA #0x**   ADD IMMEDIATE BYTE VALUE TO REGISTER A  C UPDATED
                 new InstrTable { StringValue = "LDA #0x**",      OpCode = 0x30, NbByte = 1, Sym = OperandMode.Hex,      Offset = 7 },  // LDA #0x**    LOAD IMMEDIATE VALUE IN REGISTER A
@@ -1026,6 +1033,38 @@ namespace Assembler
                 string pattern = "^" + string.Join(@"\s+", tokenPatterns) + @"(?=(\s|,|$))";
                 return pattern;
             }
+        }
+
+        public static bool CheckAndMarkAddress(
+            int absoluteAddress,
+            int iAddressEepromBegin,
+            bool[] used,
+            string[] owner,
+            string who,
+            uint lineNumber,
+            ref int iErrorNumber)
+        {
+            int index = absoluteAddress - iAddressEepromBegin;
+
+            if (index < 0 || index >= used.Length)
+            {
+                Console.WriteLine(
+                    $"****** ERROR @ line {lineNumber}, address 0x{absoluteAddress:X4} outside EEPROM range ******");
+                iErrorNumber++;
+                return false;
+            }
+
+            if (used[index])
+            {
+                Console.WriteLine(
+                    $"****** ERROR @ line {lineNumber}, address 0x{absoluteAddress:X4} overlaps previous code ({owner[index]}) ******");
+                iErrorNumber++;
+                return false;
+            }
+
+            used[index] = true;
+            owner[index] = who;
+            return true;
         }
 
     }
