@@ -31,7 +31,8 @@ namespace Assembler
         Hex = 0,
         Symbol = 1,
         Relative = 2,
-        Ascii = 3
+        Ascii = 3,
+        Negative = 4
     }
 
     public class InstrTable
@@ -140,11 +141,14 @@ namespace Assembler
             string fileExtension = Path.GetExtension(sFileName);
             string fullPath = Path.Combine(sRepositoryPath, sFileName);
 
-            int iAddressEepromBegin = 0xE000;
+            //int iAddressEepromBegin = 0xE000;
+            int iAddressEepromBegin = 0x8000;
 
             // Reserve space for one 2864 EEPROM
             // we have 12 bit address (A12-A0)
-            const int iEpromSize = 8192;
+            //const int iEpromSize = 8192;
+            const int iEpromSize = 32768; // 32K size for 28C256 EEPROM with 15 bit address (A14-A0)
+
             int[] aEeprom = new int[iEpromSize];
             bool[] aEepromUsed = new bool[iEpromSize];
             string[] aEepromOwner = new string[iEpromSize]; // optional but recommended
@@ -186,11 +190,16 @@ namespace Assembler
             int iFirstCharacterIndex;
             string sLine = "";
 
-            /*
+            
             iFirstCharacterIndex = 9;
-            sLine = "         LDA (?b0,X)";
-            iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
-            */
+            //sLine = "         LDA (?b0,X)";
+            //sLine = "         LDA (SP-1)";
+            //iIndexTable = FindInstructionIndex(sLine, iFirstCharacterIndex, dataList);
+
+            //InstrTable tst_instr = dataList[51];
+            //sLine = "LDA (SP-1)";
+            //bool bTest = tst_instr.Regex.IsMatch(sLine);
+
 
             UInt32 LineCounter;
             int iPosComment;
@@ -207,6 +216,12 @@ namespace Assembler
                 LineCounter = 0;    // Input source file line number beeing processed
                 iAddress = 0;
                 iErrorNumber = 0;
+
+                if (iPass == 2)
+                {
+                    Array.Clear(aEepromUsed, 0, aEepromUsed.Length);
+                    Array.Clear(aEepromOwner, 0, aEepromOwner.Length);
+                }
 
                 using (inputFile = File.OpenText(fullPath))
                 using (StreamWriter lstFile = File.CreateText(Path.Combine(sRepositoryPath, baseFileName + ".lst")))
@@ -604,7 +619,11 @@ namespace Assembler
                                             // Emit bytes
                                             foreach (byte b in bytes)
                                             {
-                                                aEeprom[iAddress - iAddressEepromBegin] = b;
+                                                //aEeprom[iAddress - iAddressEepromBegin] = b;
+                                                if (CheckAndMarkAddress(iAddress, iAddressEepromBegin, aEepromUsed, aEepromOwner, sLine.Trim(), LineCounter, ref iErrorNumber))
+                                                {
+                                                    aEeprom[iAddress - iAddressEepromBegin] = b;
+                                                }
                                                 iAddress++;
                                             }
 
@@ -612,6 +631,87 @@ namespace Assembler
                                         }
 
                                     }
+
+                                    // Negative offset to compute next to the mnemonic
+                                    if (iSim == OperandMode.Negative)
+                                    {
+                                        iOpData[0] = dataList[iIndexTable].OpCode;
+
+                                        // Locate start of the numeric offset
+                                        iOffset = dataList[iIndexTable].Offset + iFirstCharacterIndex;
+
+                                        // Extract everything until ')'
+                                        int endIndex = sLine.IndexOf(')', iOffset);
+                                        if (endIndex < 0)
+                                        {
+                                            iErrorNumber++;
+                                            return;
+                                        }
+
+                                        string sNumber = sLine.Substring(iOffset, endIndex - iOffset).Trim();
+
+                                        int value;
+                                        if (!int.TryParse(sNumber, out value))
+                                        {
+                                            iErrorNumber++;
+                                            return;
+                                        }
+
+                                        // Validate 8-bit signed range
+                                        if (value < -128 || value > 127)
+                                        {
+                                            Console.WriteLine("Offset out of range (-128..127)");
+                                            iErrorNumber++;
+                                            return;
+                                        }
+
+                                        // Store as 2's complement
+                                        iOpData[1] = (byte)((~value + 1) & 0xFF);
+
+
+                                        /*
+                                        switch (dataList[iIndexTable].NbByte)   // How many byte follow
+                                        {
+                                            
+                                            case 0:     // No byte following, we only have the opcode
+                                                iOpData[0] = dataList[iIndexTable].OpCode;
+                                                break;
+                                            case 1:     // One byte after opcode
+                                                iOpData[0] = dataList[iIndexTable].OpCode;
+                                                iOffset = dataList[iIndexTable].Offset + iFirstCharacterIndex;
+                                                sNibble = sLine.Substring(iOffset, 1);
+                                                getNibble(sNibble, ref iMsq, ref iErrorNumber);
+                                                sNibble = sLine.Substring(iOffset + 1, 1);
+                                                getNibble(sNibble, ref iLsq, ref iErrorNumber);
+                                                iOpData[1] = 16 * iMsq + iLsq;
+                                                break;
+                                            case 2:     // Two bytes after opcode
+                                                iOpData[0] = dataList[iIndexTable].OpCode;
+                                                iOffset = dataList[iIndexTable].Offset + iFirstCharacterIndex;
+                                                sNibble = sLine.Substring(iOffset, 1);
+                                                getNibble(sNibble, ref iMsq, ref iErrorNumber);
+                                                sNibble = sLine.Substring(iOffset + 1, 1);
+                                                getNibble(sNibble, ref iLsq, ref iErrorNumber);
+                                                iOpData[1] = 16 * iMsq + iLsq;
+                                                sNibble = sLine.Substring(iOffset + 2, 1);
+                                                getNibble(sNibble, ref iMsq, ref iErrorNumber);
+                                                sNibble = sLine.Substring(iOffset + 3, 1);
+                                                getNibble(sNibble, ref iLsq, ref iErrorNumber);
+                                                iOpData[2] = 16 * iMsq + iLsq;
+                                                break;
+                                            default:
+                                                // In case the OP code decoding is not implemented
+                                                string sOpNotImplemented = $"{new string(' ', 7)}****** NOT IMPLEMENTED BYTE SIZE  ******* {sLine.Substring(0, Math.Min(13, sLine.Length))}";
+                                                Console.WriteLine(sOpNotImplemented);
+                                                lstFile.WriteLine(sOpNotImplemented);
+                                                iErrorNumber++;
+                                                break;
+                                        }
+                                        // Compute the negative value in 2 complement form
+                                        iOpData[1] = (byte)((~iOpData[1] + 1) & 0xFF);
+                                        */
+                                    }
+
 
                                 }
 
@@ -644,7 +744,11 @@ namespace Assembler
                                     // Store in EEPROM number of bytes and update line number accordingly
                                     for (int i = 0; i < dataList[iIndexTable].NbByte + 1; i++)
                                     {
-                                        aEeprom[iAddress - iAddressEepromBegin] = iOpData[i];
+                                        //aEeprom[iAddress - iAddressEepromBegin] = iOpData[i];
+                                        if (CheckAndMarkAddress(iAddress, iAddressEepromBegin, aEepromUsed, aEepromOwner, sLine.Trim(), LineCounter, ref iErrorNumber))
+                                        {
+                                            aEeprom[iAddress - iAddressEepromBegin] = iOpData[i];
+                                        }
                                         iAddress = iAddress + 1;
                                     }
 
@@ -937,8 +1041,8 @@ namespace Assembler
                 new InstrTable { StringValue = "NOTA",           OpCode = 0x19, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // NOTA         LOGIC NOT ON REG A
                 new InstrTable { StringValue = "CMPX #0x****",   OpCode = 0x1A, NbByte = 2, Sym = OperandMode.Hex,      Offset = 8 },  // CMPX #0x**** COMPARE X to immediate value, E update
                 new InstrTable { StringValue = "CMPX #@",        OpCode = 0x1A, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 6 },  // CMPX #symbol
-                new InstrTable { StringValue = "LDX 0x**",       OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Hex,      Offset = 6 },  // LDX #0x**    LDX from specifyed 8 bit address
-                new InstrTable { StringValue = "LDX @",          OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Symbol,   Offset = 4 },  // LDX @        LDX from specifyed symbolic 8 bit address
+                new InstrTable { StringValue = "LDX s.0x**",     OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // LDX s.0x**   LDX from specifyed 8 bit address
+                new InstrTable { StringValue = "LDX s.@",        OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Symbol,   Offset = 6 },  // LDX s.@      LDX from specifyed symbolic 8 bit address
                 new InstrTable { StringValue = "LDA (0x****,X)", OpCode = 0x1C, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // LDA (0x****,X) LDA indexed indirect addressing
                 new InstrTable { StringValue = "LDA (@,X)",      OpCode = 0x1C, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // LDA (symbol,X)
                 new InstrTable { StringValue = "STA (0x****,X)", OpCode = 0x1D, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // STA (0x****,X) STA indexed indirect addressing
@@ -951,6 +1055,10 @@ namespace Assembler
                 new InstrTable { StringValue = "TEQA 0x****",    OpCode = 0x22, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // TEQA 0x****  Test if A = MEM, A preserved, E updated, C preserved
                 new InstrTable { StringValue = "TEQA @",         OpCode = 0x22, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // TEQA symbol
                 new InstrTable { StringValue = "JRUGE @",        OpCode = 0x23, NbByte = 1, Sym = OperandMode.Relative, Offset = 6 },  // JRUGT symbol Unsigned Greater or Equal (>=) Condition C = 1
+                new InstrTable { StringValue = "PSHA",           OpCode = 0x24, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // PSHA         Put value of A register on stack, A -> (SP), SP+1 -> SP
+                new InstrTable { StringValue = "POPA",           OpCode = 0x25, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // POPA         Read byte from stack and put in register A, SP-1 -> SP, (SP) -> A
+                new InstrTable { StringValue = "CLRA",           OpCode = 0x26, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // CLRA         Clear A register, set E flag
+                new InstrTable { StringValue = "LDA (SP-*)",     OpCode = 0x27, NbByte = 1, Sym = OperandMode.Negative, Offset = 8 },  // LDA (SP-*)   Load A register from stack with offset, (SP-Offset) -> A (Complement 2 precomputed)
                 new InstrTable { StringValue = "ADCA 0x****",    OpCode = 0x28, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
                 new InstrTable { StringValue = "ADCA @",         OpCode = 0x28, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // ADCA symbol
                 new InstrTable { StringValue = "ADDA 0x****",    OpCode = 0x29, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADDA 0x****  Add Byte from Address into REG A Carry update
@@ -970,6 +1078,8 @@ namespace Assembler
                 new InstrTable { StringValue = "JMP 0x****",     OpCode = 0x32, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // JMP 0x****   JUMP INCONDITIONAL TO ADDRESS
                 new InstrTable { StringValue = "JMP @",          OpCode = 0x32, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JMP symbol
                 new InstrTable { StringValue = "ANDA #0x**",     OpCode = 0x33, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // ANDA #0x**   REGISTER A AND LOGICAL WITH IMMEDIATE BYTE
+                new InstrTable { StringValue = "LDX 0x****",     OpCode = 0x34, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // LDX 0x****   LDX from specifyed 16 bit address
+                new InstrTable { StringValue = "LDX @",          OpCode = 0x34, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // LDX @        LDX from specifyed symbolic 16 bit address
             };
 
             /*
@@ -1013,9 +1123,12 @@ namespace Assembler
                     // Placeholders temporaires (impossibles à confondre)
                     p = p.Replace("****", "__HEX4__");
                     p = p.Replace("**", "__HEX2__");
+                    p = p.Replace("*", "__DEC__");
                     p = p.Replace("\"@\"", "__ASCII__");
                     p = p.Replace("@", "__SYMBOL__");
                     //p = p.Replace("#", "__IMM__");
+                    
+
 
                     // Escape tout le reste
                     p = Regex.Escape(p);
@@ -1023,6 +1136,7 @@ namespace Assembler
                     // Inject real regex patterns
                     p = p.Replace("__HEX4__", @"[0-9A-Fa-f]{4}");
                     p = p.Replace("__HEX2__", @"[0-9A-Fa-f]{2}");
+                    p = p.Replace("__DEC__", @"\d+");
                     p = p.Replace("__SYMBOL__", @"[A-Za-z_?][A-Za-z0-9_]*(?:\s*[+-]\s*\d+)?");
                     p = p.Replace("__ASCII__", "\"[^\"]*\"");
                     //p = p.Replace("__IMM__", @"#?");

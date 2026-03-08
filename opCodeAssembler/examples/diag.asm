@@ -1,13 +1,15 @@
 ; -----------------------------------------------------------------
 ; Homebrew MyCPU diagnostic program
 ; Author: Sylvain Fortin sylfortin71@hotmail.com
-; Date : 3 february 2026
+; Date : 8 march 2026
 ; Documentation : diag.asm is a test program that verifying every 
 ;                 assembler instructions of MyCPU.
 ; Memory map of the computer
-; 0000H - 17FFH Total RAM space
-; 00A0H - 00FFH Stack
-; E000H - F000H EEPROM for application program
+; 0x0000 - 0x7FFF Total RAM space
+; 0x00A0 - 0x00FF Stack
+; 0x7800 - 0x7BFF LED_PORT 
+; 0x7C00 - 0x7FFF LCD
+; 0x8000 - 0xFFFF EEPROM for application program
 ; -----------------------------------------------------------------
 
 ; virtual registers
@@ -65,23 +67,30 @@ IPH      EQU 0x1FFE  ; IPH	    Instruction Pointer MSB
 IPL      EQU 0x1FFF  ; IPL          "         "    LSB
 
 ; Diagnostic program variable
-DIAGLOOPCOUNTER EQU 0x01E0  ; Loop counter for diagnostics
+DIAGLOOPCOUNTER_MSB EQU 0x01E0  ; MSB of loop counter for diagnostics
+DIAGLOOPCOUNTER_LSB EQU 0x01E1  ; LSB
+DIAGTST_MSB         EQU 0x01E2  ; MSB of test variable
+DIAGTST_LSB         EQU 0x01E3  ; LSB 
+DIAGTST2_MSB        EQU 0x1EFF  ; MSB of test variable2
+DIAGTST2_LSB        EQU 0x1F00  ; LSB 
+
+;--------------------------------------------
+; LED PORT
+;--------------------------------------------
+LEDPORT  EQU 0x7800  ; PORT for the LED
 
 ;--------------------------------------------
 ; LCD Memory-Mapped I/O Addresses
 ;--------------------------------------------
 LCD_CMD  EQU 0x7C00
 LCD_DATA EQU 0x7C01
-;--------------------------------------------
-; LED PORT
-;--------------------------------------------
-LEDPORT  EQU 0xC000  ; PORT for the LED
 
 ; Diagnostic program start
-         ORG/0xE000  ; EEPROM Start of the diagnostic program     
-START    LDA #0x00   ; Initialize diagnostic loop counter
-         STA DIAGLOOPCOUNTER
-LOOPDIAG LDA #0x00   ; Clear LED
+         ORG/0x8000  ; EEPROM Start of the diagnostic program
+START    CLRA        ; Initialize diagnostic loop counter
+         STA DIAGLOOPCOUNTER_MSB
+         STA DIAGLOOPCOUNTER_LSB
+LOOPDIAG CLRA        ; Clear LED
          NOTA
          STA LEDPORT ; Output to LED port         
          ; --------------------------------------------------------------------
@@ -90,7 +99,7 @@ LOOPDIAG LDA #0x00   ; Clear LED
 TST01    LDA #0x01
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00
+         CLRA 
          STA CARRY   ; Write 0 to carry bit <0>
          LDA CARRY   ; Read Carry Status
          TEQA #0x00
@@ -100,7 +109,7 @@ TST01    LDA #0x01
          LDA CARRY   ; Read Carry Status
          TEQA #0x01
          JNE FAIL
-         LDA #0x00
+         CLRA
          STA CARRY   ; Write 0 to carry bit <0>
          LDA CARRY   ; Read Carry Status
          TEQA #0x00
@@ -111,7 +120,7 @@ TST01    LDA #0x01
 TST02    LDA #0x02
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00
+         CLRA
          STA EQUAL   ; Write 0 to Equal Status bit <0>
          LDA EQUAL   ; Read Equal Status
          TEQA #0x00
@@ -121,7 +130,7 @@ TST02    LDA #0x02
          LDA EQUAL   ; Read Equal Status
          TEQA #0x01
          JNE FAIL
-         LDA #0x00
+         CLRA
          STA EQUAL   ; Write 0 to Equal Status bit <0>
          LDA EQUAL   ; Read Equal Status
          TEQA #0x00
@@ -134,7 +143,7 @@ TST02    LDA #0x02
 TSTOP03  LDA #0x03
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00
+         CLRA
          INCA
          TEQA #0x01
          JNE FAIL
@@ -184,7 +193,7 @@ TSTOP03  LDA #0x03
          INCA
          TEQA #0x0D
          JNE FAIL
-         LDA #0x00   ; Test Carry unchanged
+         CLRA   ; Test Carry unchanged
          STA CARRY   ; Clear Carry 
          LDA #0xFF
          INCA
@@ -208,7 +217,7 @@ TSTOP03  LDA #0x03
          LDA EQUAL   ; Read Equal status
          TEQA #0x01  ; Expecting E=1 and <7:1> = 0
          JNE FAIL
-         LDA #0x00
+         CLRA
          INCA
          LDA EQUAL
          TEQA #0x00  ; Expecting E=0 and <7:1> = 0
@@ -895,7 +904,7 @@ TSTOP0E  LDA #0x0E
 TSTOP0F  LDA #0x0F
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00   ; Clear carry
+         CLRA   ; Clear carry
          STA CARRY
          JRNC TST0F_0
          JMP FAIL
@@ -912,12 +921,12 @@ TST0F_2  NOP
 TSTOP10  LDA #0x10
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00   ; Clear Carry
+         CLRA        ; Clear Carry
          STA CARRY
          RRCA
          TEQA #0x00
          JNE FAIL
-         LDA #0x00   ; Clear Carry
+         CLRA        ; Clear Carry
          STA CARRY
          RRCA
          LDA CARRY
@@ -932,13 +941,13 @@ TSTOP10  LDA #0x10
          LDA CARRY
          TEQA #0x01
          JNE FAIL
-         LDA #0x00   ; Test A become 0 after shifting when carry is 0
+         CLRA        ; Test A become 0 after shifting when carry is 0
          STA CARRY   ; insure carry is clear
          LDA #0x01   ; set bit <0> to '1'
          RRCA
          TEQA #0x00
          JNE FAIL
-         LDA #0x00   ; Test bit <0> goes to bit <7> after 2 RRCA
+         CLRA        ; Test bit <0> goes to bit <7> after 2 RRCA
          STA CARRY   ; insure carry is clear
          LDA #0x01
          RRCA
@@ -998,7 +1007,7 @@ TSTOP11  LDA #0x11
 TSTOP12  LDA #0x12
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00   ; Clear carry flag
+         CLRA        ; Clear carry flag
          STA CARRY
          SCF         ; Set Carry Flag 
          LDA CARRY   ; Check carry is set
@@ -1084,14 +1093,14 @@ TSTOP13  LDA #0x13
 TSTOP14  LDA #0x14
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00   ; Clear Carry
+         CLRA        ; Clear Carry
          STA CARRY
          STA ?b0
          RRC ?b0
          LDA ?b0
          TEQA #0x00
          JNE FAIL
-         LDA #0x00   ; Clear Carry
+         CLRA        ; Clear Carry
          STA CARRY
          STA ?b0
          RRC ?b0
@@ -1110,7 +1119,7 @@ TSTOP14  LDA #0x14
          LDA CARRY
          TEQA #0x01
          JNE FAIL
-         LDA #0x00   ; Test A become 0 after shifting when carry is 0
+         CLRA        ; Test A become 0 after shifting when carry is 0
          STA CARRY   ; insure carry is clear
          LDA #0x01   ; set bit <0> to '1'
          STA ?b0
@@ -1118,7 +1127,7 @@ TSTOP14  LDA #0x14
          LDA ?b0
          TEQA #0x00
          JNE FAIL
-         LDA #0x00   ; Test bit <0> goes to bit <7> after 2 RRCA
+         CLRA   ; Test bit <0> goes to bit <7> after 2 RRCA
          STA CARRY   ; insure carry is clear
          LDA #0x01
          STA ?b0
@@ -1335,7 +1344,7 @@ TSTOP17  LDA #0x17
          ORA #0xFF
          CMPA #0xFF
          JNE FAIL
-         LDA #0x00
+         CLRA
          ORA #0x00
          CMPA #0x00
          JNE FAIL
@@ -1343,7 +1352,7 @@ TSTOP17  LDA #0x17
          ORA #0xD3
          CMPA #0xF7
          JNE FAIL
-         LDA #0x00
+         CLRA
          ORA #0xFF
          CMPA #0xFF
          JNE FAIL
@@ -1365,11 +1374,11 @@ TSTOP17  LDA #0x17
 TSTOP18  LDA #0x18
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00
+         CLRA
          XORA #0x00
          CMPA #0x00
          JNE FAIL
-         LDA #0x00
+         CLRA
          XORA #0xFF
          CMPA #0xFF
          JNE FAIL
@@ -1391,7 +1400,7 @@ TSTOP18  LDA #0x18
 TSTOP19  LDA #0x19
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00
+         CLRA
          NOTA
          CMPA #0xFF
          JNE FAIL
@@ -1458,17 +1467,16 @@ TSTOP1A  LDA #0x1A
          CMPX #0xFFFF
          JEQ FAIL
          ; --------------------------------------------------------------------
-         ; OP.1B LDX 0x**  
+         ; OP.1B LDX s.0x**  
          ; LDX using a 8-bit direct address (8-bit offset into 0x00–0xFF page)
          ; --------------------------------------------------------------------
 TSTOP1B  LDA #0x1B
          NOTA
          STA LEDPORT    ; Output to LED port
-         LDA #0x00
+         CLRA
          STA 0x0000
-         LDA #0x00
          STA 0x0001
-         LDX 0x00       ; Load index pointer from this 8 bit address
+         LDX s.0x00     ; Load index pointer from this 8 bit address
          LDA 0x1FF3     ; read X MSB
          CMPA #0x00
          JNE FAIL
@@ -1479,7 +1487,7 @@ TSTOP1B  LDA #0x1B
          STA 0x0002
          LDA #0xCD
          STA 0x0003
-         LDX 0x02       ; Load index pointer from this 8 bit address
+         LDX s.0x02     ; Load index pointer from this 8 bit address
          LDA 0x1FF3     ; read X MSB
          CMPA #0xAB
          JNE FAIL
@@ -1490,7 +1498,7 @@ TSTOP1B  LDA #0x1B
          STA 0x0048
          LDA #0xFE
          STA 0x0049
-         LDX 0x48       ; Load index pointer from this 8 bit address
+         LDX s.0x48     ; Load index pointer from this 8 bit address
          LDA 0x1FF3     ; read X MSB
          CMPA #0xCA
          JNE FAIL
@@ -1501,7 +1509,7 @@ TSTOP1B  LDA #0x1B
          STA 0x000E     ; ?b1
          LDA #0x34
          STA 0x000F     ; ?b0
-         LDX ?b1        ; Load index pointer using symbolic LSB 8 bit address
+         LDX s.?b1      ; Load index pointer using symbolic LSB 8 bit address
          LDA 0x1FF3     ; read X MSB
          CMPA #0x12
          JNE FAIL
@@ -1512,7 +1520,7 @@ TSTOP1B  LDA #0x1B
          STA 0x0009     ; ?b6
          LDA #0x78
          STA 0x000A     ; ?b7
-         LDX ?b6        ; Load index pointer using symbolic LSB 8 bit address
+         LDX s.?b6      ; Load index pointer using symbolic LSB 8 bit address
          LDA 0x1FF3     ; read X MSB
          CMPA #0x56
          JNE FAIL
@@ -1909,7 +1917,7 @@ TSTOP1D  LDA #0x1D
 TSTOP1E  LDA #0x1E
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00   ; Clear E equal flag
+         CLRA        ; Clear E equal flag
          STA 0x1FFA
          LDX #0xFFFF ; Load X with non zero value
          CLRX
@@ -1973,11 +1981,11 @@ TSTOP1F  LDA #0x1F
          TEQA #0x01
          JNE FAIL
          ; Test all bits for CMPA operation
-         LDA #0x00
+         CLRA
          STA 0x1567
          LDA #0xFF
          STA 0x1789
-         LDA #0x00
+         CLRA
          CMPA 0x1567
          JNE FAIL
          LDA EQUAL
@@ -2057,14 +2065,14 @@ TSTOP20  LDA #0x20
          CMPA #0x7F
          JNE FAIL
          ; Test E flag
-         LDA #0x00   ; Clear E equal flag
+         CLRA        ; Clear E equal flag
          STA 0x1FFA 
          LDA #0x01
          DECA
          LDA 0x1FFA
          CMPA #0x01 ; Check E flag is set
          JNE FAIL
-         LDA #0x00
+         CLRA
          DECA
          LDA 0x1FFA
          CMPA #0x00 ; Check E flag is cleared
@@ -2150,7 +2158,7 @@ TSTOP20  LDA #0x20
 TSTOP21  LDA #0x21
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00   ; Clear Carry flag first
+         CLRA        ; Clear Carry flag first
          STA CARRY
          LDA #0x5A
          TEQA #0x5A
@@ -2174,7 +2182,7 @@ TSTOP21  LDA #0x21
          TEQA #0x01
          JNE FAIL
          ; Now test for not equal
-         LDA #0x00   ; Clear Carry flag first
+         CLRA        ; Clear Carry flag first
          STA CARRY
          LDA #0x3C
          TEQA #0x4D
@@ -2204,7 +2212,7 @@ TSTOP21  LDA #0x21
          LDA EQUAL
          TEQA #0x01
          JNE FAIL
-         LDA #0x00
+         CLRA
          TEQA #0x00
          JNE FAIL
          LDA EQUAL
@@ -2229,7 +2237,7 @@ TSTOP21  LDA #0x21
 TSTOP22  LDA #0x22
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00   ; Clear Carry flag first
+         CLRA        ; Clear Carry flag first
          STA CARRY
          LDA #0x5A   ; Store a value in RAM
          STA 0x0200   
@@ -2256,7 +2264,7 @@ TSTOP22  LDA #0x22
          TEQA #0x01
          JNE FAIL
          ; Now test for not equal
-         LDA #0x00   ; Clear Carry flag first
+         CLRA        ; Clear Carry flag first
          STA CARRY
          LDA #0x3C
          STA 0x0600
@@ -2291,7 +2299,7 @@ TSTOP22  LDA #0x22
          LDA EQUAL
          TEQA #0x01
          JNE FAIL
-         LDA #0x00
+         CLRA
          STA 0x0900
          TEQA 0x0900
          JNE FAIL
@@ -2352,36 +2360,280 @@ TSTOP23B LDA CARRY
          TEQA #0x01     ; Check Carry Set
          JNE FAIL
          ; Test all bits for JRUGE operation
-;         LDA #0x00
-;         CMPA #0x00
-;         JRUGE TSTOP23C
-;         JMP FAIL
-;TSTOP23C LDA CARRY
-;         TEQA #0x01
-;         JNE FAIL
-;         LDA #0x7F
-;         CMPA #0xFF
-;         JRUGE TSTOP23X
-;         LDA CARRY
-;         TEQA #0x00
-;         JNE FAIL
-;         LDA #0x80
-;         CMPA #0x7F
-;         JRUGE TSTOP23D
-;         JMP FAIL
-;TSTOP23D LDA CARRY
-;         TEQA #0x01
-;         JNE FAIL
-;         LDA #0xFF
-;         CMPA #0x00
-;         JRUGE TSTOP23E
-;         JMP FAIL
-;TSTOP23E LDA CARRY
-;         TEQA #0x01
-;         JNE FAIL
+         CLRA
+         CMPA #0x00
+         JRUGE TSTOP23C
+         JMP FAIL
+TSTOP23C LDA CARRY
+         TEQA #0x01
+         JNE FAIL
+         LDA #0x7F
+         CMPA #0xFF
+         JRUGE TSTOP23X
+         LDA CARRY
+         TEQA #0x00
+         JNE FAIL
+         LDA #0x80
+         CMPA #0x7F
+         JRUGE TSTOP23D
+         JMP FAIL
+TSTOP23D LDA CARRY
+         TEQA #0x01
+         JNE FAIL
+         LDA #0xFF
+         CMPA #0x00
+         JRUGE TSTOP23E
+         JMP FAIL
+TSTOP23E LDA CARRY
+         TEQA #0x01
+         JNE FAIL
          JRA TSTOP23Z
 TSTOP23X JMP FAIL
 TSTOP23Z NOP         
+         ; --------------------------------------------------------------------
+         ; OP.24 PSHA 
+         ; --------------------------------------------------------------------
+TSTOP24  LDA #0x24
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         LDA #0x5A      ; Load a value in A
+         PSHA           ; Push A on stack
+         CMPA #0x5A     ; Check A is unchanged
+         JNE FAIL
+         CLRA           ; Clear A
+         POPA           ; Pull value from stack back to A
+         CMPA #0x5A     ; Check value is correct
+         JNE FAIL 
+         LDA #0xFF      ; Load another value in A
+         PSHA           ; Push A on stack
+         CMPA #0xFF     ; Check A is unchanged
+         JNE FAIL
+         LDA #0x55   
+         PSHA           
+         LDA #0xAA   
+         PSHA           
+         POPA
+         CMPA #0xAA
+         JNE FAIL
+         POPA
+         CMPA #0x55
+         JNE FAIL
+         POPA
+         CMPA #0xFF
+         JNE FAIL
+         LDA #0x11
+         PSHA
+         LDA #0x22
+         PSHA
+         LDA #0x33
+         PSHA
+         LDA #0x44
+         PSHA
+         LDA #0x55
+         PSHA
+         LDA #0x66
+         PSHA
+         LDA #0x77
+         PSHA
+         LDA #0x88
+         PSHA
+         LDA #0x99
+         PSHA
+         POPA
+         CMPA #0x99
+         JNE FAIL
+         POPA
+         CMPA #0x88
+         JNE FAIL
+         POPA
+         CMPA #0x77
+         JNE FAIL
+         LDA #0xAA
+         PSHA
+         LDA #0xBB
+         PSHA
+         LDA #0xCC
+         PSHA
+         LDA #0xDD
+         PSHA
+         LDA #0xEE
+         PSHA
+         LDA #0xFF
+         PSHA
+         POPA
+         CMPA #0xFF
+         JNE FAIL
+         POPA
+         CMPA #0xEE
+         JNE FAIL
+         POPA
+         CMPA #0xDD
+         JNE FAIL
+         POPA
+         CMPA #0xCC
+         JNE FAIL
+         POPA
+         CMPA #0xBB
+         JNE FAIL
+         POPA
+         CMPA #0xAA
+         JNE FAIL
+         POPA
+         CMPA #0x66
+         JNE FAIL
+         POPA
+         CMPA #0x55
+         JNE FAIL
+         POPA
+         CMPA #0x44
+         JNE FAIL
+         POPA
+         CMPA #0x33
+         JNE FAIL
+         POPA
+         CMPA #0x22
+         JNE FAIL
+         POPA
+         CMPA #0x11
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.25 POPA Already tested the POPA operation in the previous test
+         ; --------------------------------------------------------------------
+TSTOP25  LDA #0x25
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         ; --------------------------------------------------------------------
+         ; OP.26 CLRA Clear A register and set E flag
+         ; --------------------------------------------------------------------
+TSTOP26  LDA #0x26
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         LDA #0xFF
+         CLRA
+         TEQA #0x00
+         JNE FAIL
+         CLRA           ; Clear Equal flag
+         STA EQUAL
+         LDA #0xFF
+         CLRA
+         LDA EQUAL
+         TEQA #0x01
+         JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.27 LDA (SP-0x**) 
+         ; Load A register from stack with offset, (SP-Offset) -> A 
+         ; --------------------------------------------------------------------
+TSTOP27  LDA #0x27
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         LDA #0x5A      ; Load a value in A
+         PSHA           ; Push A on stack
+         LDA #0x00      ; Clear A
+         LDA (SP-1)     ; Load A from stack with offset -1
+         TEQA #0x5A     ; Check A is correct
+         JNE FAIL
+         POPA            ; Clear stack
+         ; Now test with multiple values on stack and different offsets
+         LDA #0x00
+         PSHA
+         LDA #0x11
+         PSHA
+         LDA #0x22
+         PSHA
+         LDA #0x33
+         PSHA
+         LDA #0x44
+         PSHA
+         LDA #0x55
+         PSHA
+         LDA #0x66
+         PSHA
+         LDA #0x77
+         PSHA
+         LDA #0x88
+         PSHA
+         LDA #0x99
+         PSHA
+         LDA #0xAA
+         PSHA
+         LDA #0xBB
+         PSHA
+         LDA #0xCC
+         PSHA
+         LDA #0xDD
+         PSHA
+         LDA #0xEE
+         PSHA
+         LDA #0xFF
+         PSHA
+         LDA (SP-1)     ; Load A from stack with offset -1
+         TEQA #0xFF
+         JNE FAIL
+         LDA (SP-2)     ; Load A from stack with offset -2
+         TEQA #0xEE
+         JNE FAIL
+         LDA (SP-3)     ; Load A from stack with offset -3
+         TEQA #0xDD
+         JNE FAIL
+         LDA (SP-4)     ; Load A from stack with offset -4
+         TEQA #0xCC
+         JNE FAIL
+         LDA (SP-5)     ; Load A from stack with offset -5
+         TEQA #0xBB
+         JNE FAIL
+         LDA (SP-6)     ; Load A from stack with offset -6
+         TEQA #0xAA
+         JNE FAIL
+         LDA (SP-7)     ; Load A from stack with offset -7
+         TEQA #0x99
+         JNE FAIL
+         LDA (SP-8)     ; Load A from stack with offset -8
+         TEQA #0x88
+         JNE FAIL
+         LDA (SP-9)     ; Load A from stack with offset -9
+         TEQA #0x77
+         JNE FAIL
+         LDA (SP-10)    ; Load A from stack with offset -10
+         TEQA #0x66
+         JNE FAIL
+         LDA (SP-11)    ; Load A from stack with offset -11
+         TEQA #0x55
+         JNE FAIL
+         LDA (SP-12)    ; Load A from stack with offset -12
+         TEQA #0x44
+         JNE FAIL
+         LDA (SP-13)    ; Load A from stack with offset -13
+         TEQA #0x33
+         JNE FAIL
+         LDA (SP-14)    ; Load A from stack with offset -14
+         TEQA #0x22
+         JNE FAIL
+         LDA (SP-15)    ; Load A from stack with offset -15
+         TEQA #0x11
+         JNE FAIL
+         LDA (SP-16)    ; Load A from stack with offset -16
+         TEQA #0x00
+         JNE FAIL
+         POPA            ; Clear stack 
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         POPA
+         ; --------------------------------------------------------------------
+         ; OP.28
+
+
          ; --------------------------------------------------------------------
          ; OP.29 ADDA 0x****  
          ; ADD A WITH BYTE AT ADDRESS, C UPDATE
@@ -2533,7 +2785,7 @@ TST2C    LDA #0x2C
          TEQA #0xAB
          JEQ TST2C_1 ; Testing if equal?
          JMP FAIL    ; Result say both are not equal then it's a failure
-TST2C_1  LDA #0x00   ; Result say the values are identical so we are passing
+TST2C_1  CLRA        ; Result say the values are identical so we are passing
          TEQA #0x00
          JEQ TST2C_2 ; Testing if equal?
          JMP FAIL    ; if different then it's a failure
@@ -2616,7 +2868,7 @@ TSTOP2D  LDA #0x2D
 TSTOP2E  LDA #0x2E
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00   ; Clear CARRY (C)
+         CLRA        ; Clear CARRY (C)
          STA CARRY      
          LDA #0x45
          ADCA #0x5B
@@ -2636,7 +2888,7 @@ TSTOP2E  LDA #0x2E
          TEQA #0x00  ; Should be clear
          JNE FAIL
          
-         LDA #0x00   ; Clear CARRY (C)
+         CLRA        ; Clear CARRY (C)
          STA CARRY
          LDA #0x7F
          ADCA #0xDE
@@ -2697,7 +2949,7 @@ TSTOP2F  LDA #0x2F
 TSTOP30  LDA #0x30
          NOTA
          STA LEDPORT ; Output to LED port
-         LDA #0x00
+         CLRA
          TEQA #0x00
          JNE FAIL
          LDA #0x01
@@ -2837,7 +3089,7 @@ TSTOP33  LDA #0x33
          ANDA #0x3C
          TEQA #0x24
          JNE FAIL
-         LDA #0x00
+         CLRA  
          ANDA #0x00
          TEQA #0x00
          JNE FAIL
@@ -2855,14 +3107,96 @@ TSTOP33  LDA #0x33
          JNE FAIL
 
          ; --------------------------------------------------------------------
+         ; OP.34 LDX 0x****
+         ; LDX using a 16-bit direct address
+         ; --------------------------------------------------------------------
+TSTOP34  LDA #0x34
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         CLRA
+         STA 0x0000
+         STA 0x0001
+         LDX 0x0000     ; Load index pointer from this 16 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0x00
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0x00
+         JNE FAIL
+         LDA #0xAB
+         STA 0x0002
+         LDA #0xCD
+         STA 0x0003
+         LDX 0x0002     ; Load index pointer from this 16 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0xAB
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0xCD
+         JNE FAIL
+         LDA #0xCA
+         STA 0x1648
+         LDA #0xFE
+         STA 0x1649
+         LDX 0x1648     ; Load index pointer from this 16 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0xCA
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0xFE
+         JNE FAIL
+         LDA #0x12      ; Test using symbolic adress
+         STA 0x000E     ; ?b1
+         LDA #0x34
+         STA 0x000F     ; ?b0
+         LDX ?b1        ; Load index pointer using symbolic 16 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0x12
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0x34
+         JNE FAIL
+         LDA #0x56      ; Test using symbolic adress
+         STA 0x0009     ; ?b6
+         LDA #0x78
+         STA 0x000A     ; ?b7
+         LDX ?b6        ; Load index pointer using symbolic 16 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0x56
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0x78
+         JNE FAIL
+         LDA #0x9A      ; Test using symbolic adress
+         STA DIAGTST_MSB
+         LDA #0xBC
+         STA DIAGTST_LSB
+         LDX DIAGTST_MSB ; Load index pointer using symbolic 16 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0x9A
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0xBC
+         JNE FAIL
+         LDA #0xDE      ; Test using symbolic adress
+         STA DIAGTST2_MSB
+         LDA #0xF0
+         STA DIAGTST2_LSB
+         LDX DIAGTST2_MSB ; Load index pointer using symbolic 16 bit address
+         LDA 0x1FF3     ; read X MSB
+         CMPA #0xDE
+         JNE FAIL
+         LDA 0x1FF4     ; read X LSB
+         CMPA #0xF0
+         JNE FAIL
+         ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; first method using direct addressing
          ; --------------------------------------------------------------------         
 TSTFB1   LDA #0x40
          NOTA
          STA LEDPORT ; Output to LED port
-                     ;
-         LDA #0x00   ; Init first number with 00H
+         CLRA        ; Init first number with 00H
          STA 0x1000
          LDA #0x01   ; Init second number with 01H
          STA 0x1001
@@ -3203,7 +3537,7 @@ LOOPTST2 NOP            ; End of decrement loop
          TEQA #0xEF
          JNE FAIL
 
-         LDA #0x00   ; 0 * 0 = 0 (0x00 * 0x00 = 0x0000)
+         CLRA        ; 0 * 0 = 0 (0x00 * 0x00 = 0x0000)
          STA ?b0
          STA ?b1
          JSR ?mul8_w1_b1_b0
@@ -3222,7 +3556,7 @@ LOOPTST2 NOP            ; End of decrement loop
          NOTA
          STA LEDPORT ; Output to LED port
 
-         LDA #0x00   ; 0 * 0 = 0 (0x0000 * 0x0000 = 0x00000000)
+         CLRA        ; 0 * 0 = 0 (0x0000 * 0x0000 = 0x00000000)
          STA ?b0
          STA ?b1
          STA ?b2
@@ -3402,13 +3736,13 @@ RAMDESTSTART   EQU 0x1000
                LDX #RAMDESTSTART ; Load address of RAM destination
                STX ?b3           ; Store this adddress in ?b3:?b2
                ; copy a byte from source to destination
-LOOPTST47      LDX ?b1           ; Load X with source address in ?b1:?b0
+LOOPTST47      LDX s.?b1         ; Load X with source address in ?b1:?b0
                CMPX #BLKCODEEND  ; Check if last byte copied
                JEQ ENDCOPYTST47  ; if yes then quit copy loop
                LDA (X)           ; Load byte pointed by X
                INCX
                STX ?b1
-               LDX ?b3           ; Load X with destination address in ?b3:?b2
+               LDX s.?b3         ; Load X with destination address in ?b3:?b2
                STA (X)           ; Store byte to address pointed by X
                INCX
                STX ?b3
@@ -3487,7 +3821,9 @@ VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l
             TEQA #0x00
             JNE VERIFY_LOOP
             ; End of fibonacci number verification
-
+            LDA #0x83
+            NOTA
+            STA LEDPORT 
 
             ; ---------------------------------------
             ; 32-bit Factorial using library routines
@@ -3554,16 +3890,21 @@ VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l
          JSR LCD_Clear
          LDX #0x0000    ; set cursor to first line and print message
          JSR LCD_SetCursorPos
-         LDX #MSGTXT2
+         LDX #strMyCpuDiag
          JSR LCD_PrintString
-         LDX #0x0100    ; set cursor to second line and print message
+
+         LDX #0x0100    ; Put on second line iteration count hex byte
          JSR LCD_SetCursorPos
-         LDX #MSGTXT4
-         JSR LCD_PrintString
+         ;LDA DIAGLOOPCOUNTER_LSB
+         ;JSR LCD_PrintHex8
+         ;JSR LCD_PrintDecByte
+         LDX DIAGLOOPCOUNTER_MSB
+         JSR LCD_PrintHex16
+
          ; make some movement on the lcd to show diagnostic still running
          ; use 3 LSB of diagnostic counter to move an asterisk on second line
          ; between position 8 and 15
-         LDA DIAGLOOPCOUNTER
+         LDA DIAGLOOPCOUNTER_LSB
          ANDA #0x07          ; mask to 3 LSB (0..7)
          ADDA #0x08          ; offset to position 8..15
          STA XL              ; XL = column
@@ -3571,13 +3912,17 @@ VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l
          STA XH              ; XH = line 1 (second line)
          JSR LCD_SetCursorPos
          LDA #0x2A           ; ASCII '*'
-         JSR LCD_WriteChar
+         JSR LCD_PrintChar
          ; End of LCD TEST
          
-         ; increment diagnostic counter to indicate successful completion
-         LDA DIAGLOOPCOUNTER
-         ADDA #0x01
-         STA DIAGLOOPCOUNTER
+         ; Increment diagnostic counter to indicate successful completion of one iteration of the diagnostic loop
+         LDX DIAGLOOPCOUNTER_MSB
+         INCX
+         STX DIAGLOOPCOUNTER_MSB
+
+         LDA #0xFF
+         NOTA
+         STA LEDPORT 
 
          JMP LOOPDIAG         ; Diagnostic loop
 ; END OF MAIN PROGRAM
@@ -3591,7 +3936,8 @@ VERIFY_LOOP JSR ?load32_l2       ; Load next Fibonacci number from memory into l
 MSGTXT1        .ASCII "123ABC"
 MSGTXT2        .ASCII "Hello World"
 MSGTXT3        .ASCII "This is a text message to test ascii text table in assembler"
-MSGTXT4        .ASCII "MyCPU"
+         ; Program string
+strMyCpuDiag   .ASCII "MyCPU Diag"
          
          ; ---------------------
          ; Math library routines
@@ -3603,67 +3949,67 @@ MSGTXT4        .ASCII "MyCPU"
 ;         ?l3         |         ?l2       |       ?l1       |       ?l0       | 32 bits
 ;-----------------------------------------------------------------------------
                   ; Clear 32bits
-?clear32_l0       LDA #0x00
+?clear32_l0       CLRA
                   STA ?b0
                   STA ?b1
                   STA ?b2
                   STA ?b3
                   RTS
-?clear32_l1       LDA #0x00
+?clear32_l1       CLRA
                   STA ?b4
                   STA ?b5
                   STA ?b6
                   STA ?b7
                   RTS   
-?clear32_l2       LDA #0x00
+?clear32_l2       CLRA
                   STA ?b8
                   STA ?b9
                   STA ?b10
                   STA ?b11
                   RTS
-?clear32_l3       LDA #0x00
+?clear32_l3       CLRA
                   STA ?b12
                   STA ?b13
                   STA ?b14
                   STA ?b15
                   RTS
                   ; Clear 16bits
-?clear16_w0       LDA #0x00
+?clear16_w0       CLRA
                   STA ?b0
                   STA ?b1
                   RTS
-?clear16_w1       LDA #0x00
+?clear16_w1       CLRA
                   STA ?b2
                   STA ?b3
                   RTS
-?clear16_w2       LDA #0x00
+?clear16_w2       CLRA
                   STA ?b4
                   STA ?b5
                   RTS
-?clear16_w3       LDA #0x00
+?clear16_w3       CLRA
                   STA ?b6
                   STA ?b7
                   RTS
-?clear16_w4       LDA #0x00
+?clear16_w4       CLRA
                   STA ?b8
                   STA ?b9     
                   RTS
-?clear16_w5       LDA #0x00
+?clear16_w5       CLRA
                   STA ?b10
                   STA ?b11
                   RTS
-?clear16_w6       LDA #0x00
+?clear16_w6       CLRA
                   STA ?b12
                   STA ?b13
                   RTS
-?clear16_w7       LDA #0x00
+?clear16_w7       CLRA
                   STA ?b14
                   STA ?b15
                   RTS
                   ; Set 32bits to 1
 ?set32_l0_to_1    LDA #0x01
                   STA ?b0
-                  LDA #0x00
+                  CLRA
                   STA ?b1
                   STA ?b2
                   STA ?b3
@@ -3673,7 +4019,7 @@ MSGTXT4        .ASCII "MyCPU"
                   ;CLR ?b5    ; I dont have a page 0 clear instruction yet
                   ;CLR ?b6
                   ;CLR ?b7
-                  LDA #0x00
+                  CLRA
                   STA ?b5
                   STA ?b6
                   STA ?b7
@@ -3959,13 +4305,13 @@ MSGTXT4        .ASCII "MyCPU"
                   JNE ?cmp32_not_equal
                   ; All bytes equal, E flag already set from last comparison
                   RTS
-?cmp32_not_equal  LDA #0x00   ; Clear E flag    I dont have a direct way to clear E flag
+?cmp32_not_equal  CLRA           ; Clear E flag    I dont have a direct way to clear E flag
                   STA ?b0
                   RTS
 
                   ; MUL 8-bit
                   ; w1 (b3,b2) <= b1 * b0
-?mul8_w1_b1_b0    LDA #0x00   ; Only clear ?b3
+?mul8_w1_b1_b0    CLRA        ; Only clear ?b3
                   STA ?b3
                   LDX #0x0008 ; Loop counter (8 bits)
 ?mul8_w1_b1_loop  SRL ?b0     ; Shift right ?b0 (check LSB)
@@ -3981,7 +4327,7 @@ MSGTXT4        .ASCII "MyCPU"
 
                   ; MUL 16-bit
                   ; l1 <= w1 * w0      (b7,b6,b5,b4) = (b3,b2) * (b1,b0)
-?mul16_l1_w1_w0   LDA #0x00   ; Only clear ?b7 and ?b6
+?mul16_l1_w1_w0   CLRA        ; Only clear ?b7 and ?b6
                   STA ?b7
                   STA ?b6
                   LDX #0x0010 ; Loop counter (16 bits)
@@ -4057,6 +4403,26 @@ MSGTXT4        .ASCII "MyCPU"
 
 ;                  RTS
 
+;--------------------------------------------
+; DIV8 - Unsigned 8-bit division using stack
+; Input:
+;   XL = dividend (0–255)
+;   A  = divisor  (1–255)
+; Output:
+;   A  = quotient
+;   XL = remainder
+; Uses stack for divisor storage
+;--------------------------------------------
+;DIV8     PSHA           ; save divisor on stack
+;         CLRA           ; quotient = 0
+;DIV8_L1  PEEK           ; read top of stack into temporary A (do not pop yet)
+;         CMPXL A        ; compare remainder with divisor
+;         JRULT DivDone  ; if remainder < divisor → done
+;         SUBXL A        ; XL = XL - divisor
+;         INCA           ; quotient++
+;         JRA DIV8_L1
+;DivDone  POPA           ; remove divisor from stack
+;         RTS
 
 ;--------------------------------------------
 ; LCD Main Initialization Routine
@@ -4119,7 +4485,7 @@ LCD_SetCursorPos  LDA XH
                   JEQ LCD_Row0
                   LDA #0x40         ; Row 1, DDRAM base address line 1
                   JRA LCD_AddCol
-LCD_Row0          LDA #0x00         ; DDRAM base address line 0
+LCD_Row0          CLRA              ; DDRAM base address line 0
 LCD_AddCol        ADDA XL           ; A = base + column
                   ORA #0x80         ; Set DDRAM address command
                   STA LCD_CMD
@@ -4129,7 +4495,7 @@ LCD_AddCol        ADDA XL           ; A = base + column
 ; Write a single character
 ; Input: A = ASCII code
 ;--------------------------------------------
-LCD_WriteChar  STA LCD_DATA
+LCD_PrintChar  STA LCD_DATA
                RTS
 
 ;--------------------------------------------
@@ -4140,10 +4506,122 @@ LCD_WriteChar  STA LCD_DATA
 LCD_PrintString   LDA (X)        ; A = *X
                   TEQA #0x00     ; end of string?
                   JEQ LCD_PrDone
-                  JSR LCD_WriteChar
+                  JSR LCD_PrintChar
                   INCX           ; X++
                   JRA LCD_PrintString
 LCD_PrDone        RTS
+
+;--------------------------------------------
+; Print HEX digit (0-15) as ASCII ('0'-'9', 'A'-'F')
+; Input:
+;   A = nibble
+;--------------------------------------------
+LCD_PrintHexDigit ANDA #0x0F     ; Mask to 4 bits
+                  CMPA #0x0A
+                  JRUGE LCD_PrintHL
+                  ADDA #0x30     ; Convert 0..9 to '0'..'9'
+                  JRA LCD_PrintChar
+LCD_PrintHL       ADDA #0x37     ; Convert 10..15 to 'A'..'F'
+                  JRA LCD_PrintChar
+;--------------------------------------------
+; Print a 8-bit value as two hex digits
+; Input:
+;   A = byte to print
+;--------------------------------------------
+LCD_PrintHex8     PSHA           ; save original byte on stack
+                  SRLA           ; High nibble
+                  SRLA
+                  SRLA
+                  SRLA
+                  JSR LCD_PrintHexDigit
+                  POPA           ; restore byte
+                  ANDA #0x0F     ; low nibble
+                  JSR LCD_PrintHexDigit
+                  RTS
+;------------------------------------------------------------
+; Print a 16-bit value as four hex digits
+; Input:
+;   X = 16-bit value
+;------------------------------------------------------------
+LCD_PrintHex16    LDA XH
+                  JSR LCD_PrintHex8
+                  LDA XL
+                  JSR LCD_PrintHex8
+                  RTS
+;------------------------------------------------------------
+; Print a byte as decimal (0..255) at current cursor position
+; Input:
+;   A = byte to print
+;------------------------------------------------------------
+LCD_PrintDecByte  CLRX                    ; Clear X, X = hundred counter
+LCD_PDB_L1        CMPA #0x64              ; Compare with 100
+                  JRUGE LCD_PDB_J1
+                  JRA LCD_PDB_J2
+LCD_PDB_J1        ADDA #0x9C              ; subtract 100 (A = A - 100)
+                  INCX
+                  JRA LCD_PDB_L1
+LCD_PDB_J2        PSHA                    ; Save remaining value (0..99) on stack
+                  LDA XL                  ; Load X (hundred counter) into A
+                  JSR LCD_PrintHexDigit   ; Print hundred digit as hex (0..9)
+                  POPA                    ; restore remaining value (0..99) into A
+                  CLRX                    ; Clear X, X = ten counter
+LCD_PDB_L3        CMPA #0x0A              ; Compare with 10
+                  JRUGE LCD_PDB_J3
+                  JRA LCD_PDB_J4
+LCD_PDB_J3        ADDA #0xF6              ; subtract 10 (A = A - 10)
+                  INCX
+                  JRA LCD_PDB_L3
+LCD_PDB_J4        PSHA                    ; Save remaining value (0..9) on stack
+                  LDA XL                  ; Load X (tens counter) into A
+                  JSR LCD_PrintHexDigit   ; Print ten digit as hex (0..9)
+                  POPA                    ; restore remaining value (0..9) into A
+                  JSR LCD_PrintHexDigit
+                  RTS
+
+;------------------------------------------------------------
+; Print 16-bit number in decimal (0..65535)
+; Input:
+;    X = number to print
+;------------------------------------------------------------
+;LCD_PrintDec16 CLRA                    ; -------- 10000 digit --------
+;PD16_L1        CPX #0x2710             ; Compare with 10000
+;               JRULT PD16_J1
+;               SUBX #0x2710
+;               INCA
+;               JRA PD16_L1
+;PD16_J1        PSHX
+;               JSR LCD_PrintHexDigit
+;               PULX
+;               CLRA                    ; -------- 1000 digit --------
+;PD16_L2        CPX 0x03E8              ; Compare with 1000
+;               JRULT PD16_J2
+;               SUBX #0x03E8
+;               INCA
+;               JRA PD16_L2
+;PD16_J2        PSHX
+;               JSR LCD_PrintHexDigit
+;               PULX
+;               CLRA                    ; -------- 100 digit --------
+;PD16_L3        CPX #0x64               ; Compare with 100
+;               JRULT PD16_J3
+;               SUBX #0x64
+;               INCA
+;               JRA PD16_L3
+;PD16_J3        PSHX
+;               JSR LCD_PrintHexDigit
+;               PULX
+;               CLRA                    ; -------- 10 digit --------
+;PD16_L4        CPX #0x0A               ; Compare with 10
+;               JRULT PD16_J4
+;               SUBX #0x0A
+;               INCA
+;               JRA PD16_L4
+;PD16_J4        PSHX
+;               JSR LCD_PrintHexDigit
+;               PULX
+;               TXA                     ; -------- 1 digit --------
+;               JSR LCD_PrintHexDigit
+;               RTS
 
          ; --------------------------------------------------------------------
          ; Error routine
@@ -4198,7 +4676,7 @@ TJSR10   LDA #0x99
          ; Reset Vector
          ; --------------------------------------------------------------------
          ORG/0xFFFE  ; Set the Reset vector
-         DB 0xE0     ; MSB Reset Vector
+         DB 0x80     ; MSB Reset Vector
          DB 0x00     ; LSB Reset Vector
 
          

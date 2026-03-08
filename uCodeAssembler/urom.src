@@ -1,7 +1,7 @@
 ; -----------------------------------------------------------------
 ; Homebrew CPU micro code
 ; Author: Sylvain Fortin  sylfortin71@hotmail.com
-; Date : 7 jan 2026
+; Date : 6 march 2026
 ; Documentation : uCode stored in 2 binary file to be 
 ;                 programmed into 2864 to control the 74LSxx based 
 ;                 cpu.
@@ -941,7 +941,7 @@ R0>DATA
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
-ORG/0D80H               ; OP.1B LDX **H    LDX from specifyed 8 bit address
+ORG/0D80H               ; OP.1B LDX s.**H    LDX from specifyed 8 bit address
 DATA>R0                 ; Read LSB Address
 00H>AH                  ; Set address to source
 R0>AL
@@ -1331,6 +1331,77 @@ R1>AL
 0CH>UH                  ; Do the JRA
 00H>UL
 JMP                     ; ***************************************************
+ORG/1200H               ; OP.24 PSHA  Put value of A register on stack. A -> (SP), SP+1 -> SP
+1FH>AH                  ; Read STACK POINTER Register (SP) (8bit LSB) MSB=0H Always
+F0H>AL
+DATA>R0
+FCH>AL                  ; Read A
+DATA>R1
+00H>AH                  ; Put in STACK
+R0>AL
+R1>DATA
+1FH>AH                  ; Read SP Register
+F0H>AL
+DATA>R0
+3EH>UH                  ; Increment R0 containing SP value
+00H>UL                  ; R0+1>R0  | ADD. Incrementation Routine
+24H>R6                  ;          | ADD. Return
+10H>R7
+JMP
+R0>DATA                 ; Put Result in SP Register
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
+ORG/1280H               ; OP.25 POPA  Read byte from stack and put in register A, SP-1 -> SP, (SP) -> A
+1FH>AH                  ; Read Stack Pointer Register
+F0H>AL
+DATA>R0
+3AH>UH                  ;          | ADD. Routine R0-1>R0
+00H>UL                  ; SP-1     |
+25H>R6                  ;          | ADD. return
+08H>R7                  ; Decrementing the Stack Pointer Register
+JMP
+R0>DATA                 ; Store result in SP
+00H>AH                  ; Read byte pointed by SP and put in register A
+R0>AL
+DATA>R1
+1FH>AH                  ; Store in A Register
+FCH>AL
+R1>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
+ORG/1300H               ; OP.26 CLRA  Clear register A, E flag set
+00H>R0
+1FH>AH                  ; Store in A Register
+FCH>AL
+R0>DATA
+01H>R0
+FAH>AL                  ; Set E flag
+R0>DATA
+01H>UH                  ; Get Pointed OP Code by IP and Execute
+00H>UL
+JMP                     ; ***************************************************
+ORG/1380H               ; OP.27 LDA (SP-0x**) Load A register from stack with offset, (SP-Offset) -> A 
+DATA>R1                 ; Read Offset, 2s complement precomputed -> R1
+1FH>AH                  ; Read Stack Pointer Register -> R0
+F0H>AL
+DATA>R0
+00H>R2                  ; Clean Cin
+3FH>UH                  ; R2<0> Cin | ADD. ROUTINE
+00H>UL                  ; R0+R1>R0  | 
+27H>R6                  ; Cout>R2-0 | RETURN ADDRESS
+0AH>R7
+JMP
+00H>AH                  ; Read pointed byte (SP-Offset)
+R0>AL
+DATA>R0
+1FH>AH                  ; Store in A Register
+FCH>AL
+R0>DATA
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
 ORG/1400H               ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 DATA>R2                 ; Read MSB Address (MSB->R2)
 3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
@@ -1637,519 +1708,149 @@ R0>DATA                 ; STORE R0 INTO REGISTER A
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
-ORG/1A00H               ; 1AXX Incrementer (Not working)
-01H>R0
-JMP
-02H>R0
-JMP
-03H>R0
-JMP
-04H>R0
-JMP
-05H>R0
-JMP
-06H>R0
-JMP
-07H>R0
-JMP
-08H>R0
-JMP
-09H>R0
-JMP
-0AH>R0
-JMP
-0BH>R0
-JMP
-0CH>R0
-JMP
-0DH>R0
-JMP
-0EH>R0
-JMP
-0FH>R0
-JMP
-10H>R0
-JMP
-11H>R0
-JMP
-12H>R0
-JMP
-13H>R0
-JMP
-14H>R0
-JMP
-15H>R0
-JMP
-16H>R0
-JMP
-17H>R0
-JMP
-18H>R0
-JMP
-19H>R0
-JMP
-1AH>R0
-JMP
-1BH>R0
-JMP
-1CH>R0
-JMP
-1DH>R0
-JMP
-1EH>R0
-JMP
-1FH>R0
-JMP
-20H>R0
-JMP
-21H>R0
-JMP
-22H>R0
-JMP
-23H>R0
-JMP
-24H>R0
-JMP
-25H>R0
-JMP
-26H>R0
-JMP
-27H>R0
-JMP
-28H>R0
-JMP
-29H>R0
-JMP
-2AH>R0
-JMP
-2BH>R0
-JMP
-2CH>R0
-JMP
-2DH>R0
-JMP
-2EH>R0
-JMP
-2FH>R0
-JMP
-30H>R0
-JMP
-31H>R0
-JMP
-32H>R0
-JMP
-33H>R0
-JMP
-34H>R0
-JMP
-35H>R0
-JMP
-36H>R0
-JMP
-37H>R0
-JMP
-38H>R0
-JMP
-39H>R0
-JMP
-3AH>R0
-JMP
-3BH>R0
-JMP
-3CH>R0
-JMP
-3DH>R0
-JMP
-3EH>R0
-JMP
-3FH>R0
-JMP
-40H>R0
-JMP
-41H>R0
-JMP
-42H>R0
-JMP
-43H>R0
-JMP
-44H>R0
-JMP
-45H>R0
-JMP
-46H>R0
-JMP
-47H>R0
-JMP
-48H>R0
-JMP
-49H>R0
-JMP
-4AH>R0
-JMP
-4BH>R0
-JMP
-4CH>R0
-JMP
-4DH>R0
-JMP
-4EH>R0
-JMP
-4FH>R0
-JMP
-50H>R0
-JMP
-51H>R0
-JMP
-52H>R0
-JMP
-53H>R0
-JMP
-54H>R0
-JMP
-55H>R0
-JMP
-56H>R0
-JMP
-57H>R0
-JMP
-58H>R0
-JMP
-59H>R0
-JMP
-5AH>R0
-JMP
-5BH>R0
-JMP
-5CH>R0
-JMP
-5DH>R0
-JMP
-5EH>R0
-JMP
-5FH>R0
-JMP
-60H>R0
-JMP
-61H>R0
-JMP
-62H>R0
-JMP
-63H>R0
-JMP
-64H>R0
-JMP
-65H>R0
-JMP
-66H>R0
-JMP
-67H>R0
-JMP
-68H>R0
-JMP
-69H>R0
-JMP
-6AH>R0
-JMP
-6BH>R0
-JMP
-6CH>R0
-JMP
-6DH>R0
-JMP
-6EH>R0
-JMP
-6FH>R0
-JMP
-70H>R0
-JMP
-71H>R0
-JMP
-72H>R0
-JMP
-73H>R0
-JMP
-74H>R0
-JMP
-75H>R0
-JMP
-76H>R0
-JMP
-77H>R0
-JMP
-78H>R0
-JMP
-79H>R0
-JMP
-7AH>R0
-JMP
-7BH>R0
-JMP
-7CH>R0
-JMP
-7DH>R0
-JMP
-7EH>R0
-JMP
-7FH>R0
-JMP
-80H>R0
-JMP
-81H>R0
-JMP
-82H>R0
-JMP
-83H>R0
-JMP
-84H>R0
-JMP
-85H>R0
-JMP
-86H>R0
-JMP
-87H>R0
-JMP
-88H>R0
-JMP
-89H>R0
-JMP
-8AH>R0
-JMP
-8BH>R0
-JMP
-8CH>R0
-JMP
-8DH>R0
-JMP
-8EH>R0
-JMP
-8FH>R0
-JMP
-90H>R0
-JMP
-91H>R0
-JMP
-92H>R0
-JMP
-93H>R0
-JMP
-94H>R0
-JMP
-95H>R0
-JMP
-96H>R0
-JMP
-97H>R0
-JMP
-98H>R0
-JMP
-99H>R0
-JMP
-9AH>R0
-JMP
-9BH>R0
-JMP
-9CH>R0
-JMP
-9DH>R0
-JMP
-9EH>R0
-JMP
-9FH>R0
-JMP
-A0H>R0
-JMP
-A1H>R0
-JMP
-A2H>R0
-JMP
-A3H>R0
-JMP
-A4H>R0
-JMP
-A5H>R0
-JMP
-A6H>R0
-JMP
-A7H>R0
-JMP
-A8H>R0
-JMP
-A9H>R0
-JMP
-AAH>R0
-JMP
-ABH>R0
-JMP
-ACH>R0
-JMP
-ADH>R0
-JMP
-AEH>R0
-JMP
-AFH>R0
-JMP
-B0H>R0
-JMP
-B1H>R0
-JMP
-B2H>R0
-JMP
-B3H>R0
-JMP
-B4H>R0
-JMP
-B5H>R0
-JMP
-B6H>R0
-JMP
-B7H>R0
-JMP
-B8H>R0
-JMP
-B9H>R0
-JMP
-BAH>R0
-JMP
-BBH>R0
-JMP
-BCH>R0
-JMP
-BDH>R0
-JMP
-BEH>R0
-JMP
-BFH>R0
-JMP
-C0H>R0
-JMP
-C1H>R0
-JMP
-C2H>R0
-JMP
-C3H>R0
-JMP
-C4H>R0
-JMP
-C5H>R0
-JMP
-C6H>R0
-JMP
-C7H>R0
-JMP
-C8H>R0
-JMP
-C9H>R0
-JMP
-CAH>R0
-JMP
-CBH>R0
-JMP
-CCH>R0
-JMP
-CDH>R0
-JMP
-CEH>R0
-JMP
-CFH>R0
-JMP
-D0H>R0
-JMP
-D1H>R0
-JMP
-D2H>R0
-JMP
-D3H>R0
-JMP
-D4H>R0
-JMP
-D5H>R0
-JMP
-D6H>R0
-JMP
-D7H>R0
-JMP
-D8H>R0
-JMP
-D9H>R0
-JMP
-DAH>R0
-JMP
-DBH>R0
-JMP
-DCH>R0
-JMP
-DDH>R0
-JMP
-DEH>R0
-JMP
-DFH>R0
-JMP
-E0H>R0
-JMP
-E1H>R0
-JMP
-E2H>R0
-JMP
-E3H>R0
-JMP
-E4H>R0
-JMP
-E5H>R0
-JMP
-E6H>R0
-JMP
-E7H>R0
-JMP
-E8H>R0
-JMP
-E9H>R0
-JMP
-EAH>R0
-JMP
-EBH>R0
-JMP
-ECH>R0
-JMP
-EDH>R0
-JMP
-EEH>R0
-JMP
-EFH>R0
-JMP
-F0H>R0
-JMP
-F1H>R0
-JMP
-F2H>R0
-JMP
-F3H>R0
-JMP
-F4H>R0
-JMP
-F5H>R0
-JMP
-F6H>R0
-JMP
-F7H>R0
-JMP
-F8H>R0
-JMP
-F9H>R0
-JMP
-FAH>R0
-JMP
-FBH>R0
-JMP
-FCH>R0
-JMP
-FDH>R0
-JMP
-FEH>R0
-JMP
-FFH>R0
-JMP
-00H>R0
-80H>R1
+ORG/1A00H               ; OP.34 LDX ****H    LDX from specifyed 16 bit address
+DATA>R0                 ; Read MSB Operand
+1FH>AH                  ; store in TEMP0
+ECH>AL
+R0>DATA                 
+3BH>UH                  ;          | ADD. ROUTINE INCREMENT IP
+00H>UL                  ;          |
+34H>R4                  ;  IP+1>IP | ADD. RETURN
+09H>R5                  ;  IP>ADD  |
+JMP                     ;          | JMP TO ROUTINE
+DATA>R0                 ; Read LSB Operand put in R0
+1FH>AH                  ; store in TEMP1
+EDH>AL
+R0>DATA                 
+ECH>AL
+DATA>R1                 ; MSB in R1
+R0>AL
+R1>AH
+DATA>R2                 ; Read new X MSB value to be loaded
+1FH>AH                  ; Store into X MSB register
+F3H>AL
+R2>DATA
+R0-0>A                  ; Point to next address Increment R0
+A>Q0                    ; Compute Carry
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q>R1                    ; Save Cout in R1-7
+Q6>A
+XOR R0-7
+Q5>A
+XOR R0-6
+Q4>A
+XOR R0-5
+Q3>A
+XOR R0-4
+Q2>A
+XOR R0-3
+Q1>A
+XOR R0-2
+Q0>A
+XOR R0-1
+R0-0>A
+NOT A-0
+Q>R0                    ; Save increment result in R0
+1FH>AH                  ; store LSB increment result in TEMP1
+EDH>AL
+R0>DATA
+R1-7>A                  ; Check if carry on MSB
+34H>UH
+4BH>UL
+JMP_A=1                 ; if carry bit is 1 jump
+1FH>AH                  ; No carry
+ECH>AL                  ; move TEMP0 containing MSB Add to R0
+DATA>R0
+EDH>AL                  ; move TEMP1 containing LSB Add to R1
+DATA>R1
+R0>AH                   ; Put on address bus
+R1>AL
+DATA>R0                 ; Get new X LSB value
+1FH>AH                  ; Store in X LSB register
+F4H>AL
+R0>DATA
+02H>UH                  ; NEXT OP
+00H>UL
+JMP
+1FH>AH                  ; <<JUMP>> Carry bit set 
+ECH>AL                  ; move TEMP0 containing MSB Add to R0
+DATA>R0
+R0-0>A                  ; Increment address MSB
+A>Q0                    ; Compute Carry
+AND R0-1
+Q1>A
+AND R0-2
+Q2>A
+AND R0-3
+Q3>A
+AND R0-4
+Q4>A
+AND R0-5
+Q5>A
+AND R0-6
+Q6>A
+AND R0-7
+Q>R1                    ; Save Cout in R1-7
+Q6>A
+XOR R0-7
+Q5>A
+XOR R0-6
+Q4>A
+XOR R0-5
+Q3>A
+XOR R0-4
+Q2>A
+XOR R0-3
+Q1>A
+XOR R0-2
+Q0>A
+XOR R0-1
+R0-0>A
+NOT A-0
+Q>R0                    ; Save MSB increment result in R0
+1FH>AH                  
+EDH>AL                  ; move TEMP1 containing LSB Add to R1
+DATA>R1
+R0>AH                   ; Put on address bus
+R1>AL
+DATA>R0                 ; Get new X LSB value
+1FH>AH                  ; Store in X LSB register
+F4H>AL
+R0>DATA
+02H>UH                  ; NEXT OP
+00H>UL
+JMP                     ; ***************************************************
+ORG/1A80H               ; OP.35
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/1B00H               ; OP.36
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/1B80H               ; OP.37
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/1C00H               ; OP.38
+02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     ; ***************************************************
+ORG/1C80H               ; OP.39
+02H>UH                  ; NEXT OP.
+00H>UL
 JMP                     ; ***************************************************
 ORG/1D00H               ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
 R0-0>A                  ; NOT R0 > R0
@@ -2227,6 +1928,9 @@ ORG/1D80H               ; 3B00H  ROUTINE   * IP+1>IP   IP>ADD.                 *
 FFH>AL                  ;        PUT IN R0 *************************************
 DATA>R0                 ; INCREMENT (COUT R1-7) R0+1>R0
 R0-0>A
+3BH>UH                  ; Fast track if IPL<0> is 0
+5DH>UL
+JMP_A=0
 A>Q0                    ; Compute the Carrys
 AND R0-1
 Q1>A
@@ -2303,47 +2007,34 @@ Q>R0                    ; Increment result in R0
 1FH>AH                  ; Save new IPH value
 FEH>AL            
 R0>DATA
-1FH>AH                  ; Read IPH
+1FH>AH                  ; Read IPH  << JUMP DESTINATION when no increment on IPH >>
 FEH>AL
 DATA>R0
 FFH>AL                  ; Read IPL
 DATA>R1
 R0>AH                   ; Put IP in Address Bus
 R1>AL
-; Begin of alternate method using table. But it cant work; the table return address would double the EEPROM need.
-; Method does not procure clock cycle economy.
-;00H>R0                  ; Clear bit Q<0>
-;R0-0>A
-;A>Q0
-;1FH>AH                  ; Read IPL and put in R1
-;FFH>AL
-;DATA>R1
-;R1-0>A                  ; shift R1 one bit left and put in R2
-;A>Q1
-;R1-1>A
-;A>Q2
-;R1-2>A
-;A>Q3
-;R1-3>A
-;A>Q4
-;R1-4>A
-;A>Q5
-;R1-5>A
-;A>Q6
-;R1-6>A
-;A>Q7
-;Q>R2
-;R1-7>A                 ; look at bit 7
-;3BH>UH
-;00H>UL
-;JMP_A=1
-;34H>UH                  ; it is 0
-;00H>UL
-;JMP
-;36H>UH                  ; it is 1
-;00H>UL
-;JMP
-; End of alternate method
+R4>UH                   ; Return to calling routine
+R5>UL
+JMP
+NOT A-0                 ; <JUMP Fast track> just set IP<0> to 1.
+00H>R1
+R1-0>A
+OR R0-1
+OR R0-2
+OR R0-3
+OR R0-4
+OR R0-5
+OR R0-6
+OR R0-7
+Q>R1                    ; New IPL in R1
+1FH>AH                  ; Store IPL
+FFH>AL
+R1>DATA
+FEH>AL                  ; Read IPH and out in R0
+DATA>R0
+R0>AH                   ; Put IP on Adress bus
+R1>AL
 R4>UH                   ; Return to calling routine
 R5>UL
 JMP                     ; *************************************************

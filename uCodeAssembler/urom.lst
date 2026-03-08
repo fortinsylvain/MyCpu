@@ -1,7 +1,7 @@
                               ; -----------------------------------------------------------------
                               ; Homebrew CPU micro code
                               ; Author: Sylvain Fortin  sylfortin71@hotmail.com
-                              ; Date : 7 jan 2026
+                              ; Date : 6 march 2026
                               ; Documentation : uCode stored in 2 binary file to be 
                               ;                 programmed into 2864 to control the 74LSxx based 
                               ;                 cpu.
@@ -941,7 +941,7 @@
 1A6A       3002               02H>UH       ; NEXT OP.
 1A6B       3800               00H>UL
 1A6C       C800               JMP          ; ***************************************************
-                              ORG/0D80H    ; OP.1B LDX **H    LDX from specifyed 8 bit address
+                              ORG/0D80H    ; OP.1B LDX s.**H    LDX from specifyed 8 bit address
 1B00       2000               DATA>R0      ; Read LSB Address
 1B01       7800               00H>AH       ; Set address to source
 1B02       1800               R0>AL
@@ -1331,6 +1331,77 @@
 2310       300C               0CH>UH       ; Do the JRA
 2311       3800               00H>UL
 2312       C800               JMP          ; ***************************************************
+                              ORG/1200H    ; OP.24 PSHA  Put value of A register on stack. A -> (SP), SP+1 -> SP
+2400       781F               1FH>AH       ; Read STACK POINTER Register (SP) (8bit LSB) MSB=0H Always
+2401       68F0               F0H>AL
+2402       2000               DATA>R0
+2403       68FC               FCH>AL       ; Read A
+2404       2100               DATA>R1
+2405       7800               00H>AH       ; Put in STACK
+2406       1800               R0>AL
+2407       5900               R1>DATA
+2408       781F               1FH>AH       ; Read SP Register
+2409       68F0               F0H>AL
+240A       2000               DATA>R0
+240B       303E               3EH>UH       ; Increment R0 containing SP value
+240C       3800               00H>UL       ; R0+1>R0  | ADD. Incrementation Routine
+240D       2E24               24H>R6       ;          | ADD. Return
+240E       2F10               10H>R7
+240F       C800               JMP
+2410       5800               R0>DATA      ; Put Result in SP Register
+2411       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+2412       3800               00H>UL
+2413       C800               JMP          ; ***************************************************
+                              ORG/1280H    ; OP.25 POPA  Read byte from stack and put in register A, SP-1 -> SP, (SP) -> A
+2500       781F               1FH>AH       ; Read Stack Pointer Register
+2501       68F0               F0H>AL
+2502       2000               DATA>R0
+2503       303A               3AH>UH       ;          | ADD. Routine R0-1>R0
+2504       3800               00H>UL       ; SP-1     |
+2505       2E25               25H>R6       ;          | ADD. return
+2506       2F08               08H>R7       ; Decrementing the Stack Pointer Register
+2507       C800               JMP
+2508       5800               R0>DATA      ; Store result in SP
+2509       7800               00H>AH       ; Read byte pointed by SP and put in register A
+250A       1800               R0>AL
+250B       2100               DATA>R1
+250C       781F               1FH>AH       ; Store in A Register
+250D       68FC               FCH>AL
+250E       5900               R1>DATA
+250F       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+2510       3800               00H>UL
+2511       C800               JMP          ; ***************************************************
+                              ORG/1300H    ; OP.26 CLRA  Clear register A, E flag set
+2600       2800               00H>R0
+2601       781F               1FH>AH       ; Store in A Register
+2602       68FC               FCH>AL
+2603       5800               R0>DATA
+2604       2801               01H>R0
+2605       68FA               FAH>AL       ; Set E flag
+2606       5800               R0>DATA
+2607       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
+2608       3800               00H>UL
+2609       C800               JMP          ; ***************************************************
+                              ORG/1380H    ; OP.27 LDA (SP-0x**) Load A register from stack with offset, (SP-Offset) -> A 
+2700       2100               DATA>R1      ; Read Offset, 2s complement precomputed -> R1
+2701       781F               1FH>AH       ; Read Stack Pointer Register -> R0
+2702       68F0               F0H>AL
+2703       2000               DATA>R0
+2704       2A00               00H>R2       ; Clean Cin
+2705       303F               3FH>UH       ; R2<0> Cin | ADD. ROUTINE
+2706       3800               00H>UL       ; R0+R1>R0  | 
+2707       2E27               27H>R6       ; Cout>R2-0 | RETURN ADDRESS
+2708       2F0A               0AH>R7
+2709       C800               JMP
+270A       7800               00H>AH       ; Read pointed byte (SP-Offset)
+270B       1800               R0>AL
+270C       2000               DATA>R0
+270D       781F               1FH>AH       ; Store in A Register
+270E       68FC               FCH>AL
+270F       5800               R0>DATA
+2710       3002               02H>UH       ; NEXT OP.
+2711       3800               00H>UL
+2712       C800               JMP          ; ***************************************************
                               ORG/1400H    ; OP.28 ADCA ****H  A + C + BYTE AT ADDRESS, C UPDATE
 2800       2200               DATA>R2      ; Read MSB Address (MSB->R2)
 2801       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
@@ -1637,520 +1708,150 @@
 3316       3002               02H>UH       ; NEXT OP.
 3317       3800               00H>UL
 3318       C800               JMP          ; ***************************************************
-                              ORG/1A00H    ; 1AXX Incrementer (Not working)
-3400       2801               01H>R0
-3401       C800               JMP
-3402       2802               02H>R0
-3403       C800               JMP
-3404       2803               03H>R0
-3405       C800               JMP
-3406       2804               04H>R0
-3407       C800               JMP
-3408       2805               05H>R0
-3409       C800               JMP
-340A       2806               06H>R0
-340B       C800               JMP
-340C       2807               07H>R0
-340D       C800               JMP
-340E       2808               08H>R0
-340F       C800               JMP
-3410       2809               09H>R0
-3411       C800               JMP
-3412       280A               0AH>R0
-3413       C800               JMP
-3414       280B               0BH>R0
-3415       C800               JMP
-3416       280C               0CH>R0
-3417       C800               JMP
-3418       280D               0DH>R0
-3419       C800               JMP
-341A       280E               0EH>R0
-341B       C800               JMP
-341C       280F               0FH>R0
-341D       C800               JMP
-341E       2810               10H>R0
-341F       C800               JMP
-3420       2811               11H>R0
-3421       C800               JMP
-3422       2812               12H>R0
-3423       C800               JMP
-3424       2813               13H>R0
-3425       C800               JMP
-3426       2814               14H>R0
-3427       C800               JMP
-3428       2815               15H>R0
-3429       C800               JMP
-342A       2816               16H>R0
-342B       C800               JMP
-342C       2817               17H>R0
-342D       C800               JMP
-342E       2818               18H>R0
-342F       C800               JMP
-3430       2819               19H>R0
-3431       C800               JMP
-3432       281A               1AH>R0
-3433       C800               JMP
-3434       281B               1BH>R0
-3435       C800               JMP
-3436       281C               1CH>R0
-3437       C800               JMP
-3438       281D               1DH>R0
-3439       C800               JMP
-343A       281E               1EH>R0
-343B       C800               JMP
-343C       281F               1FH>R0
-343D       C800               JMP
-343E       2820               20H>R0
-343F       C800               JMP
-3440       2821               21H>R0
-3441       C800               JMP
-3442       2822               22H>R0
-3443       C800               JMP
-3444       2823               23H>R0
-3445       C800               JMP
-3446       2824               24H>R0
-3447       C800               JMP
-3448       2825               25H>R0
-3449       C800               JMP
-344A       2826               26H>R0
-344B       C800               JMP
-344C       2827               27H>R0
-344D       C800               JMP
-344E       2828               28H>R0
-344F       C800               JMP
-3450       2829               29H>R0
-3451       C800               JMP
-3452       282A               2AH>R0
-3453       C800               JMP
-3454       282B               2BH>R0
-3455       C800               JMP
-3456       282C               2CH>R0
-3457       C800               JMP
-3458       282D               2DH>R0
-3459       C800               JMP
-345A       282E               2EH>R0
-345B       C800               JMP
-345C       282F               2FH>R0
-345D       C800               JMP
-345E       2830               30H>R0
-345F       C800               JMP
-3460       2831               31H>R0
-3461       C800               JMP
-3462       2832               32H>R0
-3463       C800               JMP
-3464       2833               33H>R0
-3465       C800               JMP
-3466       2834               34H>R0
-3467       C800               JMP
-3468       2835               35H>R0
-3469       C800               JMP
-346A       2836               36H>R0
-346B       C800               JMP
-346C       2837               37H>R0
-346D       C800               JMP
-346E       2838               38H>R0
-346F       C800               JMP
-3470       2839               39H>R0
-3471       C800               JMP
-3472       283A               3AH>R0
-3473       C800               JMP
-3474       283B               3BH>R0
-3475       C800               JMP
-3476       283C               3CH>R0
-3477       C800               JMP
-3478       283D               3DH>R0
-3479       C800               JMP
-347A       283E               3EH>R0
-347B       C800               JMP
-347C       283F               3FH>R0
-347D       C800               JMP
-347E       2840               40H>R0
-347F       C800               JMP
-3500       2841               41H>R0
-3501       C800               JMP
-3502       2842               42H>R0
-3503       C800               JMP
-3504       2843               43H>R0
-3505       C800               JMP
-3506       2844               44H>R0
-3507       C800               JMP
-3508       2845               45H>R0
-3509       C800               JMP
-350A       2846               46H>R0
-350B       C800               JMP
-350C       2847               47H>R0
-350D       C800               JMP
-350E       2848               48H>R0
-350F       C800               JMP
-3510       2849               49H>R0
-3511       C800               JMP
-3512       284A               4AH>R0
-3513       C800               JMP
-3514       284B               4BH>R0
-3515       C800               JMP
-3516       284C               4CH>R0
-3517       C800               JMP
-3518       284D               4DH>R0
-3519       C800               JMP
-351A       284E               4EH>R0
-351B       C800               JMP
-351C       284F               4FH>R0
-351D       C800               JMP
-351E       2850               50H>R0
-351F       C800               JMP
-3520       2851               51H>R0
-3521       C800               JMP
-3522       2852               52H>R0
-3523       C800               JMP
-3524       2853               53H>R0
-3525       C800               JMP
-3526       2854               54H>R0
-3527       C800               JMP
-3528       2855               55H>R0
-3529       C800               JMP
-352A       2856               56H>R0
-352B       C800               JMP
-352C       2857               57H>R0
-352D       C800               JMP
-352E       2858               58H>R0
-352F       C800               JMP
-3530       2859               59H>R0
-3531       C800               JMP
-3532       285A               5AH>R0
-3533       C800               JMP
-3534       285B               5BH>R0
-3535       C800               JMP
-3536       285C               5CH>R0
-3537       C800               JMP
-3538       285D               5DH>R0
-3539       C800               JMP
-353A       285E               5EH>R0
-353B       C800               JMP
-353C       285F               5FH>R0
-353D       C800               JMP
-353E       2860               60H>R0
-353F       C800               JMP
-3540       2861               61H>R0
-3541       C800               JMP
-3542       2862               62H>R0
-3543       C800               JMP
-3544       2863               63H>R0
-3545       C800               JMP
-3546       2864               64H>R0
-3547       C800               JMP
-3548       2865               65H>R0
-3549       C800               JMP
-354A       2866               66H>R0
-354B       C800               JMP
-354C       2867               67H>R0
-354D       C800               JMP
-354E       2868               68H>R0
-354F       C800               JMP
-3550       2869               69H>R0
-3551       C800               JMP
-3552       286A               6AH>R0
-3553       C800               JMP
-3554       286B               6BH>R0
-3555       C800               JMP
-3556       286C               6CH>R0
-3557       C800               JMP
-3558       286D               6DH>R0
-3559       C800               JMP
-355A       286E               6EH>R0
-355B       C800               JMP
-355C       286F               6FH>R0
-355D       C800               JMP
-355E       2870               70H>R0
-355F       C800               JMP
-3560       2871               71H>R0
-3561       C800               JMP
-3562       2872               72H>R0
-3563       C800               JMP
-3564       2873               73H>R0
-3565       C800               JMP
-3566       2874               74H>R0
-3567       C800               JMP
-3568       2875               75H>R0
-3569       C800               JMP
-356A       2876               76H>R0
-356B       C800               JMP
-356C       2877               77H>R0
-356D       C800               JMP
-356E       2878               78H>R0
-356F       C800               JMP
-3570       2879               79H>R0
-3571       C800               JMP
-3572       287A               7AH>R0
-3573       C800               JMP
-3574       287B               7BH>R0
-3575       C800               JMP
-3576       287C               7CH>R0
-3577       C800               JMP
-3578       287D               7DH>R0
-3579       C800               JMP
-357A       287E               7EH>R0
-357B       C800               JMP
-357C       287F               7FH>R0
-357D       C800               JMP
-357E       2880               80H>R0
-357F       C800               JMP
-3600       2881               81H>R0
-3601       C800               JMP
-3602       2882               82H>R0
-3603       C800               JMP
-3604       2883               83H>R0
-3605       C800               JMP
-3606       2884               84H>R0
-3607       C800               JMP
-3608       2885               85H>R0
-3609       C800               JMP
-360A       2886               86H>R0
-360B       C800               JMP
-360C       2887               87H>R0
-360D       C800               JMP
-360E       2888               88H>R0
-360F       C800               JMP
-3610       2889               89H>R0
-3611       C800               JMP
-3612       288A               8AH>R0
-3613       C800               JMP
-3614       288B               8BH>R0
-3615       C800               JMP
-3616       288C               8CH>R0
-3617       C800               JMP
-3618       288D               8DH>R0
-3619       C800               JMP
-361A       288E               8EH>R0
-361B       C800               JMP
-361C       288F               8FH>R0
-361D       C800               JMP
-361E       2890               90H>R0
-361F       C800               JMP
-3620       2891               91H>R0
-3621       C800               JMP
-3622       2892               92H>R0
-3623       C800               JMP
-3624       2893               93H>R0
-3625       C800               JMP
-3626       2894               94H>R0
-3627       C800               JMP
-3628       2895               95H>R0
-3629       C800               JMP
-362A       2896               96H>R0
-362B       C800               JMP
-362C       2897               97H>R0
-362D       C800               JMP
-362E       2898               98H>R0
-362F       C800               JMP
-3630       2899               99H>R0
-3631       C800               JMP
-3632       289A               9AH>R0
-3633       C800               JMP
-3634       289B               9BH>R0
-3635       C800               JMP
-3636       289C               9CH>R0
-3637       C800               JMP
-3638       289D               9DH>R0
-3639       C800               JMP
-363A       289E               9EH>R0
-363B       C800               JMP
-363C       289F               9FH>R0
-363D       C800               JMP
-363E       28A0               A0H>R0
-363F       C800               JMP
-3640       28A1               A1H>R0
-3641       C800               JMP
-3642       28A2               A2H>R0
-3643       C800               JMP
-3644       28A3               A3H>R0
-3645       C800               JMP
-3646       28A4               A4H>R0
-3647       C800               JMP
-3648       28A5               A5H>R0
-3649       C800               JMP
-364A       28A6               A6H>R0
-364B       C800               JMP
-364C       28A7               A7H>R0
-364D       C800               JMP
-364E       28A8               A8H>R0
-364F       C800               JMP
-3650       28A9               A9H>R0
-3651       C800               JMP
-3652       28AA               AAH>R0
-3653       C800               JMP
-3654       28AB               ABH>R0
-3655       C800               JMP
-3656       28AC               ACH>R0
-3657       C800               JMP
-3658       28AD               ADH>R0
-3659       C800               JMP
-365A       28AE               AEH>R0
-365B       C800               JMP
-365C       28AF               AFH>R0
-365D       C800               JMP
-365E       28B0               B0H>R0
-365F       C800               JMP
-3660       28B1               B1H>R0
-3661       C800               JMP
-3662       28B2               B2H>R0
-3663       C800               JMP
-3664       28B3               B3H>R0
-3665       C800               JMP
-3666       28B4               B4H>R0
-3667       C800               JMP
-3668       28B5               B5H>R0
-3669       C800               JMP
-366A       28B6               B6H>R0
-366B       C800               JMP
-366C       28B7               B7H>R0
-366D       C800               JMP
-366E       28B8               B8H>R0
-366F       C800               JMP
-3670       28B9               B9H>R0
-3671       C800               JMP
-3672       28BA               BAH>R0
-3673       C800               JMP
-3674       28BB               BBH>R0
-3675       C800               JMP
-3676       28BC               BCH>R0
-3677       C800               JMP
-3678       28BD               BDH>R0
-3679       C800               JMP
-367A       28BE               BEH>R0
-367B       C800               JMP
-367C       28BF               BFH>R0
-367D       C800               JMP
-367E       28C0               C0H>R0
-367F       C800               JMP
-3700       28C1               C1H>R0
-3701       C800               JMP
-3702       28C2               C2H>R0
-3703       C800               JMP
-3704       28C3               C3H>R0
-3705       C800               JMP
-3706       28C4               C4H>R0
-3707       C800               JMP
-3708       28C5               C5H>R0
-3709       C800               JMP
-370A       28C6               C6H>R0
-370B       C800               JMP
-370C       28C7               C7H>R0
-370D       C800               JMP
-370E       28C8               C8H>R0
-370F       C800               JMP
-3710       28C9               C9H>R0
-3711       C800               JMP
-3712       28CA               CAH>R0
-3713       C800               JMP
-3714       28CB               CBH>R0
-3715       C800               JMP
-3716       28CC               CCH>R0
-3717       C800               JMP
-3718       28CD               CDH>R0
-3719       C800               JMP
-371A       28CE               CEH>R0
-371B       C800               JMP
-371C       28CF               CFH>R0
-371D       C800               JMP
-371E       28D0               D0H>R0
-371F       C800               JMP
-3720       28D1               D1H>R0
-3721       C800               JMP
-3722       28D2               D2H>R0
-3723       C800               JMP
-3724       28D3               D3H>R0
-3725       C800               JMP
-3726       28D4               D4H>R0
-3727       C800               JMP
-3728       28D5               D5H>R0
-3729       C800               JMP
-372A       28D6               D6H>R0
-372B       C800               JMP
-372C       28D7               D7H>R0
-372D       C800               JMP
-372E       28D8               D8H>R0
-372F       C800               JMP
-3730       28D9               D9H>R0
-3731       C800               JMP
-3732       28DA               DAH>R0
-3733       C800               JMP
-3734       28DB               DBH>R0
-3735       C800               JMP
-3736       28DC               DCH>R0
-3737       C800               JMP
-3738       28DD               DDH>R0
-3739       C800               JMP
-373A       28DE               DEH>R0
-373B       C800               JMP
-373C       28DF               DFH>R0
-373D       C800               JMP
-373E       28E0               E0H>R0
-373F       C800               JMP
-3740       28E1               E1H>R0
-3741       C800               JMP
-3742       28E2               E2H>R0
-3743       C800               JMP
-3744       28E3               E3H>R0
-3745       C800               JMP
-3746       28E4               E4H>R0
-3747       C800               JMP
-3748       28E5               E5H>R0
-3749       C800               JMP
-374A       28E6               E6H>R0
-374B       C800               JMP
-374C       28E7               E7H>R0
-374D       C800               JMP
-374E       28E8               E8H>R0
-374F       C800               JMP
-3750       28E9               E9H>R0
-3751       C800               JMP
-3752       28EA               EAH>R0
-3753       C800               JMP
-3754       28EB               EBH>R0
-3755       C800               JMP
-3756       28EC               ECH>R0
-3757       C800               JMP
-3758       28ED               EDH>R0
-3759       C800               JMP
-375A       28EE               EEH>R0
-375B       C800               JMP
-375C       28EF               EFH>R0
-375D       C800               JMP
-375E       28F0               F0H>R0
-375F       C800               JMP
-3760       28F1               F1H>R0
-3761       C800               JMP
-3762       28F2               F2H>R0
-3763       C800               JMP
-3764       28F3               F3H>R0
-3765       C800               JMP
-3766       28F4               F4H>R0
-3767       C800               JMP
-3768       28F5               F5H>R0
-3769       C800               JMP
-376A       28F6               F6H>R0
-376B       C800               JMP
-376C       28F7               F7H>R0
-376D       C800               JMP
-376E       28F8               F8H>R0
-376F       C800               JMP
-3770       28F9               F9H>R0
-3771       C800               JMP
-3772       28FA               FAH>R0
-3773       C800               JMP
-3774       28FB               FBH>R0
-3775       C800               JMP
-3776       28FC               FCH>R0
-3777       C800               JMP
-3778       28FD               FDH>R0
-3779       C800               JMP
-377A       28FE               FEH>R0
-377B       C800               JMP
-377C       28FF               FFH>R0
-377D       C800               JMP
-377E       2800               00H>R0
-377F       2980               80H>R1
-3800       C800               JMP          ; ***************************************************
+                              ORG/1A00H    ; OP.34 LDX ****H    LDX from specifyed 16 bit address
+3400       2000               DATA>R0      ; Read MSB Operand
+3401       781F               1FH>AH       ; store in TEMP0
+3402       68EC               ECH>AL
+3403       5800               R0>DATA      
+3404       303B               3BH>UH       ;          | ADD. ROUTINE INCREMENT IP
+3405       3800               00H>UL       ;          |
+3406       2C34               34H>R4       ;  IP+1>IP | ADD. RETURN
+3407       2D09               09H>R5       ;  IP>ADD  |
+3408       C800               JMP          ;          | JMP TO ROUTINE
+3409       2000               DATA>R0      ; Read LSB Operand put in R0
+340A       781F               1FH>AH       ; store in TEMP1
+340B       68ED               EDH>AL
+340C       5800               R0>DATA      
+340D       68EC               ECH>AL
+340E       2100               DATA>R1      ; MSB in R1
+340F       1800               R0>AL
+3410       1100               R1>AH
+3411       2200               DATA>R2      ; Read new X MSB value to be loaded
+3412       781F               1FH>AH       ; Store into X MSB register
+3413       68F3               F3H>AL
+3414       5A00               R2>DATA
+3415       5000               R0-0>A       ; Point to next address Increment R0
+3416       4818               A>Q0         ; Compute Carry
+3417       4021               AND R0-1
+3418       7001               Q1>A
+3419       4022               AND R0-2
+341A       7002               Q2>A
+341B       4023               AND R0-3
+341C       7003               Q3>A
+341D       4024               AND R0-4
+341E       7004               Q4>A
+341F       4025               AND R0-5
+3420       7005               Q5>A
+3421       4026               AND R0-6
+3422       7006               Q6>A
+3423       4027               AND R0-7
+3424       6100               Q>R1         ; Save Cout in R1-7
+3425       7006               Q6>A
+3426       4017               XOR R0-7
+3427       7005               Q5>A
+3428       4016               XOR R0-6
+3429       7004               Q4>A
+342A       4015               XOR R0-5
+342B       7003               Q3>A
+342C       4014               XOR R0-4
+342D       7002               Q2>A
+342E       4013               XOR R0-3
+342F       7001               Q1>A
+3430       4012               XOR R0-2
+3431       7000               Q0>A
+3432       4011               XOR R0-1
+3433       5000               R0-0>A
+3434       4038               NOT A-0
+3435       6000               Q>R0         ; Save increment result in R0
+3436       781F               1FH>AH       ; store LSB increment result in TEMP1
+3437       68ED               EDH>AL
+3438       5800               R0>DATA
+3439       5107               R1-7>A       ; Check if carry on MSB
+343A       3034               34H>UH
+343B       384B               4BH>UL
+343C       C83B               JMP_A=1      ; if carry bit is 1 jump
+343D       781F               1FH>AH       ; No carry
+343E       68EC               ECH>AL       ; move TEMP0 containing MSB Add to R0
+343F       2000               DATA>R0
+3440       68ED               EDH>AL       ; move TEMP1 containing LSB Add to R1
+3441       2100               DATA>R1
+3442       1000               R0>AH        ; Put on address bus
+3443       1900               R1>AL
+3444       2000               DATA>R0      ; Get new X LSB value
+3445       781F               1FH>AH       ; Store in X LSB register
+3446       68F4               F4H>AL
+3447       5800               R0>DATA
+3448       3002               02H>UH       ; NEXT OP
+3449       3800               00H>UL
+344A       C800               JMP
+344B       781F               1FH>AH       ; <<JUMP>> Carry bit set 
+344C       68EC               ECH>AL       ; move TEMP0 containing MSB Add to R0
+344D       2000               DATA>R0
+344E       5000               R0-0>A       ; Increment address MSB
+344F       4818               A>Q0         ; Compute Carry
+3450       4021               AND R0-1
+3451       7001               Q1>A
+3452       4022               AND R0-2
+3453       7002               Q2>A
+3454       4023               AND R0-3
+3455       7003               Q3>A
+3456       4024               AND R0-4
+3457       7004               Q4>A
+3458       4025               AND R0-5
+3459       7005               Q5>A
+345A       4026               AND R0-6
+345B       7006               Q6>A
+345C       4027               AND R0-7
+345D       6100               Q>R1         ; Save Cout in R1-7
+345E       7006               Q6>A
+345F       4017               XOR R0-7
+3460       7005               Q5>A
+3461       4016               XOR R0-6
+3462       7004               Q4>A
+3463       4015               XOR R0-5
+3464       7003               Q3>A
+3465       4014               XOR R0-4
+3466       7002               Q2>A
+3467       4013               XOR R0-3
+3468       7001               Q1>A
+3469       4012               XOR R0-2
+346A       7000               Q0>A
+346B       4011               XOR R0-1
+346C       5000               R0-0>A
+346D       4038               NOT A-0
+346E       6000               Q>R0         ; Save MSB increment result in R0
+346F       781F               1FH>AH       
+3470       68ED               EDH>AL       ; move TEMP1 containing LSB Add to R1
+3471       2100               DATA>R1
+3472       1000               R0>AH        ; Put on address bus
+3473       1900               R1>AL
+3474       2000               DATA>R0      ; Get new X LSB value
+3475       781F               1FH>AH       ; Store in X LSB register
+3476       68F4               F4H>AL
+3477       5800               R0>DATA
+3478       3002               02H>UH       ; NEXT OP
+3479       3800               00H>UL
+347A       C800               JMP          ; ***************************************************
+                              ORG/1A80H    ; OP.35
+3500       3002               02H>UH       ; NEXT OP.
+3501       3800               00H>UL
+3502       C800               JMP          ; ***************************************************
+                              ORG/1B00H    ; OP.36
+3600       3002               02H>UH       ; NEXT OP.
+3601       3800               00H>UL
+3602       C800               JMP          ; ***************************************************
+                              ORG/1B80H    ; OP.37
+3700       3002               02H>UH       ; NEXT OP.
+3701       3800               00H>UL
+3702       C800               JMP          ; ***************************************************
+                              ORG/1C00H    ; OP.38
+3800       3002               02H>UH       ; NEXT OP.
+3801       3800               00H>UL
+3802       C800               JMP          ; ***************************************************
+                              ORG/1C80H    ; OP.39
+3900       3002               02H>UH       ; NEXT OP.
+3901       3800               00H>UL
+3902       C800               JMP          ; ***************************************************
                               ORG/1D00H    ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
 3A00       5000               R0-0>A       ; NOT R0 > R0
 3A01       4038               NOT A-0
@@ -2227,126 +1928,116 @@
 3B01       68FF               FFH>AL       ;        PUT IN R0 *************************************
 3B02       2000               DATA>R0      ; INCREMENT (COUT R1-7) R0+1>R0
 3B03       5000               R0-0>A
-3B04       4818               A>Q0         ; Compute the Carrys
-3B05       4021               AND R0-1
-3B06       7001               Q1>A
-3B07       4022               AND R0-2
-3B08       7002               Q2>A
-3B09       4023               AND R0-3
-3B0A       7003               Q3>A
-3B0B       4024               AND R0-4
-3B0C       7004               Q4>A
-3B0D       4025               AND R0-5
-3B0E       7005               Q5>A
-3B0F       4026               AND R0-6
-3B10       7006               Q6>A
-3B11       4027               AND R0-7
-3B12       6100               Q>R1         ; Savec Cout in R1-7
+3B04       303B               3BH>UH       ; Fast track if IPL<0> is 0
+3B05       385D               5DH>UL
+3B06       C81B               JMP_A=0
+3B07       4818               A>Q0         ; Compute the Carrys
+3B08       4021               AND R0-1
+3B09       7001               Q1>A
+3B0A       4022               AND R0-2
+3B0B       7002               Q2>A
+3B0C       4023               AND R0-3
+3B0D       7003               Q3>A
+3B0E       4024               AND R0-4
+3B0F       7004               Q4>A
+3B10       4025               AND R0-5
+3B11       7005               Q5>A
+3B12       4026               AND R0-6
 3B13       7006               Q6>A
-3B14       4017               XOR R0-7
-3B15       7005               Q5>A
-3B16       4016               XOR R0-6
-3B17       7004               Q4>A
-3B18       4015               XOR R0-5
-3B19       7003               Q3>A
-3B1A       4014               XOR R0-4
-3B1B       7002               Q2>A
-3B1C       4013               XOR R0-3
-3B1D       7001               Q1>A
-3B1E       4012               XOR R0-2
-3B1F       7000               Q0>A
-3B20       4011               XOR R0-1
-3B21       5000               R0-0>A
-3B22       4038               NOT A-0
-3B23       6000               Q>R0         ; Save result in R0
-3B24       781F               1FH>AH       ; Save increment result in IPL
-3B25       68FF               FFH>AL
-3B26       5800               R0>DATA
-3B27       68FE               FEH>AL       ; Read IPH
-3B28       2000               DATA>R0
-3B29       5107               R1-7>A       ; Add 1 to IPH if there is a Carry R0 + (R1-7) > R
-3B2A       303B               3BH>UH
-3B2B       3850               50H>UL       
-3B2C       C81B               JMP_A=0      ; If Cin=0 then save by jumping
-3B2D       5000               R0-0>A       ; If not we increment R0 containing IPH
-3B2E       4818               A>Q0         ; Compute Carrys between bits
-3B2F       4021               AND R0-1
-3B30       7001               Q1>A
-3B31       4022               AND R0-2
-3B32       7002               Q2>A
-3B33       4023               AND R0-3
-3B34       7003               Q3>A
-3B35       4024               AND R0-4
-3B36       7004               Q4>A
-3B37       4025               AND R0-5
-3B38       7005               Q5>A
-3B39       4026               AND R0-6
-3B3A       7006               Q6>A
-3B3B       4027               AND R0-7
-3B3C       7006               Q6>A
-3B3D       4017               XOR R0-7
-3B3E       7005               Q5>A
-3B3F       4016               XOR R0-6
-3B40       7004               Q4>A
-3B41       4015               XOR R0-5
-3B42       7003               Q3>A
-3B43       4014               XOR R0-4
-3B44       7002               Q2>A
-3B45       4013               XOR R0-3
-3B46       7001               Q1>A
-3B47       4012               XOR R0-2
-3B48       7000               Q0>A
-3B49       4011               XOR R0-1
-3B4A       5000               R0-0>A
-3B4B       4038               NOT A-0
-3B4C       6000               Q>R0         ; Increment result in R0
-3B4D       781F               1FH>AH       ; Save new IPH value
-3B4E       68FE               FEH>AL       
-3B4F       5800               R0>DATA
-3B50       781F               1FH>AH       ; Read IPH
-3B51       68FE               FEH>AL
-3B52       2000               DATA>R0
-3B53       68FF               FFH>AL       ; Read IPL
-3B54       2100               DATA>R1
-3B55       1000               R0>AH        ; Put IP in Address Bus
-3B56       1900               R1>AL
-                              ; Begin of alternate method using table. But it cant work; the table return address would double the EEPROM need.
-                              ; Method does not procure clock cycle economy.
-                              ;00H>R0                  ; Clear bit Q<0>
-                              ;R0-0>A
-                              ;A>Q0
-                              ;1FH>AH                  ; Read IPL and put in R1
-                              ;FFH>AL
-                              ;DATA>R1
-                              ;R1-0>A                  ; shift R1 one bit left and put in R2
-                              ;A>Q1
-                              ;R1-1>A
-                              ;A>Q2
-                              ;R1-2>A
-                              ;A>Q3
-                              ;R1-3>A
-                              ;A>Q4
-                              ;R1-4>A
-                              ;A>Q5
-                              ;R1-5>A
-                              ;A>Q6
-                              ;R1-6>A
-                              ;A>Q7
-                              ;Q>R2
-                              ;R1-7>A                 ; look at bit 7
-                              ;3BH>UH
-                              ;00H>UL
-                              ;JMP_A=1
-                              ;34H>UH                  ; it is 0
-                              ;00H>UL
-                              ;JMP
-                              ;36H>UH                  ; it is 1
-                              ;00H>UL
-                              ;JMP
-                              ; End of alternate method
-3B57       0400               R4>UH        ; Return to calling routine
-3B58       0D00               R5>UL
-3B59       C800               JMP          ; *************************************************
+3B14       4027               AND R0-7
+3B15       6100               Q>R1         ; Savec Cout in R1-7
+3B16       7006               Q6>A
+3B17       4017               XOR R0-7
+3B18       7005               Q5>A
+3B19       4016               XOR R0-6
+3B1A       7004               Q4>A
+3B1B       4015               XOR R0-5
+3B1C       7003               Q3>A
+3B1D       4014               XOR R0-4
+3B1E       7002               Q2>A
+3B1F       4013               XOR R0-3
+3B20       7001               Q1>A
+3B21       4012               XOR R0-2
+3B22       7000               Q0>A
+3B23       4011               XOR R0-1
+3B24       5000               R0-0>A
+3B25       4038               NOT A-0
+3B26       6000               Q>R0         ; Save result in R0
+3B27       781F               1FH>AH       ; Save increment result in IPL
+3B28       68FF               FFH>AL
+3B29       5800               R0>DATA
+3B2A       68FE               FEH>AL       ; Read IPH
+3B2B       2000               DATA>R0
+3B2C       5107               R1-7>A       ; Add 1 to IPH if there is a Carry R0 + (R1-7) > R
+3B2D       303B               3BH>UH
+3B2E       3850               50H>UL       
+3B2F       C81B               JMP_A=0      ; If Cin=0 then save by jumping
+3B30       5000               R0-0>A       ; If not we increment R0 containing IPH
+3B31       4818               A>Q0         ; Compute Carrys between bits
+3B32       4021               AND R0-1
+3B33       7001               Q1>A
+3B34       4022               AND R0-2
+3B35       7002               Q2>A
+3B36       4023               AND R0-3
+3B37       7003               Q3>A
+3B38       4024               AND R0-4
+3B39       7004               Q4>A
+3B3A       4025               AND R0-5
+3B3B       7005               Q5>A
+3B3C       4026               AND R0-6
+3B3D       7006               Q6>A
+3B3E       4027               AND R0-7
+3B3F       7006               Q6>A
+3B40       4017               XOR R0-7
+3B41       7005               Q5>A
+3B42       4016               XOR R0-6
+3B43       7004               Q4>A
+3B44       4015               XOR R0-5
+3B45       7003               Q3>A
+3B46       4014               XOR R0-4
+3B47       7002               Q2>A
+3B48       4013               XOR R0-3
+3B49       7001               Q1>A
+3B4A       4012               XOR R0-2
+3B4B       7000               Q0>A
+3B4C       4011               XOR R0-1
+3B4D       5000               R0-0>A
+3B4E       4038               NOT A-0
+3B4F       6000               Q>R0         ; Increment result in R0
+3B50       781F               1FH>AH       ; Save new IPH value
+3B51       68FE               FEH>AL       
+3B52       5800               R0>DATA
+3B53       781F               1FH>AH       ; Read IPH  << JUMP DESTINATION when no increment on IPH >>
+3B54       68FE               FEH>AL
+3B55       2000               DATA>R0
+3B56       68FF               FFH>AL       ; Read IPL
+3B57       2100               DATA>R1
+3B58       1000               R0>AH        ; Put IP in Address Bus
+3B59       1900               R1>AL
+3B5A       0400               R4>UH        ; Return to calling routine
+3B5B       0D00               R5>UL
+3B5C       C800               JMP
+3B5D       4038               NOT A-0      ; <JUMP Fast track> just set IP<0> to 1.
+3B5E       2900               00H>R1
+3B5F       5100               R1-0>A
+3B60       4009               OR R0-1
+3B61       400A               OR R0-2
+3B62       400B               OR R0-3
+3B63       400C               OR R0-4
+3B64       400D               OR R0-5
+3B65       400E               OR R0-6
+3B66       400F               OR R0-7
+3B67       6100               Q>R1         ; New IPL in R1
+3B68       781F               1FH>AH       ; Store IPL
+3B69       68FF               FFH>AL
+3B6A       5900               R1>DATA
+3B6B       68FE               FEH>AL       ; Read IPH and out in R0
+3B6C       2000               DATA>R0
+3B6D       1000               R0>AH        ; Put IP on Adress bus
+3B6E       1900               R1>AL
+3B6F       0400               R4>UH        ; Return to calling routine
+3B70       0D00               R5>UL
+3B71       C800               JMP          ; *************************************************
                               ORG/1E00H    ; 3C00H  INCREMENT IP
 3C00       781F               1FH>AH       ;        Return  R4:MSB R5:LSB
 3C01       68FF               FFH>AL       ; Read IPL
