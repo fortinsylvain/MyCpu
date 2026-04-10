@@ -43,6 +43,10 @@ namespace Assembler
         public OperandMode Sym { get; set; }
         public int Offset { get; set; }
         public Regex Regex { get; set; }
+        public string Operation { get; set; }   // Formal behavior
+        public string Flags { get; set; }       // Flags affected
+        public string Desc { get; set; }        // Human readable
+
     }
 
     class SymbolTableEntry
@@ -106,6 +110,44 @@ namespace Assembler
 
         static void Main(string[] args)
         {
+
+            bool bPrintISA = false;
+            string sFileName = "";
+
+            // ---- Argument parsing ----
+            foreach (var arg in args)
+            {
+                if (arg == "-i" || arg == "--isa")
+                {
+                    bPrintISA = true;
+                }
+                else
+                {
+                    sFileName = arg;
+                }
+            }
+            
+            var dataList = BuildInstructionTable();
+
+            
+            // If ISA requested → print and exit
+            if (bPrintISA)
+            {
+                PrintInstructionTable(dataList);
+                return;
+            }
+            
+
+            /*
+            if (string.IsNullOrEmpty(sFileName))
+            {
+                Console.WriteLine("Usage:");
+                Console.WriteLine("  assembler <file.asm>");
+                Console.WriteLine("  assembler -i        (print instruction set)");
+                return;
+            }
+            */
+
             bool bStopOnError = true;
             string sTemp;
             symbolTable = new Dictionary<string, SymbolTableEntry>();
@@ -113,7 +155,6 @@ namespace Assembler
             Console.WriteLine("Homebrew assembler start");
             string sCurrentPath = "";
             string sRepositoryPath = "";
-            string sFileName = "";
 
             // ---- Argument validation ----
             if (args.Length != 1)
@@ -161,7 +202,7 @@ namespace Assembler
             int iTotalAssembledFieldWidth = 12; // number of character allowed to print assembled bytes.
             int iAssembledMnemonicPosition = 4 + iTotalAssembledFieldWidth; // 4 correspond to number of characters for the address
 
-            var dataList = BuildInstructionTable();
+            //var dataList = BuildInstructionTable();
             CompileRegex(dataList);
 
             WriteInstructionTable(Path.Combine(sRepositoryPath, "instruction_table.txt"), dataList);
@@ -1007,79 +1048,79 @@ namespace Assembler
                 // Sym    : Symbolic decoding is enabled after the mnemonic 0: hex address, 1:symbolic address, 2:symbolic relative adressing (+-127)
                 // Offset : Character position where the hex value start.
                 // Presently only hexadecimal values are supported, 8 and 16 bits only.
-                new InstrTable { StringValue = "ORG/0x****",     OpCode = 0,    NbByte = 0, Sym = OperandMode.Hex,      Offset = 6 },  // 
-                new InstrTable { StringValue = "DB 0x**",        OpCode = 0,    NbByte = 0, Sym = OperandMode.Hex,      Offset = 5 },  // Define Byte in EEPROM Memory
-                new InstrTable { StringValue = "EQU 0x****",     OpCode = 0,    NbByte = 0, Sym = OperandMode.Hex,      Offset = 6 },  // Define Byte in EEPROM Memory
-                new InstrTable { StringValue = ".ASCII \"@\"",   OpCode = 0,    NbByte = 0, Sym = OperandMode.Ascii,    Offset = 7 },  // Define a string of ASCII characters in EEPROM Memory
-                new InstrTable { StringValue = "INCA",           OpCode = 0x03, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // INCA         INCREMENT REGISTER A, E update, C not updated
-                new InstrTable { StringValue = "LDX #0x****",    OpCode = 0x04, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // LDX #0x****  Load X Register with 16 bits immediate value
-                new InstrTable { StringValue = "LDX #@",         OpCode = 0x04, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // LDX #symbol
-                new InstrTable { StringValue = "INCX",           OpCode = 0x05, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // INCX         Increment Register X,  Carry Not Updated
-                new InstrTable { StringValue = "JSR 0x****",     OpCode = 0x06, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // JSR ****H    Jump to SubRoutine
-                new InstrTable { StringValue = "JSR @",          OpCode = 0x06, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JSR sym
-                new InstrTable { StringValue = "RTS",            OpCode = 0x07, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // RTS          ReTurn from Subroutine
-                new InstrTable { StringValue = "STOP",           OpCode = 0x08, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // STOP         STOP Executing
-                new InstrTable { StringValue = "NOP",            OpCode = 0x09, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // NOP          No Operation
-                new InstrTable { StringValue = "LDA (X)",        OpCode = 0x0A, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // LDA (X)      Load Reg A Indexed
-                new InstrTable { StringValue = "STA (X)",        OpCode = 0x0B, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // STA (X)      Store Reg A Indexed
-                new InstrTable { StringValue = "JRA 0x**",       OpCode = 0x0C, NbByte = 1, Sym = OperandMode.Hex,      Offset = 6 },  // JRA 0x**     Unconditional relative jump
-                new InstrTable { StringValue = "JRA @",          OpCode = 0x0C, NbByte = 1, Sym = OperandMode.Relative, Offset = 4 },  // JRA symbol   Unconditional relative jump
-                new InstrTable { StringValue = "SRLA",           OpCode = 0x0D, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // SRLA         Shift Right Logical on Reg A  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-                new InstrTable { StringValue = "SLLA",           OpCode = 0x0E, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // SLLA         Shift Left Logical on Reg A
-                new InstrTable { StringValue = "SLAA",           OpCode = 0x0E, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // SLAA         Shift Left Arithmetic on Reg A (SLAA same as SLLA)
-                new InstrTable { StringValue = "JRNC @",         OpCode = 0x0F, NbByte = 1, Sym = OperandMode.Relative, Offset = 5 },  // JRNC symbol  Jump Relatif Not Carry
-                new InstrTable { StringValue = "RRCA",           OpCode = 0x10, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // RRCA         Rotate Right Logical Reg A through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C 
-                new InstrTable { StringValue = "RCF",            OpCode = 0x11, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // RCF          Reset Carry Flag C <- 0
-                new InstrTable { StringValue = "SCF",            OpCode = 0x12, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // SCF          Set Carry Flag C <- 1
-                new InstrTable { StringValue = "DECXL",          OpCode = 0x13, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // DECXL        Decrement XL (E updated)
-                new InstrTable { StringValue = "RRC @",          OpCode = 0x14, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // RRC symbol   Rotate Right Logical Address location through Carry  C -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-                new InstrTable { StringValue = "SRL @",          OpCode = 0x15, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // SRL symbol   Shift Right Logical on address  0 -> b7 b6 b5 b4 b3 b2 b1 b0 -> C
-                new InstrTable { StringValue = "STX 0x****",     OpCode = 0x16, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // STX 0x****   Store X Register at Address
-                new InstrTable { StringValue = "STX @",          OpCode = 0x16, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // STX symbol
-                new InstrTable { StringValue = "ORA #0x**",      OpCode = 0x17, NbByte = 1, Sym = OperandMode.Hex,      Offset = 7 },  // ORA #0x**    LOGICAL OR BETWEEN REG A AND IMMEDIATE BYTE
-                new InstrTable { StringValue = "XORA #0x**",     OpCode = 0x18, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // XORA #0x**   EXCLUSIVE OR BETWEEN REG A AND IMMEDIATE BYTE
-                new InstrTable { StringValue = "NOTA",           OpCode = 0x19, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // NOTA         LOGIC NOT ON REG A
-                new InstrTable { StringValue = "CMPX #0x****",   OpCode = 0x1A, NbByte = 2, Sym = OperandMode.Hex,      Offset = 8 },  // CMPX #0x**** COMPARE X to immediate value, E update
-                new InstrTable { StringValue = "CMPX #@",        OpCode = 0x1A, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 6 },  // CMPX #symbol
-                new InstrTable { StringValue = "LDX s.0x**",     OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // LDX s.0x**   LDX from specifyed 8 bit address
-                new InstrTable { StringValue = "LDX s.@",        OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Symbol,   Offset = 6 },  // LDX s.@      LDX from specifyed symbolic 8 bit address
-                new InstrTable { StringValue = "LDA (0x****,X)", OpCode = 0x1C, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // LDA (0x****,X) LDA indexed indirect addressing
-                new InstrTable { StringValue = "LDA (@,X)",      OpCode = 0x1C, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // LDA (symbol,X)
-                new InstrTable { StringValue = "STA (0x****,X)", OpCode = 0x1D, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // STA (0x****,X) STA indexed indirect addressing
-                new InstrTable { StringValue = "STA (@,X)",      OpCode = 0x1D, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // STA (symbol,X)
-                new InstrTable { StringValue = "CLRX",           OpCode = 0x1E, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // CLRX Clear X register, set E flag
-                new InstrTable { StringValue = "CMPA 0x****",    OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // CMPA 0x****  Compare A with direct-addressed byte, Update Status E
-                new InstrTable { StringValue = "CMPA @",         OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // CMPA symbol
-                new InstrTable { StringValue = "DECA",           OpCode = 0x20, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // DECA         Decrement REGISTER A, E update, C not updated
-                new InstrTable { StringValue = "TEQA #0x**",     OpCode = 0x21, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // TEQA #0x**   Test if A = imm, A preserved, E updated, C preserved
-                new InstrTable { StringValue = "TEQA 0x****",    OpCode = 0x22, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // TEQA 0x****  Test if A = MEM, A preserved, E updated, C preserved
-                new InstrTable { StringValue = "TEQA @",         OpCode = 0x22, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // TEQA symbol
-                new InstrTable { StringValue = "JRUGE @",        OpCode = 0x23, NbByte = 1, Sym = OperandMode.Relative, Offset = 6 },  // JRUGT symbol Unsigned Greater or Equal (>=) Condition C = 1
-                new InstrTable { StringValue = "PSHA",           OpCode = 0x24, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // PSHA         Put value of A register on stack, A -> (SP), SP+1 -> SP
-                new InstrTable { StringValue = "POPA",           OpCode = 0x25, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // POPA         Read byte from stack and put in register A, SP-1 -> SP, (SP) -> A
-                new InstrTable { StringValue = "CLRA",           OpCode = 0x26, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0 },  // CLRA         Clear A register, set E flag
-                new InstrTable { StringValue = "LDA (SP-*)",     OpCode = 0x27, NbByte = 1, Sym = OperandMode.Negative, Offset = 8 },  // LDA (SP-*)   Load A register from stack with offset, (SP-Offset) -> A (Complement 2 precomputed)
-                new InstrTable { StringValue = "ADCA 0x****",    OpCode = 0x28, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADCA 0x****  Add Byte from Address into REG A + C, Carry update
-                new InstrTable { StringValue = "ADCA @",         OpCode = 0x28, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // ADCA symbol
-                new InstrTable { StringValue = "ADDA 0x****",    OpCode = 0x29, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7 },  // ADDA 0x****  Add Byte from Address into REG A Carry update
-                new InstrTable { StringValue = "ADDA @",         OpCode = 0x29, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5 },  // ADDA symbol
-                new InstrTable { StringValue = "LDA 0x****",     OpCode = 0x2A, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // LDA 0x****   Load Byte from Address into REG A
-                new InstrTable { StringValue = "LDA @",          OpCode = 0x2A, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // LDA symboL
-                new InstrTable { StringValue = "JNE 0x****",     OpCode = 0x2B, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // JNE 0x****   JUMP IF NOT EQUAL (E=0)
-                new InstrTable { StringValue = "JNE @",          OpCode = 0x2B, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JNE symbol
-                new InstrTable { StringValue = "JEQ 0x****",     OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // JEQ 0x****   JUMP IF EQUAL (E=1)
-                new InstrTable { StringValue = "JEQ @",          OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JEQ symbol
-                new InstrTable { StringValue = "CMPA #0x**",     OpCode = 0x2D, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // CMPA #0x**   Compare A with Imm (A-Imm), E and C updated 
-                new InstrTable { StringValue = "ADCA #0x**",     OpCode = 0x2E, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // ADCA #0x**   REG A = REG A + IMMEDIATE BYTE + CARRY (C), Carry C Updated
-                new InstrTable { StringValue = "ADDA #0x**",     OpCode = 0x2F, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // ADDA #0x**   ADD IMMEDIATE BYTE VALUE TO REGISTER A  C UPDATED
-                new InstrTable { StringValue = "LDA #0x**",      OpCode = 0x30, NbByte = 1, Sym = OperandMode.Hex,      Offset = 7 },  // LDA #0x**    LOAD IMMEDIATE VALUE IN REGISTER A
-                new InstrTable { StringValue = "STA 0x****",     OpCode = 0x31, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // STA 0x****   STORE REG.A TO ADDRESSE
-                new InstrTable { StringValue = "STA @",          OpCode = 0x31, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // STA symbol
-                new InstrTable { StringValue = "JMP 0x****",     OpCode = 0x32, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // JMP 0x****   JUMP INCONDITIONAL TO ADDRESS
-                new InstrTable { StringValue = "JMP @",          OpCode = 0x32, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // JMP symbol
-                new InstrTable { StringValue = "ANDA #0x**",     OpCode = 0x33, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8 },  // ANDA #0x**   REGISTER A AND LOGICAL WITH IMMEDIATE BYTE
-                new InstrTable { StringValue = "LDX 0x****",     OpCode = 0x34, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6 },  // LDX 0x****   LDX from specifyed 16 bit address
-                new InstrTable { StringValue = "LDX @",          OpCode = 0x34, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4 },  // LDX @        LDX from specifyed symbolic 16 bit address
+                new InstrTable { StringValue = "ORG/0x****",     OpCode = 0,    NbByte = 0, Sym = OperandMode.Hex,      Offset = 6, Operation = "PC = addr",                    Flags = "-",   Desc = "Set program origin (assembly address pointer)"       },
+                new InstrTable { StringValue = "DB 0x**",        OpCode = 0,    NbByte = 0, Sym = OperandMode.Hex,      Offset = 5, Operation = "MEM[PC] = byte, PC++",         Flags = "-",   Desc = "Define byte in memory at current location"           },
+                new InstrTable { StringValue = "EQU 0x****",     OpCode = 0,    NbByte = 0, Sym = OperandMode.Hex,      Offset = 6, Operation = "symbol = value",               Flags = "-",   Desc = "Define constant value (no memory allocation)"        },
+                new InstrTable { StringValue = ".ASCII \"@\"",   OpCode = 0,    NbByte = 0, Sym = OperandMode.Ascii,    Offset = 7, Operation = "MEM[PC..] = ASCII string",     Flags = "-",   Desc = "Store ASCII string in memory"                        },
+                new InstrTable { StringValue = "INCA",           OpCode = 0x03, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "A = A + 1",                    Flags = "E",   Desc = "Increment register A"                                },
+                new InstrTable { StringValue = "LDX #0x****",    OpCode = 0x04, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7, Operation = "X = imm16",                    Flags = "-",   Desc = "Load 16-bit immediate value into X register"         },
+                new InstrTable { StringValue = "LDX #@",         OpCode = 0x04, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5, Operation = "X = symbol",                   Flags = "-",   Desc = "Load symbolic 16-bit value into X register"          },
+                new InstrTable { StringValue = "INCX",           OpCode = 0x05, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "X = X + 1",                    Flags = "-",   Desc = "Increment register X"                                },
+                new InstrTable { StringValue = "JSR 0x****",     OpCode = 0x06, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6, Operation = "PC -> stack, PC = addr",       Flags = "-",   Desc = "Jump to subroutine"                                  },
+                new InstrTable { StringValue = "JSR @",          OpCode = 0x06, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "PC -> stack, PC = symbol",     Flags = "-",   Desc = "Jump to subroutine (symbol)"                         },
+                new InstrTable { StringValue = "RTS",            OpCode = 0x07, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "PC = stack",                   Flags = "-",   Desc = "Return from subroutine"                              },
+                new InstrTable { StringValue = "STOP",           OpCode = 0x08, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "halt",                         Flags = "-",   Desc = "Stop execution"                                      },
+                new InstrTable { StringValue = "NOP",            OpCode = 0x09, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "none",                         Flags = "-",   Desc = "No operation"                                        },
+                new InstrTable { StringValue = "LDA (X)",        OpCode = 0x0A, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "A = MEM[X]",                   Flags = "-",   Desc = "Load A from memory indexed by X"                     },
+                new InstrTable { StringValue = "STA (X)",        OpCode = 0x0B, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "MEM[X] = A",                   Flags = "-",   Desc = "Store A into memory indexed by X"                    },
+                new InstrTable { StringValue = "JRA 0x**",       OpCode = 0x0C, NbByte = 1, Sym = OperandMode.Hex,      Offset = 6, Operation = "PC = PC + offset",             Flags = "-",   Desc = "Unconditional relative jump"                         },
+                new InstrTable { StringValue = "JRA @",          OpCode = 0x0C, NbByte = 1, Sym = OperandMode.Relative, Offset = 4, Operation = "PC = PC + offset",             Flags = "-",   Desc = "Unconditional relative jump (symbol)"                },
+                new InstrTable { StringValue = "SRLA",           OpCode = 0x0D, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "0 -> A7, A >> 1, A0 -> C",     Flags = "C",   Desc = "Shift right logical A"                               },
+                new InstrTable { StringValue = "SLLA",           OpCode = 0x0E, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "C <- A7, A = A << 1, A0 <- 0", Flags = "C",   Desc = "Shift left logical A"                                },
+                new InstrTable { StringValue = "SLAA",           OpCode = 0x0E, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "C <- A7, A = A << 1, A0 <- 0", Flags = "C",   Desc = "Shift left arithmetic A (same as SLLA)"              },
+                new InstrTable { StringValue = "JRNC @",         OpCode = 0x0F, NbByte = 1, Sym = OperandMode.Relative, Offset = 5, Operation = "if (C == 0) PC = PC + offset", Flags = "-",   Desc = "Jump relative if carry is not set"                   },
+                new InstrTable { StringValue = "RRCA",           OpCode = 0x10, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "C -> A7, A >> 1, A0 -> C",     Flags = "C",   Desc = "Rotate right A through carry"                        },
+                new InstrTable { StringValue = "RCF",            OpCode = 0x11, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "C <- 0",                       Flags = "C",   Desc = "Reset carry flag"                                    },
+                new InstrTable { StringValue = "SCF",            OpCode = 0x12, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "C <- 1",                       Flags = "C",   Desc = "Set carry flag"                                      },
+                new InstrTable { StringValue = "DECXL",          OpCode = 0x13, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "XL = XL - 1",                  Flags = "E",   Desc = "Decrement low byte of X register"                    },
+                new InstrTable { StringValue = "RRC @",          OpCode = 0x14, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "C -> MEM[7:0] -> C",           Flags = "C",   Desc = "Rotate right memory byte through carry"              },
+                new InstrTable { StringValue = "SRL @",          OpCode = 0x15, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "0 -> MEM[7:0] -> C",           Flags = "C",   Desc = "Shift right logical memory byte"                     },
+                new InstrTable { StringValue = "STX 0x****",     OpCode = 0x16, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6, Operation = "MEM[addr] <- X",               Flags = "-",   Desc = "Store X register to absolute address"                },
+                new InstrTable { StringValue = "STX @",          OpCode = 0x16, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "MEM[symbol] <- X",             Flags = "-",   Desc = "Store X register to symbolic address"                },
+                new InstrTable { StringValue = "ORA #0x**",      OpCode = 0x17, NbByte = 1, Sym = OperandMode.Hex,      Offset = 7, Operation = "A = A OR imm",                 Flags = "-",   Desc = "Logical OR between A and immediate value"            },
+                new InstrTable { StringValue = "XORA #0x**",     OpCode = 0x18, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8, Operation = "A = A XOR imm",                Flags = "-",   Desc = "Exclusive OR between A and immediate value"          },
+                new InstrTable { StringValue = "NOTA",           OpCode = 0x19, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "A = ~A",                       Flags = "-",   Desc = "Bitwise NOT on accumulator A"                        },
+                new InstrTable { StringValue = "TEQX #0x****",   OpCode = 0x1A, NbByte = 2, Sym = OperandMode.Hex,      Offset = 8, Operation = "E <- (X == imm)",              Flags = "E",   Desc = "Compare X with immediate value"                      },
+                new InstrTable { StringValue = "TEQX #@",        OpCode = 0x1A, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 6, Operation = "E <- (X == symbol)",           Flags = "E",   Desc = "Compare X with symbolic value"                       },
+                new InstrTable { StringValue = "LDX s.0x**",     OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8, Operation = "X <- MEM[addr8]",              Flags = "-",   Desc = "Load X from 8-bit absolute address"                  },
+                new InstrTable { StringValue = "LDX s.@",        OpCode = 0x1B, NbByte = 1, Sym = OperandMode.Symbol,   Offset = 6, Operation = "X <- MEM[symbol8]",            Flags = "-",   Desc = "Load X from symbolic 8-bit address"                  },
+                new InstrTable { StringValue = "LDA (0x****,X)", OpCode = 0x1C, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7, Operation = "A <- MEM[addr + X]",           Flags = "-",   Desc = "Load A using indexed addressing (base + X)"          },
+                new InstrTable { StringValue = "LDA (@,X)",      OpCode = 0x1C, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5, Operation = "A <- MEM[symbol + X]",         Flags = "-",   Desc = "Load A using indexed symbolic addressing (base + X)" },
+                new InstrTable { StringValue = "STA (0x****,X)", OpCode = 0x1D, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7, Operation = "MEM[addr + X] <- A",           Flags = "-",   Desc = "Store A using indexed addressing (base + X)"         },
+                new InstrTable { StringValue = "STA (@,X)",      OpCode = 0x1D, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5, Operation = "MEM[symbol + X] <- A",         Flags = "-",   Desc = "Store A using indexed symbolic addressing (base + X)"},
+                new InstrTable { StringValue = "CLRX",           OpCode = 0x1E, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "X <- 0",                       Flags = "E",   Desc = "Clear X register (sets equality flag)"               },
+                new InstrTable { StringValue = "CMPA 0x****",    OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7, Operation = "E <- (A == MEM[addr])",        Flags = "E",   Desc = "Compare A - memory (absolute address)"               },
+                new InstrTable { StringValue = "CMPA @",         OpCode = 0x1F, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5, Operation = "E <- (A == MEM[symbol])",      Flags = "E",   Desc = "Compare A - memory (symbolic address)"               },
+                new InstrTable { StringValue = "DECA",           OpCode = 0x20, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "A = A - 1",                    Flags = "E",   Desc = "Decrement A register (carry unchanged)"              },
+                new InstrTable { StringValue = "TEQA #0x**",     OpCode = 0x21, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8, Operation = "E <- (A == imm)",              Flags = "E",   Desc = "Test A against immediate value (A & C unchanged)"    },
+                new InstrTable { StringValue = "TEQA 0x****",    OpCode = 0x22, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7, Operation = "E <- (A == MEM[addr])",        Flags = "E",   Desc = "Test A against memory (absolute) (A & C unchanged)"  },
+                new InstrTable { StringValue = "TEQA @",         OpCode = 0x22, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5, Operation = "E <- (A == MEM[symbol])",      Flags = "E",   Desc = "Test A against memory (symbolic) (A & C unchanged)"  },
+                new InstrTable { StringValue = "JRUGE @",        OpCode = 0x23, NbByte = 1, Sym = OperandMode.Relative, Offset = 6, Operation = "if (C == 1) PC <- PC + rel",   Flags = "-",   Desc = "Jump relative if unsigned greater or equal (C=1)"    },
+                new InstrTable { StringValue = "PSHA",           OpCode = 0x24, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "(SP) <- A, SP <- SP + 1",      Flags = "-",   Desc = "Push A register onto stack"                          },
+                new InstrTable { StringValue = "POPA",           OpCode = 0x25, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "SP <- SP - 1, A <- (SP)",      Flags = "-",   Desc = "Pop value from stack into A"                         },
+                new InstrTable { StringValue = "CLRA",           OpCode = 0x26, NbByte = 0, Sym = OperandMode.Hex,      Offset = 0, Operation = "A <- 0, E <- 1",               Flags = "E",   Desc = "Clear A register (sets E flag)"                      },
+                new InstrTable { StringValue = "LDA (SP-*)",     OpCode = 0x27, NbByte = 1, Sym = OperandMode.Negative, Offset = 8, Operation = "A <- MEM[SP - offset]",        Flags = "-",   Desc = "Load A from stack with negative offset (precomputed 2's complement)"  },
+                new InstrTable { StringValue = "ADCA 0x****",    OpCode = 0x28, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7, Operation = "A <- A + MEM[addr] + C",       Flags = "C",   Desc = "Add memory to A with carry (absolute)"               },
+                new InstrTable { StringValue = "ADCA @",         OpCode = 0x28, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5, Operation = "A <- A + MEM[symbol] + C",     Flags = "C",   Desc = "Add memory to A with carry (symbolic)"               },
+                new InstrTable { StringValue = "ADDA 0x****",    OpCode = 0x29, NbByte = 2, Sym = OperandMode.Hex,      Offset = 7, Operation = "A <- A + MEM[addr]",           Flags = "C",   Desc = "Add memory to A (absolute)"                          },
+                new InstrTable { StringValue = "ADDA @",         OpCode = 0x29, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 5, Operation = "A <- A + MEM[symbol]",         Flags = "C",   Desc = "Add memory to A (symbolic)"                          },
+                new InstrTable { StringValue = "LDA 0x****",     OpCode = 0x2A, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6, Operation = "A <- MEM[addr]",               Flags = "-",   Desc = "Load A from memory (absolute)"                       },
+                new InstrTable { StringValue = "LDA @",          OpCode = 0x2A, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "A <- MEM[symbol]",             Flags = "-",   Desc = "Load A from memory (symbolic)"                       },
+                new InstrTable { StringValue = "JNE 0x****",     OpCode = 0x2B, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6, Operation = "if (E == 0) PC <- addr",       Flags = "-",   Desc = "Jump if not equal (absolute)"                        },
+                new InstrTable { StringValue = "JNE @",          OpCode = 0x2B, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "if (E == 0) PC <- symbol",     Flags = "-",   Desc = "Jump if not equal (symbolic)"                        },
+                new InstrTable { StringValue = "JEQ 0x****",     OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6, Operation = "if (E == 1) PC <- addr",       Flags = "-",   Desc = "Jump if equal (absolute)"                            },
+                new InstrTable { StringValue = "JEQ @",          OpCode = 0x2C, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "if (E == 1) PC <- symbol",     Flags = "-",   Desc = "Jump if equal (symbolic)"                            },
+                new InstrTable { StringValue = "CMPA #0x**",     OpCode = 0x2D, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8, Operation = "E,C <- (A - imm)",             Flags = "E,C", Desc = "Compare A with immediate (A - imm)"                  },
+                new InstrTable { StringValue = "ADCA #0x**",     OpCode = 0x2E, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8, Operation = "A <- A + imm + C",             Flags = "C",   Desc = "Add immediate to A with carry"                       },
+                new InstrTable { StringValue = "ADDA #0x**",     OpCode = 0x2F, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8, Operation = "A <- A + imm",                 Flags = "C",   Desc = "Add immediate to A"                                  },
+                new InstrTable { StringValue = "LDA #0x**",      OpCode = 0x30, NbByte = 1, Sym = OperandMode.Hex,      Offset = 7, Operation = "A <- imm",                     Flags = "-",   Desc = "Load immediate into A"                               },
+                new InstrTable { StringValue = "STA 0x****",     OpCode = 0x31, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6, Operation = "MEM[addr] <- A",               Flags = "-",   Desc = "Store A into memory (absolute)"                      },
+                new InstrTable { StringValue = "STA @",          OpCode = 0x31, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "MEM[symbol] <- A",             Flags = "-",   Desc = "Store A into memory (symbolic)"                      },
+                new InstrTable { StringValue = "JMP 0x****",     OpCode = 0x32, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6, Operation = "PC <- addr",                   Flags = "-",   Desc = "Unconditional jump (absolute)"                       },
+                new InstrTable { StringValue = "JMP @",          OpCode = 0x32, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "PC <- symbol",                 Flags = "-",   Desc = "Unconditional jump (symbolic)"                       },
+                new InstrTable { StringValue = "ANDA #0x**",     OpCode = 0x33, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8, Operation = "A <- A & imm",                 Flags = "-",   Desc = "Logical AND immediate with A"                        },
+                new InstrTable { StringValue = "LDX 0x****",     OpCode = 0x34, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6, Operation = "X <- MEM[addr]",               Flags = "-",   Desc = "Load X from memory (absolute)"                       },
+                new InstrTable { StringValue = "LDX @",          OpCode = 0x34, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "X <- MEM[symbol]",             Flags = "-",   Desc = "Load X from memory (symbolic)"                       },
             };
 
             /*
@@ -1179,6 +1220,47 @@ namespace Assembler
             used[index] = true;
             owner[index] = who;
             return true;
+        }
+
+        static void PrintInstructionTable(List<InstrTable> table)
+        {
+            Console.WriteLine("MyCPU Instruction Set");
+            Console.WriteLine(new string('-', 100));
+
+            Console.WriteLine(
+               $"{Pad("Mnemonic", 22)}" +
+               $"{Pad("Op", 6)}" +
+               $"{Pad("Bytes", 6)}" +
+               $"{Pad("Mode", 10)}" +
+               $"{Pad("Flags", 8)}" +
+               $"Description");
+
+            Console.WriteLine(new string('-', 100));
+
+            foreach (var instr in table
+                .OrderBy(i => GetMnemonic(i.StringValue))
+                .ThenBy(i => i.StringValue))
+            {
+                Console.WriteLine(
+                   $"{Pad(instr.StringValue, 22)}" +
+                   $"{Pad("0x" + instr.OpCode.ToString("X2"), 6)}" +
+                   $"{Pad(instr.NbByte.ToString(), 6)}" +
+                   $"{Pad(instr.Sym.ToString(), 10)}" +
+                   $"{Pad(instr.Flags ?? "-", 8)}" +
+                   $"{instr.Desc}");
+            }
+        }
+
+        static string GetMnemonic(string s)
+        {
+            if (string.IsNullOrEmpty(s)) return "";
+            int idx = s.IndexOf(' ');
+            return (idx == -1) ? s : s.Substring(0, idx);
+        }
+
+        static string Pad(string s, int width)
+        {
+            return (s ?? "").PadRight(width);
         }
 
     }

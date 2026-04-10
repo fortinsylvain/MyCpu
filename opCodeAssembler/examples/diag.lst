@@ -1418,53 +1418,53 @@
 896D 2D AA               CMPA #0xAA
 896F 2B FF B0            JNE FAIL
                          ; --------------------------------------------------------------------
-                         ; OP.1A CMPX #0x****   COMPARE X to immediate value
+                         ; OP.1A TEQX #0x****   COMPARE X to immediate value
                          ; --------------------------------------------------------------------
 8972 30 1A      TSTOP1A  LDA #0x1A
 8974 19                  NOTA
 8975 31 78 00            STA LEDPORT ; Output to LED port
 8978 04 00 00            LDX #0x0000 ; Load 0x0000 in X  (Testing with immediate hex value)
-897B 1A 00 00            CMPX #0x0000
+897B 1A 00 00            TEQX #0x0000
 897E 2B FF B0            JNE FAIL
-8981 1A 00 01            CMPX #0x0001
+8981 1A 00 01            TEQX #0x0001
 8984 2C FF B0            JEQ FAIL    ; good up tho here
-8987 1A FF FF            CMPX #0xFFFF
+8987 1A FF FF            TEQX #0xFFFF
 898A 2C FF B0            JEQ FAIL
 898D 04 FF 00            LDX #0xFF00 ; Load 0xFF00 in X
-8990 1A FF 00            CMPX #0xFF00
+8990 1A FF 00            TEQX #0xFF00
 8993 2B FF B0            JNE FAIL
-8996 1A 00 FF            CMPX #0x00FF
+8996 1A 00 FF            TEQX #0x00FF
 8999 2C FF B0            JEQ FAIL
-899C 1A FF FF            CMPX #0xFFFF
+899C 1A FF FF            TEQX #0xFFFF
 899F 2C FF B0            JEQ FAIL
 89A2 04 00 FF            LDX #0x00FF ; Load 0x00FF in X
-89A5 1A 00 FF            CMPX #0x00FF
+89A5 1A 00 FF            TEQX #0x00FF
 89A8 2B FF B0            JNE FAIL
-89AB 1A FF 00            CMPX #0xFF00
+89AB 1A FF 00            TEQX #0xFF00
 89AE 2C FF B0            JEQ FAIL
-89B1 1A FF FF            CMPX #0xFFFF
+89B1 1A FF FF            TEQX #0xFFFF
 89B4 2C FF B0            JEQ FAIL
 89B7 04 FF FF            LDX #0xFFFF ; Load 0xFFFF in X
-89BA 1A FF FF            CMPX #0xFFFF
+89BA 1A FF FF            TEQX #0xFFFF
 89BD 2B FF B0            JNE FAIL
-89C0 1A FF 00            CMPX #0xFF00
+89C0 1A FF 00            TEQX #0xFF00
 89C3 2C FF B0            JEQ FAIL
-89C6 1A 00 FF            CMPX #0x00FF
+89C6 1A 00 FF            TEQX #0x00FF
 89C9 2C FF B0            JEQ FAIL
 89CC 04 AB CD            LDX #0xABCD
-89CF 1A A5 CD            CMPX #0xA5CD
+89CF 1A A5 CD            TEQX #0xA5CD
 89D2 2C FF B0            JEQ FAIL
 89D5 04 12 34            LDX #0x1234
-89D8 1A 12 AA            CMPX #0x12AA
+89D8 1A 12 AA            TEQX #0x12AA
 89DB 2C FF B0            JEQ FAIL
 89DE 04 AE C3            LDX #0xAEC3
-89E1 1A AE C3            CMPX #0xAEC3
+89E1 1A AE C3            TEQX #0xAEC3
 89E4 2B FF B0            JNE FAIL
-89E7 1A AE DB            CMPX #0xAEDB
+89E7 1A AE DB            TEQX #0xAEDB
 89EA 2C FF B0            JEQ FAIL
-89ED 1A 12 C3            CMPX #0x12C3
+89ED 1A 12 C3            TEQX #0x12C3
 89F0 2C FF B0            JEQ FAIL
-89F3 1A FF FF            CMPX #0xFFFF
+89F3 1A FF FF            TEQX #0xFFFF
 89F6 2C FF B0            JEQ FAIL
                          ; --------------------------------------------------------------------
                          ; OP.1B LDX s.0x**  
@@ -3639,7 +3639,7 @@
 9C6E 2A 00 0F            LDA ?b0
 9C71 21 78               TEQA #0x78
 9C73 2B FF B0            JNE FAIL 
-9C76 1A 15 03            CMPX #0x1503      ; also verify current X value
+9C76 1A 15 03            TEQX #0x1503      ; also verify current X value
 9C79 2B FF B0            JNE FAIL
                          ; Test load32_l1
 9C7C 04 AB CD            LDX #0xABCD
@@ -3660,7 +3660,7 @@
 9CA6 2A 00 0B            LDA ?b4
 9CA9 21 AD               TEQA #0xAD
 9CAB 2B FF B0            JNE FAIL 
-9CAE 1A 16 03            CMPX #0x1603      ; also verify current X value
+9CAE 1A 16 03            TEQX #0x1603      ; also verify current X value
 9CB1 2B FF B0            JNE FAIL
                          ; Test load32_l2
 9CB4 04 1A 2B            LDX #0x1A2B
@@ -3681,7 +3681,7 @@
 9CDE 2A 00 07            LDA ?b8
 9CE1 21 4D               TEQA #0x4D
 9CE3 2B FF B0            JNE FAIL 
-9CE6 1A 17 03            CMPX #0x1703      ; also verify current X value
+9CE6 1A 17 03            TEQX #0x1703      ; also verify current X value
 9CE9 2B FF B0            JNE FAIL
                          ; Test load32_l3
 9CEC 04 2F 3E            LDX #0x2F3E
@@ -3702,7 +3702,7 @@
 9D16 2A 00 03            LDA ?b12
 9D19 21 5C               TEQA #0x5C
 9D1B 2B FF B0            JNE FAIL 
-9D1E 1A 18 03            CMPX #0x1803      ; also verify current X value
+9D1E 1A 18 03            TEQX #0x1803      ; also verify current X value
 9D21 2B FF B0            JNE FAIL         
 
                          ; ---------------------
@@ -3737,7 +3737,7 @@
 9D54 16 00 0C                  STX ?b3           ; Store this adddress in ?b3:?b2
                                ; copy a byte from source to destination
 9D57 1B 0E      LOOPTST47      LDX s.?b1         ; Load X with source address in ?b1:?b0
-9D59 1A 9D 4B                  CMPX #BLKCODEEND  ; Check if last byte copied
+9D59 1A 9D 4B                  TEQX #BLKCODEEND  ; Check if last byte copied
 9D5C 2C 9D 6D                  JEQ ENDCOPYTST47  ; if yes then quit copy loop
 9D5F 0A                        LDA (X)           ; Load byte pointed by X
 9D60 05                        INCX
@@ -4586,7 +4586,7 @@ A268 07                           RTS
                 ; Input:
                 ;    X = number to print
                 ;------------------------------------------------------------
-                ;LCD_PrintDec16 CLRA                    ; -------- 10000 digit --------
+A269 26         LCD_PrintDec16 CLRA                    ; -------- 10000 digit --------
                 ;PD16_L1        CPX #0x2710             ; Compare with 10000
                 ;               JRULT PD16_J1
                 ;               SUBX #0x2710
@@ -4903,6 +4903,7 @@ LCD_PDB_J2          A249
 LCD_PDB_L3          A252
 LCD_PDB_J3          A258
 LCD_PDB_J4          A25D
+LCD_PrintDec16      A269
 FAIL                FFB0
 TJSR1               FFC0
 TJSR2               FFC3

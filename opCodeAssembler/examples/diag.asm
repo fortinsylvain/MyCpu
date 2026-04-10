@@ -1418,53 +1418,53 @@ TSTOP19  LDA #0x19
          CMPA #0xAA
          JNE FAIL
          ; --------------------------------------------------------------------
-         ; OP.1A CMPX #0x****   COMPARE X to immediate value
+         ; OP.1A TEQX #0x****   COMPARE X to immediate value
          ; --------------------------------------------------------------------
 TSTOP1A  LDA #0x1A
          NOTA
          STA LEDPORT ; Output to LED port
          LDX #0x0000 ; Load 0x0000 in X  (Testing with immediate hex value)
-         CMPX #0x0000
+         TEQX #0x0000
          JNE FAIL
-         CMPX #0x0001
+         TEQX #0x0001
          JEQ FAIL    ; good up tho here
-         CMPX #0xFFFF
+         TEQX #0xFFFF
          JEQ FAIL
          LDX #0xFF00 ; Load 0xFF00 in X
-         CMPX #0xFF00
+         TEQX #0xFF00
          JNE FAIL
-         CMPX #0x00FF
+         TEQX #0x00FF
          JEQ FAIL
-         CMPX #0xFFFF
+         TEQX #0xFFFF
          JEQ FAIL
          LDX #0x00FF ; Load 0x00FF in X
-         CMPX #0x00FF
+         TEQX #0x00FF
          JNE FAIL
-         CMPX #0xFF00
+         TEQX #0xFF00
          JEQ FAIL
-         CMPX #0xFFFF
+         TEQX #0xFFFF
          JEQ FAIL
          LDX #0xFFFF ; Load 0xFFFF in X
-         CMPX #0xFFFF
+         TEQX #0xFFFF
          JNE FAIL
-         CMPX #0xFF00
+         TEQX #0xFF00
          JEQ FAIL
-         CMPX #0x00FF
+         TEQX #0x00FF
          JEQ FAIL
          LDX #0xABCD
-         CMPX #0xA5CD
+         TEQX #0xA5CD
          JEQ FAIL
          LDX #0x1234
-         CMPX #0x12AA
+         TEQX #0x12AA
          JEQ FAIL
          LDX #0xAEC3
-         CMPX #0xAEC3
+         TEQX #0xAEC3
          JNE FAIL
-         CMPX #0xAEDB
+         TEQX #0xAEDB
          JEQ FAIL
-         CMPX #0x12C3
+         TEQX #0x12C3
          JEQ FAIL
-         CMPX #0xFFFF
+         TEQX #0xFFFF
          JEQ FAIL
          ; --------------------------------------------------------------------
          ; OP.1B LDX s.0x**  
@@ -3639,7 +3639,7 @@ LOOPTST2 NOP            ; End of decrement loop
          LDA ?b0
          TEQA #0x78
          JNE FAIL 
-         CMPX #0x1503      ; also verify current X value
+         TEQX #0x1503      ; also verify current X value
          JNE FAIL
          ; Test load32_l1
          LDX #0xABCD
@@ -3660,7 +3660,7 @@ LOOPTST2 NOP            ; End of decrement loop
          LDA ?b4
          TEQA #0xAD
          JNE FAIL 
-         CMPX #0x1603      ; also verify current X value
+         TEQX #0x1603      ; also verify current X value
          JNE FAIL
          ; Test load32_l2
          LDX #0x1A2B
@@ -3681,7 +3681,7 @@ LOOPTST2 NOP            ; End of decrement loop
          LDA ?b8
          TEQA #0x4D
          JNE FAIL 
-         CMPX #0x1703      ; also verify current X value
+         TEQX #0x1703      ; also verify current X value
          JNE FAIL
          ; Test load32_l3
          LDX #0x2F3E
@@ -3702,7 +3702,7 @@ LOOPTST2 NOP            ; End of decrement loop
          LDA ?b12
          TEQA #0x5C
          JNE FAIL 
-         CMPX #0x1803      ; also verify current X value
+         TEQX #0x1803      ; also verify current X value
          JNE FAIL         
 
          ; ---------------------
@@ -3737,7 +3737,7 @@ RAMDESTSTART   EQU 0x1000
                STX ?b3           ; Store this adddress in ?b3:?b2
                ; copy a byte from source to destination
 LOOPTST47      LDX s.?b1         ; Load X with source address in ?b1:?b0
-               CMPX #BLKCODEEND  ; Check if last byte copied
+               TEQX #BLKCODEEND  ; Check if last byte copied
                JEQ ENDCOPYTST47  ; if yes then quit copy loop
                LDA (X)           ; Load byte pointed by X
                INCX
@@ -4583,7 +4583,7 @@ LCD_PDB_J4        PSHA                    ; Save remaining value (0..9) on stack
 ; Input:
 ;    X = number to print
 ;------------------------------------------------------------
-;LCD_PrintDec16 CLRA                    ; -------- 10000 digit --------
+LCD_PrintDec16 CLRA                    ; -------- 10000 digit --------
 ;PD16_L1        CPX #0x2710             ; Compare with 10000
 ;               JRULT PD16_J1
 ;               SUBX #0x2710

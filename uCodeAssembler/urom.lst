@@ -831,7 +831,7 @@
 1915       3001               01H>UH       ; Get Pointed OP Code by IP and Execute
 1916       3800               00H>UL
 1917       C800               JMP          ; ***************************************************
-                              ORG/0D00H    ; OP.1A CMPX 0x****   COMPARE X to immediate value
+                              ORG/0D00H    ; OP.1A TEQX 0x****   COMPARE X to immediate value
 1A00       2000               DATA>R0      ; Read MSB Data       UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
 1A01       781F               1FH>AH       ; Read XH             ELSE E = 0.
 1A02       68F3               F3H>AL
@@ -1848,10 +1848,122 @@
 3800       3002               02H>UH       ; NEXT OP.
 3801       3800               00H>UL
 3802       C800               JMP          ; ***************************************************
-                              ORG/1C80H    ; OP.39
-3900       3002               02H>UH       ; NEXT OP.
-3901       3800               00H>UL
-3902       C800               JMP          ; ***************************************************
+                              ORG/1C80H    ; 3B80H  SUBTRACT R0-R1>R0  Cin:R2-0  Cout:R2-0
+3900       5000               R0-0>A       ;                 Return R6:MSB R7:LSB
+3901       4108               OR R1-0      ;                 Using R3, R4, R5
+3902       5001               R0-1>A
+3903       4109               OR R1-1
+3904       5002               R0-2>A
+3905       410A               OR R1-2
+3906       5003               R0-3>A
+3907       410B               OR R1-3
+3908       5004               R0-4>A
+3909       410C               OR R1-4
+390A       5005               R0-5>A
+390B       410D               OR R1-5
+390C       5006               R0-6>A
+390D       410E               OR R1-6
+390E       5007               R0-7>A
+390F       410F               OR R1-7
+3910       6300               Q>R3
+3911       5000               R0-0>A       ; R0 AND R1 > R4
+3912       4120               AND R1-0
+3913       5001               R0-1>A
+3914       4121               AND R1-1
+3915       5002               R0-2>A
+3916       4122               AND R1-2
+3917       5003               R0-3>A
+3918       4123               AND R1-3
+3919       5004               R0-4>A
+391A       4124               AND R1-4
+391B       5005               R0-5>A
+391C       4125               AND R1-5
+391D       5006               R0-6>A
+391E       4126               AND R1-6
+391F       5007               R0-7>A
+3920       4127               AND R1-7
+3921       6400               Q>R4
+3922       5200               R2-0>A       ; Process Carry  Cin:R2-0
+3923       4320               AND R3-0
+3924       7000               Q0>A
+3925       4408               OR R4-0
+3926       7000               Q0>A
+3927       4321               AND R3-1
+3928       7001               Q1>A
+3929       4409               OR R4-1
+392A       7001               Q1>A
+392B       4322               AND R3-2
+392C       7002               Q2>A
+392D       440A               OR R4-2
+392E       7002               Q2>A
+392F       4323               AND R3-3
+3930       7003               Q3>A
+3931       440B               OR R4-3
+3932       7003               Q3>A
+3933       4324               AND R3-4
+3934       7004               Q4>A
+3935       440C               OR R4-4
+3936       7004               Q4>A
+3937       4325               AND R3-5
+3938       7005               Q5>A
+3939       440D               OR R4-5
+393A       7005               Q5>A
+393B       4326               AND R3-6
+393C       7006               Q6>A
+393D       440E               OR R4-6
+393E       7006               Q6>A
+393F       4327               AND R3-7
+3940       7007               Q7>A
+3941       440F               OR R4-7
+3942       6500               Q>R5
+3943       5200               R2-0>A       ; R0 XOR R1 XOR COUTn
+3944       4010               XOR R0-0
+3945       7000               Q0>A
+3946       4110               XOR R1-0
+3947       5500               R5-0>A
+3948       4011               XOR R0-1
+3949       7001               Q1>A
+394A       4111               XOR R1-1
+394B       5501               R5-1>A
+394C       4012               XOR R0-2
+394D       7002               Q2>A
+394E       4112               XOR R1-2
+394F       5502               R5-2>A
+3950       4013               XOR R0-3
+3951       7003               Q3>A
+3952       4113               XOR R1-3
+3953       5503               R5-3>A
+3954       4014               XOR R0-4
+3955       7004               Q4>A
+3956       4114               XOR R1-4
+3957       5504               R5-4>A
+3958       4015               XOR R0-5
+3959       7005               Q5>A
+395A       4115               XOR R1-5
+395B       5505               R5-5>A
+395C       4016               XOR R0-6
+395D       7006               Q6>A
+395E       4116               XOR R1-6
+395F       5506               R5-6>A
+3960       4017               XOR R0-7
+3961       7007               Q7>A
+3962       4117               XOR R1-7
+3963       6000               Q>R0         ; Save final result in R0
+3964       5507               R5-7>A
+3965       4818               A>Q0         ; Store Carry in Q Bit<0>
+3966       2900               00H>R1
+3967       5100               R1-0>A
+3968       4819               A>Q1         ; Set Q <7:1> to 0
+3969       481A               A>Q2         ; To have a clean carry register
+396A       481B               A>Q3
+396B       481C               A>Q4
+396C       481D               A>Q5
+396D       481E               A>Q6
+396E       481F               A>Q7
+396F       6200               Q>R2         ; Save Carry
+3970       0600               R6>UH        ; Address return MSB
+3971       0F00               R7>UL        ;                LSB
+3972       C800               JMP          ; ***************************************************
                               ORG/1D00H    ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
 3A00       5000               R0-0>A       ; NOT R0 > R0
 3A01       4038               NOT A-0

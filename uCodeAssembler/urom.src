@@ -831,7 +831,7 @@ R0>DATA                 ; Put result in Register A
 01H>UH                  ; Get Pointed OP Code by IP and Execute
 00H>UL
 JMP                     ; ***************************************************
-ORG/0D00H               ; OP.1A CMPX 0x****   COMPARE X to immediate value
+ORG/0D00H               ; OP.1A TEQX 0x****   COMPARE X to immediate value
 DATA>R0                 ; Read MSB Data       UPDATE STATUS E (EQUAL) TO 1 WHEN EQUAL
 1FH>AH                  ; Read XH             ELSE E = 0.
 F3H>AL
@@ -1848,9 +1848,121 @@ ORG/1C00H               ; OP.38
 02H>UH                  ; NEXT OP.
 00H>UL
 JMP                     ; ***************************************************
-ORG/1C80H               ; OP.39
-02H>UH                  ; NEXT OP.
-00H>UL
+ORG/1C80H               ; 3B80H  SUBTRACT R0-R1>R0  Cin:R2-0  Cout:R2-0
+R0-0>A                  ;                 Return R6:MSB R7:LSB
+OR R1-0                 ;                 Using R3, R4, R5
+R0-1>A
+OR R1-1
+R0-2>A
+OR R1-2
+R0-3>A
+OR R1-3
+R0-4>A
+OR R1-4
+R0-5>A
+OR R1-5
+R0-6>A
+OR R1-6
+R0-7>A
+OR R1-7
+Q>R3
+R0-0>A                  ; R0 AND R1 > R4
+AND R1-0
+R0-1>A
+AND R1-1
+R0-2>A
+AND R1-2
+R0-3>A
+AND R1-3
+R0-4>A
+AND R1-4
+R0-5>A
+AND R1-5
+R0-6>A
+AND R1-6
+R0-7>A
+AND R1-7
+Q>R4
+R2-0>A                  ; Process Carry  Cin:R2-0
+AND R3-0
+Q0>A
+OR R4-0
+Q0>A
+AND R3-1
+Q1>A
+OR R4-1
+Q1>A
+AND R3-2
+Q2>A
+OR R4-2
+Q2>A
+AND R3-3
+Q3>A
+OR R4-3
+Q3>A
+AND R3-4
+Q4>A
+OR R4-4
+Q4>A
+AND R3-5
+Q5>A
+OR R4-5
+Q5>A
+AND R3-6
+Q6>A
+OR R4-6
+Q6>A
+AND R3-7
+Q7>A
+OR R4-7
+Q>R5
+R2-0>A                  ; R0 XOR R1 XOR COUTn
+XOR R0-0
+Q0>A
+XOR R1-0
+R5-0>A
+XOR R0-1
+Q1>A
+XOR R1-1
+R5-1>A
+XOR R0-2
+Q2>A
+XOR R1-2
+R5-2>A
+XOR R0-3
+Q3>A
+XOR R1-3
+R5-3>A
+XOR R0-4
+Q4>A
+XOR R1-4
+R5-4>A
+XOR R0-5
+Q5>A
+XOR R1-5
+R5-5>A
+XOR R0-6
+Q6>A
+XOR R1-6
+R5-6>A
+XOR R0-7
+Q7>A
+XOR R1-7
+Q>R0                    ; Save final result in R0
+R5-7>A
+A>Q0                    ; Store Carry in Q Bit<0>
+00H>R1
+R1-0>A
+A>Q1                    ; Set Q <7:1> to 0
+A>Q2                    ; To have a clean carry register
+A>Q3
+A>Q4
+A>Q5
+A>Q6
+A>Q7
+Q>R2                    ; Save Carry
+R6>UH                   ; Address return MSB
+R7>UL                   ;                LSB
 JMP                     ; ***************************************************
 ORG/1D00H               ; 3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
 R0-0>A                  ; NOT R0 > R0
