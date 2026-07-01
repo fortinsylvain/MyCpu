@@ -1,0 +1,69 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\SYLVAIN\\MyCPU\\MyCCompiler\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|e:\\sylvain\\mycpu\\myccompiler\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|e:\\sylvain\\mycpu\\myccompiler\\parser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|solutionrelative:parser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|e:\\sylvain\\mycpu\\myccompiler\\codegen.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|solutionrelative:codegen.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Parser.cs",
+              "DocumentMoniker": "E:\\SYLVAIN\\MyCPU\\MyCCompiler\\Parser.cs",
+              "RelativeDocumentMoniker": "Parser.cs",
+              "ToolTip": "E:\\SYLVAIN\\MyCPU\\MyCCompiler\\Parser.cs",
+              "RelativeToolTip": "Parser.cs",
+              "ViewState": "AQIAAFYAAAAAAAAAAAAIwJ4AAAAMAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-21T03:47:31.994Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CodeGen.cs",
+              "DocumentMoniker": "E:\\SYLVAIN\\MyCPU\\MyCCompiler\\CodeGen.cs",
+              "RelativeDocumentMoniker": "CodeGen.cs",
+              "ToolTip": "E:\\SYLVAIN\\MyCPU\\MyCCompiler\\CodeGen.cs",
+              "RelativeToolTip": "CodeGen.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAvAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-17T04:28:44.734Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "E:\\SYLVAIN\\MyCPU\\MyCCompiler\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "E:\\SYLVAIN\\MyCPU\\MyCCompiler\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAABIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-06-11T23:36:04.158Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

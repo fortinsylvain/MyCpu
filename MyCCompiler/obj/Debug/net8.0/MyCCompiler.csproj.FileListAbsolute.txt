@@ -1,0 +1,14 @@
+E:\SYLVAIN\MyCPU\MyCCompiler\bin\Debug\net8.0\MyCCompiler.exe
+E:\SYLVAIN\MyCPU\MyCCompiler\bin\Debug\net8.0\MyCCompiler.deps.json
+E:\SYLVAIN\MyCPU\MyCCompiler\bin\Debug\net8.0\MyCCompiler.runtimeconfig.json
+E:\SYLVAIN\MyCPU\MyCCompiler\bin\Debug\net8.0\MyCCompiler.dll
+E:\SYLVAIN\MyCPU\MyCCompiler\bin\Debug\net8.0\MyCCompiler.pdb
+E:\SYLVAIN\MyCPU\MyCCompiler\obj\Debug\net8.0\MyCCompiler.GeneratedMSBuildEditorConfig.editorconfig
+E:\SYLVAIN\MyCPU\MyCCompiler\obj\Debug\net8.0\MyCCompiler.AssemblyInfoInputs.cache
+E:\SYLVAIN\MyCPU\MyCCompiler\obj\Debug\net8.0\MyCCompiler.AssemblyInfo.cs
+E:\SYLVAIN\MyCPU\MyCCompiler\obj\Debug\net8.0\MyCCompiler.csproj.CoreCompileInputs.cache
+E:\SYLVAIN\MyCPU\MyCCompiler\obj\Debug\net8.0\MyCCompiler.dll
+E:\SYLVAIN\MyCPU\MyCCompiler\obj\Debug\net8.0\refint\MyCCompiler.dll
+E:\SYLVAIN\MyCPU\MyCCompiler\obj\Debug\net8.0\MyCCompiler.pdb
+E:\SYLVAIN\MyCPU\MyCCompiler\obj\Debug\net8.0\MyCCompiler.genruntimeconfig.cache
+E:\SYLVAIN\MyCPU\MyCCompiler\obj\Debug\net8.0\ref\MyCCompiler.dll
