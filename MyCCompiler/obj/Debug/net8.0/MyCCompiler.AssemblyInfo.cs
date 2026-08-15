@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MyCCompiler")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+37a2ba9ad859f9849cf53f60df39a90709f2a80d")]
 [assembly: System.Reflection.AssemblyProductAttribute("MyCCompiler")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MyCCompiler")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

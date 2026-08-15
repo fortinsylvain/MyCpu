@@ -3,13 +3,6 @@
   "WorkspaceRootPath": "C:\\Users\\sfortin\\Documents\\GitHub\\MyCpu\\MyCCompiler\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Sylvain\\MyCPU\\MyCCompiler\\test.c||{3B902123-F8A7-4915-9F01-361F908088D0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|c:\\users\\sfortin\\documents\\github\\mycpu\\myccompiler\\test.c||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|solutionrelative:test.c||{3B902123-F8A7-4915-9F01-361F908088D0}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|c:\\users\\sfortin\\documents\\github\\mycpu\\myccompiler\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C2D335E9-469E-4DB0-BF97-5469A3E2319C}|MyCCompiler.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -29,37 +22,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "test.c",
-              "DocumentMoniker": "C:\\Sylvain\\MyCPU\\MyCCompiler\\test.c",
-              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\Sylvain\\MyCPU\\MyCCompiler\\test.c",
-              "ToolTip": "C:\\Sylvain\\MyCPU\\MyCCompiler\\test.c",
-              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\Sylvain\\MyCPU\\MyCCompiler\\test.c",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2026-07-01T22:02:10.554Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "test.c",
-              "DocumentMoniker": "C:\\Users\\sfortin\\Documents\\GitHub\\MyCpu\\MyCCompiler\\test.c",
-              "RelativeDocumentMoniker": "test.c",
-              "ToolTip": "C:\\Users\\sfortin\\Documents\\GitHub\\MyCpu\\MyCCompiler\\test.c",
-              "RelativeToolTip": "test.c",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2026-07-01T22:02:01.297Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
               "Title": "Parser.cs",
               "DocumentMoniker": "C:\\Users\\sfortin\\Documents\\GitHub\\MyCpu\\MyCCompiler\\Parser.cs",
               "RelativeDocumentMoniker": "Parser.cs",
@@ -71,7 +38,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "CodeGen.cs",
               "DocumentMoniker": "C:\\Users\\sfortin\\Documents\\GitHub\\MyCpu\\MyCCompiler\\CodeGen.cs",
               "RelativeDocumentMoniker": "CodeGen.cs",
@@ -83,7 +50,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\sfortin\\Documents\\GitHub\\MyCpu\\MyCCompiler\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",

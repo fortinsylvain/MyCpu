@@ -3189,11 +3189,54 @@ TSTOP34  LDA #0x34
          LDA 0x1FF4     ; read X LSB
          CMPA #0xF0
          JNE FAIL
+               ; --------------------------------------------------------------------
+               ; RAM sweep test
+               ; Avoid Stack from 00A0H - 00FFH
+               ; Avoid DIAGLOOPCOUNTER_MSB,LSB 0x01E0, 0x01E1
+               ; Avoid 1FECH - 1FFFH for MyCPU and special purpose registers
+               ; --------------------------------------------------------------------
+RAM_TEST_BEGIN EQU 0x0200  ; Temporary reduce the RAM test to 0x0100 - 0x0400 for accelerated testing purposes
+RAM_TEST_END   EQU 0x0400
+;RAM_TEST_END   EQU 0x1FE0
+RAMTEST        LDA #0x40
+               NOTA
+               STA LEDPORT
+               LDX #RAM_TEST_BEGIN
+               LDA #0xAA
+RAMTS_L1       STA (X)
+               INCX
+               TEQX #RAM_TEST_END
+               JEQ RAMTS_AA_DONE
+               JRA RAMTS_L1
+RAMTS_AA_DONE  LDX #RAM_TEST_BEGIN
+RAMTS_L2       LDA (X)
+               TEQA #0xAA
+               JNE FAIL
+               INCX
+               TEQX #RAM_TEST_END
+               JEQ RAMTS_55_START
+               JRA RAMTS_L2
+RAMTS_55_START LDX #RAM_TEST_BEGIN
+               LDA #0x55
+RAMTS_L3       STA (X)
+               INCX
+               TEQX #RAM_TEST_END
+               JEQ RAMTS_55_DONE
+               JRA RAMTS_L3
+RAMTS_55_DONE  LDX #RAM_TEST_BEGIN
+RAMTS_L4       LDA (X)
+               TEQA #0x55
+               JNE FAIL
+               INCX
+               TEQX #RAM_TEST_END
+               JEQ RAMTEST_DONE
+               JRA RAMTS_L4
+RAMTEST_DONE   NOP
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; first method using direct addressing
          ; --------------------------------------------------------------------         
-TSTFB1   LDA #0x40
+TSTFB1   LDA #0x41
          NOTA
          STA LEDPORT ; Output to LED port
          CLRA        ; Init first number with 00H
@@ -3352,7 +3395,7 @@ TSTFB1   LDA #0x40
          ; ---------
          ; Loop test
          ; ---------
-LOOPTST  LDA #0x41
+LOOPTST  LDA #0x42
          NOTA
          STA LEDPORT    ; Output to LED port
          LDA #0x05      ; Init a counter of iterations
@@ -3369,7 +3412,7 @@ LOOPTST2 NOP            ; End of decrement loop
          ; Math Library Test
          ; -----------------
          ; Test add16_w0_w0_w1  w0 <= w0 + w1
-         LDA #0x42
+         LDA #0x43
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0xBE   ; w0 = 0xBEEF
@@ -3392,7 +3435,7 @@ LOOPTST2 NOP            ; End of decrement loop
          JNE FAIL
 
          ; Test add32_l0_l0_l1  l0 <= l0 + l1
-         LDA #0x43
+         LDA #0x44
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0x89   ; l0 = 0x89ABCDEF
@@ -3429,7 +3472,7 @@ LOOPTST2 NOP            ; End of decrement loop
          JNE FAIL
 
          ; Test ?inc32_l0_l0   l0 <= l0 + 1
-         LDA #0x44
+         LDA #0x45
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0xFF   ; l0 = 0xFFFFFFFF
@@ -3499,7 +3542,7 @@ LOOPTST2 NOP            ; End of decrement loop
 
          ; Test  MUL 8-bit
          ; mul8_w1_b1_b0   w1 (b3,b2) <= b1 * b0
-         LDA #0x45
+         LDA #0x46
          NOTA
          STA LEDPORT ; Output to LED port
          LDA #0x02   ; 3 * 2 = 6
@@ -3552,7 +3595,7 @@ LOOPTST2 NOP            ; End of decrement loop
          ; Total time for 3 multiplications 140ms @ 2 MHz
          ; 46ms per 16bit mult (21.7 multiplications per second)
          ; l1 <= w1 * w0      (b7,b6,b5,b4) = (b3,b2) * (b1,b0)
-         LDA #0x46
+         LDA #0x47
          NOTA
          STA LEDPORT ; Output to LED port
 
@@ -3617,7 +3660,7 @@ LOOPTST2 NOP            ; End of decrement loop
          JNE FAIL  
 
          ; Test load32_l0, load32_l1, load32_l2, load32_l3
-         LDA #0x47
+         LDA #0x48
          NOTA
          STA LEDPORT ; Output to LED port
          ; Test load32_l0

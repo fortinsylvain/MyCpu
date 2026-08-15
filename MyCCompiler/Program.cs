@@ -7,7 +7,7 @@ class Program
     static void Main()
     {
         // Use absolute path to test.c so runtime finds the source file reliably
-        string src = File.ReadAllText(@"E:\\SYLVAIN\\MyCPU\\MyCCompiler\\test.c");
+        string src = File.ReadAllText(@"C:\\SYLVAIN\\MyCPU\\MyCCompiler\\test.c");
 
         var lexer = new Lexer(src);
         var tokens = lexer.Tokenize();
@@ -23,10 +23,10 @@ class Program
         var asm = gen.Generate(ast);
 
         // If vreg library emission enabled, try to include vreg.asm content
-        string outPath = @"E:\\SYLVAIN\\MyCPU\\MyCCompiler\\output.asm";
+        string outPath = @"C:\\SYLVAIN\\MyCPU\\MyCCompiler\\output.asm";
         if (gen.UseVRegLibrary)
         {
-            string vregPath = @"E:\\SYLVAIN\\MyCPU\\MyCCompiler\\vreg.asm";
+            string vregPath = @"C:\\SYLVAIN\\MyCPU\\MyCCompiler\\vreg.asm";
             if (File.Exists(vregPath))
             {
                 // find all referenced library symbols in the generated asm (JSR ?name)
