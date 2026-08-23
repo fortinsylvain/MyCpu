@@ -1832,8 +1832,24 @@ R0>DATA
 02H>UH                  ; NEXT OP
 00H>UL
 JMP                     ; ***************************************************
-ORG/1A80H               ; OP.35
+ORG/1A80H               ; OP.35 JRNE Jump Relative if not Equal (Condition E = 0)
+1FH>AH                  ; Read E bit and put in A ALU input
+FAH>AL
+DATA>R0
+R0-0>A
+35H>UH                  ; if E = 0 then prepare the jump JRA
+0AH>UL
+JMP_A=0
 02H>UH                  ; NEXT OP.
+00H>UL
+JMP                     
+FEH>AL                  ; Put IP on Address Bus
+DATA>R0
+FFH>AL
+DATA>R1
+R0>AH
+R1>AL
+0CH>UH                  ; Do the JRA
 00H>UL
 JMP                     ; ***************************************************
 ORG/1B00H               ; OP.36

@@ -1832,10 +1832,26 @@
 3478       3002               02H>UH       ; NEXT OP
 3479       3800               00H>UL
 347A       C800               JMP          ; ***************************************************
-                              ORG/1A80H    ; OP.35
-3500       3002               02H>UH       ; NEXT OP.
-3501       3800               00H>UL
-3502       C800               JMP          ; ***************************************************
+                              ORG/1A80H    ; OP.35 JRNE Jump Relative if not Equal (Condition E = 0)
+3500       781F               1FH>AH       ; Read E bit and put in A ALU input
+3501       68FA               FAH>AL
+3502       2000               DATA>R0
+3503       5000               R0-0>A
+3504       3035               35H>UH       ; if E = 0 then prepare the jump JRA
+3505       380A               0AH>UL
+3506       C81B               JMP_A=0
+3507       3002               02H>UH       ; NEXT OP.
+3508       3800               00H>UL
+3509       C800               JMP          
+350A       68FE               FEH>AL       ; Put IP on Address Bus
+350B       2000               DATA>R0
+350C       68FF               FFH>AL
+350D       2100               DATA>R1
+350E       1000               R0>AH
+350F       1900               R1>AL
+3510       300C               0CH>UH       ; Do the JRA
+3511       3800               00H>UL
+3512       C800               JMP          ; ***************************************************
                               ORG/1B00H    ; OP.36
 3600       3002               02H>UH       ; NEXT OP.
 3601       3800               00H>UL

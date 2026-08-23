@@ -1121,6 +1121,7 @@ namespace Assembler
                 new InstrTable { StringValue = "ANDA #0x**",     OpCode = 0x33, NbByte = 1, Sym = OperandMode.Hex,      Offset = 8, Operation = "A <- A & imm",                 Flags = "-",   Desc = "Logical AND immediate with A"                        },
                 new InstrTable { StringValue = "LDX 0x****",     OpCode = 0x34, NbByte = 2, Sym = OperandMode.Hex,      Offset = 6, Operation = "X <- MEM[addr]",               Flags = "-",   Desc = "Load X from memory (absolute)"                       },
                 new InstrTable { StringValue = "LDX @",          OpCode = 0x34, NbByte = 2, Sym = OperandMode.Symbol,   Offset = 4, Operation = "X <- MEM[symbol]",             Flags = "-",   Desc = "Load X from memory (symbolic)"                       },
+                new InstrTable { StringValue = "JRNE @",         OpCode = 0x35, NbByte = 1, Sym = OperandMode.Relative, Offset = 5, Operation = "if (E == 0) PC = PC + offset", Flags = "-",   Desc = "Jump relative if equal is not set"                   },
             };
 
             /*

@@ -3189,6 +3189,28 @@ TSTOP34  LDA #0x34
          LDA 0x1FF4     ; read X LSB
          CMPA #0xF0
          JNE FAIL
+         ; --------------------------------------------------------------------
+         ; OP.35 JRNE 0x** relative jump if not equal (E=0)
+         ; LDX using a 16-bit direct address
+         ; --------------------------------------------------------------------
+TSTOP35  LDA #0x35
+         NOTA
+         STA LEDPORT    ; Output to LED port
+         LDA #0x55      ; test 8 bit compare and jump if not equal
+         TEQA #0x55
+         JRNE T35_FAIL  ; Should not jump because E=1
+         LDA #0xAA
+         TEQA #0x55
+         JRNE T35_1     ; Should jump because E=0
+         JMP FAIL
+T35_1    LDX #0x1234    ; test 16 bit compare and jump if not equal
+         TEQX #0x1234
+         JRNE T35_FAIL  ; Should not jump because E=1
+         LDX #0x5678
+         TEQX #0x1234
+         JRNE T35_PASS  ; Should jump because E=0
+T35_FAIL JMP FAIL
+T35_PASS NOP
                ; --------------------------------------------------------------------
                ; RAM sweep test
                ; Avoid Stack from 00A0H - 00FFH
@@ -3206,32 +3228,28 @@ RAMTEST        LDA #0x40
 RAMTS_L1       STA (X)
                INCX
                TEQX #RAM_TEST_END
-               JEQ RAMTS_AA_DONE
-               JRA RAMTS_L1
+               JRNE RAMTS_L1
 RAMTS_AA_DONE  LDX #RAM_TEST_BEGIN
 RAMTS_L2       LDA (X)
                TEQA #0xAA
                JNE FAIL
                INCX
                TEQX #RAM_TEST_END
-               JEQ RAMTS_55_START
-               JRA RAMTS_L2
-RAMTS_55_START LDX #RAM_TEST_BEGIN
+               JRNE RAMTS_L2
+               LDX #RAM_TEST_BEGIN
                LDA #0x55
 RAMTS_L3       STA (X)
                INCX
                TEQX #RAM_TEST_END
-               JEQ RAMTS_55_DONE
-               JRA RAMTS_L3
-RAMTS_55_DONE  LDX #RAM_TEST_BEGIN
+               JRNE RAMTS_L3
+               LDX #RAM_TEST_BEGIN
 RAMTS_L4       LDA (X)
                TEQA #0x55
                JNE FAIL
                INCX
                TEQX #RAM_TEST_END
-               JEQ RAMTEST_DONE
-               JRA RAMTS_L4
-RAMTEST_DONE   NOP
+               JRNE RAMTS_L4
+               NOP
          ; --------------------------------------------------------------------
          ; FIBONACCI TEST
          ; first method using direct addressing
