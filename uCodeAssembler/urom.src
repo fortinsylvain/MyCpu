@@ -95,11 +95,12 @@ ORG/0180H               ; OP.03 INCA  INCREMENT REGISTER A
 1FH>AH                  ;             C not updated, E updated
 FCH>AL
 DATA>R0                 ; READ REG. A
-03H>R6                  ;
-08H>R7                  ; R0+1>R0
+IncaReturn.UH>R6       ;
+IncaReturn.UL>R7       ; R0+1>R0
 3EH>UH                  ; Cout>R1-7
 00H>UL
 JMP
+IncaReturn:
 1FH>AH                  ; RESULT IN REG. A
 FCH>AL
 R0>DATA
@@ -171,11 +172,12 @@ ORG/0280H               ; OP.05 INCX  Increment Register X
 X_LSB.MSB>AH           ;             Carry Not Updated
 X_LSB.LSB>AL
 DATA>R0                 ; Read Reg X LSB
-05H>R6                  ;
-08H>R7                  ; R0+1>R0
+IncxLsbReturn.UH>R6    ;
+IncxLsbReturn.UL>R7    ; R0+1>R0
 3EH>UH                  ; Cout>R1-7
 00H>UL
 JMP
+IncxLsbReturn:
 X_LSB.MSB>AH           ; Put increment result in REG. X LSB
 X_LSB.LSB>AL
 R0>DATA
@@ -185,11 +187,12 @@ R1-7>A                  ; Add 1 to X MSB only if there is a carry
 JMP_A=0                 
 X_MSB.LSB>AL            ; If Cout=1 then we increment X MSB
 DATA>R0                 ; Read X MSB
-05H>R6                  ; R0+1>R0
-16H>R7                  ; Cout>R1-7, go execute currently pointed OP.
+IncxMsbReturn.UH>R6    ; R0+1>R0
+IncxMsbReturn.UL>R7    ; Cout>R1-7, go execute currently pointed OP.
 3EH>UH                  
 00H>UL
 JMP
+IncxMsbReturn:
 R0>DATA                 ; Store X MSB
 OpExec.UH>UH            ; Get Pointed OP Code and Execute
 OpExec.UL>UL
@@ -221,7 +224,7 @@ DATA>R1
 00H>AH                  ; Put in STACK
 R0>AL
 R1>DATA
-SP.MSB>AH               ; Read SP Register
+SP.MSB>AH 
 SP.LSB>AL
 DATA>R0
 3EH>UH                  ; Increment R0 containing SP value
@@ -262,9 +265,10 @@ F0H>AL
 DATA>R0
 3AH>UH                  ;          | ADD. Routine R0-1>R0
 00H>UL                  ; SP-1     |
-07H>R6                  ;          | ADD. return
-08H>R7                  ; Decrementing the Stack Pointer Register
+RtsLowReturn.UH>R6      ;          | ADD. return
+RtsLowReturn.UL>R7      ; Decrementing the Stack Pointer Register
 JMP
+RtsLowReturn:
 00H>AH                  ; Read from Stack return address IPL
 R0>AL
 DATA>R1
@@ -299,7 +303,7 @@ ORG/0500H               ; OP.0A LDA (X) Load Reg A Indexed
 X_MSB.MSB>AH            ; Read X MSB
 X_MSB.LSB>AL
 DATA>R2
-X_LSB.LSB>AL            ; Read X LSB
+X_LSB.LSB>AL           ; Read X LSB
 DATA>R3
 R2>AH                   ; Put on addres bus
 R3>AL
@@ -314,7 +318,7 @@ ORG/0580H               ; OP.0B STA (X) Store Reg A Indexed
 X_MSB.MSB>AH            ; Read X MSB
 X_MSB.LSB>AL
 DATA>R2
-X_LSB.LSB>AL            ; Read X LSB
+X_LSB.LSB>AL           ; Read X LSB
 DATA>R3
 A_REG.LSB>AL            ; Read Reg A
 DATA>R4
@@ -337,18 +341,20 @@ DATA>R1
 01H>R2                  ; Put Cin(R2-0)=1
 3FH>UH                  ;           | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-0CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-0EH>R7
+JraBackwardReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+JraBackwardReturn.UL>R7
 JMP
+JraBackwardReturn:
 R0>DATA                 ; Store IPL
 FEH>AL                  ; Read IPH
 DATA>R0
 FFH>R1                  ; Sign extension
 3FH>UH                  ; Cin(R2-0) | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-0CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-17H>R7
+JraBackwardHighReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+JraBackwardHighReturn.UL>R7
 JMP
+JraBackwardHighReturn:
 R0>DATA                 ; Store IPH
 OpExec.UH>UH            ; Get Pointed OP Code and Execute
 OpExec.UL>UL
@@ -361,9 +367,10 @@ DATA>R1
 01H>R2                  ; Put Cin(R2-0)=1 to jump relative to next instruction
 3FH>UH                  ;           | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-0CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-49H>R7
+JraForwardReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+JraForwardReturn.UL>R7
 JMP
+JraForwardReturn:
 R0>DATA                 ; Store IPL
 R2-0>A                  ; Add 1 to IPH only if there is a carry
 01H>UH                  ; If Cout=0 no increment on IPH
@@ -373,9 +380,10 @@ FEH>AL                  ; else Cout=1 then we increment IPH
 DATA>R0                 ; Read IPH
 3EH>UH                  ; R0+1>R0
 00H>UL                  ; Cout>R1-7
-0CH>R6                  ; Return
-55H>R7
+JraForwardHighReturn.UH>R6 ; Return
+JraForwardHighReturn.UL>R7
 JMP
+JraForwardHighReturn:
 R0>DATA                 ; Store IPH
 OpExec.UH>UH            ; Get Pointed OP Code and Execute
 OpExec.UL>UL
@@ -542,9 +550,10 @@ X_LSB.LSB>AL
 DATA>R0
 3AH>UH                  ;          | ADD. Routine R0-1>R0
 00H>UL                  ;          |
-13H>R6                  ;          | ADD. return
-08H>R7                  ; 
+DecXlReturn.UH>R6      ;          | ADD. return
+DecXlReturn.UL>R7      ; 
 JMP
+DecXlReturn:
 R0>DATA                 ; Put result in XL
 R0-0>A                  ; Update E (If result is zero then set E flag )
 OR R0-1                 ; NOT( 7 OR 6 OR 5 OR 4 OR 3 OR 2 OR 1 OR 0 )
@@ -1027,9 +1036,10 @@ DATA>R1
 00H>R2                  ; Clear carry in
 3FH>UH                  ; Cin:R2-0  | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-1CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-13H>R7                  ; keep carry in R2 it will be used later
+LdaIndexedLowReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+LdaIndexedLowReturn.UL>R7 ; keep carry in R2 it will be used later
 JMP
+LdaIndexedLowReturn:
 TEMP1.LSB>AL           ; store LSB address summ in TEMP1
 R0>DATA                 
 TEMP0.LSB>AL           ; Load MSB Operand from TEMP0
@@ -1039,9 +1049,10 @@ X_MSB.LSB>AL
 DATA>R1
 3FH>UH                  ; Cin:R2-0  | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-1CH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-1FH>R7
+LdaIndexedHighReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+LdaIndexedHighReturn.UL>R7
 JMP
+LdaIndexedHighReturn:
 TEMP1.LSB>AL           ; MSB Address is in R0
 DATA>R1                 ; LSB Address is in TEMP1 put it in R1
 R0>AH                   ; Read Data
@@ -1070,9 +1081,10 @@ DATA>R1
 00H>R2                  ; Clear carry in
 3FH>UH                  ; Cin:R2-0  | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-1DH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-13H>R7                  ; keep carry in R2 it will be used later
+StaIndexedLowReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+StaIndexedLowReturn.UL>R7 ; keep carry in R2 it will be used later
 JMP
+StaIndexedLowReturn:
 TEMP1.LSB>AL           ; store LSB address summ in TEMP1
 R0>DATA                 
 TEMP0.LSB>AL           ; Load MSB Operand from TEMP0
@@ -1082,9 +1094,10 @@ X_MSB.LSB>AL
 DATA>R1
 3FH>UH                  ; Cin:R2-0  | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-1DH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-1FH>R7
+StaIndexedHighReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+StaIndexedHighReturn.UL>R7
 JMP
+StaIndexedHighReturn:
 TEMP1.LSB>AL           ; MSB Address is in R0
 DATA>R1                 ; LSB Address is in TEMP1 put it in R1
 A_REG.MSB>AH           ; Read Data from Register A
@@ -1137,9 +1150,10 @@ Q>R1
 01H>R2                  ; R2-0 used as Cin
 3FH>UH                  ; Cin:R2-0  | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-1FH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-1EH>R7                  ; keep carry out R2
+CmpaDirectReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+CmpaDirectReturn.UL>R7 ; keep carry out R2
 JMP
+CmpaDirectReturn:
 1FH>AH                  ; Save C
 FBH>AL
 R2>DATA
@@ -1177,11 +1191,12 @@ ORG/1000H               ; OP.20 DECA  Decrement REGISTER A
 1FH>AH                  ;             C not updated, E updated
 FCH>AL
 DATA>R0                 ; READ REG. A
-20H>R6                  ; R0-1>R0  3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
-08H>R7                  
+DecaReturn.UH>R6        ; R0-1>R0  3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
+DecaReturn.UL>R7                  
 3AH>UH                  
 00H>UL
 JMP
+DecaReturn:
 R0>DATA                 ; Result in register A
 20H>UH                  ; Jump if any bit is '1'
 21H>UL
@@ -1364,9 +1379,10 @@ F0H>AL
 DATA>R0
 3EH>UH                  ; Increment R0 containing SP value
 00H>UL                  ; R0+1>R0  | ADD. Incrementation Routine
-24H>R6                  ;          | ADD. Return
-10H>R7
+PshaReturn.UH>R6       ;          | ADD. Return
+PshaReturn.UL>R7
 JMP
+PshaReturn:
 R0>DATA                 ; Put Result in SP Register
 OpExec.UH>UH            ; Get Pointed OP Code and Execute
 OpExec.UL>UL
@@ -1377,9 +1393,10 @@ F0H>AL
 DATA>R0
 3AH>UH                  ;          | ADD. Routine R0-1>R0
 00H>UL                  ; SP-1     |
-25H>R6                  ;          | ADD. return
-08H>R7                  ; Decrementing the Stack Pointer Register
+PopaReturn.UH>R6       ;          | ADD. return
+PopaReturn.UL>R7       ; Decrementing the Stack Pointer Register
 JMP
+PopaReturn:
 R0>DATA                 ; Store result in SP
 00H>AH                  ; Read byte pointed by SP and put in register A
 R0>AL
@@ -1409,9 +1426,10 @@ DATA>R0
 00H>R2                  ; Clean Cin
 3FH>UH                  ; R2<0> Cin | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  | 
-27H>R6                  ; Cout>R2-0 | RETURN ADDRESS
-0AH>R7
+LdaStackReturn.UH>R6    ; Cout>R2-0 | RETURN ADDRESS
+LdaStackReturn.UL>R7
 JMP
+LdaStackReturn:
 00H>AH                  ; Read pointed byte (SP-Offset)
 R0>AL
 DATA>R0
@@ -1440,9 +1458,10 @@ FBH>AL
 DATA>R2
 3FH>UH                  ;           | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-28H>R6                  ; Cout>R2-0 | RETURN ADDRESS
-15H>R7
+AdcaDirectReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+AdcaDirectReturn.UL>R7
 JMP
+AdcaDirectReturn:
 1FH>AH                  ; PUT SUMM IN REG. A
 FCH>AL
 R0>DATA
@@ -1468,9 +1487,10 @@ DATA>R1
 00H>R2                  ; Put Cin=0
 3FH>UH                  ;           | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-29H>R6                  ; Cout>R2-0 | RETURN ADDRESS
-13H>R7
+AddaDirectReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+AddaDirectReturn.UL>R7
 JMP
+AddaDirectReturn:
 1FH>AH                  ; PUT SUMM IN REG. A
 FCH>AL
 R0>DATA
@@ -1584,9 +1604,10 @@ Q>R1
 01H>R2                  ; R2-0 used as Cin
 3FH>UH                  ; Cin:R2-0  | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-2DH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-15H>R7                  ; keep carry out R2
+CmpaImmediateReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+CmpaImmediateReturn.UL>R7 ; keep carry out R2
 JMP
+CmpaImmediateReturn:
 1FH>AH                  ; Save C
 FBH>AL
 R2>DATA
@@ -1630,9 +1651,10 @@ FBH>AL
 DATA>R2
 3FH>UH                  ;           | ADD. ROUTINE
 00H>UL                  ; R0+R1>R0  |
-2FH>R6                  ; Cout>R2-0 | ADD. RETOUR
-0AH>R7                  ;           |
+AdcaImmediateReturn.UH>R6 ; Cout>R2-0 | ADD. RETOUR
+AdcaImmediateReturn.UL>R7 ;           |
 JMP                     ;           |
+AdcaImmediateReturn:
 1FH>AH                  ; MET SOMME DANS REG. A
 FCH>AL
 R0>DATA
@@ -1649,9 +1671,10 @@ DATA>R1
 00H>R2                  ; FORCED Cin=0
 3FH>UH                  ;           | ROUTINE ADDRESS
 00H>UL                  ; R0+R1>R0  |
-2FH>R6                  ; Cout>R2-0 | RETURN ADDRESS
-0AH>R7                  ;           |
+AddaImmediateReturn.UH>R6 ; Cout>R2-0 | RETURN ADDRESS
+AddaImmediateReturn.UL>R7 ;           |
 JMP                     ;           |
+AddaImmediateReturn:
 1FH>AH                  ; PUT SUMM INTO A REGISTER
 FCH>AL
 R0>DATA
@@ -2210,9 +2233,10 @@ FFH>AL                  ; Read IPL
 DATA>R0                 
 3EH>UH                  ; Address Increment routine
 00H>UL
-3CH>R6                  ; Address Return
-08H>R7
+IncrementIpLowReturn.UH>R6 ; Address Return
+IncrementIpLowReturn.UL>R7
 JMP
+IncrementIpLowReturn:
 1FH>AH                  ; Result in IPL
 FFH>AL
 R0>DATA
@@ -2220,9 +2244,10 @@ FEH>AL                  ; Read IPH
 DATA>R0
 3DH>UH                  ; Address routine to Add Carry
 00H>UL
-3CH>R6                  ; Return Address
-12H>R7
+IncrementIpHighReturn.UH>R6 ; Return Address
+IncrementIpHighReturn.UL>R7
 JMP                     ; Call routine
+IncrementIpHighReturn:
 1FH>AH                  ; Save result Add Carry
 FEH>AL
 R0>DATA                 

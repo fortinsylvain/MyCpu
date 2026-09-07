@@ -95,11 +95,12 @@ NextOpExecAfterIncrement:
 0300       781F  1FH>AH            1FH>AH              ;             C not updated, E updated
 0301       68FC  FCH>AL            FCH>AL              
 0302       2000  DATA>R0           DATA>R0             ; READ REG. A
-0303       2E03  03H>R6            03H>R6              ;
-0304       2F08  08H>R7            08H>R7              ; R0+1>R0
+0303       2E03  03H>R6            IncaReturn.UH>R6    ;
+0304       2F08  08H>R7            IncaReturn.UL>R7    ; R0+1>R0
 0305       303E  3EH>UH            3EH>UH              ; Cout>R1-7
 0306       3800  00H>UL            00H>UL              
 0307       C800  JMP               JMP                 
+IncaReturn:
 0308       781F  1FH>AH            1FH>AH              ; RESULT IN REG. A
 0309       68FC  FCH>AL            FCH>AL              
 030A       5800  R0>DATA           R0>DATA             
@@ -171,11 +172,12 @@ NextOpExecAfterIncrement:
 0500       781F  1FH>AH            X_LSB.MSB>AH        ;             Carry Not Updated
 0501       68F4  F4H>AL            X_LSB.LSB>AL        
 0502       2000  DATA>R0           DATA>R0             ; Read Reg X LSB
-0503       2E05  05H>R6            05H>R6              ;
-0504       2F08  08H>R7            08H>R7              ; R0+1>R0
+0503       2E05  05H>R6            IncxLsbReturn.UH>R6 ;
+0504       2F08  08H>R7            IncxLsbReturn.UL>R7 ; R0+1>R0
 0505       303E  3EH>UH            3EH>UH              ; Cout>R1-7
 0506       3800  00H>UL            00H>UL              
 0507       C800  JMP               JMP                 
+IncxLsbReturn:
 0508       781F  1FH>AH            X_LSB.MSB>AH        ; Put increment result in REG. X LSB
 0509       68F4  F4H>AL            X_LSB.LSB>AL        
 050A       5800  R0>DATA           R0>DATA             
@@ -185,11 +187,12 @@ NextOpExecAfterIncrement:
 050E       C81B  JMP_A=0           JMP_A=0             
 050F       68F3  F3H>AL            X_MSB.LSB>AL        ; If Cout=1 then we increment X MSB
 0510       2000  DATA>R0           DATA>R0             ; Read X MSB
-0511       2E05  05H>R6            05H>R6              ; R0+1>R0
-0512       2F16  16H>R7            16H>R7              ; Cout>R1-7, go execute currently pointed OP.
+0511       2E05  05H>R6            IncxMsbReturn.UH>R6 ; R0+1>R0
+0512       2F16  16H>R7            IncxMsbReturn.UL>R7 ; Cout>R1-7, go execute currently pointed OP.
 0513       303E  3EH>UH            3EH>UH              
 0514       3800  00H>UL            00H>UL              
 0515       C800  JMP               JMP                 
+IncxMsbReturn:
 0516       5800  R0>DATA           R0>DATA             ; Store X MSB
 0517       3001  01H>UH            OpExec.UH>UH        ; Get Pointed OP Code and Execute
 0518       3800  00H>UL            OpExec.UL>UL        
@@ -221,7 +224,7 @@ NextOpExecAfterIncrement:
 0617       7800  00H>AH            00H>AH              ; Put in STACK
 0618       1800  R0>AL             R0>AL               
 0619       5900  R1>DATA           R1>DATA             
-061A       781F  1FH>AH            SP.MSB>AH           ; Read SP Register
+061A       781F  1FH>AH            SP.MSB>AH           
 061B       68F0  F0H>AL            SP.LSB>AL           
 061C       2000  DATA>R0           DATA>R0             
 061D       303E  3EH>UH            3EH>UH              ; Increment R0 containing SP value
@@ -262,9 +265,10 @@ NextOpExecAfterIncrement:
 0702       2000  DATA>R0           DATA>R0             
 0703       303A  3AH>UH            3AH>UH              ;          | ADD. Routine R0-1>R0
 0704       3800  00H>UL            00H>UL              ; SP-1     |
-0705       2E07  07H>R6            07H>R6              ;          | ADD. return
-0706       2F08  08H>R7            08H>R7              ; Decrementing the Stack Pointer Register
+0705       2E07  07H>R6            RtsLowReturn.UH>R6  ;          | ADD. return
+0706       2F08  08H>R7            RtsLowReturn.UL>R7  ; Decrementing the Stack Pointer Register
 0707       C800  JMP               JMP                 
+RtsLowReturn:
 0708       7800  00H>AH            00H>AH              ; Read from Stack return address IPL
 0709       1800  R0>AL             R0>AL               
 070A       2100  DATA>R1           DATA>R1             
@@ -337,18 +341,20 @@ Jra:
 0C08       2A01  01H>R2            01H>R2              ; Put Cin(R2-0)=1
 0C09       303F  3FH>UH            3FH>UH              ;           | ADD. ROUTINE
 0C0A       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-0C0B       2E0C  0CH>R6            0CH>R6              ; Cout>R2-0 | RETURN ADDRESS
-0C0C       2F0E  0EH>R7            0EH>R7              
+0C0B       2E0C  0CH>R6            JraBackwardReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+0C0C       2F0E  0EH>R7            JraBackwardReturn.UL>R7
 0C0D       C800  JMP               JMP                 
+JraBackwardReturn:
 0C0E       5800  R0>DATA           R0>DATA             ; Store IPL
 0C0F       68FE  FEH>AL            FEH>AL              ; Read IPH
 0C10       2000  DATA>R0           DATA>R0             
 0C11       29FF  FFH>R1            FFH>R1              ; Sign extension
 0C12       303F  3FH>UH            3FH>UH              ; Cin(R2-0) | ADD. ROUTINE
 0C13       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-0C14       2E0C  0CH>R6            0CH>R6              ; Cout>R2-0 | RETURN ADDRESS
-0C15       2F17  17H>R7            17H>R7              
+0C14       2E0C  0CH>R6            JraBackwardHighReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+0C15       2F17  17H>R7            JraBackwardHighReturn.UL>R7
 0C16       C800  JMP               JMP                 
+JraBackwardHighReturn:
 0C17       5800  R0>DATA           R0>DATA             ; Store IPH
 0C18       3001  01H>UH            OpExec.UH>UH        ; Get Pointed OP Code and Execute
 0C19       3800  00H>UL            OpExec.UL>UL        
@@ -361,9 +367,10 @@ JraForward:
 0C43       2A01  01H>R2            01H>R2              ; Put Cin(R2-0)=1 to jump relative to next instruction
 0C44       303F  3FH>UH            3FH>UH              ;           | ADD. ROUTINE
 0C45       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-0C46       2E0C  0CH>R6            0CH>R6              ; Cout>R2-0 | RETURN ADDRESS
-0C47       2F49  49H>R7            49H>R7              
+0C46       2E0C  0CH>R6            JraForwardReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+0C47       2F49  49H>R7            JraForwardReturn.UL>R7
 0C48       C800  JMP               JMP                 
+JraForwardReturn:
 0C49       5800  R0>DATA           R0>DATA             ; Store IPL
 0C4A       5200  R2-0>A            R2-0>A              ; Add 1 to IPH only if there is a carry
 0C4B       3001  01H>UH            01H>UH              ; If Cout=0 no increment on IPH
@@ -373,9 +380,10 @@ JraForward:
 0C4F       2000  DATA>R0           DATA>R0             ; Read IPH
 0C50       303E  3EH>UH            3EH>UH              ; R0+1>R0
 0C51       3800  00H>UL            00H>UL              ; Cout>R1-7
-0C52       2E0C  0CH>R6            0CH>R6              ; Return
-0C53       2F55  55H>R7            55H>R7              
+0C52       2E0C  0CH>R6            JraForwardHighReturn.UH>R6; Return
+0C53       2F55  55H>R7            JraForwardHighReturn.UL>R7
 0C54       C800  JMP               JMP                 
+JraForwardHighReturn:
 0C55       5800  R0>DATA           R0>DATA             ; Store IPH
 0C56       3001  01H>UH            OpExec.UH>UH        ; Get Pointed OP Code and Execute
 0C57       3800  00H>UL            OpExec.UL>UL        
@@ -542,9 +550,10 @@ JraForward:
 1302       2000  DATA>R0           DATA>R0             
 1303       303A  3AH>UH            3AH>UH              ;          | ADD. Routine R0-1>R0
 1304       3800  00H>UL            00H>UL              ;          |
-1305       2E13  13H>R6            13H>R6              ;          | ADD. return
-1306       2F08  08H>R7            08H>R7              ; 
+1305       2E13  13H>R6            DecXlReturn.UH>R6   ;          | ADD. return
+1306       2F08  08H>R7            DecXlReturn.UL>R7   ; 
 1307       C800  JMP               JMP                 
+DecXlReturn:
 1308       5800  R0>DATA           R0>DATA             ; Put result in XL
 1309       5000  R0-0>A            R0-0>A              ; Update E (If result is zero then set E flag )
 130A       4009  OR R0-1           OR R0-1             ; NOT( 7 OR 6 OR 5 OR 4 OR 3 OR 2 OR 1 OR 0 )
@@ -1027,9 +1036,10 @@ TeqXEqual:
 1C0D       2A00  00H>R2            00H>R2              ; Clear carry in
 1C0E       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
 1C0F       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-1C10       2E1C  1CH>R6            1CH>R6              ; Cout>R2-0 | RETURN ADDRESS
-1C11       2F13  13H>R7            13H>R7              ; keep carry in R2 it will be used later
+1C10       2E1C  1CH>R6            LdaIndexedLowReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+1C11       2F13  13H>R7            LdaIndexedLowReturn.UL>R7; keep carry in R2 it will be used later
 1C12       C800  JMP               JMP                 
+LdaIndexedLowReturn:
 1C13       68ED  EDH>AL            TEMP1.LSB>AL        ; store LSB address summ in TEMP1
 1C14       5800  R0>DATA           R0>DATA             
 1C15       68EC  ECH>AL            TEMP0.LSB>AL        ; Load MSB Operand from TEMP0
@@ -1039,9 +1049,10 @@ TeqXEqual:
 1C19       2100  DATA>R1           DATA>R1             
 1C1A       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
 1C1B       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-1C1C       2E1C  1CH>R6            1CH>R6              ; Cout>R2-0 | RETURN ADDRESS
-1C1D       2F1F  1FH>R7            1FH>R7              
+1C1C       2E1C  1CH>R6            LdaIndexedHighReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+1C1D       2F1F  1FH>R7            LdaIndexedHighReturn.UL>R7
 1C1E       C800  JMP               JMP                 
+LdaIndexedHighReturn:
 1C1F       68ED  EDH>AL            TEMP1.LSB>AL        ; MSB Address is in R0
 1C20       2100  DATA>R1           DATA>R1             ; LSB Address is in TEMP1 put it in R1
 1C21       1000  R0>AH             R0>AH               ; Read Data
@@ -1070,9 +1081,10 @@ TeqXEqual:
 1D0D       2A00  00H>R2            00H>R2              ; Clear carry in
 1D0E       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
 1D0F       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-1D10       2E1D  1DH>R6            1DH>R6              ; Cout>R2-0 | RETURN ADDRESS
-1D11       2F13  13H>R7            13H>R7              ; keep carry in R2 it will be used later
+1D10       2E1D  1DH>R6            StaIndexedLowReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+1D11       2F13  13H>R7            StaIndexedLowReturn.UL>R7; keep carry in R2 it will be used later
 1D12       C800  JMP               JMP                 
+StaIndexedLowReturn:
 1D13       68ED  EDH>AL            TEMP1.LSB>AL        ; store LSB address summ in TEMP1
 1D14       5800  R0>DATA           R0>DATA             
 1D15       68EC  ECH>AL            TEMP0.LSB>AL        ; Load MSB Operand from TEMP0
@@ -1082,9 +1094,10 @@ TeqXEqual:
 1D19       2100  DATA>R1           DATA>R1             
 1D1A       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
 1D1B       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-1D1C       2E1D  1DH>R6            1DH>R6              ; Cout>R2-0 | RETURN ADDRESS
-1D1D       2F1F  1FH>R7            1FH>R7              
+1D1C       2E1D  1DH>R6            StaIndexedHighReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+1D1D       2F1F  1FH>R7            StaIndexedHighReturn.UL>R7
 1D1E       C800  JMP               JMP                 
+StaIndexedHighReturn:
 1D1F       68ED  EDH>AL            TEMP1.LSB>AL        ; MSB Address is in R0
 1D20       2100  DATA>R1           DATA>R1             ; LSB Address is in TEMP1 put it in R1
 1D21       781F  1FH>AH            A_REG.MSB>AH        ; Read Data from Register A
@@ -1137,9 +1150,10 @@ TeqXEqual:
 1F18       2A01  01H>R2            01H>R2              ; R2-0 used as Cin
 1F19       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
 1F1A       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-1F1B       2E1F  1FH>R6            1FH>R6              ; Cout>R2-0 | RETURN ADDRESS
-1F1C       2F1E  1EH>R7            1EH>R7              ; keep carry out R2
+1F1B       2E1F  1FH>R6            CmpaDirectReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+1F1C       2F1E  1EH>R7            CmpaDirectReturn.UL>R7; keep carry out R2
 1F1D       C800  JMP               JMP                 
+CmpaDirectReturn:
 1F1E       781F  1FH>AH            1FH>AH              ; Save C
 1F1F       68FB  FBH>AL            FBH>AL              
 1F20       5A00  R2>DATA           R2>DATA             
@@ -1177,11 +1191,12 @@ TeqXEqual:
 2000       781F  1FH>AH            1FH>AH              ;             C not updated, E updated
 2001       68FC  FCH>AL            FCH>AL              
 2002       2000  DATA>R0           DATA>R0             ; READ REG. A
-2003       2E20  20H>R6            20H>R6              ; R0-1>R0  3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
-2004       2F08  08H>R7            08H>R7              
+2003       2E20  20H>R6            DecaReturn.UH>R6    ; R0-1>R0  3A00H  ROUTINE R0 - 1 > R0 (No Carry) Return R6:R7
+2004       2F08  08H>R7            DecaReturn.UL>R7    
 2005       303A  3AH>UH            3AH>UH              
 2006       3800  00H>UL            00H>UL              
 2007       C800  JMP               JMP                 
+DecaReturn:
 2008       5800  R0>DATA           R0>DATA             ; Result in register A
 2009       3020  20H>UH            20H>UH              ; Jump if any bit is '1'
 200A       3821  21H>UL            21H>UL              
@@ -1364,9 +1379,10 @@ TeqXEqual:
 240A       2000  DATA>R0           DATA>R0             
 240B       303E  3EH>UH            3EH>UH              ; Increment R0 containing SP value
 240C       3800  00H>UL            00H>UL              ; R0+1>R0  | ADD. Incrementation Routine
-240D       2E24  24H>R6            24H>R6              ;          | ADD. Return
-240E       2F10  10H>R7            10H>R7              
+240D       2E24  24H>R6            PshaReturn.UH>R6    ;          | ADD. Return
+240E       2F10  10H>R7            PshaReturn.UL>R7    
 240F       C800  JMP               JMP                 
+PshaReturn:
 2410       5800  R0>DATA           R0>DATA             ; Put Result in SP Register
 2411       3001  01H>UH            OpExec.UH>UH        ; Get Pointed OP Code and Execute
 2412       3800  00H>UL            OpExec.UL>UL        
@@ -1377,9 +1393,10 @@ TeqXEqual:
 2502       2000  DATA>R0           DATA>R0             
 2503       303A  3AH>UH            3AH>UH              ;          | ADD. Routine R0-1>R0
 2504       3800  00H>UL            00H>UL              ; SP-1     |
-2505       2E25  25H>R6            25H>R6              ;          | ADD. return
-2506       2F08  08H>R7            08H>R7              ; Decrementing the Stack Pointer Register
+2505       2E25  25H>R6            PopaReturn.UH>R6    ;          | ADD. return
+2506       2F08  08H>R7            PopaReturn.UL>R7    ; Decrementing the Stack Pointer Register
 2507       C800  JMP               JMP                 
+PopaReturn:
 2508       5800  R0>DATA           R0>DATA             ; Store result in SP
 2509       7800  00H>AH            00H>AH              ; Read byte pointed by SP and put in register A
 250A       1800  R0>AL             R0>AL               
@@ -1409,9 +1426,10 @@ TeqXEqual:
 2704       2A00  00H>R2            00H>R2              ; Clean Cin
 2705       303F  3FH>UH            3FH>UH              ; R2<0> Cin | ADD. ROUTINE
 2706       3800  00H>UL            00H>UL              ; R0+R1>R0  | 
-2707       2E27  27H>R6            27H>R6              ; Cout>R2-0 | RETURN ADDRESS
-2708       2F0A  0AH>R7            0AH>R7              
+2707       2E27  27H>R6            LdaStackReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+2708       2F0A  0AH>R7            LdaStackReturn.UL>R7
 2709       C800  JMP               JMP                 
+LdaStackReturn:
 270A       7800  00H>AH            00H>AH              ; Read pointed byte (SP-Offset)
 270B       1800  R0>AL             R0>AL               
 270C       2000  DATA>R0           DATA>R0             
@@ -1440,9 +1458,10 @@ TeqXEqual:
 280F       2200  DATA>R2           DATA>R2             
 2810       303F  3FH>UH            3FH>UH              ;           | ADD. ROUTINE
 2811       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-2812       2E28  28H>R6            28H>R6              ; Cout>R2-0 | RETURN ADDRESS
-2813       2F15  15H>R7            15H>R7              
+2812       2E28  28H>R6            AdcaDirectReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+2813       2F15  15H>R7            AdcaDirectReturn.UL>R7
 2814       C800  JMP               JMP                 
+AdcaDirectReturn:
 2815       781F  1FH>AH            1FH>AH              ; PUT SUMM IN REG. A
 2816       68FC  FCH>AL            FCH>AL              
 2817       5800  R0>DATA           R0>DATA             
@@ -1468,9 +1487,10 @@ TeqXEqual:
 290D       2A00  00H>R2            00H>R2              ; Put Cin=0
 290E       303F  3FH>UH            3FH>UH              ;           | ADD. ROUTINE
 290F       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-2910       2E29  29H>R6            29H>R6              ; Cout>R2-0 | RETURN ADDRESS
-2911       2F13  13H>R7            13H>R7              
+2910       2E29  29H>R6            AddaDirectReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+2911       2F13  13H>R7            AddaDirectReturn.UL>R7
 2912       C800  JMP               JMP                 
+AddaDirectReturn:
 2913       781F  1FH>AH            1FH>AH              ; PUT SUMM IN REG. A
 2914       68FC  FCH>AL            FCH>AL              
 2915       5800  R0>DATA           R0>DATA             
@@ -1584,9 +1604,10 @@ TeqXEqual:
 2D0F       2A01  01H>R2            01H>R2              ; R2-0 used as Cin
 2D10       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
 2D11       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-2D12       2E2D  2DH>R6            2DH>R6              ; Cout>R2-0 | RETURN ADDRESS
-2D13       2F15  15H>R7            15H>R7              ; keep carry out R2
+2D12       2E2D  2DH>R6            CmpaImmediateReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+2D13       2F15  15H>R7            CmpaImmediateReturn.UL>R7; keep carry out R2
 2D14       C800  JMP               JMP                 
+CmpaImmediateReturn:
 2D15       781F  1FH>AH            1FH>AH              ; Save C
 2D16       68FB  FBH>AL            FBH>AL              
 2D17       5A00  R2>DATA           R2>DATA             
@@ -1630,9 +1651,10 @@ TeqXEqual:
 2E06       2200  DATA>R2           DATA>R2             
 2E07       303F  3FH>UH            3FH>UH              ;           | ADD. ROUTINE
 2E08       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-2E09       2E2F  2FH>R6            2FH>R6              ; Cout>R2-0 | ADD. RETOUR
-2E0A       2F0A  0AH>R7            0AH>R7              ;           |
+2E09       2E2E  2EH>R6            AdcaImmediateReturn.UH>R6; Cout>R2-0 | ADD. RETOUR
+2E0A       2F0C  0CH>R7            AdcaImmediateReturn.UL>R7;           |
 2E0B       C800  JMP               JMP                 ;           |
+AdcaImmediateReturn:
 2E0C       781F  1FH>AH            1FH>AH              ; MET SOMME DANS REG. A
 2E0D       68FC  FCH>AL            FCH>AL              
 2E0E       5800  R0>DATA           R0>DATA             
@@ -1649,9 +1671,10 @@ TeqXEqual:
 2F04       2A00  00H>R2            00H>R2              ; FORCED Cin=0
 2F05       303F  3FH>UH            3FH>UH              ;           | ROUTINE ADDRESS
 2F06       3800  00H>UL            00H>UL              ; R0+R1>R0  |
-2F07       2E2F  2FH>R6            2FH>R6              ; Cout>R2-0 | RETURN ADDRESS
-2F08       2F0A  0AH>R7            0AH>R7              ;           |
+2F07       2E2F  2FH>R6            AddaImmediateReturn.UH>R6; Cout>R2-0 | RETURN ADDRESS
+2F08       2F0A  0AH>R7            AddaImmediateReturn.UL>R7;           |
 2F09       C800  JMP               JMP                 ;           |
+AddaImmediateReturn:
 2F0A       781F  1FH>AH            1FH>AH              ; PUT SUMM INTO A REGISTER
 2F0B       68FC  FCH>AL            FCH>AL              
 2F0C       5800  R0>DATA           R0>DATA             
@@ -2210,9 +2233,10 @@ IncIP:
 3C02       2000  DATA>R0           DATA>R0             
 3C03       303E  3EH>UH            3EH>UH              ; Address Increment routine
 3C04       3800  00H>UL            00H>UL              
-3C05       2E3C  3CH>R6            3CH>R6              ; Address Return
-3C06       2F08  08H>R7            08H>R7              
+3C05       2E3C  3CH>R6            IncrementIpLowReturn.UH>R6; Address Return
+3C06       2F08  08H>R7            IncrementIpLowReturn.UL>R7
 3C07       C800  JMP               JMP                 
+IncrementIpLowReturn:
 3C08       781F  1FH>AH            1FH>AH              ; Result in IPL
 3C09       68FF  FFH>AL            FFH>AL              
 3C0A       5800  R0>DATA           R0>DATA             
@@ -2220,9 +2244,10 @@ IncIP:
 3C0C       2000  DATA>R0           DATA>R0             
 3C0D       303D  3DH>UH            3DH>UH              ; Address routine to Add Carry
 3C0E       3800  00H>UL            00H>UL              
-3C0F       2E3C  3CH>R6            3CH>R6              ; Return Address
-3C10       2F12  12H>R7            12H>R7              
+3C0F       2E3C  3CH>R6            IncrementIpHighReturn.UH>R6; Return Address
+3C10       2F12  12H>R7            IncrementIpHighReturn.UL>R7
 3C11       C800  JMP               JMP                 ; Call routine
+IncrementIpHighReturn:
 3C12       781F  1FH>AH            1FH>AH              ; Save result Add Carry
 3C13       68FE  FEH>AL            FEH>AL              
 3C14       5800  R0>DATA           R0>DATA             
@@ -2438,13 +2463,38 @@ OpExec                 0x01H   0x00H    0x0080
 OpExecAfterIncrement   0x01H   0x0DH    0x008D
 NextOpExec             0x02H   0x00H    0x0100
 NextOpExecAfterIncrement   0x02H   0x05H    0x0105
+IncaReturn             0x03H   0x08H    0x0188
+IncxLsbReturn          0x05H   0x08H    0x0288
+IncxMsbReturn          0x05H   0x16H    0x0296
+RtsLowReturn           0x07H   0x08H    0x0388
 Jra                    0x0CH   0x00H    0x0600
+JraBackwardReturn      0x0CH   0x0EH    0x060E
+JraBackwardHighReturn   0x0CH   0x17H    0x0617
 JraForward             0x0CH   0x40H    0x0640
+JraForwardReturn       0x0CH   0x49H    0x0649
+JraForwardHighReturn   0x0CH   0x55H    0x0655
+DecXlReturn            0x13H   0x08H    0x0988
 TeqXCompareLsb         0x1AH   0x33H    0x0D33
 TeqXEqual              0x1AH   0x66H    0x0D66
+LdaIndexedLowReturn    0x1CH   0x13H    0x0E13
+LdaIndexedHighReturn   0x1CH   0x1FH    0x0E1F
+StaIndexedLowReturn    0x1DH   0x13H    0x0E93
+StaIndexedHighReturn   0x1DH   0x1FH    0x0E9F
+CmpaDirectReturn       0x1FH   0x1EH    0x0F9E
+DecaReturn             0x20H   0x08H    0x1008
+PshaReturn             0x24H   0x10H    0x1210
+PopaReturn             0x25H   0x08H    0x1288
+LdaStackReturn         0x27H   0x0AH    0x138A
+AdcaDirectReturn       0x28H   0x15H    0x1415
+AddaDirectReturn       0x29H   0x13H    0x1493
+CmpaImmediateReturn    0x2DH   0x15H    0x1695
+AdcaImmediateReturn    0x2EH   0x0CH    0x170C
+AddaImmediateReturn    0x2FH   0x0AH    0x178A
 JrneTaken              0x35H   0x0AH    0x1A8A
 JreTaken               0x36H   0x0AH    0x1B0A
 IncIP                  0x3BH   0x00H    0x1D80
+IncrementIpLowReturn   0x3CH   0x08H    0x1E08
+IncrementIpHighReturn   0x3CH   0x12H    0x1E12
 
 Memory map constants:
 Name                      Addr
