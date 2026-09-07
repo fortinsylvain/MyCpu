@@ -70,9 +70,10 @@ OpExec:
 0107       2300  DATA>R3           DATA>R3             ; Read OP. Code
 0108       303B  3BH>UH            IncIP.UH>UH         ;          | ADD. ROUTINE INCREMENT IP
 0109       3800  00H>UL            IncIP.UL>UL         ;          |
-010A       2C01  01H>R4            01H>R4              ;  IP+1>IP | ADD. RETURN
-010B       2D0D  0DH>R5            0DH>R5              ;  IP>ADD  |
+010A       2C01  01H>R4            OpExecAfterIncrement.UH>R4;  IP+1>IP | ADD. RETURN
+010B       2D0D  0DH>R5            OpExecAfterIncrement.UL>R5;  IP>ADD  |
 010C       C800  JMP               JMP                 ;          | JMP TO ROUTINE
+OpExecAfterIncrement:
 010D       0300  R3>UH             R3>UH               ; Build micro address and execute OP. code
 010E       3800  00H>UL            00H>UL              
 010F       C800  JMP               JMP                 ; ***************************************************
@@ -80,14 +81,15 @@ OpExec:
 NextOpExec:
 0200       303B  3BH>UH            IncIP.UH>UH         ;          | ADD. ROUTINE INCREMENT IP
 0201       3800  00H>UL            IncIP.UL>UL         ;          |
-0202       2C02  02H>R4            02H>R4              ;  IP+1>IP | ADD. RETURN
-0203       2D05  05H>R5            05H>R5              ;  IP>ADD  |
+0202       2C02  02H>R4            NextOpExecAfterIncrement.UH>R4;  IP+1>IP | ADD. RETURN
+0203       2D05  05H>R5            NextOpExecAfterIncrement.UL>R5;  IP>ADD  |
 0204       C800  JMP               JMP                 ;          | JMP TO ROUTINE
+NextOpExecAfterIncrement:
 0205       2300  DATA>R3           DATA>R3             ; Read OP. Code
 0206       303B  3BH>UH            3BH>UH              ;          | ADD. ROUTINE INCREMENT IP
 0207       3800  00H>UL            00H>UL              ;          |
-0208       2C01  01H>R4            01H>R4              ;  IP+1>IP | ADD. RETURN
-0209       2D0D  0DH>R5            0DH>R5              ;  IP>ADD  | JMP TO ROUTINE
+0208       2C01  01H>R4            OpExecAfterIncrement.UH>R4;  IP+1>IP | ADD. RETURN
+0209       2D0D  0DH>R5            OpExecAfterIncrement.UL>R5;  IP>ADD  | JMP TO ROUTINE
 020A       C800  JMP               JMP                 ; ***************************************************
 0300                               ORG/0180H           ; OP.03 INCA  INCREMENT REGISTER A
 0300       781F  1FH>AH            1FH>AH              ;             C not updated, E updated
@@ -142,8 +144,8 @@ NextOpExec:
 0322       481E  A>Q6              A>Q6                
 0323       481F  A>Q7              A>Q7                
 0324       6100  Q>R1              Q>R1                ; Move Q byte in R1
-0325       781F  1FH>AH            1FH>AH              ; Store E in Equal Status RAM location
-0326       68FA  FAH>AL            FAH>AL              
+0325       781F  1FH>AH            E_FLAG.MSB>AH       ; Store E in Equal Status RAM location
+0326       68FA  FAH>AL            E_FLAG.LSB>AL       
 0327       5900  R1>DATA           R1>DATA             
 0328       3001  01H>UH            OpExec.UH>UH        ; Get Pointed OP Code and Execute
 0329       3800  00H>UL            OpExec.UL>UL        
@@ -156,31 +158,32 @@ NextOpExec:
 0404       2D06  06H>R5            06H>R5              ;          |
 0405       C800  JMP               JMP                 
 0406       2300  DATA>R3           DATA>R3             ; Take LSB Immediate value
-0407       781F  1FH>AH            1FH>AH              ; Put MSB value into register X MSB
-0408       68F3  F3H>AL            F3H>AL              
+0407       781F  1FH>AH            X_MSB.MSB>AH        ; Put MSB value into register X MSB
+0408       68F3  F3H>AL            X_MSB.LSB>AL        
 0409       5A00  R2>DATA           R2>DATA             
-040A       68F4  F4H>AL            F4H>AL              ; Put LSB value into register X LSB
-040B       5B00  R3>DATA           R3>DATA             
-040C       3002  02H>UH            02H>UH              ; NEXT OP.
-040D       3800  00H>UL            00H>UL              
-040E       C800  JMP               JMP                 ; ***************************************************
+040A       781F  1FH>AH            X_LSB.MSB>AH        ; Put LSB value into register X LSB
+040B       68F4  F4H>AL            X_LSB.LSB>AL        
+040C       5B00  R3>DATA           R3>DATA             
+040D       3002  02H>UH            02H>UH              ; NEXT OP.
+040E       3800  00H>UL            00H>UL              
+040F       C800  JMP               JMP                 ; ***************************************************
 0500                               ORG/0280H           ; OP.05 INCX  Increment Register X
-0500       781F  1FH>AH            1FH>AH              ;             Carry Not Updated
-0501       68F4  F4H>AL            F4H>AL              
+0500       781F  1FH>AH            X_LSB.MSB>AH        ;             Carry Not Updated
+0501       68F4  F4H>AL            X_LSB.LSB>AL        
 0502       2000  DATA>R0           DATA>R0             ; Read Reg X LSB
 0503       2E05  05H>R6            05H>R6              ;
 0504       2F08  08H>R7            08H>R7              ; R0+1>R0
 0505       303E  3EH>UH            3EH>UH              ; Cout>R1-7
 0506       3800  00H>UL            00H>UL              
 0507       C800  JMP               JMP                 
-0508       781F  1FH>AH            1FH>AH              ; Put increment result in REG. X LSB
-0509       68F4  F4H>AL            F4H>AL              
+0508       781F  1FH>AH            X_LSB.MSB>AH        ; Put increment result in REG. X LSB
+0509       68F4  F4H>AL            X_LSB.LSB>AL        
 050A       5800  R0>DATA           R0>DATA             
 050B       5107  R1-7>A            R1-7>A              ; Add 1 to X MSB only if there is a carry
 050C       3001  01H>UH            01H>UH              ; If Cout=0 no increment on X MSB
 050D       3800  00H>UL            00H>UL              ; and go execute currently pointed OP.
 050E       C81B  JMP_A=0           JMP_A=0             
-050F       68F3  F3H>AL            F3H>AL              ; If Cout=1 then we increment X MSB
+050F       68F3  F3H>AL            X_MSB.LSB>AL        ; If Cout=1 then we increment X MSB
 0510       2000  DATA>R0           DATA>R0             ; Read X MSB
 0511       2E05  05H>R6            05H>R6              ; R0+1>R0
 0512       2F16  16H>R7            16H>R7              ; Cout>R1-7, go execute currently pointed OP.
@@ -193,8 +196,8 @@ NextOpExec:
 0519       C800  JMP               JMP                 ; ******************************************************
 0600                               ORG/0300H           ; OP.06 JSR    Jump to SubRoutine
 0600       2000  DATA>R0           DATA>R0             ; Read MSB IP Destination
-0601       781F  1FH>AH            1FH>AH              ; Store in JSH (Temp SP1) MSB
-0602       68F1  F1H>AL            F1H>AL              
+0601       781F  1FH>AH            JSH.MSB>AH          ; Store in JSH (Temp SP1) MSB
+0602       68F1  F1H>AL            JSH.LSB>AL          
 0603       5800  R0>DATA           R0>DATA             
 0604       303B  3BH>UH            IncIP.UH>UH         ;          | ADD. ROUTINE INCREMENT IP
 0605       3800  00H>UL            IncIP.UL>UL         ;          |
@@ -202,24 +205,24 @@ NextOpExec:
 0607       2D09  09H>R5            09H>R5              ;  IP>ADD  |
 0608       C800  JMP               JMP                 ;          | JMP TO ROUTINE
 0609       2000  DATA>R0           DATA>R0             ; Read LSB IP Destination
-060A       781F  1FH>AH            1FH>AH              ; Store in JSL (Temp SP2) LSB
-060B       68F2  F2H>AL            F2H>AL              
+060A       781F  1FH>AH            JSL.MSB>AH          ; Store in JSL (Temp SP2) LSB
+060B       68F2  F2H>AL            JSL.LSB>AL          
 060C       5800  R0>DATA           R0>DATA             
 060D       303C  3CH>UH            3CH>UH              ;  IP+1>IP | ADDRESS OF ROUTINE TO INCREMENT IP
 060E       3800  00H>UL            00H>UL              ;          | Compute return address from routine
 060F       2C06  06H>R4            06H>R4              ;          | R4 R5 Add. Return for uProgram         
 0610       2D12  12H>R5            12H>R5              
 0611       C800  JMP               JMP                 
-0612       781F  1FH>AH            1FH>AH              ; Read STACK POINTER Register (SP) (8bit LSB) MSB=0H Always
-0613       68F0  F0H>AL            F0H>AL              
+0612       781F  1FH>AH            SP.MSB>AH           ; Read STACK POINTER Register (SP) (8bit LSB) MSB=0H Always
+0613       68F0  F0H>AL            SP.LSB>AL           
 0614       2000  DATA>R0           DATA>R0             
-0615       68FE  FEH>AL            FEH>AL              ; Read IPH Return Adress
+0615       68FE  FEH>AL            IPH.LSB>AL          ; Read IPH Return Adress
 0616       2100  DATA>R1           DATA>R1             
 0617       7800  00H>AH            00H>AH              ; Put in STACK
 0618       1800  R0>AL             R0>AL               
 0619       5900  R1>DATA           R1>DATA             
-061A       781F  1FH>AH            1FH>AH              ; Read SP Register
-061B       68F0  F0H>AL            F0H>AL              
+061A       781F  1FH>AH            SP.MSB>AH           ; Read SP Register
+061B       68F0  F0H>AL            SP.LSB>AL           
 061C       2000  DATA>R0           DATA>R0             
 061D       303E  3EH>UH            3EH>UH              ; Increment R0 containing SP value
 061E       3800  00H>UL            00H>UL              ; R0+1>R0  | ADD. Incrementation Routine
@@ -227,7 +230,7 @@ NextOpExec:
 0620       2F22  22H>R7            22H>R7              
 0621       C800  JMP               JMP                 
 0622       5800  R0>DATA           R0>DATA             ; Put Result in SP Register
-0623       68FF  FFH>AL            FFH>AL              ; Read IPL for subroutine return
+0623       68FF  FFH>AL            IPL.LSB>AL          ; Read IPL for subroutine return
 0624       2100  DATA>R1           DATA>R1             
 0625       7800  00H>AH            00H>AH              ; Put value of SP on address bus
 0626       1800  R0>AL             R0>AL               
@@ -237,18 +240,18 @@ NextOpExec:
 062A       2E06  06H>R6            06H>R6              ;          | ADD. Return
 062B       2F2D  2DH>R7            2DH>R7              
 062C       C800  JMP               JMP                 
-062D       781F  1FH>AH            1FH>AH              ; Store new value in SP Register
-062E       68F0  F0H>AL            F0H>AL              
+062D       781F  1FH>AH            SP.MSB>AH           ; Store new value in SP Register
+062E       68F0  F0H>AL            SP.LSB>AL           
 062F       5800  R0>DATA           R0>DATA             
-0630       781F  1FH>AH            1FH>AH              ; Read JSH stored MSB address of routine to execute
-0631       68F1  F1H>AL            F1H>AL              
+0630       781F  1FH>AH            JSH.MSB>AH          ; Read JSH stored MSB address of routine to execute
+0631       68F1  F1H>AL            JSH.LSB>AL          
 0632       2000  DATA>R0           DATA>R0             
-0633       68FE  FEH>AL            FEH>AL              ; Write MSB address routine in IPH
+0633       68FE  FEH>AL            IPH.LSB>AL          ; Write MSB address routine in IPH
 0634       5800  R0>DATA           R0>DATA             
-0635       781F  1FH>AH            1FH>AH              ; Read JSL stored LSB address of routine to execute
-0636       68F2  F2H>AL            F2H>AL              
+0635       781F  1FH>AH            JSL.MSB>AH          ; Read JSL stored LSB address of routine to execute
+0636       68F2  F2H>AL            JSL.LSB>AL          
 0637       2000  DATA>R0           DATA>R0             
-0638       68FF  FFH>AL            FFH>AL              ; Write LSB address routine in IPL
+0638       68FF  FFH>AL            IPL.LSB>AL          ; Write LSB address routine in IPL
 0639       5800  R0>DATA           R0>DATA             
 063A       3001  01H>UH            OpExec.UH>UH        ; Get Pointed OP Code and Execute
 063B       3800  00H>UL            OpExec.UL>UL        
@@ -293,27 +296,27 @@ NextOpExec:
 0901       3800  00H>UL            OpExec.UL>UL        
 0902       C800  JMP               JMP                 ; ***************************************************
 0A00                               ORG/0500H           ; OP.0A LDA (X) Load Reg A Indexed
-0A00       781F  1FH>AH            1FH>AH              ; Read X MSB
-0A01       68F3  F3H>AL            F3H>AL              
+0A00       781F  1FH>AH            X_MSB.MSB>AH        ; Read X MSB
+0A01       68F3  F3H>AL            X_MSB.LSB>AL        
 0A02       2200  DATA>R2           DATA>R2             
-0A03       68F4  F4H>AL            F4H>AL              ; Read X LSB
+0A03       68F4  F4H>AL            X_LSB.LSB>AL        ; Read X LSB
 0A04       2300  DATA>R3           DATA>R3             
 0A05       1200  R2>AH             R2>AH               ; Put on addres bus
 0A06       1B00  R3>AL             R3>AL               
 0A07       2000  DATA>R0           DATA>R0             ; Read pointed byte
-0A08       781F  1FH>AH            1FH>AH              ; Write in register A
-0A09       68FC  FCH>AL            FCH>AL              
+0A08       781F  1FH>AH            A_REG.MSB>AH        ; Write in register A
+0A09       68FC  FCH>AL            A_REG.LSB>AL        
 0A0A       5800  R0>DATA           R0>DATA             
 0A0B       3001  01H>UH            OpExec.UH>UH        ; Get Pointed OP Code and Execute
 0A0C       3800  00H>UL            OpExec.UL>UL        
 0A0D       C800  JMP               JMP                 ; ***************************************************
 0B00                               ORG/0580H           ; OP.0B STA (X) Store Reg A Indexed
-0B00       781F  1FH>AH            1FH>AH              ; Read X MSB
-0B01       68F3  F3H>AL            F3H>AL              
+0B00       781F  1FH>AH            X_MSB.MSB>AH        ; Read X MSB
+0B01       68F3  F3H>AL            X_MSB.LSB>AL        
 0B02       2200  DATA>R2           DATA>R2             
-0B03       68F4  F4H>AL            F4H>AL              ; Read X LSB
+0B03       68F4  F4H>AL            X_LSB.LSB>AL        ; Read X LSB
 0B04       2300  DATA>R3           DATA>R3             
-0B05       68FC  FCH>AL            FCH>AL              ; Read Reg A
+0B05       68FC  FCH>AL            A_REG.LSB>AL        ; Read Reg A
 0B06       2400  DATA>R4           DATA>R4             
 0B07       1200  R2>AH             R2>AH               ; Set address bus
 0B08       1B00  R3>AL             R3>AL               
@@ -322,10 +325,11 @@ NextOpExec:
 0B0B       3800  00H>UL            OpExec.UL>UL        
 0B0C       C800  JMP               JMP                 ; ***************************************************
 0C00                               ORG/0600H           ; OP.0C JRA **H Unconditional relative jump
+Jra:
 0C00       2000  DATA>R0           DATA>R0             ; Read the displacement
 0C01       5007  R0-7>A            R0-7>A              ; Check sign bit <7>
-0C02       300C  0CH>UH            0CH>UH              
-0C03       3840  40H>UL            40H>UL              
+0C02       300C  0CH>UH            JraForward.UH>UH    
+0C03       3840  40H>UL            JraForward.UL>UL    
 0C04       C81B  JMP_A=0           JMP_A=0             ; if bit 7 is 0 then we jump foward,
 0C05       781F  1FH>AH            1FH>AH              ; Else jump backward
 0C06       68FF  FFH>AL            FFH>AL              ; Read IPL
@@ -350,6 +354,7 @@ NextOpExec:
 0C19       3800  00H>UL            OpExec.UL>UL        
 0C1A       C800  JMP               JMP                 
 0C40                               ORG/0640H           
+JraForward:
 0C40       781F  1FH>AH            1FH>AH              ; Read IPL >>Jump forward arrive here<<
 0C41       68FF  FFH>AL            FFH>AL              
 0C42       2100  DATA>R1           DATA>R1             
@@ -532,8 +537,8 @@ NextOpExec:
 1205       3800  00H>UL            OpExec.UL>UL        
 1206       C800  JMP               JMP                 ; ***************************************************
 1300                               ORG/0980H           ; OP.13 DECXL  Decrement XL  E updated
-1300       781F  1FH>AH            1FH>AH              ; Read XL and put in R0
-1301       68F4  F4H>AL            F4H>AL              
+1300       781F  1FH>AH            X_LSB.MSB>AH        ; Read XL and put in R0
+1301       68F4  F4H>AL            X_LSB.LSB>AL        
 1302       2000  DATA>R0           DATA>R0             
 1303       303A  3AH>UH            3AH>UH              ;          | ADD. Routine R0-1>R0
 1304       3800  00H>UL            00H>UL              ;          |
@@ -567,7 +572,7 @@ NextOpExec:
 1320       481E  A>Q6              A>Q6                
 1321       481F  A>Q7              A>Q7                
 1322       6100  Q>R1              Q>R1                ; Move Q byte in R1
-1323       68FA  FAH>AL            FAH>AL              ; Store E in Equal Status RAM location
+1323       68FA  FAH>AL            E_FLAG.LSB>AL       ; Store E in Equal Status RAM location
 1324       5900  R1>DATA           R1>DATA             
 1325       3001  01H>UH            OpExec.UH>UH        ; Get Pointed OP Code and Execute
 1326       3800  00H>UL            OpExec.UL>UL        
@@ -880,8 +885,8 @@ NextOpExec:
 1A21       7006  Q6>A              Q6>A                
 1A22       4027  AND R0-7          AND R0-7            
 1A23       7007  Q7>A              Q7>A                ; Equal status in A
-1A24       301A  1AH>UH            1AH>UH              ; If MSB identical we need to continue to verify LSB
-1A25       3833  33H>UL            33H>UL              
+1A24       301A  1AH>UH            TeqXCompareLsb.UH>UH; If MSB identical we need to continue to verify LSB
+1A25       3833  33H>UL            TeqXCompareLsb.UL>UL
 1A26       C83B  JMP_A=1           JMP_A=1             
 1A27       2800  00H>R0            00H>R0              ; MSB is different, force '0' in Equal Status bit position <0>
 1A28       781F  1FH>AH            1FH>AH              
@@ -895,6 +900,7 @@ NextOpExec:
 1A30       3002  02H>UH            NextOpExec.UH>UH    ; NEXT OP.    
 1A31       3800  00H>UL            NextOpExec.UL>UL    
 1A32       C800  JMP               JMP                 
+TeqXCompareLsb:
 1A33       303B  3BH>UH            3BH>UH              ; Continue compare with the LSB
 1A34       3800  00H>UL            00H>UL              ;          | ADD. ROUTINE INCREMENT IP
 1A35       2C1A  1AH>R4            1AH>R4              ;  IP+1>IP | ADD. RETURN
@@ -936,8 +942,8 @@ NextOpExec:
 1A59       7006  Q6>A              Q6>A                
 1A5A       4027  AND R0-7          AND R0-7            
 1A5B       7007  Q7>A              Q7>A                ; Equal status in A
-1A5C       301A  1AH>UH            1AH>UH              ; If LSB identical go set the equal flag
-1A5D       3866  66H>UL            66H>UL              
+1A5C       301A  1AH>UH            TeqXEqual.UH>UH     ; If LSB identical go set the equal flag
+1A5D       3866  66H>UL            TeqXEqual.UL>UL     
 1A5E       C83B  JMP_A=1           JMP_A=1             
 1A5F       2800  00H>R0            00H>R0              ; Else it's different clear Equal Status bit position <0>
 1A60       781F  1FH>AH            1FH>AH              
@@ -946,6 +952,7 @@ NextOpExec:
 1A63       3002  02H>UH            NextOpExec.UH>UH    ; NEXT OP.    
 1A64       3800  00H>UL            NextOpExec.UL>UL    
 1A65       C800  JMP               JMP                 
+TeqXEqual:
 1A66       2801  01H>R0            01H>R0              ; MSB and LSB are identical the set '1' in Equal Status bit position <0>
 1A67       781F  1FH>AH            1FH>AH              
 1A68       68FA  FAH>AL            FAH>AL              
@@ -1005,8 +1012,8 @@ NextOpExec:
 1B30       C800  JMP               JMP                 ; ***************************************************
 1C00                               ORG/0E00H           ; OP.1C LDA (****H,X) LDA indexed indirect addressing
 1C00       2000  DATA>R0           DATA>R0             ; Read MSB Operand
-1C01       781F  1FH>AH            1FH>AH              ; store in TEMP0
-1C02       68EC  ECH>AL            ECH>AL              
+1C01       781F  1FH>AH            TEMP0.MSB>AH        ; store in TEMP0
+1C02       68EC  ECH>AL            TEMP0.LSB>AL        
 1C03       5800  R0>DATA           R0>DATA             
 1C04       303B  3BH>UH            IncIP.UH>UH         ;          | ADD. ROUTINE INCREMENT IP
 1C05       3800  00H>UL            IncIP.UL>UL         ;          |
@@ -1014,8 +1021,8 @@ NextOpExec:
 1C07       2D09  09H>R5            09H>R5              ;  IP>ADD  |
 1C08       C800  JMP               JMP                 ;          | JMP TO ROUTINE
 1C09       2000  DATA>R0           DATA>R0             ; Read LSB Operand
-1C0A       781F  1FH>AH            1FH>AH              ; Read XL
-1C0B       68F4  F4H>AL            F4H>AL              
+1C0A       781F  1FH>AH            X_LSB.MSB>AH        ; Read XL
+1C0B       68F4  F4H>AL            X_LSB.LSB>AL        
 1C0C       2100  DATA>R1           DATA>R1             
 1C0D       2A00  00H>R2            00H>R2              ; Clear carry in
 1C0E       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
@@ -1023,33 +1030,33 @@ NextOpExec:
 1C10       2E1C  1CH>R6            1CH>R6              ; Cout>R2-0 | RETURN ADDRESS
 1C11       2F13  13H>R7            13H>R7              ; keep carry in R2 it will be used later
 1C12       C800  JMP               JMP                 
-1C13       68ED  EDH>AL            EDH>AL              ; store LSB address summ in TEMP1
+1C13       68ED  EDH>AL            TEMP1.LSB>AL        ; store LSB address summ in TEMP1
 1C14       5800  R0>DATA           R0>DATA             
-1C15       68EC  ECH>AL            ECH>AL              ; Load MSB Operand from TEMP0
+1C15       68EC  ECH>AL            TEMP0.LSB>AL        ; Load MSB Operand from TEMP0
 1C16       2000  DATA>R0           DATA>R0             
-1C17       781F  1FH>AH            1FH>AH              ; Read XH
-1C18       68F3  F3H>AL            F3H>AL              
+1C17       781F  1FH>AH            X_MSB.MSB>AH        ; Read XH
+1C18       68F3  F3H>AL            X_MSB.LSB>AL        
 1C19       2100  DATA>R1           DATA>R1             
 1C1A       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
 1C1B       3800  00H>UL            00H>UL              ; R0+R1>R0  |
 1C1C       2E1C  1CH>R6            1CH>R6              ; Cout>R2-0 | RETURN ADDRESS
 1C1D       2F1F  1FH>R7            1FH>R7              
 1C1E       C800  JMP               JMP                 
-1C1F       68ED  EDH>AL            EDH>AL              ; MSB Address is in R0
+1C1F       68ED  EDH>AL            TEMP1.LSB>AL        ; MSB Address is in R0
 1C20       2100  DATA>R1           DATA>R1             ; LSB Address is in TEMP1 put it in R1
 1C21       1000  R0>AH             R0>AH               ; Read Data
 1C22       1900  R1>AL             R1>AL               
 1C23       2000  DATA>R0           DATA>R0             
-1C24       781F  1FH>AH            1FH>AH              ; Store in Register A
-1C25       68FC  FCH>AL            FCH>AL              
+1C24       781F  1FH>AH            A_REG.MSB>AH        ; Store in Register A
+1C25       68FC  FCH>AL            A_REG.LSB>AL        
 1C26       5800  R0>DATA           R0>DATA             
 1C27       3002  02H>UH            NextOpExec.UH>UH    ; NEXT OP.    
 1C28       3800  00H>UL            NextOpExec.UL>UL    
 1C29       C800  JMP               JMP                 ; ***************************************************
 1D00                               ORG/0E80H           ; OP.1D STA (****H,X) STA indexed indirect addressing
 1D00       2000  DATA>R0           DATA>R0             ; Read MSB Operand
-1D01       781F  1FH>AH            1FH>AH              ; store in TEMP0
-1D02       68EC  ECH>AL            ECH>AL              
+1D01       781F  1FH>AH            TEMP0.MSB>AH        ; store in TEMP0
+1D02       68EC  ECH>AL            TEMP0.LSB>AL        
 1D03       5800  R0>DATA           R0>DATA             
 1D04       303B  3BH>UH            IncIP.UH>UH         ;          | ADD. ROUTINE INCREMENT IP
 1D05       3800  00H>UL            IncIP.UL>UL         ;          |
@@ -1057,8 +1064,8 @@ NextOpExec:
 1D07       2D09  09H>R5            09H>R5              ;  IP>ADD  |
 1D08       C800  JMP               JMP                 ;          | JMP TO ROUTINE
 1D09       2000  DATA>R0           DATA>R0             ; Read LSB Operand
-1D0A       781F  1FH>AH            1FH>AH              ; Read XL
-1D0B       68F4  F4H>AL            F4H>AL              
+1D0A       781F  1FH>AH            X_LSB.MSB>AH        ; Read XL
+1D0B       68F4  F4H>AL            X_LSB.LSB>AL        
 1D0C       2100  DATA>R1           DATA>R1             
 1D0D       2A00  00H>R2            00H>R2              ; Clear carry in
 1D0E       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
@@ -1066,22 +1073,22 @@ NextOpExec:
 1D10       2E1D  1DH>R6            1DH>R6              ; Cout>R2-0 | RETURN ADDRESS
 1D11       2F13  13H>R7            13H>R7              ; keep carry in R2 it will be used later
 1D12       C800  JMP               JMP                 
-1D13       68ED  EDH>AL            EDH>AL              ; store LSB address summ in TEMP1
+1D13       68ED  EDH>AL            TEMP1.LSB>AL        ; store LSB address summ in TEMP1
 1D14       5800  R0>DATA           R0>DATA             
-1D15       68EC  ECH>AL            ECH>AL              ; Load MSB Operand from TEMP0
+1D15       68EC  ECH>AL            TEMP0.LSB>AL        ; Load MSB Operand from TEMP0
 1D16       2000  DATA>R0           DATA>R0             
-1D17       781F  1FH>AH            1FH>AH              ; Read XH
-1D18       68F3  F3H>AL            F3H>AL              
+1D17       781F  1FH>AH            X_MSB.MSB>AH        ; Read XH
+1D18       68F3  F3H>AL            X_MSB.LSB>AL        
 1D19       2100  DATA>R1           DATA>R1             
 1D1A       303F  3FH>UH            3FH>UH              ; Cin:R2-0  | ADD. ROUTINE
 1D1B       3800  00H>UL            00H>UL              ; R0+R1>R0  |
 1D1C       2E1D  1DH>R6            1DH>R6              ; Cout>R2-0 | RETURN ADDRESS
 1D1D       2F1F  1FH>R7            1FH>R7              
 1D1E       C800  JMP               JMP                 
-1D1F       68ED  EDH>AL            EDH>AL              ; MSB Address is in R0
+1D1F       68ED  EDH>AL            TEMP1.LSB>AL        ; MSB Address is in R0
 1D20       2100  DATA>R1           DATA>R1             ; LSB Address is in TEMP1 put it in R1
-1D21       781F  1FH>AH            1FH>AH              ; Read Data from Register A
-1D22       68FC  FCH>AL            FCH>AL              
+1D21       781F  1FH>AH            A_REG.MSB>AH        ; Read Data from Register A
+1D22       68FC  FCH>AL            A_REG.LSB>AL        
 1D23       2200  DATA>R2           DATA>R2             
 1D24       1000  R0>AH             R0>AH               ;  Store Data to specifyed resulting address
 1D25       1900  R1>AL             R1>AL               
@@ -1849,12 +1856,13 @@ NextOpExec:
 3501       68FA  FAH>AL            FAH>AL              
 3502       2000  DATA>R0           DATA>R0             
 3503       5000  R0-0>A            R0-0>A              
-3504       3035  35H>UH            35H>UH              ; if E = 0 then prepare the jump JRA
-3505       380A  0AH>UL            0AH>UL              
+3504       3035  35H>UH            JrneTaken.UH>UH     ; if E = 0 then prepare the jump JRA
+3505       380A  0AH>UL            JrneTaken.UL>UL     
 3506       C81B  JMP_A=0           JMP_A=0             
 3507       3002  02H>UH            NextOpExec.UH>UH    ; NEXT OP.    
 3508       3800  00H>UL            NextOpExec.UL>UL    
 3509       C800  JMP               JMP                 
+JrneTaken:
 350A       68FE  FEH>AL            FEH>AL              ; Put IP on Address Bus
 350B       2000  DATA>R0           DATA>R0             
 350C       68FF  FFH>AL            FFH>AL              
@@ -1869,12 +1877,13 @@ NextOpExec:
 3601       68FA  FAH>AL            FAH>AL              
 3602       2000  DATA>R0           DATA>R0             
 3603       5000  R0-0>A            R0-0>A              
-3604       3036  36H>UH            36H>UH              ; if E = 1 then prepare the jump JRA
-3605       380A  0AH>UL            0AH>UL              
+3604       3036  36H>UH            JreTaken.UH>UH      ; if E = 1 then prepare the jump JRA
+3605       380A  0AH>UL            JreTaken.UL>UL      
 3606       C83B  JMP_A=1           JMP_A=1             
 3607       3002  02H>UH            02H>UH              ; NEXT OP.
 3608       3800  00H>UL            00H>UL              
 3609       C800  JMP               JMP                 
+JreTaken:
 360A       68FE  FEH>AL            FEH>AL              ; Put IP on Address Bus
 360B       2000  DATA>R0           DATA>R0             
 360C       68FF  FFH>AL            FFH>AL              
@@ -2426,7 +2435,15 @@ Name                      UH      UL      Addr
 ----------------------------------------------
 Reset                  0x00H   0x00H    0x0000
 OpExec                 0x01H   0x00H    0x0080
+OpExecAfterIncrement   0x01H   0x0DH    0x008D
 NextOpExec             0x02H   0x00H    0x0100
+NextOpExecAfterIncrement   0x02H   0x05H    0x0105
+Jra                    0x0CH   0x00H    0x0600
+JraForward             0x0CH   0x40H    0x0640
+TeqXCompareLsb         0x1AH   0x33H    0x0D33
+TeqXEqual              0x1AH   0x66H    0x0D66
+JrneTaken              0x35H   0x0AH    0x1A8A
+JreTaken               0x36H   0x0AH    0x1B0A
 IncIP                  0x3BH   0x00H    0x1D80
 
 Memory map constants:
