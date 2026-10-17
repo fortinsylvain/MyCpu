@@ -314,8 +314,9 @@ namespace UCT_Assembler
                                 string mnemonicDisplay = mnemonicSource.Length <= mnemonicWidth ? mnemonicSource : mnemonicSource.Substring(0, mnemonicWidth);
                                 string mnemonicPadded = ("  " + mnemonicDisplay).PadRight(separatorWidth + mnemonicWidth);
 
-                                // Keep ORG in the same source column as the original instruction text.
-                                string finalOrgLine = sLineNumber + sUassCode + new string(' ', 2 + 16) + "  " + mnemonicDisplay.PadRight(20);
+                                // Keep ORG in the same resolved/source/comment columns as regular instructions.
+                                const int sourceLabelFieldWidth = 28;
+                                string finalOrgLine = sLineNumber + sUassCode + "  " + new string(' ', 16) + "  " + mnemonicDisplay.PadRight(sourceLabelFieldWidth);
                                 if (!string.IsNullOrEmpty(commentPartOrg))
                                     finalOrgLine += commentPartOrg;
 
@@ -597,7 +598,8 @@ namespace UCT_Assembler
 
                                 string resolvedMnemonic = mnemonicSource.Trim();
                                 string resolvedColumn = resolvedMnemonic;
-                                string finalLine = sLineNumber + sUassCode + "  " + resolvedColumn.PadRight(16) + "  " + originalColumn.PadRight(20) + procCommentToPrint;
+                                const int sourceLabelFieldWidth = 28;
+                                string finalLine = sLineNumber + sUassCode + "  " + resolvedColumn.PadRight(16) + "  " + originalColumn.PadRight(sourceLabelFieldWidth) + procCommentToPrint;
                                 Console.WriteLine(finalLine);
                                 lstFile.WriteLine(finalLine);
 
