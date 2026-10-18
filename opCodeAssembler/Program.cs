@@ -314,28 +314,72 @@ namespace Assembler
                         else
                         {
                             // Line start with a symbol?
-                            // if (iFirstCharacterIndex == 0)
+                            // If the line contains only a label (or label + comment) handle it properly.
                             {
                                 int iSpaceIndex = sLine.IndexOf(' ');   // Find the index of the first space character
 
-                                string sSymbol = sLine.Substring(0, iSpaceIndex);   // Extract the substring from the start of the space character
-
-                                if (sSymbol != "")  // Only if non empty symbol
+                                // If there's no space, the whole line may be a single token (label-only).
+                                if (iSpaceIndex == -1)
                                 {
-                                    // Symbol directory check and update only possible in PASS 1
-                                    if (iPass == 1)
+                                    string sSymbolOnly = sLine.Trim();
+
+                                    if (!string.IsNullOrEmpty(sSymbolOnly))
                                     {
-                                        if (!symbolTable.ContainsKey(sSymbol))              // only if symbol does not exist
+                                        // Register symbol in PASS 1
+                                        if (iPass == 1)
                                         {
+                                            if (!symbolTable.ContainsKey(sSymbolOnly))
                                             {
-                                                symbolTable[sSymbol] = new SymbolTableEntry { Symbol = sSymbol, Address = iAddress };
+                                                symbolTable[sSymbolOnly] = new SymbolTableEntry { Symbol = sSymbolOnly, Address = iAddress };
                                             }
                                         }
                                     }
+
+                                    // In PASS 2 print label-only lines aligned with listing and skip assembly
+                                    if (iPass == 2)
+                                    {
+                                        Console.Write(new string(' ', iAssembledMnemonicPosition));
+                                        lstFile.Write(new string(' ', iAssembledMnemonicPosition));
+                                        Console.WriteLine(sLine);
+                                        lstFile.WriteLine(sLine);
+                                    }
+
+                                    // Nothing more to do for this line
+                                    continue;
                                 }
-                                // Check if there is a mnemonic following
+
+                                // Extract potential symbol (token before first space)
+                                string sSymbol = sLine.Substring(0, iSpaceIndex).Trim();
+
+                                if (!string.IsNullOrWhiteSpace(sSymbol))
+                                {
+                                    // Register symbol in PASS 1
+                                    if (iPass == 1)
+                                    {
+                                        if (!symbolTable.ContainsKey(sSymbol))
+                                        {
+                                            symbolTable[sSymbol] = new SymbolTableEntry { Symbol = sSymbol, Address = iAddress };
+                                        }
+                                    }
+                                }
+
+                                // Find start of mnemonic (skip spaces after the symbol)
                                 int iNextNonSpaceIndex = FindNextNonSpaceCharacter(sLine, iSpaceIndex);
-                                // Reposition the iFirstCharacterIndex to be the begin of the mnemonic
+
+                                // If there's no mnemonic after the symbol, or the next token is a comment, treat as label-only
+                                if (iNextNonSpaceIndex == -1 || (iPosComment != -1 && iNextNonSpaceIndex >= iPosComment))
+                                {
+                                    if (iPass == 2)
+                                    {
+                                        Console.Write(new string(' ', iAssembledMnemonicPosition));
+                                        lstFile.Write(new string(' ', iAssembledMnemonicPosition));
+                                        Console.WriteLine(sLine);
+                                        lstFile.WriteLine(sLine);
+                                    }
+                                    continue;
+                                }
+
+                                // Otherwise the mnemonic starts at iNextNonSpaceIndex
                                 iFirstCharacterIndex = iNextNonSpaceIndex;
                             }
 
@@ -1267,6 +1311,9 @@ namespace Assembler
     }
 
 }
+
+
+
 
 
 

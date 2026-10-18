@@ -1,0 +1,315 @@
+                ; -----------------------------------------------------------------
+                ; MyCPU Snake Demo
+                ; Automatic-play Snake animation for Sylvain Fortin's MyCPU
+                ;
+                ; Based on the instruction syntax and LCD routines in diag.asm.
+                ; No player input is used. The snake moves back and forth across
+                ; a 16x2 character LCD. The food is shown on the opposite row.
+                ; The LED port displays the snake's current head column.
+                ;
+                ; Hardware assumptions:
+                ;   - LCD_CMD = 0x7C00 and LCD_DATA = 0x7C01.
+                ;   - LCD is compatible with the HD44780-style commands used in diag.asm:
+                ;     8-bit interface, 2 lines, 5x8 font, standard 16x2 DDRAM mapping.
+                ;   - LED port is writable at 0x7800.
+                ;   - LCD and LED I/O are memory-mapped as described in diag.asm.
+                ;   - RAM 0x0200-0x0207 is available.
+                ;   - The CPU reset/startup mechanism initializes the stack sufficiently
+                ;     for JSR/RTS, as assumed by diag.asm.
+                ;
+                ; Note: this is an automatic visual demo, not a playable Snake game.
+                ; It animates a 4-character snake and a food marker; no growth or collision
+                ; logic is implemented because there is no input hardware yet.
+                ; -----------------------------------------------------------------
+
+                LCD_CMD       EQU 0x7C00
+                LCD_DATA      EQU 0x7C01
+                LEDPORT       EQU 0x7800
+
+                ; RAM variables (keep clear of the stack and MyCPU reserved registers)
+                HEADCOL       EQU 0x0200   ; Head column, constrained to 3..12
+                ROW           EQU 0x0201   ; Snake row: 0 or 1
+                DIR           EQU 0x0202   ; 1 = moving right, 0 = moving left
+                CURROW        EQU 0x0203   ; Temporary LCD cursor row
+                CURCOL        EQU 0x0204   ; Temporary LCD cursor column
+                FOODROW       EQU 0x0205   ; Food is displayed on the opposite row
+                DLYOUT        EQU 0x0206   ; Outer frame-delay counter
+                DLYIN         EQU 0x0207   ; Inner frame-delay counter
+
+                         ORG/0x8000
+
+8000 06 80 F2   START    JSR LCD_Init
+8003 06 81 0E            JSR LCD_Clear
+
+                         ; Initial snake state: head at column 3, row 0, moving right
+8006 30 03               LDA #0x03
+8008 31 02 00            STA HEADCOL
+800B 26                  CLRA
+800C 31 02 01            STA ROW
+800F 30 01               LDA #0x01
+8011 31 02 02            STA DIR
+
+8014 06 81 0E   MAIN     JSR LCD_Clear
+                         ; LED output follows the head column (0x03..0x0C)
+8017 2A 02 00            LDA HEADCOL
+801A 31 78 00            STA LEDPORT
+
+                         ; Draw the four-character snake on its current row.
+                         ; Right: draw "ooo@" from headcol-3.
+                         ; Left:  draw "@ooo" from headcol.
+801D 2A 02 02            LDA DIR
+8020 21 01               TEQA #0x01
+8022 2B 80 40            JNE DRAW_LEFT
+
+                DRAW_RIGHT
+8025 2A 02 00            LDA HEADCOL
+8028 20                  DECA
+8029 20                  DECA
+802A 20                  DECA
+802B 31 02 04            STA CURCOL
+802E 2A 02 01            LDA ROW
+8031 31 02 03            STA CURROW
+8034 06 80 D6            JSR LCD_SetDynamicCursor
+8037 04 81 2C            LDX #SnakeRight
+803A 06 81 1E            JSR LCD_PrintString
+803D 32 80 55            JMP DRAW_FOOD
+
+                DRAW_LEFT
+8040 2A 02 00            LDA HEADCOL
+8043 31 02 04            STA CURCOL
+8046 2A 02 01            LDA ROW
+8049 31 02 03            STA CURROW
+804C 06 80 D6            JSR LCD_SetDynamicCursor
+804F 04 81 32            LDX #SnakeLeft
+8052 06 81 1E            JSR LCD_PrintString
+
+                DRAW_FOOD
+                         ; Place food at column 8 on the row opposite the snake.
+8055 2A 02 01            LDA ROW
+8058 21 00               TEQA #0x00
+805A 2B 80 65            JNE FOOD_ON_ROW0
+805D 30 01               LDA #0x01
+805F 31 02 05            STA FOODROW
+8062 32 80 69            JMP FOOD_POSITION
+                FOOD_ON_ROW0
+8065 26                  CLRA
+8066 31 02 05            STA FOODROW
+
+                FOOD_POSITION
+8069 30 08               LDA #0x08
+806B 31 02 04            STA CURCOL
+806E 2A 02 05            LDA FOODROW
+8071 31 02 03            STA CURROW
+8074 06 80 D6            JSR LCD_SetDynamicCursor
+8077 30 2A               LDA #0x2A          ; ASCII '*'
+8079 06 81 1A            JSR LCD_PrintChar
+
+807C 06 81 38            JSR FrameDelay
+807F 06 80 85            JSR MoveSnake
+8082 32 80 14            JMP MAIN
+
+                ; -----------------------------------------------------------------
+                ; Move one step. At each end, reverse direction and switch rows.
+                ; Restricting the head to columns 3..12 keeps the whole 4-char body
+                ; visible on a 16-column display.
+                ; -----------------------------------------------------------------
+                MoveSnake
+8085 2A 02 02            LDA DIR
+8088 21 01               TEQA #0x01
+808A 2B 80 B1            JNE MOVE_LEFT
+
+                MOVE_RIGHT
+808D 2A 02 00            LDA HEADCOL
+8090 21 0C               TEQA #0x0C
+8092 2C 80 9A            JEQ RIGHT_TURN
+8095 03                  INCA
+8096 31 02 00            STA HEADCOL
+8099 07                  RTS
+
+                RIGHT_TURN
+809A 26                  CLRA
+809B 31 02 02            STA DIR             ; now moving left
+809E 2A 02 01            LDA ROW
+80A1 21 00               TEQA #0x00
+80A3 2B 80 AC            JNE RIGHT_TO_ROW0
+80A6 30 01               LDA #0x01
+80A8 31 02 01            STA ROW
+80AB 07                  RTS
+                RIGHT_TO_ROW0
+80AC 26                  CLRA
+80AD 31 02 01            STA ROW
+80B0 07                  RTS
+
+                MOVE_LEFT
+80B1 2A 02 00            LDA HEADCOL
+80B4 21 03               TEQA #0x03
+80B6 2C 80 BE            JEQ LEFT_TURN
+80B9 20                  DECA
+80BA 31 02 00            STA HEADCOL
+80BD 07                  RTS
+
+                LEFT_TURN
+80BE 30 01               LDA #0x01
+80C0 31 02 02            STA DIR             ; now moving right
+80C3 2A 02 01            LDA ROW
+80C6 21 00               TEQA #0x00
+80C8 2B 80 D1            JNE LEFT_TO_ROW0
+80CB 30 01               LDA #0x01
+80CD 31 02 01            STA ROW
+80D0 07                  RTS
+                LEFT_TO_ROW0
+80D1 26                  CLRA
+80D2 31 02 01            STA ROW
+80D5 07                  RTS
+
+                ; -----------------------------------------------------------------
+                ; Dynamic cursor positioning.
+                ; CURROW = 0 or 1; CURCOL = 0..15.
+                ; HD44780-style command is 0x80+column for row 0 and 0xC0+column
+                ; for row 1. This avoids relying on writing directly to XH/XL.
+                ; -----------------------------------------------------------------
+                LCD_SetDynamicCursor
+80D6 2A 02 03            LDA CURROW
+80D9 21 00               TEQA #0x00
+80DB 2B 80 E7            JNE LCD_CursorRow1
+80DE 2A 02 04            LDA CURCOL
+80E1 17 80               ORA #0x80
+80E3 31 7C 00            STA LCD_CMD
+80E6 07                  RTS
+
+                LCD_CursorRow1
+80E7 2A 02 04            LDA CURCOL
+80EA 2F 40               ADDA #0x40
+80EC 17 80               ORA #0x80
+80EE 31 7C 00            STA LCD_CMD
+80F1 07                  RTS
+
+                ; -----------------------------------------------------------------
+                ; LCD routines adapted from diag.asm
+                ; -----------------------------------------------------------------
+                LCD_Init
+                         ; Approximate power-up wait, following diag.asm
+80F2 30 FF               LDA #0xFF
+                LCD_Delay40ms
+80F4 20                  DECA
+80F5 2B 80 F4            JNE LCD_Delay40ms
+
+80F8 30 38               LDA #0x38          ; 8-bit, 2-line, 5x8 font
+80FA 31 7C 00            STA LCD_CMD
+
+80FD 30 F0               LDA #0xF0
+                LCD_Delay4ms
+80FF 20                  DECA
+8100 2B 80 FF            JNE LCD_Delay4ms
+
+8103 30 0C               LDA #0x0C          ; Display on, cursor off, blink off
+8105 31 7C 00            STA LCD_CMD
+8108 30 06               LDA #0x06          ; Increment cursor, no display shift
+810A 31 7C 00            STA LCD_CMD
+810D 07                  RTS
+
+                LCD_Clear
+810E 30 01               LDA #0x01
+8110 31 7C 00            STA LCD_CMD
+8113 30 FF               LDA #0xFF
+                LCD_DelayClear
+8115 20                  DECA
+8116 2B 81 15            JNE LCD_DelayClear
+8119 07                  RTS
+
+                ; Input: A = ASCII character
+                LCD_PrintChar
+811A 31 7C 01            STA LCD_DATA
+811D 07                  RTS
+
+                ; Input: X points to a zero-terminated string
+                LCD_PrintString
+811E 0A                  LDA (X)
+811F 21 00               TEQA #0x00
+8121 2C 81 2B            JEQ LCD_StringDone
+8124 06 81 1A            JSR LCD_PrintChar
+8127 05                  INCX
+8128 32 81 1E            JMP LCD_PrintString
+                LCD_StringDone
+812B 07                  RTS
+
+                ; A pair of strings used to orient the head in the direction of travel.
+812C 6F 6F 6F 40 00                                   SnakeRight  .ASCII "ooo@"
+8131 00                     DB 0x00
+8132 40 6F 6F 6F 00                                   SnakeLeft   .ASCII "@ooo"
+8137 00                     DB 0x00
+
+                ; -----------------------------------------------------------------
+                ; Frame delay. Nested counters create a visible pause without a timer.
+                ; Timing depends on MyCPU instruction timing and clock frequency.
+                ; -----------------------------------------------------------------
+                FrameDelay
+8138 30 10               LDA #0x10
+813A 31 02 06            STA DLYOUT
+                DelayOuter
+813D 30 FF               LDA #0xFF
+813F 31 02 07            STA DLYIN
+                DelayInner
+8142 2A 02 07            LDA DLYIN
+8145 20                  DECA
+8146 31 02 07            STA DLYIN
+8149 2A 02 07            LDA DLYIN
+814C 21 00               TEQA #0x00
+814E 2B 81 42            JNE DelayInner
+
+8151 2A 02 06            LDA DLYOUT
+8154 20                  DECA
+8155 31 02 06            STA DLYOUT
+8158 2A 02 06            LDA DLYOUT
+815B 21 00               TEQA #0x00
+815D 2B 81 3D            JNE DelayOuter
+8160 07                  RTS
+
+                ; -----------------------------------------------------------------
+                ; Reset vector: reset address 0x8000, matching diag.asm.
+                ; -----------------------------------------------------------------
+                         ORG/0xFFFE
+FFFE 80                  DB 0x80
+FFFF 00                  DB 0x00
+Symbol Table:
+LCD_CMD             7C00
+LCD_DATA            7C01
+LEDPORT             7800
+HEADCOL             0200
+ROW                 0201
+DIR                 0202
+CURROW              0203
+CURCOL              0204
+FOODROW             0205
+DLYOUT              0206
+DLYIN               0207
+START               8000
+MAIN                8014
+DRAW_RIGHT          8025
+DRAW_LEFT           8040
+DRAW_FOOD           8055
+FOOD_ON_ROW0        8065
+FOOD_POSITION       8069
+MoveSnake           8085
+MOVE_RIGHT          808D
+RIGHT_TURN          809A
+RIGHT_TO_ROW0       80AC
+MOVE_LEFT           80B1
+LEFT_TURN           80BE
+LEFT_TO_ROW0        80D1
+LCD_SetDynamicCursor80D6
+LCD_CursorRow1      80E7
+LCD_Init            80F2
+LCD_Delay40ms       80F4
+LCD_Delay4ms        80FF
+LCD_Clear           810E
+LCD_DelayClear      8115
+LCD_PrintChar       811A
+LCD_PrintString     811E
+LCD_StringDone      812B
+SnakeRight          812C
+SnakeLeft           8132
+FrameDelay          8138
+DelayOuter          813D
+DelayInner          8142
+Assembly complete
