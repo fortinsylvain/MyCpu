@@ -5,11 +5,11 @@
 
 CUPL(WM)        5.0a Serial# 60008009
 Device          g22v10  Library DLIB-h-40-1
-Created         Sat Jan 24 13:29:16 2026
+Created         Fri Nov 06 17:53:51 2026
 Name            DECODER
 Partno          1
 Revision        1.0
-Date            8/12/25
+Date            11/01/26
 Designer        Sylvain Fortin
 Company         YourCompany
 Assembly        Home
@@ -19,20 +19,26 @@ Location        Montreal
                             Expanded Product Terms
 ===============================================================================
 
-DEC0_CS_N =>
+!DEC0_CS_N =>
+    A10 & !A11 & A12 & A13 & A14 & !A15 & !E_N
+
+!DEC1_CS_N =>
     A10 & A11 & A12 & A13 & A14 & !A15 & !E_N
 
 !EEPROM_CS_N =>
-    A13 & A14 & A15
+    A15
 
 !LED_PORT_CLK =>
-    !A13 & A14 & A15 & !E_N
+    !A10 & A11 & A12 & A13 & A14 & !A15 & !E_N
 
 !RAM_CS_N =>
     !A13 & !A14 & !A15 & RW
   # !A13 & !A14 & !A15 & !E_N & !RW
 
 DEC0_CS_N.oe  =>
+    1 
+
+DEC1_CS_N.oe  =>
     1 
 
 EEPROM_CS_N.oe  =>
@@ -62,13 +68,14 @@ Pol   Name              Ext     Pin     Type     Used   Pterms  Level
     A14                         6        V        -       -       -     
     A15                         7        V        -       -       -     
     DEC0_CS_N                   23       V        1       8       1     
-    DEC1_CS_N                   22       V        -       -       -     
+    DEC1_CS_N                   22       V        1       10      1     
     EEPROM_CS_N                 14       V        1       8       1     
     E_N                         8        V        -       -       -     
     LED_PORT_CLK                15       V        1       10      1     
     RAM_CS_N                    19       V        2       16      1     
     RW                          11       V        -       -       -     
     DEC0_CS_N           oe      23       D        1       1       0     
+    DEC1_CS_N           oe      22       D        1       1       0     
     EEPROM_CS_N         oe      14       D        1       1       0     
     LED_PORT_CLK        oe      15       D        1       1       0     
     RAM_CS_N            oe      19       D        1       1       0     
@@ -90,9 +97,9 @@ SP
 AR 
  00000 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 
-Pin #23  05808 Mode  -- 
+Pin #23  05808 Mode  x- 
  00044 -------------------------------------------- 
- 00088 ----x---x---x---x---x----x---x-------------- 
+ 00088 ----x----x--x---x---x----x---x-------------- 
  00132 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00176 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00220 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -100,9 +107,9 @@ Pin #23  05808 Mode  --
  00308 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00352 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00396 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
-Pin #22  05810 Mode  xx 
- 00440 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
- 00484 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
+Pin #22  05810 Mode  x- 
+ 00440 -------------------------------------------- 
+ 00484 ----x---x---x---x---x----x---x-------------- 
  00528 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00572 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  00616 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -210,7 +217,7 @@ Pin #16  05822 Mode  xx
  04840 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #15  05824 Mode  x- 
  04884 -------------------------------------------- 
- 04928 -----------------x--x---x----x-------------- 
+ 04928 -----x--x---x---x---x----x---x-------------- 
  04972 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05016 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05060 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
@@ -222,7 +229,7 @@ Pin #15  05824 Mode  x-
  05324 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
 Pin #14  05826 Mode  x- 
  05368 -------------------------------------------- 
- 05412 ----------------x---x---x------------------- 
+ 05412 ------------------------x------------------- 
  05456 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05500 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 
  05544 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx 

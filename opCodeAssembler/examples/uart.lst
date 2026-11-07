@@ -1,0 +1,284 @@
+                ; -----------------------------------------------------------------
+                ; Homebrew MyCPU diagnostic program
+                ; Author: Sylvain Fortin sylfortin71@hotmail.com
+                ; Date : 6 nov 2026
+                ; Documentation : uart.asm is a UART test program
+                ;                 for MyCPU.
+                ; Memory map of the computer
+                ; 0x0000 - 0x1FFF   RAM
+                ; 0x0000 - 0x7FFF   Total RAM space
+                ; 0x00A0 - 0x00FF   Stack
+                ; 0x7400 - 0x77FF   UART        DEC0_CS_N
+                ; 0x7800 - 0x7BFF   LED_PORT 
+                ; 0x7C00 - 0x7FFF   LCD         DEC1_CS_N
+                ; 0x8000 - 0xFFFF   EEPROM
+                ; -----------------------------------------------------------------
+
+                ; virtual registers
+                ;-----------------------------------------------------------------------------
+                ; ?b15 ?b14 ?b13 ?b12 | ?b11 ?b10 ?b9 ?b8 | ?b7 ?b6 ?b5 ?b4 | ?b3 ?b2 ?b1 ?b0 |  8 bits
+                ;    ?w7       ?w6    |    ?w5      ?w4   |   ?w3     ?w2   |   ?w1     ?w0   | 16 bits
+                ;         ?l3         |         ?l2       |       ?l1       |       ?l0       | 32 bits
+                ;-----------------------------------------------------------------------------
+
+                ?b15     EQU 0x0000
+                ?b14     EQU 0x0001
+                ?b13     EQU 0x0002
+                ?b12     EQU 0x0003
+                ?b11     EQU 0x0004
+                ?b10     EQU 0x0005
+                ?b9      EQU 0x0006
+                ?b8      EQU 0x0007
+                ?b7      EQU 0x0008
+                ?b6      EQU 0x0009
+                ?b5      EQU 0x000A
+                ?b4      EQU 0x000B
+                ?b3      EQU 0x000C
+                ?b2      EQU 0x000D
+                ?b1      EQU 0x000E
+                ?b0      EQU 0x000F
+
+                ?w7      EQU 0x0000  ; ?b15:?b14
+                ?w6      EQU 0x0002  ; ?b13:?b12
+                ?w5      EQU 0x0004  ; ?b11:?b10
+                ?w4      EQU 0x0006  ; ?b9:?b8
+                ?w3      EQU 0x0008  ; ?b7:?b6
+                ?w2      EQU 0x000A  ; ?b5:?b4
+                ?w1      EQU 0x000C  ; ?b3:?b2
+                ?w0      EQU 0x000E  ; ?b1:?b0
+
+                ?l3      EQU 0x0000  ; ?b15,?b14,?b13,?b12
+                ?l2      EQU 0x0004  ; ?b11,?b10,?b9,?b8
+                ?l1      EQU 0x0008  ; ?b7,?b6,?b5,?b4
+                ?l0      EQU 0x000C  ; ?b3,?b2,?b1,?b0
+
+                ; RAM Reserved location
+                TEMP0    EQU 0x1FEC  ; TEMP0
+                TEMP1    EQU 0x1FED  ; TEMP1
+                TEMP2    EQU 0x1FEE  ; TEMP2
+                TEMP3    EQU 0x1FEF  ; TEMP3
+                SP       EQU 0x1FF0  ; SP      Stack Pointer 8 bit
+                JSH      EQU 0x1FF1  ; JSH     Temporary storage for JSR MSB address
+                JSL      EQU 0x1FF2  ; JSL          "       "     "   "  LSB    "
+                XH       EQU 0x1FF3  ; X MSB   X Register MSB
+                XL       EQU 0x1FF4  ; X LSB   X Register LSB
+                EQUAL    EQU 0x1FFA  ; E       bit<0> Equal Status bit
+                CARRY    EQU 0x1FFB  ; C       bit<0> Carry Status bit
+                REG_A    EQU 0x1FFC  ; A       A Register
+                IPH      EQU 0x1FFE  ; IPH	    Instruction Pointer MSB
+                IPL      EQU 0x1FFF  ; IPL          "         "    LSB
+
+                ; Diagnostic program variable
+                DIAGLOOPCOUNTER_MSB EQU 0x01E0  ; MSB of loop counter for diagnostics
+                DIAGLOOPCOUNTER_LSB EQU 0x01E1  ; LSB
+                DIAGTST_MSB         EQU 0x01E2  ; MSB of test variable
+                DIAGTST_LSB         EQU 0x01E3  ; LSB 
+                DIAGTST2_MSB        EQU 0x1EFF  ; MSB of test variable2
+                DIAGTST2_LSB        EQU 0x1F00  ; LSB 
+
+                ;--------------------------------------------
+                ; UART PORT
+                ; 0x7400 - 0x77FF   UART        DEC0_CS_N
+                ;--------------------------------------------
+                UARTPORT EQU 0x7400  ; UART TX bit
+
+                ;--------------------------------------------
+                ; LED PORT
+                ; 0x7800 - 0x7BFF   LED_PORT 
+                ;--------------------------------------------
+                LEDPORT  EQU 0x7800  ; PORT for the LED
+
+                ;--------------------------------------------
+                ; LCD Memory-Mapped I/O Addresses
+                ;--------------------------------------------
+                LCD_CMD  EQU 0x7C00
+                LCD_DATA EQU 0x7C01
+
+
+                ; MyCPU - Software UART transmitter
+                ; CPU clock: 5 MHz
+                ; Target baud: 9600
+                ; Format: 8N1
+
+                         ORG/0x8000
+                START
+                         ; Initialize TX to idle HIGH
+8000 30 01               LDA #0x01
+8002 31 74 00            STA UARTPORT
+
+                TX_LOOP
+                         ; Send test character 0x55
+8005 30 55               LDA #0x55
+8007 06 80 16            JSR UART_TX
+
+800A 30 55               LDA #0x55
+800C 06 80 16            JSR UART_TX
+
+800F 30 55               LDA #0x55
+8011 06 80 16            JSR UART_TX
+
+8014 0C EF               JRA TX_LOOP
+
+                ; --------------------------------
+                ; UART_TX
+                ; Input: A = character to transmit
+                ; A UART 8N1 frame contains 10 bits:
+                ; - 1 start bit
+                ; - 8 data bits
+                ; - 1 stop bit
+                ; D0 first (LSB first)
+                ; --------------------------------
+
+                UART_TX
+8016 24                 PSHA
+                        ; Start bit = LOW
+8017 30 00              LDA #0x00    
+8019 31 74 00           STA UARTPORT ; start bit    
+801C 09                 NOP
+801D 09                 NOP
+801E 09                 NOP                         ; 103.6 us 3 NOP + POPA
+                        ;NOP                        ; 112 us 4 NOP + POPA
+801F 25                 POPA
+8020 31 74 00           STA UARTPORT ; bit 0        
+8023 0D                 SRLA                        ; 52.4 us per bit 0 NOP
+8024 09                 NOP                         ; 61.6 us per bit 1 NOP
+8025 09                 NOP
+8026 09                 NOP                         ; 86.8 us per bit 3 NOP
+8027 09                 NOP                         ; 104  us per bit 4 NOP
+                ;        NOP
+                ;        NOP                         ; 128.8 us per bit 6 NOP
+8028 31 74 00           STA UARTPORT ; bit 1
+802B 0D                 SRLA
+802C 09                 NOP
+802D 09                 NOP
+802E 09                 NOP
+802F 09                 NOP
+                ;        NOP
+                ;        NOP
+8030 31 74 00           STA UARTPORT ; bit 2
+8033 0D                 SRLA
+8034 09                 NOP
+8035 09                 NOP
+8036 09                 NOP
+8037 09                 NOP
+                ;        NOP
+                ;        NOP
+8038 31 74 00           STA UARTPORT ; bit 3
+803B 0D                 SRLA
+803C 09                 NOP
+803D 09                 NOP
+803E 09                 NOP
+803F 09                 NOP
+                ;        NOP
+                ;        NOP
+8040 31 74 00           STA UARTPORT ; bit 4
+8043 0D                 SRLA
+8044 09                 NOP
+8045 09                 NOP
+8046 09                 NOP
+8047 09                 NOP
+                ;        NOP
+                ;        NOP
+8048 31 74 00           STA UARTPORT ; bit 5
+804B 0D                 SRLA
+804C 09                 NOP
+804D 09                 NOP
+804E 09                 NOP
+804F 09                 NOP
+                ;        NOP
+                ;        NOP
+8050 31 74 00           STA UARTPORT ; bit 6
+8053 0D                 SRLA
+8054 09                 NOP
+8055 09                 NOP
+8056 09                 NOP
+8057 09                 NOP
+                ;        NOP
+                ;        NOP
+8058 31 74 00           STA UARTPORT ; bit 7
+805B 0D                 SRLA
+805C 09                 NOP
+805D 09                 NOP                         ; 99.6 us 2 NOP + LDA
+805E 09                 NOP                       ; 108.8 us 3 NOP + LDA
+                ;        NOP                      ; 130 us 4 NOP + LDA
+                ;        NOP
+                ;        NOP
+805F 30 01              LDA #0x01
+8061 31 74 00           STA UARTPORT ; Stop bit = HIGH
+8064 07                 RTS
+
+
+
+                ; 54 us between two writes
+                ;START    LDA #0x00
+                ;         STA UARTPORT
+                ;         LDA #0x01
+                ;         STA UARTPORT
+                ;         JRA START
+                ; --------------------------------------------------------------------
+                ; Reset Vector
+                ; --------------------------------------------------------------------
+                         ORG/0xFFFE  ; Set the Reset vector
+FFFE 80                  DB 0x80     ; MSB Reset Vector
+FFFF 00                  DB 0x00     ; LSB Reset Vector         
+
+
+
+
+Symbol Table:
+?b15                0000
+?b14                0001
+?b13                0002
+?b12                0003
+?b11                0004
+?b10                0005
+?b9                 0006
+?b8                 0007
+?b7                 0008
+?b6                 0009
+?b5                 000A
+?b4                 000B
+?b3                 000C
+?b2                 000D
+?b1                 000E
+?b0                 000F
+?w7                 0000
+?w6                 0002
+?w5                 0004
+?w4                 0006
+?w3                 0008
+?w2                 000A
+?w1                 000C
+?w0                 000E
+?l3                 0000
+?l2                 0004
+?l1                 0008
+?l0                 000C
+TEMP0               1FEC
+TEMP1               1FED
+TEMP2               1FEE
+TEMP3               1FEF
+SP                  1FF0
+JSH                 1FF1
+JSL                 1FF2
+XH                  1FF3
+XL                  1FF4
+EQUAL               1FFA
+CARRY               1FFB
+REG_A               1FFC
+IPH                 1FFE
+IPL                 1FFF
+DIAGLOOPCOUNTER_MSB 01E0
+DIAGLOOPCOUNTER_LSB 01E1
+DIAGTST_MSB         01E2
+DIAGTST_LSB         01E3
+DIAGTST2_MSB        1EFF
+DIAGTST2_LSB        1F00
+UARTPORT            7400
+LEDPORT             7800
+LCD_CMD             7C00
+LCD_DATA            7C01
+START               8000
+TX_LOOP             8005
+UART_TX             8016
+Assembly complete

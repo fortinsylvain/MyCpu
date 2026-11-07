@@ -20,20 +20,26 @@ PIN  11 =  RW
 %END
 
 %EQUATION
-DEC0_CS_N =>
+!DEC0_CS_N =>
+    A10 & !A11 & A12 & A13 & A14 & !A15 & !E_N
+
+!DEC1_CS_N =>
     A10 & A11 & A12 & A13 & A14 & !A15 & !E_N
 
 !EEPROM_CS_N =>
-    A13 & A14 & A15
+    A15
 
 !LED_PORT_CLK =>
-    !A13 & A14 & A15 & !E_N
+    !A10 & A11 & A12 & A13 & A14 & !A15 & !E_N
 
 !RAM_CS_N =>
     !A13 & !A14 & !A15 & RW
   # !A13 & !A14 & !A15 & !E_N & !RW
 
 DEC0_CS_N.oe  =>
+    1 
+
+DEC1_CS_N.oe  =>
     1 
 
 EEPROM_CS_N.oe  =>

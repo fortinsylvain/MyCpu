@@ -5,7 +5,7 @@
   {Program "CUPL(WM) Version 5.0a"}
   {DBtype "Schematic"}
   {DBvrev 1.01}
-  {DBtime "Sat Jan 24 13:29:16 2026 "}
+  {DBtime "Fri Nov 06 17:53:51 2026 "}
   {DBunit "MIL"}
   {DBgrid 10}
   {Lyrstr "WIRES" 1 "BUS" 1 "GATE" 2 "IEEE" 2 "PINFUN" 3 "PINNUM" 1 
@@ -33,31 +33,30 @@
  {SYMBOL
   {PIN_DEF
    [Ly "PINCON"]
-   {P A10 {Pt "INPUT"}{Lq 0}{Ploc 100 220}}
-   {P A11 {Pt "INPUT"}{Lq 0}{Ploc 100 200}}
-   {P A12 {Pt "INPUT"}{Lq 0}{Ploc 100 180}}
-   {P A13 {Pt "INPUT"}{Lq 0}{Ploc 100 160}}
-   {P A14 {Pt "INPUT"}{Lq 0}{Ploc 100 140}}
-   {P A15 {Pt "INPUT"}{Lq 0}{Ploc 100 120}}
-   {P E_N {Pt "INPUT"}{Lq 0}{Ploc 100 100}}
-   {P A0 {Pt "INPUT"}{Lq 0}{Ploc 100 80}}
-   {P A1 {Pt "INPUT"}{Lq 0}{Ploc 100 60}}
-   {P RW {Pt "INPUT"}{Lq 0}{Ploc 100 40}}
-   {P DEC1_CS_ {Pt "INPUT"}{Lq 0}{Ploc 100 20}}
-   {P EEPROM_C {Pt "I/O"}{Lq 0}{Ploc 360 20}}
-   {P LED_PORT {Pt "I/O"}{Lq 0}{Ploc 360 40}}
-   {P RAM_CS_N {Pt "I/O"}{Lq 0}{Ploc 360 60}}
-   {P DEC0_CS_ {Pt "I/O"}{Lq 0}{Ploc 360 80}}
+   {P A10 {Pt "INPUT"}{Lq 0}{Ploc 100 200}}
+   {P A11 {Pt "INPUT"}{Lq 0}{Ploc 100 180}}
+   {P A12 {Pt "INPUT"}{Lq 0}{Ploc 100 160}}
+   {P A13 {Pt "INPUT"}{Lq 0}{Ploc 100 140}}
+   {P A14 {Pt "INPUT"}{Lq 0}{Ploc 100 120}}
+   {P A15 {Pt "INPUT"}{Lq 0}{Ploc 100 100}}
+   {P E_N {Pt "INPUT"}{Lq 0}{Ploc 100 80}}
+   {P A0 {Pt "INPUT"}{Lq 0}{Ploc 100 60}}
+   {P A1 {Pt "INPUT"}{Lq 0}{Ploc 100 40}}
+   {P RW {Pt "INPUT"}{Lq 0}{Ploc 100 20}}
+   {P EEPROM_C {Pt "I/O"}{Lq 0}{Ploc 310 20}}
+   {P LED_PORT {Pt "I/O"}{Lq 0}{Ploc 310 40}}
+   {P RAM_CS_N {Pt "I/O"}{Lq 0}{Ploc 310 60}}
+   {P DEC1_CS_ {Pt "I/O"}{Lq 0}{Ploc 310 80}}
+   {P DEC0_CS_ {Pt "I/O"}{Lq 0}{Ploc 310 100}}
   }
 
   {PKG
    [Ly "REFDES"]
    [Ts 25][Tj "CB"][Tr 0][Tm "N"]
-   {Rdl 230 250}
+   {Rdl 205 230}
 
    [Ly "PINNUM"]
    [Ts 15][Tj "RC"]
-   {Pnl 120 230}
    {Pnl 120 210}
    {Pnl 120 190}
    {Pnl 120 170}
@@ -69,19 +68,19 @@
    {Pnl 120 50}
    {Pnl 120 30}
    [Ts 15][Tj "LC"]
-   {Pnl 340 30}
-   {Pnl 340 50}
-   {Pnl 340 70}
-   {Pnl 340 90}
+   {Pnl 290 30}
+   {Pnl 290 50}
+   {Pnl 290 70}
+   {Pnl 290 90}
+   {Pnl 290 110}
 
-   {Sd A 2 3 4 5 6 7 8 9 10 11 22 14 15 19 23}
+   {Sd A 2 3 4 5 6 7 8 9 10 11 14 15 19 22 23}
   }
 
   {PIC
    [Ly "GATE"]
    [Ts 15][Tj "LC"][Tr 0][Tm "N"]
-   {R 130 240 330 0}
-   {L 130 220 100 220}
+   {R 130 220 280 0}
    {L 130 200 100 200}
    {L 130 180 100 180}
    {L 130 160 100 160}
@@ -92,31 +91,32 @@
    {L 130 60 100 60}
    {L 130 40 100 40}
    {L 130 20 100 20}
-   {L 330 20 360 20}
-   {L 330 40 360 40}
-   {L 330 60 360 60}
-   {L 330 80 360 80}
+   {L 280 20 310 20}
+   {L 280 40 310 40}
+   {L 280 60 310 60}
+   {L 280 80 310 80}
+   {L 280 100 310 100}
    [Ly "PINNAM"]
    [Tj "LC"]
-   {T "A10" 140 220}
-   {T "A11" 140 200}
-   {T "A12" 140 180}
-   {T "A13" 140 160}
-   {T "A14" 140 140}
-   {T "A15" 140 120}
-   {T "E_N" 140 100}
-   {T "A0" 140 80}
-   {T "A1" 140 60}
-   {T "RW" 140 40}
-   {T "DEC1_CS_" 140 20}
+   {T "A10" 140 200}
+   {T "A11" 140 180}
+   {T "A12" 140 160}
+   {T "A13" 140 140}
+   {T "A14" 140 120}
+   {T "A15" 140 100}
+   {T "E_N" 140 80}
+   {T "A0" 140 60}
+   {T "A1" 140 40}
+   {T "RW" 140 20}
    [Tj "RC"]
-   {T "EEPROM_C" 320 20}
-   {T "LED_PORT" 320 40}
-   {T "RAM_CS_N" 320 60}
-   {T "DEC0_CS_" 320 80}
+   {T "EEPROM_C" 270 20}
+   {T "LED_PORT" 270 40}
+   {T "RAM_CS_N" 270 60}
+   {T "DEC1_CS_" 270 80}
+   {T "DEC0_CS_" 270 100}
    [Ly "DEVICE"]
    [Tj "CT"]
-   {T "G22V10" 230 -10}
+   {T "G22V10" 205 -10}
   }
 
   {ATR
@@ -127,7 +127,7 @@
    {EX
     [Ly "ATTR2"]
     [Ts 12][Tj "CT"][Tr 0][Tm "N"]
-    {At PLD C:\WINCUPL\WINCUPL\PROJECT\MYCPU\DECODER\DECODER 230 240}
+    {At PLD C:\WINCUPL\WINCUPL\PROJECT\MYCPU\DECODER\DECODER 205 220}
    }
   }
  }
@@ -157,13 +157,13 @@
    }
    {N RW
    }
-   {N DEC1_CS_
-   }
    {N EEPROM_C
    }
    {N LED_PORT
    }
    {N RAM_CS_N
+   }
+   {N DEC1_CS_
    }
    {N DEC0_CS_
    }

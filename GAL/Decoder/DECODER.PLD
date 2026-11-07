@@ -1,7 +1,7 @@
 Name     DECODER;
 PartNo   1;
 Revision 1.0;
-Date     8/12/25;
+Date     11/01/26;
 Designer Sylvain Fortin;
 Company  YourCompany;
 Assembly Home;
@@ -48,22 +48,47 @@ Pin 23 = DEC0_CS_N;
 
 /*
 0x0000 - 0x1FFF   RAM
-0x7C00 - 0x7FFF   LCD
-0xC000 - 0xDFFF   LED_PORT
-0xE000 - 0xFFFF   EEPROM
+0x7400 - 0x77FF   UART        DEC0_CS_N
+0x7800 - 0x7BFF   LED_PORT 
+0x7C00 - 0x7FFF   LCD         DEC1_CS_N
+0x8000 - 0xFFFF   EEPROM
 */
 
+/** 6264  A[12:0] **/
+/** 62256 A[14:0] **/
+/** We deliberatly limit the RAM to 8K **/
+/** 15 14 13 12    11 10  9  8    7  6  5  4    3  2  1  0            **/
+/**  0  0  0  X     X  X  X  X    X  X  X  X    X  X  X  X            **/
+/**  0  0  0  0     0  0  0  0    0  0  0  0    0  0  0  0      0000  **/
+/**  0  0  0  1     1  1  1  1    1  1  1  1    1  1  1  1      17FF  **/
 /** !RAM_CS_N     = (!E_N & !A15 & !A14 & !A13); **/
 /** For a read immediate CS_N but for a write use E_N **/
 !RAM_CS_N     = (RW & !A15 & !A14 & !A13) # (!RW & !E_N & !A15 & !A14 & !A13);
 
-DEC0_CS_N = (!E_N & !A15 & A14 & A13 & A12 & A11 & A10);
 
-!LED_PORT_CLK = (!E_N &  A15 &  A14 & !A13);
+/** 15 14 13 12    11 10  9  8    7  6  5  4    3  2  1  0            **/
+/**  0  1  1  1     0  1  X  X    X  X  X  X    X  X  X  X            **/
+/**  0  1  1  1     0  1  0  0    0  0  0  0    0  0  0  0      7400  **/
+/**  0  1  1  1     0  1  1  1    1  1  1  1    1  1  1  1      77FF  **/
+!DEC0_CS_N = (!E_N & !A15 & A14 & A13 & A12 & !A11 & A10);
+
+
+/** 15 14 13 12    11 10  9  8    7  6  5  4    3  2  1  0            **/
+/**  0  1  1  1     1  0  X  X    X  X  X  X    X  X  X  X            **/
+/**  0  1  1  1     1  0  0  0    0  0  0  0    0  0  0  0      7800  **/
+/**  0  1  1  1     1  0  1  1    1  1  1  1    1  1  1  1      7BFF  **/
+!LED_PORT_CLK = (!E_N & !A15 & A14 & A13 & A12 & A11 & !A10);
+
+
+/** 15 14 13 12    11 10  9  8    7  6  5  4    3  2  1  0            **/
+/**  0  1  1  1     1  1  X  X    X  X  X  X    X  X  X  X            **/
+/**  0  1  1  1     1  1  0  0    0  0  0  0    0  0  0  0      7C00  **/
+/**  0  1  1  1     1  1  1  1    1  1  1  1    1  1  1  1      7FFF  **/
+!DEC1_CS_N = (!E_N & !A15 & A14 & A13 & A12 & A11 & A10);
 
 /** !EEPROM_CS_N  = (!E_N &  A15 &  A14 &  A13);  **/
-!EEPROM_CS_N  = (A15 &  A14 &  A13);	/** Immediately activate the CS_N when address is in range to speed-up **/
-
+/** !EEPROM_CS_N  = (A15 &  A14 &  A13);	Immediately activate the CS_N when address is in range to speed-up **/
+!EEPROM_CS_N  = A15;
 
 
 
