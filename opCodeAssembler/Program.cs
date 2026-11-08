@@ -108,79 +108,99 @@ namespace Assembler
             return -1; // Return -1 if no non-space character is found after the startIndex
         }
 
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-
             bool bPrintISA = false;
-            string sFileName = "";
+            bool noPause = false;
+            string sFileName = null;
+            string outputDirectory = null;
 
-            // ---- Argument parsing ----
-            foreach (var arg in args)
+            try
             {
-                if (arg == "-i" || arg == "--isa")
+                for (int argIndex = 0; argIndex < args.Length; argIndex++)
                 {
-                    bPrintISA = true;
+                    string arg = args[argIndex];
+                    if (arg == "-i" || arg == "--isa")
+                    {
+                        bPrintISA = true;
+                    }
+                    else if (arg == "--no-pause")
+                    {
+                        noPause = true;
+                    }
+                    else if (arg == "--output")
+                    {
+                        if (++argIndex >= args.Length || args[argIndex].StartsWith("--", StringComparison.Ordinal))
+                        {
+                            Console.Error.WriteLine("ERROR: --output requires an output directory.");
+                            return 1;
+                        }
+                        outputDirectory = args[argIndex];
+                    }
+                    else if (arg.StartsWith("-", StringComparison.Ordinal))
+                    {
+                        Console.Error.WriteLine("ERROR: Unknown option: " + arg);
+                        return 1;
+                    }
+                    else if (sFileName == null)
+                    {
+                        sFileName = arg;
+                    }
+                    else
+                    {
+                        Console.Error.WriteLine("ERROR: More than one source file was specified.");
+                        return 1;
+                    }
                 }
-                else
+
+                var dataList = BuildInstructionTable();
+                if (bPrintISA)
                 {
-                    sFileName = arg;
+                    if (sFileName != null || outputDirectory != null)
+                    {
+                        Console.Error.WriteLine("ERROR: --isa cannot be combined with a source file or --output.");
+                        return 1;
+                    }
+                    PrintInstructionTable(dataList);
+                    return 0;
                 }
-            }
-            
-            var dataList = BuildInstructionTable();
 
-            
-            // If ISA requested → print and exit
-            if (bPrintISA)
-            {
-                PrintInstructionTable(dataList);
-                return;
-            }
-            
-
-            /*
-            if (string.IsNullOrEmpty(sFileName))
-            {
-                Console.WriteLine("Usage:");
-                Console.WriteLine("  assembler <file.asm>");
-                Console.WriteLine("  assembler -i        (print instruction set)");
-                return;
-            }
-            */
+                if (sFileName == null)
+                {
+                    Console.Error.WriteLine("Usage: assembler <sourcefile.asm> [--output <output-directory>] [--no-pause]");
+                    Console.Error.WriteLine("       assembler -i | --isa");
+                    return 1;
+                }
 
             bool bStopOnError = true;
             string sTemp;
             symbolTable = new Dictionary<string, SymbolTableEntry>();
 
             Console.WriteLine("Homebrew assembler start");
-            string sCurrentPath = "";
-            string sRepositoryPath = "";
-
-            // ---- Argument validation ----
-            if (args.Length != 1)
+            string fullPath = Path.GetFullPath(sFileName);
+            // Preserve the historical bare-filename invocation from bin\\Debug/bin\\Release.
+            if (!File.Exists(fullPath) && !Path.IsPathRooted(sFileName))
             {
-                Console.WriteLine("ERROR: Invalid number of arguments.");
-                Console.WriteLine("Usage: assembler <sourcefile.asm>");
-                Environment.Exit(1);
+                string legacyExamples = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..\\..\\examples"));
+                string legacyPath = Path.Combine(legacyExamples, sFileName);
+                if (File.Exists(legacyPath))
+                    fullPath = legacyPath;
             }
-
-            sFileName = args[0];
-            if (args.Length != 1)   // No argument
+            if (!File.Exists(fullPath))
             {
-                sRepositoryPath = "C:\\Sylvain\\MyCPU\\opCodeAssembler\\examples";    // Fixed path for now
-                sFileName = "fibonacy.asm"; // Replace with your desired file name
+                Console.Error.WriteLine("ERROR: Source file not found: " + fullPath);
+                return 1;
             }
-            else
-            {                       // With argument
-                sCurrentPath = Directory.GetCurrentDirectory();
-                sRepositoryPath = Path.Combine(sCurrentPath, "..\\..\\examples");           // Move up two level and go to examples
-                //sRepositoryPath = Path.Combine(sCurrentPath, "..\\..\\..\\examples");           // Move up two level and go to examples
-
+            if (!string.Equals(Path.GetExtension(fullPath), ".asm", StringComparison.OrdinalIgnoreCase))
+            {
+                Console.Error.WriteLine("ERROR: Source file must have an .asm extension: " + fullPath);
+                return 1;
             }
 
-            string baseFileName = Path.GetFileNameWithoutExtension(sFileName);
-            string fileExtension = Path.GetExtension(sFileName);
-            string fullPath = Path.Combine(sRepositoryPath, sFileName);
+            string baseFileName = Path.GetFileNameWithoutExtension(fullPath);
+            string sRepositoryPath = outputDirectory == null ? Path.GetDirectoryName(fullPath) : Path.GetFullPath(outputDirectory);
+            Directory.CreateDirectory(sRepositoryPath);
+            string outputBinPath = Path.Combine(sRepositoryPath, baseFileName + ".bin");
 
             //int iAddressEepromBegin = 0xE000;
             int iAddressEepromBegin = 0x8000;
@@ -205,27 +225,14 @@ namespace Assembler
             //var dataList = BuildInstructionTable();
             CompileRegex(dataList);
 
+            // These diagnostic tables historically landed beside the source. Keep that default,
+            // while directing all generated files to --output when supplied.
             WriteInstructionTable(Path.Combine(sRepositoryPath, "instruction_table.txt"), dataList);
             WriteRegexTable(Path.Combine(sRepositoryPath, "regex_table.txt"), dataList);
 
             StreamReader inputFile;
 
-            try
-            {
-                inputFile = File.OpenText(fullPath);
-            }
-            catch (DirectoryNotFoundException)
-            {
-                Console.WriteLine("ERROR: Could not find part of the path:");
-                Console.WriteLine(fullPath);
-                return;
-            }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine("ERROR: File not found:");
-                Console.WriteLine(fullPath);
-                return;
-            }
+            inputFile = File.OpenText(fullPath);
 
             int iIndexTable;
             int iFirstCharacterIndex;
@@ -521,7 +528,7 @@ namespace Assembler
 
                                                 iErrorNumber++;
                                                 iAddress++;
-                                                return;  // or continue depending on your loop structure
+                                                return 1;  // Stop assembly after this invalid operand.
                                             }
 
                                             string baseSymbol = baseSymbolMatch.Groups[1].Value;
@@ -730,7 +737,7 @@ namespace Assembler
                                         if (endIndex < 0)
                                         {
                                             iErrorNumber++;
-                                            return;
+                                            return 1;
                                         }
 
                                         string sNumber = sLine.Substring(iOffset, endIndex - iOffset).Trim();
@@ -739,7 +746,7 @@ namespace Assembler
                                         if (!int.TryParse(sNumber, out value))
                                         {
                                             iErrorNumber++;
-                                            return;
+                                            return 1;
                                         }
 
                                         // Validate 8-bit signed range
@@ -747,7 +754,7 @@ namespace Assembler
                                         {
                                             Console.WriteLine("Offset out of range (-128..127)");
                                             iErrorNumber++;
-                                            return;
+                                            return 1;
                                         }
 
                                         // Store as 2's complement
@@ -888,20 +895,34 @@ namespace Assembler
                             lstFile.WriteLine(sTemp);
                         }
 
-                        sTemp = "Assembly complete";
-                        Console.WriteLine(sTemp);
-                        lstFile.WriteLine(sTemp);
-
-                        string sName_msb = Path.Combine(sRepositoryPath, baseFileName + ".bin");
-                        using (BinaryWriter msbFile = new BinaryWriter(new FileStream(sName_msb, FileMode.Create)))
+                        if (iErrorNumberPass1 == 0 && iErrorNumber == 0)
                         {
-                            foreach (byte value in aEeprom)
+                            string stagedBinPath = outputBinPath + ".tmp." + Guid.NewGuid().ToString("N");
+                            try
                             {
-                                msbFile.Write(value);
-                            }
-                        }
+                                using (BinaryWriter binaryFile = new BinaryWriter(new FileStream(stagedBinPath, FileMode.CreateNew, FileAccess.Write, FileShare.None)))
+                                {
+                                    foreach (byte value in aEeprom)
+                                        binaryFile.Write(value);
+                                }
 
-                        Console.WriteLine("Data written to file successfully.");
+                                // Publish only a complete image. Existing output is replaced atomically.
+                                if (File.Exists(outputBinPath))
+                                    File.Replace(stagedBinPath, outputBinPath, null);
+                                else
+                                    File.Move(stagedBinPath, outputBinPath);
+                            }
+                            finally
+                            {
+                                if (File.Exists(stagedBinPath))
+                                    File.Delete(stagedBinPath);
+                            }
+
+                            sTemp = "Assembly complete";
+                            Console.WriteLine(sTemp);
+                            lstFile.WriteLine(sTemp);
+                            Console.WriteLine("Data written to file successfully.");
+                        }
                     }
 
                 }
@@ -922,8 +943,21 @@ namespace Assembler
 
             }
 
-            Console.WriteLine("Press any key to exit...");
-            Console.ReadKey();
+            if (iErrorNumberPass1 != 0 || iErrorNumberPass2 != 0)
+                return 1;
+
+            if (!noPause && !Console.IsInputRedirected)
+            {
+                Console.WriteLine("Press any key to exit...");
+                Console.ReadKey();
+            }
+            return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine("ERROR: " + ex.Message);
+                return 1;
+            }
         }
 
         static int FindFirstNonSpaceCharacter(string input)
